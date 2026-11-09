@@ -17,6 +17,9 @@ ApiKeys.local.h
 ipch/
 
 # --- Build output
+/build/out/
+/build/obj/
+/vcpkg_installed/
 [Dd]ebug/
 [Rr]elease/
 [Ff]inal [Rr]elease/

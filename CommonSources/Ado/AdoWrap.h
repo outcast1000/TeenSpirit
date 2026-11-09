@@ -25,9 +25,10 @@
 
 #pragma once
 //#pragma warning (disable: 4146)
-#import "C:\program files\common files\system\ado\msadox.dll"
-#import "C:\program files\common files\system\ado\msado15.dll" rename("EOF","adoEOF")
-#import "C:\Program Files\Common Files\System\ado\msjro.dll"
+#import <msadox.dll>		// 32-bit ADO dir is on the include path (see Directory.Build.props)
+#import <msado15.dll> rename("EOF","adoEOF")
+using namespace ADODB;		// before msjro: its type library uses _RecordsetPtr unqualified
+#import <msjro.dll>			// 32-bit only: blocks an x64 build until the Jet/ADO layer is replaced
 //#pragma warning (default: 4146)
 #include "icrsint.h"
 using namespace ADODB;

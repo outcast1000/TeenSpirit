@@ -25,10 +25,7 @@
 #include "URLEncDecHelper.h"
 
 #ifdef HAVE_ZLIB
-#ifndef ZLIB_WINAPI
-#define ZLIB_WINAPI
-#endif
-#include "zlib/zlib.h"
+#include <zlib.h>
 #endif
 #include "atlenc.h"
 

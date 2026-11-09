@@ -71,7 +71,7 @@ ActionManager::ActionManager():
 m_LogTrackStatus(-1),
 m_LastTrackLength(0.0),
 m_logListPos(0),
-m_rndGenerator((boost::int32_t)GetTickCount())
+m_rndGenerator((std::mt19937::result_type)GetTickCount())
 //m_pMiniPlayerDlg(NULL),
 //m_pQuickSearchDlg(NULL)
 {

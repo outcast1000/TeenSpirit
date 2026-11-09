@@ -1,7 +1,7 @@
 #ifndef _DataRecords_h_
 #define _DataRecords_h_
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include "TeenSpiritEnums.h"
 
 struct InfoRecord
@@ -281,51 +281,51 @@ struct FullHistArtistRecord
 	BOOL IsValid()const{return hits > 0 && artist.IsValid();}
 };
 
-typedef boost::shared_ptr<TrackRecord> TrackRecordSP;
+typedef std::shared_ptr<TrackRecord> TrackRecordSP;
 typedef std::vector<TrackRecordSP> TrackRecordCollection;
 
-typedef boost::shared_ptr<FullTrackRecord> FullTrackRecordSP;
+typedef std::shared_ptr<FullTrackRecord> FullTrackRecordSP;
 typedef std::vector<FullTrackRecordSP> FullTrackRecordCollection;
 
-typedef boost::shared_ptr<FullArtistRecord> FullArtistRecordSP;
+typedef std::shared_ptr<FullArtistRecord> FullArtistRecordSP;
 typedef std::vector<FullArtistRecordSP> FullArtistRecordCollection;
 
-typedef boost::shared_ptr<FullAlbumRecord> FullAlbumRecordSP;
+typedef std::shared_ptr<FullAlbumRecord> FullAlbumRecordSP;
 typedef std::vector<FullAlbumRecordSP> FullAlbumRecordCollection;
 
-typedef boost::shared_ptr<GenreRecord> GenreRecordSP;
+typedef std::shared_ptr<GenreRecord> GenreRecordSP;
 typedef std::vector<GenreRecordSP> GenreRecordCollection;
 
-typedef boost::shared_ptr<CollectionRecord> CollectionRecordSP;
+typedef std::shared_ptr<CollectionRecord> CollectionRecordSP;
 typedef std::vector<CollectionRecordSP> CollectionRecordCollection;
 
-typedef boost::shared_ptr<YearRecord> YearRecordSP;
+typedef std::shared_ptr<YearRecord> YearRecordSP;
 typedef std::vector<YearRecordSP> YearRecordCollection;
 
-typedef boost::shared_ptr<MonthAddedRecord> MonthAddedRecordSP;
+typedef std::shared_ptr<MonthAddedRecord> MonthAddedRecordSP;
 typedef std::vector<MonthAddedRecordSP> MonthAddedRecordCollection;
 
-typedef boost::shared_ptr<InfoRecord> InfoRecordSP;
+typedef std::shared_ptr<InfoRecord> InfoRecordSP;
 
-typedef boost::shared_ptr<DirectoryRecord> DirectoryRecordSP;
+typedef std::shared_ptr<DirectoryRecord> DirectoryRecordSP;
 typedef std::vector<DirectoryRecordSP> DirectoryRecordCollection;
 
-typedef boost::shared_ptr<HistTrackRecord> HistTrackRecordSP;
+typedef std::shared_ptr<HistTrackRecord> HistTrackRecordSP;
 typedef std::vector<HistTrackRecordSP> HistTrackRecordCollection;
 
-typedef boost::shared_ptr<HistArtistRecord> HistArtistRecordSP;
+typedef std::shared_ptr<HistArtistRecord> HistArtistRecordSP;
 typedef std::vector<HistArtistRecordSP> HistArtistRecordCollection;
 
-typedef boost::shared_ptr<HistLogRecord> HistLogRecordSP;
+typedef std::shared_ptr<HistLogRecord> HistLogRecordSP;
 typedef std::vector<HistLogRecordSP> HistLogRecordCollection;
 
-typedef boost::shared_ptr<FullHistLogRecord> FullHistLogRecordSP;
+typedef std::shared_ptr<FullHistLogRecord> FullHistLogRecordSP;
 typedef std::vector<FullHistLogRecordSP> FullHistLogRecordCollection;
 
-typedef boost::shared_ptr<FullHistTrackRecord> FullHistTrackRecordSP;
+typedef std::shared_ptr<FullHistTrackRecord> FullHistTrackRecordSP;
 typedef std::vector<FullHistTrackRecordSP> FullHistTrackRecordCollection;
 
-typedef boost::shared_ptr<FullHistArtistRecord> FullHistArtistRecordSP;
+typedef std::shared_ptr<FullHistArtistRecord> FullHistArtistRecordSP;
 typedef std::vector<FullHistArtistRecordSP> FullHistArtistRecordCollection;
 
 

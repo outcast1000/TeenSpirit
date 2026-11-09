@@ -1,9 +1,5 @@
 #include "stdafx.h"
 
-#ifdef _DEBUG
-#include "vld/vld.h"
-#endif
-
 #include "TeenSpirit.h"
 #include "TeenSpiritDlg.h"
 #include <locale.h>

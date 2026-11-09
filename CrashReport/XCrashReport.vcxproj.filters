@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Common"><UniqueIdentifier>{129f371b-7744-5f5b-9091-a312ab7619ef}</UniqueIdentifier></Filter>
+    <Filter Include="Main"><UniqueIdentifier>{91919463-48d4-5686-9d6b-b7d8ef51f11e}</UniqueIdentifier></Filter>
+    <Filter Include="Resource Files"><UniqueIdentifier>{045aefca-de26-53f5-94a5-5529fb2d9cd6}</UniqueIdentifier></Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\CommonSources\ApplicationMonitor.cpp"><Filter>Common</Filter></ClCompile>
+    <ClCompile Include="..\CommonSources\AppMonitor.cpp"><Filter>Common</Filter></ClCompile>
+    <ClCompile Include="..\CommonSources\AppSettings\IniAppSettings.cpp"><Filter>Common</Filter></ClCompile>
+    <ClCompile Include="..\CommonSources\stlStringUtils.cpp"><Filter>Common</Filter></ClCompile>
+    <ClCompile Include="..\CommonSources\URLEncDecHelper.cpp"><Filter>Common</Filter></ClCompile>
+    <ClCompile Include="..\CommonSources\WebPageUtilities.cpp"><Filter>Common</Filter></ClCompile>
+    <ClCompile Include="..\CommonSources\WinVersionHelper.cpp"><Filter>Common</Filter></ClCompile>
+    <ClCompile Include="CrashReport.cpp"><Filter>Main</Filter></ClCompile>
+    <ClCompile Include="CrashReportDlg.cpp"><Filter>Main</Filter></ClCompile>
+    <ClCompile Include="DetailsDlg.cpp"><Filter>Main</Filter></ClCompile>
+    <ClCompile Include="FontSize.cpp"><Filter>Common</Filter></ClCompile>
+    <ClCompile Include="IsAsciiFile.cpp"><Filter>Common</Filter></ClCompile>
+    <ClCompile Include="MiniVersion.cpp"><Filter>Common</Filter></ClCompile>
+    <ClCompile Include="StdAfx.cpp"><Filter>Main</Filter></ClCompile>
+    <ClCompile Include="XColorStatic.cpp"><Filter>Common</Filter></ClCompile>
+    <ClCompile Include="XHeaderCtrl.cpp"><Filter>Common</Filter></ClCompile>
+    <ClCompile Include="XHyperLink.cpp"><Filter>Common</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\CommonSources\ApplicationMonitor.h"><Filter>Common</Filter></ClInclude>
+    <ClInclude Include="..\CommonSources\AppMonitor.h"><Filter>Common</Filter></ClInclude>
+    <ClInclude Include="..\CommonSources\AppSettings\AppSettings.h"><Filter>Common</Filter></ClInclude>
+    <ClInclude Include="..\CommonSources\AppSettings\IniAppSettings.h"><Filter>Common</Filter></ClInclude>
+    <ClInclude Include="..\CommonSources\stlStringUtils.h"><Filter>Common</Filter></ClInclude>
+    <ClInclude Include="..\CommonSources\URLEncDecHelper.h"><Filter>Common</Filter></ClInclude>
+    <ClInclude Include="..\CommonSources\WebPageUtilities.h"><Filter>Common</Filter></ClInclude>
+    <ClInclude Include="..\CommonSources\WinVersionHelper.h"><Filter>Common</Filter></ClInclude>
+    <ClInclude Include="..\ExceptionHandler.h"><Filter>Main</Filter></ClInclude>
+    <ClInclude Include="CrashReport.h"><Filter>Main</Filter></ClInclude>
+    <ClInclude Include="CrashReportDlg.h"><Filter>Main</Filter></ClInclude>
+    <ClInclude Include="DetailsDlg.h"><Filter>Main</Filter></ClInclude>
+    <ClInclude Include="FontSize.h"><Filter>Common</Filter></ClInclude>
+    <ClInclude Include="IsAsciiFile.h"><Filter>Common</Filter></ClInclude>
+    <ClInclude Include="MemDC.h"><Filter>Common</Filter></ClInclude>
+    <ClInclude Include="MiniVersion.h"><Filter>Common</Filter></ClInclude>
+    <ClInclude Include="Resource.h"><Filter>Resource Files</Filter></ClInclude>
+    <ClInclude Include="StdAfx.h"><Filter>Main</Filter></ClInclude>
+    <ClInclude Include="XColorStatic.h"><Filter>Common</Filter></ClInclude>
+    <ClInclude Include="XHeaderCtrl.h"><Filter>Common</Filter></ClInclude>
+    <ClInclude Include="XHyperLink.h"><Filter>Common</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="XCrashReport.ico"><Filter>Resource Files</Filter></Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="XCrashReport.rc"><Filter>Resource Files</Filter></ResourceCompile>
+  </ItemGroup>
+</Project>

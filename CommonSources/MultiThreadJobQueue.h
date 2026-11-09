@@ -4,7 +4,7 @@
 #include <vector>
 #include <queue>
 #include <afxmt.h>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #ifdef _UNITTESTING
 BOOL TestMultiThreadJobQueue();
@@ -27,7 +27,7 @@ public:
 	virtual void Abort()		= 0;
 };
 
-typedef boost::shared_ptr<Job> JobSP;
+typedef std::shared_ptr<Job> JobSP;
 
 class JobThreadRunner
 {

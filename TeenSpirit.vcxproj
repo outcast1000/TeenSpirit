@@ -1,0 +1,1174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32"><Configuration>Debug</Configuration><Platform>Win32</Platform></ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32"><Configuration>Release</Configuration><Platform>Win32</Platform></ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C1AE2C08-A6CA-4673-8D95-CF5608AB58D5}</ProjectGuid>
+    <RootNamespace>TeenSpirit</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(MSBuildThisFileDirectory)build\vcpkg.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetName>jaangledbg</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <TargetName>jaangle</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>.;CommonSources;MediaPlayers;Taggers;Database;Winamp;CommonSources/TagLib;CommonSources/TagLib/ape;CommonSources/TagLib/asf;CommonSources/TagLib/flac;CommonSources/TagLib/mp4;CommonSources/TagLib/mpc;CommonSources/TagLib/mpeg;CommonSources/TagLib/ogg;CommonSources/TagLib/riff;CommonSources/TagLib/toolkit;CommonSources/TagLib/trueaudio;CommonSources/TagLib/wavpack;CommonSources/TagLib/mpeg/id3v1;CommonSources/TagLib/mpeg/id3v2;CommonSources/TagLib/mpeg/id3v2/frames;CommonSources/TagLib/ogg/flac;CommonSources/TagLib/ogg/speex;CommonSources/TagLib/ogg/vorbis;CommonSources/TagLib/riff/aiff;CommonSources/TagLib/riff/wav;Bass;$(JaangleAdoDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;HAVE_ZLIB;TAGLIB_WITH_MP4;TAGLIB_WITH_ASF;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+      <ConformanceMode>false</ConformanceMode>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <Optimization>Disabled</Optimization>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <!-- Bass/*.lib are old import libs without SafeSEH tables; refresh them to re-enable. -->
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Iphlpapi.lib;Version.lib;Wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>Bass;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Manifest><EnableDpiAwareness>false</EnableDpiAwareness></Manifest>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>.;CommonSources;MediaPlayers;Taggers;Database;Winamp;CommonSources/TagLib;CommonSources/TagLib/ape;CommonSources/TagLib/asf;CommonSources/TagLib/flac;CommonSources/TagLib/mp4;CommonSources/TagLib/mpc;CommonSources/TagLib/mpeg;CommonSources/TagLib/ogg;CommonSources/TagLib/riff;CommonSources/TagLib/toolkit;CommonSources/TagLib/trueaudio;CommonSources/TagLib/wavpack;CommonSources/TagLib/mpeg/id3v1;CommonSources/TagLib/mpeg/id3v2;CommonSources/TagLib/mpeg/id3v2/frames;CommonSources/TagLib/ogg/flac;CommonSources/TagLib/ogg/speex;CommonSources/TagLib/ogg/vorbis;CommonSources/TagLib/riff/aiff;CommonSources/TagLib/riff/wav;Bass;$(JaangleAdoDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;HAVE_ZLIB;TAGLIB_WITH_MP4;TAGLIB_WITH_ASF;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+      <ConformanceMode>false</ConformanceMode>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <!-- Bass/*.lib are old import libs without SafeSEH tables; refresh them to re-enable. -->
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Iphlpapi.lib;Version.lib;Wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>Bass;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Manifest><EnableDpiAwareness>false</EnableDpiAwareness></Manifest>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <PropertyGroup><GenerateManifest>false</GenerateManifest></PropertyGroup>
+  <ItemGroup>
+    <ClCompile Include="AboutDlg.cpp" />
+    <ClCompile Include="ActionManager.cpp" />
+    <ClCompile Include="AddPaneDlg.cpp" />
+    <ClCompile Include="CaptionBordStatic.cpp" />
+    <ClCompile Include="CollectionManager.cpp" />
+    <ClCompile Include="CollectionsDlg.cpp" />
+    <ClCompile Include="CollectionsList.cpp" />
+    <ClCompile Include="CollectionUpdateJob.cpp" />
+    <ClCompile Include="CommonSources\Ado\AdoWrap.cpp">
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+    </ClCompile>
+    <ClCompile Include="CommonSources\ALog\ALog.cpp" />
+    <ClCompile Include="CommonSources\ALog\cputicker.cpp" />
+    <ClCompile Include="CommonSources\ApplicationMonitor.cpp" />
+    <ClCompile Include="CommonSources\AppMonitor.cpp" />
+    <ClCompile Include="CommonSources\AppSettings\IniAppSettings.cpp" />
+    <ClCompile Include="CommonSources\BitmapSaver.cpp" />
+    <ClCompile Include="CommonSources\cMD5.cpp" />
+    <ClCompile Include="CommonSources\cStringUtils.cpp" />
+    <ClCompile Include="CommonSources\FileNameParser.cpp" />
+    <ClCompile Include="CommonSources\FlexButton.cpp" />
+    <ClCompile Include="CommonSources\FlexDblBuffer.cpp" />
+    <ClCompile Include="CommonSources\FlexDropHelper.cpp" />
+    <ClCompile Include="CommonSources\FlexListCtrl.cpp" />
+    <ClCompile Include="CommonSources\FlexScrollBar.cpp" />
+    <ClCompile Include="CommonSources\FlexTreeCtrl.cpp" />
+    <ClCompile Include="CommonSources\FreeDb\FreeDb.cpp" />
+    <ClCompile Include="CommonSources\GdiPlusInstance.cpp" />
+    <ClCompile Include="CommonSources\GdiplusUtilities.cpp" />
+    <ClCompile Include="CommonSources\GuiControls\AnimationWnd.cpp" />
+    <ClCompile Include="CommonSources\GuiControls\BCMenu.cpp" />
+    <ClCompile Include="CommonSources\GuiControls\ColorEdit.cpp" />
+    <ClCompile Include="CommonSources\GuiControls\DialogHeader.cpp" />
+    <ClCompile Include="CommonSources\GuiControls\DualTextComboBox.cpp" />
+    <ClCompile Include="CommonSources\GuiControls\FastSplitter.cpp" />
+    <ClCompile Include="CommonSources\GuiControls\FlexDialogHeader.cpp" />
+    <ClCompile Include="CommonSources\GuiControls\GdiPlusBitmapCache.cpp" />
+    <ClCompile Include="CommonSources\GuiControls\GdiPlusPicDrawer.cpp" />
+    <ClCompile Include="CommonSources\GuiControls\IconEditEx.cpp" />
+    <ClCompile Include="CommonSources\GuiControls\ImageImportDlg.cpp" />
+    <ClCompile Include="CommonSources\GuiControls\MultiPicWnd.cpp" />
+    <ClCompile Include="CommonSources\GuiControls\MyToolBar.cpp" />
+    <ClCompile Include="CommonSources\GuiControls\PicWnd.cpp" />
+    <ClCompile Include="CommonSources\GuiControls\PicWndEx.cpp" />
+    <ClCompile Include="CommonSources\GuiControls\RectAlphaDrawer.cpp" />
+    <ClCompile Include="CommonSources\hdcUtils.cpp" />
+    <ClCompile Include="CommonSources\hmac\hmac_sha2.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\hmac\sha2.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\HTMLLite\CeXDib.cpp" />
+    <ClCompile Include="CommonSources\HTMLLite\PPDrawManager.cpp" />
+    <ClCompile Include="CommonSources\HTMLLite\PPHtmlDrawer.cpp" />
+    <ClCompile Include="CommonSources\HTMLLite\PPHtmlStatic.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="CommonSources\HTMLLite\PPMessageBox.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="CommonSources\HTMLLite\PPTooltip.cpp" />
+    <ClCompile Include="CommonSources\IconSerialization.cpp" />
+    <ClCompile Include="CommonSources\ITranslation\ITranslationUtilities.cpp" />
+    <ClCompile Include="CommonSources\IUrlDownloader.cpp" />
+    <ClCompile Include="CommonSources\Label.cpp" />
+    <ClCompile Include="CommonSources\LabelEx.cpp" />
+    <ClCompile Include="CommonSources\Language\ILanguageUtilities.cpp" />
+    <ClCompile Include="CommonSources\Language\LanguageManager.cpp" />
+    <ClCompile Include="CommonSources\Language\LanguageSerialization.cpp" />
+    <ClCompile Include="CommonSources\Language\MappedLanguage.cpp" />
+    <ClCompile Include="CommonSources\Language\ResourceBasedLanguage.cpp" />
+    <ClCompile Include="CommonSources\LastFMServices.cpp" />
+    <ClCompile Include="CommonSources\LevelMeter.cpp" />
+    <ClCompile Include="CommonSources\MediaSlider.cpp" />
+    <ClCompile Include="CommonSources\MSNNotifier.cpp" />
+    <ClCompile Include="CommonSources\MultiThreadJobQueue.cpp" />
+    <ClCompile Include="CommonSources\NewVersionChecker.cpp" />
+    <ClCompile Include="CommonSources\OleDropTarget\DelegatedOleDropTarget.cpp" />
+    <ClCompile Include="CommonSources\PerfTimer.cpp" />
+    <ClCompile Include="CommonSources\Registry.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\ResourceUtils.cpp" />
+    <ClCompile Include="CommonSources\ScrollHelper.cpp" />
+    <ClCompile Include="CommonSources\ShellFileOp\CShellFileOp.cpp" />
+    <ClCompile Include="CommonSources\SimpleBrowser.cpp" />
+    <ClCompile Include="CommonSources\stlStringUtils.cpp" />
+    <ClCompile Include="CommonSources\StringSerializerHelper.cpp" />
+    <ClCompile Include="CommonSources\SystemTimeFunctions.cpp" />
+    <ClCompile Include="CommonSources\SystemTray.cpp" />
+    <ClCompile Include="CommonSources\TagLib\ape\apefooter.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\ape\apeitem.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\ape\apetag.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\asf\asfattribute.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\asf\asffile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\asf\asfproperties.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\asf\asftag.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\audioproperties.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\fileref.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\flac\flacfile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\flac\flacproperties.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mp4\mp4atom.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mp4\mp4coverart.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mp4\mp4file.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mp4\mp4item.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mp4\mp4properties.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mp4\mp4tag.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpc\mpcfile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpc\mpcproperties.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v1\id3v1genres.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v1\id3v1tag.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\frames\attachedpictureframe.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\frames\commentsframe.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\frames\generalencapsulatedobjectframe.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\frames\popularimeterframe.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\frames\privateframe.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\frames\relativevolumeframe.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\frames\textidentificationframe.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\frames\uniquefileidentifierframe.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\frames\unknownframe.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\frames\unsynchronizedlyricsframe.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\frames\urllinkframe.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\id3v2extendedheader.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\id3v2footer.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\id3v2frame.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\id3v2framefactory.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\id3v2header.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\id3v2synchdata.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\id3v2\id3v2tag.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\mpegfile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\mpegheader.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\mpegproperties.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\mpeg\xingheader.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\ogg\flac\oggflacfile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\ogg\oggfile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\ogg\oggpage.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\ogg\oggpageheader.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\ogg\speex\speexfile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\ogg\speex\speexproperties.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\ogg\vorbis\vorbisfile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\ogg\vorbis\vorbisproperties.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\ogg\xiphcomment.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\riff\aiff\aifffile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\riff\aiff\aiffproperties.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\riff\rifffile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\riff\wav\wavfile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\riff\wav\wavproperties.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\tag.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\tagunion.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\toolkit\tbytevector.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\toolkit\tbytevectorlist.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\toolkit\tdebug.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\toolkit\tfile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\toolkit\tstring.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\toolkit\tstringlist.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\toolkit\unicode.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\trueaudio\trueaudiofile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\trueaudio\trueaudioproperties.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\wavpack\wavpackfile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TagLib\wavpack\wavpackproperties.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommonSources\TextFileDocument\textfile.cpp" />
+    <ClCompile Include="CommonSources\TransmitterPattern\VectorTransmitter.cpp" />
+    <ClCompile Include="CommonSources\TreeNode.cpp" />
+    <ClCompile Include="CommonSources\TreePopSheet\PropPageFrame.cpp" />
+    <ClCompile Include="CommonSources\TreePopSheet\PropPageFrameDefault.cpp" />
+    <ClCompile Include="CommonSources\TreePopSheet\TreePropSheet.cpp" />
+    <ClCompile Include="CommonSources\URLEncDecHelper.cpp" />
+    <ClCompile Include="CommonSources\WebPageUtilities.cpp" />
+    <ClCompile Include="CommonSources\WinVersionHelper.cpp" />
+    <ClCompile Include="CommonSources\XFileOpenListView.cpp" />
+    <ClCompile Include="CommonSources\XFolderDialog.cpp" />
+    <ClCompile Include="CommonSources\XHistoryCombo.cpp" />
+    <ClCompile Include="CommonSources\XHTMLStatic.cpp" />
+    <ClCompile Include="CommonSources\XmlLiteUtilities.cpp" />
+    <ClCompile Include="CommonSources\XNamedColors.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="CommunicationJob.cpp" />
+    <ClCompile Include="ConfigurationManager.cpp" />
+    <ClCompile Include="CountDownCtrl.cpp" />
+    <ClCompile Include="CtrlColorsMediaSliderAdapter.cpp" />
+    <ClCompile Include="Database\DataRecords.cpp" />
+    <ClCompile Include="Database\DataRecordsXmlSerializer.cpp" />
+    <ClCompile Include="Database\RecordCollectionSorter.cpp" />
+    <ClCompile Include="Database\SQLManager.cpp">
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+    </ClCompile>
+    <ClCompile Include="DetailedSearchCHdlg.cpp" />
+    <ClCompile Include="DriveDlg.cpp" />
+    <ClCompile Include="EnhTrackListWnd.cpp" />
+    <ClCompile Include="ExceptionHandler.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="FlickerFree.cpp" />
+    <ClCompile Include="FullTextListCtrl.cpp" />
+    <ClCompile Include="FullTextSearchCHdlg.cpp" />
+    <ClCompile Include="GenericInfoProviderPP.cpp" />
+    <ClCompile Include="GlobalHotkeysPP.cpp" />
+    <ClCompile Include="HistArtistsListCtrl.cpp" />
+    <ClCompile Include="HistListCtrl.cpp" />
+    <ClCompile Include="HistMainListCtrl.cpp" />
+    <ClCompile Include="HistoryDlg.cpp" />
+    <ClCompile Include="HistTracksListCtrl.cpp" />
+    <ClCompile Include="HotKeyCtrlAPI.cpp" />
+    <ClCompile Include="HotKeyManager.cpp" />
+    <ClCompile Include="InfoCtrl.cpp" />
+    <ClCompile Include="InfoDownloadManager.cpp" />
+    <ClCompile Include="InfoPage.cpp" />
+    <ClCompile Include="InfoPane.cpp" />
+    <ClCompile Include="InfoPaneCreator.cpp" />
+    <ClCompile Include="InfoQueryDlg.cpp" />
+    <ClCompile Include="InfoRetrievalPP.cpp" />
+    <ClCompile Include="InformationProviders\AmazonProvider\AmazonProvider.cpp" />
+    <ClCompile Include="InformationProviders\CachedImageInfoProvider\CachedImageInfoProvider.cpp" />
+    <ClCompile Include="InformationProviders\CompositeInfoProvider\CompositeInfoProvider.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="InformationProviders\DirImageInfoProvider\DirImageInfoProvider.cpp" />
+    <ClCompile Include="InformationProviders\ExternalInfoProvider\ExternalInfoProvider.cpp" />
+    <ClCompile Include="InformationProviders\GoogleLyrics\GoogleLyricsProvider.cpp" />
+    <ClCompile Include="InformationProviders\InfoProviderFactory.cpp" />
+    <ClCompile Include="InformationProviders\LastFMProvider\LastFMProvider.cpp" />
+    <ClCompile Include="InputBox.cpp" />
+    <ClCompile Include="LanguagesPP.cpp" />
+    <ClCompile Include="LastFMDlg.cpp" />
+    <ClCompile Include="LatestAdditionsPP.cpp" />
+    <ClCompile Include="LocalPictureManager.cpp" />
+    <ClCompile Include="MainAlbumsPage.cpp" />
+    <ClCompile Include="MainArtistPage.cpp" />
+    <ClCompile Include="MainListCtrl.cpp" />
+    <ClCompile Include="MainOptionsPage.cpp" />
+    <ClCompile Include="MainTrackPage.cpp" />
+    <ClCompile Include="MainTreeCtrl.cpp" />
+    <ClCompile Include="MediaPlayerPP.cpp" />
+    <ClCompile Include="MediaPlayers\BassEngine.cpp" />
+    <ClCompile Include="MediaPlayers\BassInstance.cpp" />
+    <ClCompile Include="MediaPlayers\DShowEngine.cpp" />
+    <ClCompile Include="MediaPlayers\FadeBassEngine.cpp" />
+    <ClCompile Include="MediaPlayers\HttpLinkEngine.cpp" />
+    <ClCompile Include="MediaPlayers\MediaPlayerEngineTest.cpp" />
+    <ClCompile Include="MediaPlayers\MediaPlayerUtilities.cpp" />
+    <ClCompile Include="MediaPlayers\MultiEngine.cpp" />
+    <ClCompile Include="MediaPlayers\NativeVisualization.cpp" />
+    <ClCompile Include="MediaPlayers\ShufflePlaylistHelper.cpp" />
+    <ClCompile Include="MediaPlayers\VectorPlayList.cpp" />
+    <ClCompile Include="MediaPlayers\WinampVisualization.cpp" />
+    <ClCompile Include="MediaPlayers\YouTubePlayerEngine.cpp" />
+    <ClCompile Include="MenuManager.cpp" />
+    <ClCompile Include="MessageDlg.cpp" />
+    <ClCompile Include="MillionaireButton.cpp" />
+    <ClCompile Include="MiniPlayerDlg.cpp" />
+    <ClCompile Include="MiniPlayerPP.cpp" />
+    <ClCompile Include="MultiPicturePage.cpp" />
+    <ClCompile Include="MultipleMPInfoViewer.cpp" />
+    <ClCompile Include="MultipleTracksPage.cpp" />
+    <ClCompile Include="ObjFactory.cpp" />
+    <ClCompile Include="OptionsSheet.cpp" />
+    <ClCompile Include="PaneController.cpp" />
+    <ClCompile Include="PlayerBarWnd.cpp" />
+    <ClCompile Include="PlayListListCtrl.cpp" />
+    <ClCompile Include="PlayListPane.cpp" />
+    <ClCompile Include="PlayListPaneCreator.cpp" />
+    <ClCompile Include="PrgAPI.cpp" />
+    <ClCompile Include="PropertiesSheet.cpp" />
+    <ClCompile Include="QuickSearchDlg.cpp" />
+    <ClCompile Include="QuizRunningDlg.cpp" />
+    <ClCompile Include="RatingPP.cpp" />
+    <ClCompile Include="RenamerDlg.cpp" />
+    <ClCompile Include="SearchDlg.cpp" />
+    <ClCompile Include="SearchPropertyPages.cpp" />
+    <ClCompile Include="SectionsPane.cpp" />
+    <ClCompile Include="SectionsPaneCreator.cpp" />
+    <ClCompile Include="ServicesRegistrationSrv.cpp">
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+    </ClCompile>
+    <ClCompile Include="ShortcutManager.cpp" />
+    <ClCompile Include="SimpleEditorDlg.cpp" />
+    <ClCompile Include="SimpleSearchCHdlg.cpp" />
+    <ClCompile Include="SkinManager.cpp" />
+    <ClCompile Include="SkinsPP.cpp" />
+    <ClCompile Include="SliderDlg.cpp" />
+    <ClCompile Include="StateManager.cpp" />
+    <ClCompile Include="StatusBarWnd.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Taggers\BassTagger.cpp" />
+    <ClCompile Include="Taggers\DShowTagger.cpp" />
+    <ClCompile Include="Taggers\EnhTagLibTagger.cpp" />
+    <ClCompile Include="Taggers\FileNameTagger.cpp" />
+    <ClCompile Include="Taggers\TagLibTagger.cpp" />
+    <ClCompile Include="TaggingPP.cpp" />
+    <ClCompile Include="TagsFromFilenameDlg.cpp" />
+    <ClCompile Include="TeenSpirit.cpp" />
+    <ClCompile Include="TeenSpiritDlg.cpp" />
+    <ClCompile Include="TeenSpiritPlayer.cpp" />
+    <ClCompile Include="TickerWnd.cpp" />
+    <ClCompile Include="ToolbarWnd.cpp" />
+    <ClCompile Include="Trackers\LastFMAdapterTracker.cpp" />
+    <ClCompile Include="Trackers\LocalHistoryTracker.cpp" />
+    <ClCompile Include="Trackers\MSNAdapterTracker.cpp" />
+    <ClCompile Include="Trackers\MultiTracker.cpp" />
+    <ClCompile Include="Trackers\TSOnlineAdapterTracker.cpp" />
+    <ClCompile Include="TrackListCtrl.cpp" />
+    <ClCompile Include="TrackListPane.cpp" />
+    <ClCompile Include="TrackListPaneCreator.cpp" />
+    <ClCompile Include="TracksSerializerDlg.cpp" />
+    <ClCompile Include="TranslationManager.cpp" />
+    <ClCompile Include="TrayToolTipDlg.cpp" />
+    <ClCompile Include="TSBrowserEnh.cpp" />
+    <ClCompile Include="TSConfigurable.cpp" />
+    <ClCompile Include="TSMenu.cpp" />
+    <ClCompile Include="TSOnlineServices.cpp" />
+    <ClCompile Include="TSPaneContainer.cpp" />
+    <ClCompile Include="TSPropertyPage.cpp" />
+    <ClCompile Include="TSSkin.cpp" />
+    <ClCompile Include="TSSkinnable.cpp" />
+    <ClCompile Include="TSTranslatable.cpp" />
+    <ClCompile Include="UnitTests.cpp" />
+    <ClCompile Include="UserProgressDlg.cpp" />
+    <ClCompile Include="VariousPage.cpp" />
+    <ClCompile Include="VideoContainer.cpp" />
+    <ClCompile Include="VideoPane.cpp" />
+    <ClCompile Include="VideoPaneCreator.cpp" />
+    <ClCompile Include="ViewerPane.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="VisualizationContainer.cpp" />
+    <ClCompile Include="VisualizationPane.cpp" />
+    <ClCompile Include="VisualizationPaneCreator.cpp" />
+    <ClCompile Include="WebPane.cpp" />
+    <ClCompile Include="WebPaneCreator.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AboutDlg.h" />
+    <ClInclude Include="ActionManager.h" />
+    <ClInclude Include="AddPaneDlg.h" />
+    <ClInclude Include="CaptionBordStatic.h" />
+    <ClInclude Include="CollectionManager.h" />
+    <ClInclude Include="CollectionsDlg.h" />
+    <ClInclude Include="CollectionsList.h" />
+    <ClInclude Include="CollectionUpdateJob.h" />
+    <ClInclude Include="CommonSources\Ado\AdoWrap.h" />
+    <ClInclude Include="CommonSources\ALog\ALog.h" />
+    <ClInclude Include="CommonSources\ALog\cputicker.h" />
+    <ClInclude Include="CommonSources\ApplicationMonitor.h" />
+    <ClInclude Include="CommonSources\AppMonitor.h" />
+    <ClInclude Include="CommonSources\AppSettings\AppSettings.h" />
+    <ClInclude Include="CommonSources\AppSettings\IniAppSettings.h" />
+    <ClInclude Include="CommonSources\BitmapSaver.h" />
+    <ClInclude Include="CommonSources\cMD5.h" />
+    <ClInclude Include="CommonSources\cStringUtils.h" />
+    <ClInclude Include="CommonSources\EventTarget.h" />
+    <ClInclude Include="CommonSources\FileNameParser.h" />
+    <ClInclude Include="CommonSources\FlexButton.h" />
+    <ClInclude Include="CommonSources\FlexDblBuffer.h" />
+    <ClInclude Include="CommonSources\FlexDropHelper.h" />
+    <ClInclude Include="CommonSources\FlexListCtrl.h" />
+    <ClInclude Include="CommonSources\FlexScrollBar.h" />
+    <ClInclude Include="CommonSources\FlexTreeCtrl.h" />
+    <ClInclude Include="CommonSources\FreeDb\FreeDb.h" />
+    <ClInclude Include="CommonSources\GdiPlusInstance.h" />
+    <ClInclude Include="CommonSources\GdiplusUtilities.h" />
+    <ClInclude Include="CommonSources\GuiControls\AnimationWnd.h" />
+    <ClInclude Include="CommonSources\GuiControls\BCMenu.h" />
+    <ClInclude Include="CommonSources\GuiControls\ColorEdit.h" />
+    <ClInclude Include="CommonSources\GuiControls\DialogHeader.h" />
+    <ClInclude Include="CommonSources\GuiControls\DualTextComboBox.h" />
+    <ClInclude Include="CommonSources\GuiControls\FastSplitter.h" />
+    <ClInclude Include="CommonSources\GuiControls\FlexDialogHeader.h" />
+    <ClInclude Include="CommonSources\GuiControls\GdiPlusBitmapCache.h" />
+    <ClInclude Include="CommonSources\GuiControls\GdiPlusPicDrawer.h" />
+    <ClInclude Include="CommonSources\GuiControls\IAlphaDrawer.h" />
+    <ClInclude Include="CommonSources\GuiControls\IconEditEx.h" />
+    <ClInclude Include="CommonSources\GuiControls\ImageImportDlg.h" />
+    <ClInclude Include="CommonSources\GuiControls\MultiPicWnd.h" />
+    <ClInclude Include="CommonSources\GuiControls\MyToolBar.h" />
+    <ClInclude Include="CommonSources\GuiControls\PicWnd.h" />
+    <ClInclude Include="CommonSources\GuiControls\PicWndEx.h" />
+    <ClInclude Include="CommonSources\GuiControls\RectAlphaDrawer.h" />
+    <ClInclude Include="CommonSources\hdcUtils.h" />
+    <ClInclude Include="CommonSources\hmac\hmac_sha2.h" />
+    <ClInclude Include="CommonSources\hmac\sha2.h" />
+    <ClInclude Include="CommonSources\HTMLLite\CeXDib.h" />
+    <ClInclude Include="CommonSources\HTMLLite\PPDrawManager.h" />
+    <ClInclude Include="CommonSources\HTMLLite\PPHtmlDrawer.h" />
+    <ClInclude Include="CommonSources\HTMLLite\PPHtmlStatic.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="CommonSources\HTMLLite\PPMessageBox.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="CommonSources\HTMLLite\PPTooltip.h" />
+    <ClInclude Include="CommonSources\IConfigurable.h" />
+    <ClInclude Include="CommonSources\IconSerialization.h" />
+    <ClInclude Include="CommonSources\IFlexDropTarget.h" />
+    <ClInclude Include="CommonSources\IPane.h" />
+    <ClInclude Include="CommonSources\ISkin.h" />
+    <ClInclude Include="CommonSources\ITranslation\EditableTranslation.h" />
+    <ClInclude Include="CommonSources\ITranslation\FallbackTranslation.h" />
+    <ClInclude Include="CommonSources\ITranslation\ITranslation.h" />
+    <ClInclude Include="CommonSources\ITranslation\ITranslationUtilities.h" />
+    <ClInclude Include="CommonSources\ITranslation\ResourceTranslation.h" />
+    <ClInclude Include="CommonSources\IUrlDownloader.h" />
+    <ClInclude Include="CommonSources\Label.h" />
+    <ClInclude Include="CommonSources\LabelEx.h" />
+    <ClInclude Include="CommonSources\Language\ILanguage.h" />
+    <ClInclude Include="CommonSources\Language\ILanguageUtilities.h" />
+    <ClInclude Include="CommonSources\Language\LanguageManager.h" />
+    <ClInclude Include="CommonSources\Language\LanguageSerialization.h" />
+    <ClInclude Include="CommonSources\Language\MappedLanguage.h" />
+    <ClInclude Include="CommonSources\Language\ResourceBasedLanguage.h" />
+    <ClInclude Include="CommonSources\LastFMServices.h" />
+    <ClInclude Include="CommonSources\LevelMeter.h" />
+    <ClInclude Include="CommonSources\MediaSlider.h" />
+    <ClInclude Include="CommonSources\memdc.h" />
+    <ClInclude Include="CommonSources\MSNNotifier.h" />
+    <ClInclude Include="CommonSources\MultiThreadJobQueue.h" />
+    <ClInclude Include="CommonSources\NewVersionChecker.h" />
+    <ClInclude Include="CommonSources\NotificationTarget.h" />
+    <ClInclude Include="CommonSources\OleDropTarget\DelegatedOleDropTarget.h" />
+    <ClInclude Include="CommonSources\PerfTimer.h" />
+    <ClInclude Include="CommonSources\PointerCache.h" />
+    <ClInclude Include="CommonSources\ReEntryLock.h" />
+    <ClInclude Include="CommonSources\RegEntry.h" />
+    <ClInclude Include="CommonSources\Registry.h" />
+    <ClInclude Include="CommonSources\ResourceUtils.h" />
+    <ClInclude Include="CommonSources\ScrollHelper.h" />
+    <ClInclude Include="CommonSources\ShellFileOp\CShellFileOp.h" />
+    <ClInclude Include="CommonSources\SimpleBrowser.h" />
+    <ClInclude Include="CommonSources\stlStringUtils.h" />
+    <ClInclude Include="CommonSources\StringSerializerHelper.h" />
+    <ClInclude Include="CommonSources\SystemTimeFunctions.h" />
+    <ClInclude Include="CommonSources\SystemTray.h" />
+    <ClInclude Include="CommonSources\TagLib\ape\apefooter.h" />
+    <ClInclude Include="CommonSources\TagLib\ape\apeitem.h" />
+    <ClInclude Include="CommonSources\TagLib\ape\apetag.h" />
+    <ClInclude Include="CommonSources\TagLib\asf\asfattribute.h" />
+    <ClInclude Include="CommonSources\TagLib\asf\asffile.h" />
+    <ClInclude Include="CommonSources\TagLib\asf\asfproperties.h" />
+    <ClInclude Include="CommonSources\TagLib\asf\asftag.h" />
+    <ClInclude Include="CommonSources\TagLib\audioproperties.h" />
+    <ClInclude Include="CommonSources\TagLib\fileref.h" />
+    <ClInclude Include="CommonSources\TagLib\flac\flacfile.h" />
+    <ClInclude Include="CommonSources\TagLib\flac\flacproperties.h" />
+    <ClInclude Include="CommonSources\TagLib\mp4\mp4atom.h" />
+    <ClInclude Include="CommonSources\TagLib\mp4\mp4coverart.h" />
+    <ClInclude Include="CommonSources\TagLib\mp4\mp4file.h" />
+    <ClInclude Include="CommonSources\TagLib\mp4\mp4item.h" />
+    <ClInclude Include="CommonSources\TagLib\mp4\mp4properties.h" />
+    <ClInclude Include="CommonSources\TagLib\mp4\mp4tag.h" />
+    <ClInclude Include="CommonSources\TagLib\mpc\mpcfile.h" />
+    <ClInclude Include="CommonSources\TagLib\mpc\mpcproperties.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v1\id3v1genres.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v1\id3v1tag.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\frames\attachedpictureframe.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\frames\commentsframe.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\frames\generalencapsulatedobjectframe.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\frames\popularimeterframe.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\frames\privateframe.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\frames\relativevolumeframe.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\frames\textidentificationframe.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\frames\uniquefileidentifierframe.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\frames\unknownframe.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\frames\unsynchronizedlyricsframe.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\frames\urllinkframe.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\id3v2extendedheader.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\id3v2footer.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\id3v2frame.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\id3v2framefactory.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\id3v2header.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\id3v2synchdata.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\id3v2\id3v2tag.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\mpegfile.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\mpegheader.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\mpegproperties.h" />
+    <ClInclude Include="CommonSources\TagLib\mpeg\xingheader.h" />
+    <ClInclude Include="CommonSources\TagLib\ogg\flac\oggflacfile.h" />
+    <ClInclude Include="CommonSources\TagLib\ogg\oggfile.h" />
+    <ClInclude Include="CommonSources\TagLib\ogg\oggpage.h" />
+    <ClInclude Include="CommonSources\TagLib\ogg\oggpageheader.h" />
+    <ClInclude Include="CommonSources\TagLib\ogg\speex\speexfile.h" />
+    <ClInclude Include="CommonSources\TagLib\ogg\speex\speexproperties.h" />
+    <ClInclude Include="CommonSources\TagLib\ogg\vorbis\vorbisfile.h" />
+    <ClInclude Include="CommonSources\TagLib\ogg\vorbis\vorbisproperties.h" />
+    <ClInclude Include="CommonSources\TagLib\ogg\xiphcomment.h" />
+    <ClInclude Include="CommonSources\TagLib\riff\aiff\aifffile.h" />
+    <ClInclude Include="CommonSources\TagLib\riff\aiff\aiffproperties.h" />
+    <ClInclude Include="CommonSources\TagLib\riff\rifffile.h" />
+    <ClInclude Include="CommonSources\TagLib\riff\wav\wavfile.h" />
+    <ClInclude Include="CommonSources\TagLib\riff\wav\wavproperties.h" />
+    <ClInclude Include="CommonSources\TagLib\tag.h" />
+    <ClInclude Include="CommonSources\TagLib\toolkit\taglib.h" />
+    <ClInclude Include="CommonSources\TagLib\toolkit\tbytevector.h" />
+    <ClInclude Include="CommonSources\TagLib\toolkit\tbytevectorlist.h" />
+    <ClInclude Include="CommonSources\TagLib\toolkit\tdebug.h" />
+    <ClInclude Include="CommonSources\TagLib\toolkit\tfile.h" />
+    <ClInclude Include="CommonSources\TagLib\toolkit\tlist.h" />
+    <ClInclude Include="CommonSources\TagLib\toolkit\tmap.h" />
+    <ClInclude Include="CommonSources\TagLib\toolkit\tstring.h" />
+    <ClInclude Include="CommonSources\TagLib\toolkit\tstringlist.h" />
+    <ClInclude Include="CommonSources\TagLib\toolkit\unicode.h" />
+    <ClInclude Include="CommonSources\TagLib\trueaudio\trueaudiofile.h" />
+    <ClInclude Include="CommonSources\TagLib\trueaudio\trueaudioproperties.h" />
+    <ClInclude Include="CommonSources\TagLib\wavpack\wavpackfile.h" />
+    <ClInclude Include="CommonSources\TagLib\wavpack\wavpackproperties.h" />
+    <ClInclude Include="CommonSources\TextFileDocument\textfile.h" />
+    <ClInclude Include="CommonSources\TransmitterPattern\Transmitter.h" />
+    <ClInclude Include="CommonSources\TransmitterPattern\VectorTransmitter.h" />
+    <ClInclude Include="CommonSources\TreeNode.h" />
+    <ClInclude Include="CommonSources\TreePopSheet\PropPageFrame.h" />
+    <ClInclude Include="CommonSources\TreePopSheet\PropPageFrameDefault.h" />
+    <ClInclude Include="CommonSources\TreePopSheet\TreePropSheet.h" />
+    <ClInclude Include="CommonSources\URLEncDecHelper.h" />
+    <ClInclude Include="CommonSources\WebPageUtilities.h" />
+    <ClInclude Include="CommonSources\WinVersionHelper.h" />
+    <ClInclude Include="CommonSources\XFileOpenListView.h" />
+    <ClInclude Include="CommonSources\XFolderDialog.h" />
+    <ClInclude Include="CommonSources\XFolderDialogRes.h" />
+    <ClInclude Include="CommonSources\XHistoryCombo.h" />
+    <ClInclude Include="CommonSources\XHTMLStatic.h" />
+    <ClInclude Include="CommonSources\XmlLiteUtilities.h" />
+    <ClInclude Include="CommonSources\XNamedColors.h" />
+    <ClInclude Include="CommunicationJob.h" />
+    <ClInclude Include="ConfigurationManager.h" />
+    <ClInclude Include="CountDownCtrl.h" />
+    <ClInclude Include="CtrlColorsMediaSliderAdapter.h" />
+    <ClInclude Include="Database\DataRecords.h" />
+    <ClInclude Include="Database\DataRecordsXmlSerializer.h" />
+    <ClInclude Include="Database\RecordCollectionSorter.h" />
+    <ClInclude Include="Database\SQLManager.h" />
+    <ClInclude Include="DetailedSearchCHdlg.h" />
+    <ClInclude Include="DockedWindow.h" />
+    <ClInclude Include="DriveDlg.h" />
+    <ClInclude Include="EnhTrackListWnd.h" />
+    <ClInclude Include="ExceptionHandler.h" />
+    <ClInclude Include="FlickerFree.h" />
+    <ClInclude Include="FullTextListCtrl.h" />
+    <ClInclude Include="FullTextSearchCHdlg.h" />
+    <ClInclude Include="GenericInfoProviderPP.h" />
+    <ClInclude Include="GlobalHotkeysPP.h" />
+    <ClInclude Include="HistArtistsListCtrl.h" />
+    <ClInclude Include="HistListCtrl.h" />
+    <ClInclude Include="HistMainListCtrl.h" />
+    <ClInclude Include="HistoryDlg.h" />
+    <ClInclude Include="HistoryDlgFilter.h" />
+    <ClInclude Include="HistTracksListCtrl.h" />
+    <ClInclude Include="HotKeyCtrlAPI.h" />
+    <ClInclude Include="HotKeyManager.h" />
+    <ClInclude Include="ICtrlColors.h" />
+    <ClInclude Include="InfoCtrl.h" />
+    <ClInclude Include="InfoDownloadManager.h" />
+    <ClInclude Include="InfoItemTypesEnum.h" />
+    <ClInclude Include="InfoPage.h" />
+    <ClInclude Include="InfoPane.h" />
+    <ClInclude Include="InfoPaneCreator.h" />
+    <ClInclude Include="InfoQueryDlg.h" />
+    <ClInclude Include="InfoRetrievalPP.h" />
+    <ClInclude Include="InformationProviders\AmazonProvider\AmazonProvider.h" />
+    <ClInclude Include="InformationProviders\CachedImageInfoProvider\CachedImageInfoProvider.h" />
+    <ClInclude Include="InformationProviders\CompositeInfoProvider\CompositeInfoProvider.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="InformationProviders\DirImageInfoProvider\DirImageInfoProvider.h" />
+    <ClInclude Include="InformationProviders\ExternalInfoProvider\ExternalInfoProvider.h" />
+    <ClInclude Include="InformationProviders\GoogleLyrics\GoogleLyricsProvider.h" />
+    <ClInclude Include="InformationProviders\InfoProvider.h" />
+    <ClInclude Include="InformationProviders\InfoProviderFactory.h" />
+    <ClInclude Include="InformationProviders\InfoProviderJob.h" />
+    <ClInclude Include="InformationProviders\LastFMProvider\LastFMProvider.h" />
+    <ClInclude Include="InputBox.h" />
+    <ClInclude Include="IStateChangeListener.h" />
+    <ClInclude Include="ITSMenu.h" />
+    <ClInclude Include="LanguagesPP.h" />
+    <ClInclude Include="LastFMDlg.h" />
+    <ClInclude Include="LatestAdditionsPP.h" />
+    <ClInclude Include="LocalPictureManager.h" />
+    <ClInclude Include="MainAlbumsPage.h" />
+    <ClInclude Include="MainArtistPage.h" />
+    <ClInclude Include="MainListCtrl.h" />
+    <ClInclude Include="MainOptionsPage.h" />
+    <ClInclude Include="MainTrackPage.h" />
+    <ClInclude Include="MainTreeCtrl.h" />
+    <ClInclude Include="MediaPlayerPP.h" />
+    <ClInclude Include="MediaPlayers\BassEngine.h" />
+    <ClInclude Include="MediaPlayers\BassInstance.h" />
+    <ClInclude Include="MediaPlayers\DShowEngine.h" />
+    <ClInclude Include="MediaPlayers\FadeBassEngine.h" />
+    <ClInclude Include="MediaPlayers\HttpLinkEngine.h" />
+    <ClInclude Include="MediaPlayers\MediaPlayer.h" />
+    <ClInclude Include="MediaPlayers\MediaPlayerEngine.h" />
+    <ClInclude Include="MediaPlayers\MediaPlayerUtilities.h" />
+    <ClInclude Include="MediaPlayers\MediaPlayList.h" />
+    <ClInclude Include="MediaPlayers\MediaVisualization.h" />
+    <ClInclude Include="MediaPlayers\MultiEngine.h" />
+    <ClInclude Include="MediaPlayers\NativeVisualization.h" />
+    <ClInclude Include="MediaPlayers\NullPlayerEngine.h" />
+    <ClInclude Include="MediaPlayers\NullVisualization.h" />
+    <ClInclude Include="MediaPlayers\RandomPlayerEngine.h" />
+    <ClInclude Include="MediaPlayers\ShufflePlaylistHelper.h" />
+    <ClInclude Include="MediaPlayers\VectorPlaylist.h" />
+    <ClInclude Include="MediaPlayers\WinampVisualization.h" />
+    <ClInclude Include="MediaPlayers\YouTubePlayerEngine.h" />
+    <ClInclude Include="MenuManager.h" />
+    <ClInclude Include="MessageDlg.h" />
+    <ClInclude Include="MessageViewer.h" />
+    <ClInclude Include="MillionaireButton.h" />
+    <ClInclude Include="MiniPlayerDlg.h" />
+    <ClInclude Include="MiniPlayerPP.h" />
+    <ClInclude Include="MPInfoViewer.h" />
+    <ClInclude Include="MultiPicturePage.h" />
+    <ClInclude Include="MultipleMPInfoViewer.h" />
+    <ClInclude Include="MultipleTracksPage.h" />
+    <ClInclude Include="ObjFactory.h" />
+    <ClInclude Include="OptionsSheet.h" />
+    <ClInclude Include="PaneController.h" />
+    <ClInclude Include="PlayerBarWnd.h" />
+    <ClInclude Include="PlayerWindow.h" />
+    <ClInclude Include="PlayListListCtrl.h" />
+    <ClInclude Include="PlayListPane.h" />
+    <ClInclude Include="PlayListPaneCreator.h" />
+    <ClInclude Include="PrgAPI.h" />
+    <ClInclude Include="PropertiesSheet.h" />
+    <ClInclude Include="QuickSearchDlg.h" />
+    <ClInclude Include="QuizRunningDlg.h" />
+    <ClInclude Include="RatingPP.h" />
+    <ClInclude Include="RenamerDlg.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="SearchDlg.h" />
+    <ClInclude Include="SearchPropertyPages.h" />
+    <ClInclude Include="SectionsPane.h" />
+    <ClInclude Include="SectionsPaneCreator.h" />
+    <ClInclude Include="ServicesRegistrationSrv.h" />
+    <ClInclude Include="ShortcutManager.h" />
+    <ClInclude Include="SimpleEditorDlg.h" />
+    <ClInclude Include="SimpleSearchCHdlg.h" />
+    <ClInclude Include="SkinManager.h" />
+    <ClInclude Include="SkinsPP.h" />
+    <ClInclude Include="SliderDlg.h" />
+    <ClInclude Include="StateManager.h" />
+    <ClInclude Include="StatusBarWnd.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Taggers\BassTagger.h" />
+    <ClInclude Include="Taggers\DShowTagger.h" />
+    <ClInclude Include="Taggers\EnhTagLibTagger.h" />
+    <ClInclude Include="Taggers\FileNameTagger.h" />
+    <ClInclude Include="Taggers\FileTagger.h" />
+    <ClInclude Include="Taggers\TagInfo.h" />
+    <ClInclude Include="Taggers\TagLibTagger.h" />
+    <ClInclude Include="TaggingPP.h" />
+    <ClInclude Include="TagsFromFilenameDlg.h" />
+    <ClInclude Include="TeenSpirit.h" />
+    <ClInclude Include="TeenSpiritDlg.h" />
+    <ClInclude Include="TeenSpiritEnums.h" />
+    <ClInclude Include="TeenSpiritPlayer.h" />
+    <ClInclude Include="TickerWnd.h" />
+    <ClInclude Include="ToolbarWnd.h" />
+    <ClInclude Include="Trackers\ITracker.h" />
+    <ClInclude Include="Trackers\LastFMAdapterTracker.h" />
+    <ClInclude Include="Trackers\LocalHistoryTracker.h" />
+    <ClInclude Include="Trackers\MSNAdapterTracker.h" />
+    <ClInclude Include="Trackers\MultiTracker.h" />
+    <ClInclude Include="Trackers\TSOnlineAdapterTracker.h" />
+    <ClInclude Include="TrackListCtrl.h" />
+    <ClInclude Include="TrackListPane.h" />
+    <ClInclude Include="TrackListPaneCreator.h" />
+    <ClInclude Include="TracksFilter.h" />
+    <ClInclude Include="TracksSerializerDlg.h" />
+    <ClInclude Include="TranslationManager.h" />
+    <ClInclude Include="TrayToolTipDlg.h" />
+    <ClInclude Include="TSBrowserEnh.h" />
+    <ClInclude Include="TSCommands.h" />
+    <ClInclude Include="TSConfigurable.h" />
+    <ClInclude Include="TSMenu.h" />
+    <ClInclude Include="TSNodes.h" />
+    <ClInclude Include="TSOnlineServices.h" />
+    <ClInclude Include="TSPaneContainer.h" />
+    <ClInclude Include="TSPropertyPage.h" />
+    <ClInclude Include="TSSkin.h" />
+    <ClInclude Include="TSSkinnable.h" />
+    <ClInclude Include="TSTranslatable.h" />
+    <ClInclude Include="UnitTest.h" />
+    <ClInclude Include="UserProgressDlg.h" />
+    <ClInclude Include="VariousPage.h" />
+    <ClInclude Include="VersionNo.h" />
+    <ClInclude Include="VideoContainer.h" />
+    <ClInclude Include="VideoPane.h" />
+    <ClInclude Include="VideoPaneCreator.h" />
+    <ClInclude Include="ViewerPane.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="VisualizationContainer.h" />
+    <ClInclude Include="VisualizationPane.h" />
+    <ClInclude Include="VisualizationPaneCreator.h" />
+    <ClInclude Include="WebPane.h" />
+    <ClInclude Include="WebPaneCreator.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="TeenSpirit.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\About.ico" />
+    <Image Include="res\aboutStop.ico" />
+    <Image Include="res\add16.ico" />
+    <Image Include="res\Album16.ico" />
+    <Image Include="res\AppIcon.ico" />
+    <Image Include="res\Artists.ico" />
+    <Image Include="res\audio16.ico" />
+    <Image Include="res\audiocd16.ico" />
+    <Image Include="res\back16.ico" />
+    <Image Include="res\buy16.ico" />
+    <Image Include="res\clear16.ico" />
+    <Image Include="res\Close16.ico" />
+    <Image Include="res\collapsed16.ico" />
+    <Image Include="res\Collections.ico" />
+    <Image Include="res\Collections16.ico" />
+    <Image Include="res\comments16.ico" />
+    <Image Include="res\copy16.ico" />
+    <Image Include="res\crossfade16.ico" />
+    <Image Include="res\crossfade16_active.ico" />
+    <Image Include="res\crossfade24.ico" />
+    <Image Include="res\DecreaseFont16.ico" />
+    <Image Include="res\delete16.ico" />
+    <Image Include="res\dockedvis.ico" />
+    <Image Include="res\down16.ico" />
+    <Image Include="res\Enqueue.ico" />
+    <Image Include="res\equalizer16.ico" />
+    <Image Include="res\equalizer16_active.ico" />
+    <Image Include="res\Error.ico" />
+    <Image Include="res\exit16.ico" />
+    <Image Include="res\expanded16.ico" />
+    <Image Include="res\find16.ico" />
+    <Image Include="res\forward16.ico" />
+    <Image Include="res\freevis.ico" />
+    <Image Include="res\Games.ico" />
+    <Image Include="res\Games16.ico" />
+    <Image Include="res\History.ico" />
+    <Image Include="res\History16.ico" />
+    <Image Include="res\home16.ico" />
+    <Image Include="res\icon1.ico" />
+    <Image Include="res\icon2.ico" />
+    <Image Include="res\icon46.ico" />
+    <Image Include="res\IDI_NEXT.ICO" />
+    <Image Include="res\IncreaseFont16.ico" />
+    <Image Include="res\Info.ico" />
+    <Image Include="res\internet16.ico" />
+    <Image Include="res\localfolder16.ico" />
+    <Image Include="res\lyrics16.ico" />
+    <Image Include="res\MainIcon4.ico" />
+    <Image Include="res\MainIcon5.ico" />
+    <Image Include="res\Maximize16.ico" />
+    <Image Include="res\media16.ico" />
+    <Image Include="res\Minimize16.ico" />
+    <Image Include="res\minus16.ico" />
+    <Image Include="res\MouseClick16.ico" />
+    <Image Include="res\Mute16.ico" />
+    <Image Include="res\netfolder16.ico" />
+    <Image Include="res\new16.ico" />
+    <Image Include="res\Nocrossfade24.ico" />
+    <Image Include="res\Nomute16.ico" />
+    <Image Include="res\Options.ico" />
+    <Image Include="res\options16.ico" />
+    <Image Include="res\overlay32.ico" />
+    <Image Include="res\overlayCheck32.ico" />
+    <Image Include="res\pause.ico" />
+    <Image Include="res\personal16.ico" />
+    <Image Include="res\picture16.ico" />
+    <Image Include="res\Play.ico" />
+    <Image Include="res\play16.ico" />
+    <Image Include="res\Play32.ico" />
+    <Image Include="res\Played16.ico" />
+    <Image Include="res\Previous.ico" />
+    <Image Include="res\properties16.ico" />
+    <Image Include="res\providers16.ico" />
+    <Image Include="res\refresh16.ico" />
+    <Image Include="res\removable16.ico" />
+    <Image Include="res\remove16.ico" />
+    <Image Include="res\ResetFont.ico" />
+    <Image Include="res\Restore16.ico" />
+    <Image Include="res\Save16.ico" />
+    <Image Include="res\Search.ico" />
+    <Image Include="res\shine32.ico" />
+    <Image Include="res\ShowMenu.ico" />
+    <Image Include="res\showvis.ico" />
+    <Image Include="res\starbad16.ico" />
+    <Image Include="res\starbadempty16.ico" />
+    <Image Include="res\starempty16.ico" />
+    <Image Include="res\stargold16.ico" />
+    <Image Include="res\stargoldhalf16.ico" />
+    <Image Include="res\stop.ico" />
+    <Image Include="res\switchpane16.ico" />
+    <Image Include="res\tablature16.ico" />
+    <Image Include="res\text16.ico" />
+    <Image Include="res\top10.ico" />
+    <Image Include="res\top100.ico" />
+    <Image Include="res\TopRest.ico" />
+    <Image Include="res\treeDisc2.ico" />
+    <Image Include="res\TreeView - 2Stars.ico" />
+    <Image Include="res\Treeview - 3Stars.ico" />
+    <Image Include="res\up16.ico" />
+    <Image Include="res\video16.ico" />
+    <Image Include="res\virtual16.ico" />
+    <Image Include="res\Warning.ico" />
+    <Image Include="res\window16.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\SDKs\BassSDK\bass.chm" />
+    <None Include="changelog.txt" />
+    <None Include="CommonSources\ShellFileOp\CShellFileOp_docs.html" />
+    <None Include="res\AddFiles.bmp" />
+    <None Include="res\AppIcons16.bmp" />
+    <None Include="res\arrorw-around-globe.avi" />
+    <None Include="res\arrorw-around-globe16.avi" />
+    <None Include="res\artist.png" />
+    <None Include="res\audiocd.jpg" />
+    <None Include="res\bitmap1.bmp" />
+    <None Include="res\bitmap2.bmp" />
+    <None Include="res\Cellection Types copy.bmp" />
+    <None Include="res\chick-n-egg.jpg" />
+    <None Include="res\DefaultExportStyle.txt" />
+    <None Include="res\Exit24.bmp" />
+    <None Include="res\ImageListTree.bmp" />
+    <None Include="res\ListViewToolbar16 - 24b v2.bmp" />
+    <None Include="res\MainListToolbar.bmp" />
+    <None Include="res\Next24.bmp" />
+    <None Include="res\Options24.bmp" />
+    <None Include="res\Pause24.bmp" />
+    <None Include="res\Play24.bmp" />
+    <None Include="res\PlayerToolbar.bmp" />
+    <None Include="res\Prev24.bmp" />
+    <None Include="res\process-working22.png" />
+    <None Include="res\ShowMenu.bmp" />
+    <None Include="res\Stop24.bmp" />
+    <None Include="res\TeenSpirit Bk.bmp" />
+    <None Include="res\TeenSpirit.bmp" />
+    <None Include="res\TeenSpirit.rc2" />
+    <None Include="res\textreso.bin" />
+    <None Include="res\UpdateAll.bmp" />
+    <None Include="res\Warnings.bmp" />
+    <None Include="res\youtubeapi.htm" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)build\vcpkg.targets" />
+</Project>

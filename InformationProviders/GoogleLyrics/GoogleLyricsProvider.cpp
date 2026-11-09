@@ -295,7 +295,7 @@ BOOL GoogleLyricsProvider::GetNextResult(Result& result)
 								TRACE(_T("@1 GoogleLyricsProvider::NextResult. link bigger than expected (FAILED)\r\n"));
 						}
 						else
-							TRACE(_T("@1 GoogleLyricsProvider::NextResult. Can't find endPos '%0.150s'\r\n"), CA2CT(&startPos[-1]));
+							TRACE(_T("@1 GoogleLyricsProvider::NextResult. Can't find endPos '%0.150s'\r\n"), (LPCTSTR)CA2CT(&startPos[-1]));
 						startPos = endPos;
 					}
 					else
@@ -334,7 +334,7 @@ BOOL GoogleLyricsProvider::GetNextResult(Result& result)
 									TRACE(_T("@1 GoogleLyricsProvider::NextResult. (r) link bigger than expected (FAILED)\r\n"));
 							}
 							else
-								TRACE(_T("@1 GoogleLyricsProvider::NextResult. (r) Can't find endPos '%0.150s'\r\n"), CA2CT(&startPos[-1]));
+								TRACE(_T("@1 GoogleLyricsProvider::NextResult. (r) Can't find endPos '%0.150s'\r\n"), (LPCTSTR)CA2CT(&startPos[-1]));
 							startPos = endPos;
 						}
 						else

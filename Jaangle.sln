@@ -1,11 +1,11 @@
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TeenSpirit", "TeenSpirit2005.vcproj", "{C1AE2C08-A6CA-4673-8D95-CF5608AB58D5}"
-	ProjectSection(ProjectDependencies) = postProject
-		{D8CCE60E-FC21-42CF-9104-A8E6F3A90F79} = {D8CCE60E-FC21-42CF-9104-A8E6F3A90F79}
-	EndProjectSection
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.0.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TeenSpirit", "TeenSpirit.vcxproj", "{C1AE2C08-A6CA-4673-8D95-CF5608AB58D5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XCrashReport", "CrashReport\XCrashReport.vcproj", "{D8CCE60E-FC21-42CF-9104-A8E6F3A90F79}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XCrashReport", "CrashReport\XCrashReport.vcxproj", "{D8CCE60E-FC21-42CF-9104-A8E6F3A90F79}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

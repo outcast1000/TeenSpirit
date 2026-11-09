@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "SQLManager.h"
+#include <algorithm>
 #include "Ado/AdoWrap.h"
 #include "stlStringUtils.h"
 

@@ -77,7 +77,7 @@ BOOL CShellFileOp::AddSourceFile ( LPCTSTR szPath )
         {
         m_lcstrSourceFiles.AddTail ( szPath );
         }
-    catch ( CMemoryException )
+    catch ( CMemoryException* )
         {
         TRACE0("Memory exception in CShellFileOp::AddSourceFile()!\n");
         throw;
@@ -112,7 +112,7 @@ BOOL CShellFileOp::AddDestFile ( LPCTSTR szPath )
         {
         m_lcstrDestFiles.AddTail ( szPath );
         }
-    catch ( CMemoryException )
+    catch ( CMemoryException* )
         {
         TRACE0("Memory exception in CShellFileOp::AddDestFile()!\n");
         throw;
@@ -294,7 +294,7 @@ void CShellFileOp::SetProgressDlgTitle ( LPCTSTR szTitle )
         {
         m_cstrProgressDlgTitle = szTitle;
         }
-    catch ( CMemoryException )
+    catch ( CMemoryException* )
         {
         TRACE0("Memory exception in CShellFileOp::SetProgressDlgTitle()!\n");
         throw;
@@ -485,7 +485,7 @@ int    nAPIRet;
             szzDestFiles = (LPTSTR) new BYTE [ dwDestBufferSize ];
             }
         }
-    catch ( CMemoryException )
+    catch ( CMemoryException* )
         {
         TRACE0("Memory exception in CShellFileOp::Go()!\n");
         throw;

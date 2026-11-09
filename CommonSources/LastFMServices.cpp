@@ -289,7 +289,7 @@ BOOL LastFMServices::HandShake(std::basic_string<TCHAR>& sessionID,
 		}
 		else
 		{
-			TRACE(_T("@4 LastFMServices::HandShake. fail: '%s'.\r\n"), CA2CT(GetErrorString()));
+			TRACE(_T("@4 LastFMServices::HandShake. fail: '%s'.\r\n"), (LPCTSTR)CA2CT(GetErrorString()));
 			m_state = ST_Error;
 		}
 	}
@@ -331,7 +331,7 @@ BOOL LastFMServices::SubmitTracks(LPCTSTR sessionID, LPCTSTR submissionURL)
 	CHAR utf8bf[bfSize];
 	//s=<sessionID>
 	//The Session ID string returned by the handshake request. Required
-	_snprintf(bf, bfSize, "s=%s&", CT2CA(sessionID));
+	_snprintf(bf, bfSize, "s=%s&", (LPCSTR)CT2CA(sessionID));
 	postData = bf;
 	{
 		CSingleLock lock(&m_cs);
@@ -397,7 +397,7 @@ BOOL LastFMServices::SubmitTracks(LPCTSTR sessionID, LPCTSTR submissionURL)
 	}
 	postData.erase(postData.size() - 1);
 
-	TRACE(_T("@4 LastFMServices::SubmitTracks. postingData '%s'\n"), CA2CT(postData.c_str()));
+	TRACE(_T("@4 LastFMServices::SubmitTracks. postingData '%s'\n"), (LPCTSTR)CA2CT(postData.c_str()));
 	std::string page;
 	if (DownloadWebPagePost(page, m_hNet, submissionURL, postData.c_str()))
 	{
@@ -415,8 +415,8 @@ BOOL LastFMServices::SubmitTracks(LPCTSTR sessionID, LPCTSTR submissionURL)
 				m_error = ERR_BadSession;
 			else 
 				m_error = ERR_Failed;
-			TRACE(_T("@1 LastFMServices::SubmitTracks. Track Failed (%d):'%s'.\n"), m_error, CA2CT(GetErrorString()));
-			TRACE(_T("@1 ... postedData '%s'.\n"), CA2CT(postData.c_str()));
+			TRACE(_T("@1 LastFMServices::SubmitTracks. Track Failed (%d):'%s'.\n"), m_error, (LPCTSTR)CA2CT(GetErrorString()));
+			TRACE(_T("@1 ... postedData '%s'.\n"), (LPCTSTR)CA2CT(postData.c_str()));
 		}
 	}
 	else

@@ -233,7 +233,7 @@ BOOL FreeDB::RetrieveFreeDbServers()
 	INT errCode = GetPageErrorCode(page.c_str());
 	if (errCode != 210)
 	{
-		TRACE(_T("@1 RetrieveFreeDbServers Error: '%s'\r\n"), CA2CT(page.c_str()));
+		TRACE(_T("@1 RetrieveFreeDbServers Error: '%s'\r\n"), (LPCTSTR)CA2CT(page.c_str()));
 		return FALSE;
 	}
 	INT startPos = 0;
@@ -398,7 +398,7 @@ FreeDB::QueryResult FreeDB::Query(std::vector<FreeDBResult>& results, AudioCDInf
 		break;
 	case 202: //202 No match for disc ID 550d6a18.
 	default:
-		TRACE(_T("@1 FreeDB::Query Error: '%s'\r\n"), CA2CT(page.c_str()));
+		TRACE(_T("@1 FreeDB::Query Error: '%s'\r\n"), (LPCTSTR)CA2CT(page.c_str()));
 		return QR_NotFound;
 		break;
 	}
@@ -473,7 +473,7 @@ BOOL FreeDB::Read(FreeDBResult result, AudioCDInfo& CDInfo, LPCTSTR freeDbServer
 		break;
 	case 212://Found InExact match
 	default:
-		TRACE(_T("@1 FreeDB::Read Error: '%s'\r\n"), CA2CT(page.c_str()));
+		TRACE(_T("@1 FreeDB::Read Error: '%s'\r\n"), (LPCTSTR)CA2CT(page.c_str()));
 		return FALSE;
 		break;
 	}

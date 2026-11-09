@@ -21,7 +21,7 @@ void CommunicationJob::Execute()
 			if (DownloadWebPage(page, m_hNet, m_url.c_str()))
 			{
 				if (page != "OK")
-					TRACE(_T("@1 CommunicationJob::Execute RESP: '%s'"), CA2CT(page.c_str()));
+					TRACE(_T("@1 CommunicationJob::Execute RESP: '%s'"), (LPCTSTR)CA2CT(page.c_str()));
 			}
 		}
 		else
@@ -29,7 +29,7 @@ void CommunicationJob::Execute()
 			if (DownloadWebPagePost(page, m_hNet, m_url.c_str(), m_data.c_str()))
 			{
 				if (page != "OK")
-					TRACE(_T("@1 CommunicationJob::Execute RESP: '%s'"), CA2CT(page.c_str()));
+					TRACE(_T("@1 CommunicationJob::Execute RESP: '%s'"), (LPCTSTR)CA2CT(page.c_str()));
 			}
 
 		}

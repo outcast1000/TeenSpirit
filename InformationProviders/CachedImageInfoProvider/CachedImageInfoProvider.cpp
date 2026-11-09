@@ -190,7 +190,7 @@ void CachedImageInfoProvider::ConvertV2ArtistPictures()
 	cMD5 md5;
 	TCHAR path[MAX_PATH];
 	//--- Format v2
-	_sntprintf(path, MAX_PATH,_T("%s%s??.???"), m_storagePath.c_str(), CA2CT(md5.CalcMD5FromString(CT2CA(m_Artist.c_str()))));
+	_sntprintf(path, MAX_PATH,_T("%s%s??.???"), m_storagePath.c_str(), (LPCTSTR)CA2CT(md5.CalcMD5FromString((LPCSTR)CT2CA(m_Artist.c_str()))));
 	WIN32_FIND_DATA dta;
 	HANDLE hFileFinder = FindFirstFile(path, &dta);
 	if (hFileFinder != INVALID_HANDLE_VALUE)
@@ -228,7 +228,7 @@ void CachedImageInfoProvider::ConvertV2AlbumPictures()
 	TCHAR path[MAX_PATH];
 	//--- Format v2
 	_sntprintf(path, MAX_PATH,_T("%s-%s"), m_Artist.c_str(), m_Album.c_str());
-	_sntprintf(path, MAX_PATH,_T("%s%s??.???"), m_storagePath.c_str(), CA2CT(md5.CalcMD5FromString(CT2CA(path))));
+	_sntprintf(path, MAX_PATH,_T("%s%s??.???"), m_storagePath.c_str(), (LPCTSTR)CA2CT(md5.CalcMD5FromString((LPCSTR)CT2CA(path))));
 	WIN32_FIND_DATA dta;
 	HANDLE hFileFinder = FindFirstFile(path, &dta);
 	if (hFileFinder != INVALID_HANDLE_VALUE)

@@ -22,6 +22,7 @@
 //	*/ 
 #include "stdafx.h"
 #include "ILanguageUtilities.h"
+#include <memory>
 
 BOOL ILanguageUtilities::CompareLanguages(ILanguage& first, ILanguage& second, LanguageComparison& stats, std::basic_string<TCHAR>& log)
 {
@@ -92,7 +93,7 @@ BOOL ILanguageUtilities::ImportLanguageFile(LPCTSTR pathName, ILanguage& destLan
 	ASSERT(pathName != NULL);
 	if (_taccess(pathName, 2) == 0)
 	{
-		std::auto_ptr<TCHAR> dta(GetLanguageFile(pathName));
+		std::unique_ptr<TCHAR[]> dta(GetLanguageFile(pathName));	//allocated with new TCHAR[]
 		if (dta.get() != NULL)
 		{
 			destLanguage.ClearStrings();

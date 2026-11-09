@@ -1,0 +1,8 @@
+{
+  "name": "jaangle",
+  "version-string": "0.98f-rc1",
+  "dependencies": [
+    "zlib"
+  ],
+  "builtin-baseline": "e93e1f6ab41a22fe711b1045dbbac5cbc9db60af"
+}

@@ -229,7 +229,7 @@ BOOL ReadInternetFile2StringW(HINTERNET hFile, std::string& page)
 
 BOOL DownloadWebPageA(std::string& page, HINTERNET hInternet, LPCSTR url)
 {
-	TRACEST(_T("DownloadWebPageA"), CA2CT(url));
+	TRACEST(_T("DownloadWebPageA"), (LPCTSTR)CA2CT(url));
 	BOOL bDownloadSuccess = FALSE;
 	if (hInternet == NULL)
 		return FALSE;
@@ -246,7 +246,7 @@ BOOL DownloadWebPageA(std::string& page, HINTERNET hInternet, LPCSTR url)
 
 BOOL DownloadWebPageW(std::string& page, HINTERNET hInternet, LPCWSTR url)
 {
-	TRACEST(_T("DownloadWebPageW"), CW2CT(url));
+	TRACEST(_T("DownloadWebPageW"), (LPCTSTR)CW2CT(url));
 	BOOL bDownloadSuccess = FALSE;
 	if (hInternet == NULL)
 		return FALSE;
@@ -263,7 +263,7 @@ BOOL DownloadWebPageW(std::string& page, HINTERNET hInternet, LPCWSTR url)
 
 BOOL DownloadWebPagePostA(std::string& page, HINTERNET hInternet, LPCSTR url, LPCSTR postData)
 {
-	TRACEST(_T("DownloadWebPagePostA"), CA2CT(url));
+	TRACEST(_T("DownloadWebPagePostA"), (LPCTSTR)CA2CT(url));
 	BOOL bRet = FALSE;
 	URL_COMPONENTSA comp;
 	memset(&comp, 0, sizeof(URL_COMPONENTSA));
@@ -321,7 +321,7 @@ BOOL DownloadWebPagePostA(std::string& page, HINTERNET hInternet, LPCSTR url, LP
 
 BOOL DownloadWebPagePostW(std::string& page, HINTERNET hInternet, LPCWSTR url, LPCSTR postData)
 {
-	TRACEST(_T("DownloadWebPagePostW"), CW2CT(url));
+	TRACEST(_T("DownloadWebPagePostW"), (LPCTSTR)CW2CT(url));
 	BOOL bRet = FALSE;
 	URL_COMPONENTSW comp;
 	memset(&comp, 0, sizeof(URL_COMPONENTSW));
@@ -381,7 +381,7 @@ BOOL DownloadWebPagePostW(std::string& page, HINTERNET hInternet, LPCWSTR url, L
 
 BOOL DownloadWebPageUnicode(std::wstring& page, HINTERNET hInternet, LPCWSTR url)
 {
-	TRACEST(_T("DownloadWebPageUnicode"), CW2CT(url));
+	TRACEST(_T("DownloadWebPageUnicode"), (LPCTSTR)CW2CT(url));
 	BOOL bDownloadSuccess = FALSE;
 	if (hInternet == NULL)
 		return FALSE;
@@ -480,7 +480,7 @@ BOOL DownloadWebPageUnicode(std::wstring& page, HINTERNET hInternet, LPCWSTR url
 
 BOOL DownloadToFile(LPCTSTR fileName, HINTERNET hInternet, LPCWSTR url)
 {
-	TRACEST(_T("DownloadToFile"), CW2CT(url));
+	TRACEST(_T("DownloadToFile"), (LPCTSTR)CW2CT(url));
 	BOOL bDownloadSuccess = FALSE;
 	if (hInternet == NULL)
 		return FALSE;

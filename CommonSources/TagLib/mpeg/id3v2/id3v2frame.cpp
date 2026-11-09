@@ -28,7 +28,7 @@
 #endif
 
 #if HAVE_ZLIB
-#include <zlib/zlib.h>
+#include <zlib.h>
 #endif
 
 #include <bitset>

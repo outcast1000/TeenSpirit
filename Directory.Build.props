@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Applies to every project in the tree: keep all build output under build\out. -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <JaangleRoot>$(MSBuildThisFileDirectory)</JaangleRoot>
+    <OutDir>$(JaangleRoot)build\out\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(JaangleRoot)build\obj\$(MSBuildProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <!-- 32-bit ADO/JRO type libraries used by CommonSources\Ado\AdoWrap.h (#import). -->
+    <JaangleAdoDir>$([System.Environment]::GetFolderPath(SpecialFolder.CommonProgramFilesX86))\System\ado</JaangleAdoDir>
+  </PropertyGroup>
+</Project>

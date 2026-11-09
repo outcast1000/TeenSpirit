@@ -117,10 +117,7 @@ UINT replace(std::basic_string<T>& target,
 
 
 
-template<class T>
-INT RemoveEnclosedString(std::basic_string<T>& text, 
-						 const T* fndStart, 
-						 const T* fndEnd);
+INT RemoveEnclosedString(std::wstring& text, LPCTSTR fndStart, LPCTSTR fndEnd);
 
 
 

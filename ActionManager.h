@@ -13,7 +13,7 @@ struct MediaInfo;
 #include "PrgAPI.h"
 #include "DataRecords.h"
 #include "TracksFilter.h"
-#include <boost/random/linear_congruential.hpp>
+#include <random>
 
 //class FullTrackRecordCollection;
 class CMiniPlayerDlg;
@@ -283,7 +283,7 @@ public:
 private:
 	//CMiniPlayerDlg* m_pMiniPlayerDlg;
 	//QuickSearchDlg* m_pQuickSearchDlg;
-	boost::rand48 m_rndGenerator;
+	std::mt19937 m_rndGenerator;
 
 };
 

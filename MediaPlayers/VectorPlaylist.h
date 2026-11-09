@@ -25,7 +25,7 @@
 
 #include "MediaPlayList.h"
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class VectorPlayList:public MediaPlayList
 {
@@ -64,7 +64,7 @@ private:
 		UINT rating;
 		DWORD flags;
 	};
-	typedef boost::shared_ptr<PLItem> PLItemSP;
+	typedef std::shared_ptr<PLItem> PLItemSP;
 	std::vector<PLItemSP> m_storage;
 };
 

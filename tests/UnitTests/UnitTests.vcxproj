@@ -91,6 +91,10 @@
     <ClCompile Include="..\..\AppResources.cpp" />
     <ClCompile Include="SkinTests.cpp" />
     <ClCompile Include="TranslationTests.cpp" />
+    <ClCompile Include="TrackerTests.cpp" />
+    <ClCompile Include="..\..\Trackers\MultiTracker.cpp" />
+    <ClCompile Include="..\..\Trackers\LocalHistoryTracker.cpp" />
+    <ClCompile Include="..\..\Trackers\LastFMAdapterTracker.cpp" />
     <ClCompile Include="..\..\TranslationManager.cpp" />
     <ClCompile Include="..\..\CommonSources\ITranslation\ITranslationUtilities.cpp" />
     <ClCompile Include="..\..\TSSkin.cpp" />

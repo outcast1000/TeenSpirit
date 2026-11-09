@@ -25,18 +25,19 @@
 
 #include "LocalHistoryTracker.h"
 #include "LastFMAdapterTracker.h"
-
-#include "PrgAPI.h"
-
+#include "AppOptions.h"
 
 
-MultiTracker::MultiTracker():
+MultiTracker::MultiTracker(AppOptions& options, SQLManager& sqlManager, std::function<LastFMServices*()> getLastFM):
+m_options(options),
+m_sqlManager(sqlManager),
+m_getLastFM(getLastFM),
 m_pLH(NULL),
 m_pLFM(NULL)
 {
 }
 
-MultiTracker::~MultiTracker(void)			
+MultiTracker::~MultiTracker(void)
 {
 	delete m_pLFM;
 	delete m_pLH;
@@ -45,22 +46,26 @@ MultiTracker::~MultiTracker(void)
 void MultiTracker::SubmitTrack(Action action, const TrackerTrack& track, UINT actionTime)
 {
 	TRACEST(_T("MultiTracker::SubmitTrack"));
-	PrgAPI* pAPI = PRGAPI();
-	if (pAPI->GetOption(OPT_GEN_LastFMScrobbler))
+	if (m_options.Get(OPT_GEN_LastFMScrobbler))
 	{
 		if (m_pLFM == NULL)
 		{
-			m_pLFM = new LastFMAdapterTracker;
-			m_pLFM->SetLastFM(pAPI->GetLastFMServices());
+			LastFMServices* pLastFM = m_getLastFM ? m_getLastFM() : NULL;
+			if (pLastFM != NULL)
+			{
+				m_pLFM = new LastFMAdapterTracker;
+				m_pLFM->SetLastFM(pLastFM);
+			}
 		}
-		m_pLFM->SubmitTrack(action, track, actionTime);
+		if (m_pLFM != NULL)
+			m_pLFM->SubmitTrack(action, track, actionTime);
 	}
-	if (pAPI->GetOption(OPT_GEN_NotifyHistory))
+	if (m_options.Get(OPT_GEN_NotifyHistory))
 	{
 		if (m_pLH == NULL)
 		{
 			m_pLH = new LocalHistoryTracker;
-			m_pLH->SetSQLManager(pAPI->GetSQLManager());
+			m_pLH->SetSQLManager(&m_sqlManager);
 		}
 		m_pLH->SubmitTrack(action, track, actionTime);
 	}

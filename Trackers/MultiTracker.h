@@ -23,23 +23,33 @@
 #pragma once
 
 #include "ITracker.h"
+#include <functional>
 class LocalHistoryTracker;
 class LastFMAdapterTracker;
+class LastFMServices;
+class SQLManager;
+class AppOptions;
 
+//	Sends each track action to the local history (OPT_GEN_NotifyHistory) and to
+//	the Last.fm scrobbler (OPT_GEN_LastFMScrobbler); the options are read on
+//	every submit. getLastFM is called only once scrobbling is first needed (the
+//	service connects when created); while it returns NULL nothing is scrobbled.
 class MultiTracker:public ITracker
 {
 public:
-	MultiTracker();
+	MultiTracker(AppOptions& options, SQLManager& sqlManager, std::function<LastFMServices*()> getLastFM);
 	virtual ~MultiTracker(void);
 
 	virtual void SubmitTrack(Action action, const TrackerTrack& track, UINT actionTime);
 	virtual LPCTSTR GetName()				{return _T("Multi Tracker");}
 
 private:
+	MultiTracker(const MultiTracker&);
+	MultiTracker& operator=(const MultiTracker&);
+
+	AppOptions& m_options;
+	SQLManager& m_sqlManager;
+	std::function<LastFMServices*()> m_getLastFM;
 	LocalHistoryTracker* m_pLH;
 	LastFMAdapterTracker* m_pLFM;
-
-
-
-
 };

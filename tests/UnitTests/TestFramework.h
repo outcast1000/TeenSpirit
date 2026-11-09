@@ -24,5 +24,6 @@ void RunTaggerTests();
 void RunAppServicesTests();
 void RunSkinTests();
 void RunTranslationTests();
+void RunTrackerTests();
 
 #endif

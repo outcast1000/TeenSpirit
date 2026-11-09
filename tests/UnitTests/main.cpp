@@ -44,6 +44,7 @@ int wmain()
 	RunAppServicesTests();
 	RunSkinTests();
 	RunTranslationTests();
+	RunTrackerTests();
 
 	wprintf(L"\n%d checks, %d failures\n", gChecks, gFailures);
 	CoUninitialize();

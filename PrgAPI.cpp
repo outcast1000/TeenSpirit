@@ -1350,7 +1350,8 @@ ITracker* PrgAPI::GetTracker()
 	if (m_pTracker == NULL)
 	{
 		TRACEST(_T("PrgAPI::GetTracker [CREATION]"));
-		m_pTracker= new MultiTracker();
+		m_pTracker = new MultiTracker(GetAppOptions(), *GetSQLManager(),
+			[this]() {return GetLastFMServices();});
 	}
 	return m_pTracker;
 }

@@ -344,9 +344,24 @@ void CoverArtArchiveProvider::ParseReleaseGroups(const std::string& text, std::v
 
 BOOL CoverArtArchiveProvider::Fetch(const Request& request, std::vector<Candidate>& candidates)
 {
-	ThrottleMusicBrainz();
+	//MusicBrainz answers 503 when the rate limit (per IP, so shared with any other
+	//client behind the same address) is exceeded: back off and try again.
+	const std::wstring url = BuildSearchURL(request.artist, request.album);
 	std::string body;
-	if (!OnlineInfo::HttpGet(m_hNet, BuildSearchURL(request.artist, request.album), body))
+	DWORD status = 0;
+	BOOL bOK = FALSE;
+	for (INT attempt = 0; attempt < 3 && !bOK; attempt++)
+	{
+		if (attempt > 0)
+		{
+			if (status != 503)
+				break;
+			Sleep(2000 * attempt);
+		}
+		ThrottleMusicBrainz();
+		bOK = OnlineInfo::HttpGet(m_hNet, url, body, &status);
+	}
+	if (!bOK)
 		return FALSE;
 	std::vector<std::wstring> ids;
 	ParseReleaseGroups(body, ids, 3);

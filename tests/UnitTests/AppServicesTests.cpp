@@ -1,9 +1,11 @@
 //	Services extracted from PrgAPI: AppOptions (option table and values over the
-//	AppSettings interface) and AppStrings (enum display names over ITranslation).
+//	AppSettings interface), AppStrings (enum display names over ITranslation) and
+//	AppResources (fonts and icons from a resource module).
 #include "stdafx.h"
 #include "TestFramework.h"
 #include "AppOptions.h"
 #include "AppStrings.h"
+#include "AppResources.h"
 #include "AppSettings/IniAppSettings.h"
 #include "ITranslation/ITranslation.h"
 #include "resource.h"
@@ -209,6 +211,122 @@ namespace
 		CHECK(AppStrings::ForSectionType(tr, ST_MonthAdded) == Res(IDS_MONTH));
 		CHECK(wcscmp(AppStrings::ForSectionType(tr, ST_Directory), L"") == 0);
 	}
+	void TestResourceMappings()
+	{
+		for (int i = 0; i < ICO_Last; i++)
+		{
+			INT resID = 0, size = 0;
+			CHECK(AppResources::GetIconResource((APP_ICONS)i, resID, size));
+			CHECK(resID > 0);
+			CHECK(size == 16 || size == 24 || size == 48);
+		}
+		INT resID = 0, size = 0;
+		CHECK(!AppResources::GetIconResource(ICO_Last, resID, size));
+		CHECK(AppResources::GetIconResource(ICO_Main, resID, size) && resID == IDR_MAINFRAME && size == 48);
+		CHECK(AppResources::GetIconResource(ICO_Main16, resID, size) && resID == IDR_MAINFRAME && size == 16);
+		CHECK(AppResources::GetIconResource(ICO_Play24, resID, size) && resID == IDI_PLAY24 && size == 24);
+		CHECK(AppResources::GetIconResource(ICO_Nomute16, resID, size) && resID == IDI_NOMUTE16 && size == 16);
+
+		LOGFONT lf;
+		CHECK(AppResources::GetFontSpec(FONT_Dialogs, lf));
+		CHECK(wcscmp(lf.lfFaceName, L"Tahoma") == 0 && lf.lfHeight == 13 && lf.lfWeight == FW_NORMAL && !lf.lfItalic && !lf.lfUnderline);
+		CHECK(AppResources::GetFontSpec(FONT_DialogsBold, lf) && lf.lfWeight == FW_BOLD && lf.lfHeight == 13);
+		CHECK(AppResources::GetFontSpec(FONT_DialogsUnderline, lf) && lf.lfUnderline && lf.lfWeight == FW_NORMAL);
+		CHECK(AppResources::GetFontSpec(FONT_DialogsItalics, lf) && lf.lfItalic);
+		CHECK(AppResources::GetFontSpec(FONT_DialogsBig, lf) && lf.lfHeight == 18 && lf.lfWeight == FW_NORMAL);
+		CHECK(AppResources::GetFontSpec(FONT_DialogsBigBold, lf) && lf.lfHeight == 18 && lf.lfWeight == FW_BOLD);
+		CHECK(AppResources::GetFontSpec(FONT_Fixed, lf) && wcscmp(lf.lfFaceName, L"Courier New") == 0
+			&& lf.lfHeight == 15 && (lf.lfPitchAndFamily & 3) == FIXED_PITCH);
+		CHECK(!AppResources::GetFontSpec(FONT_Last, lf));
+
+		CHECK(AppResources::IconForTrackType(TTYPE_mp3) == ICO_Audio16);
+		CHECK(AppResources::IconForTrackType(TTYPE_mpg) == ICO_Video16);
+		CHECK(AppResources::IconForTrackType(TTYPE_http) == ICO_Virtual16);
+		CHECK(AppResources::IconForRank(1) == ICO_Top1016);
+		CHECK(AppResources::IconForRank(10) == ICO_Top1016);
+		CHECK(AppResources::IconForRank(11) == ICO_Top10016);
+		CHECK(AppResources::IconForRank(100) == ICO_Top10016);
+		CHECK(AppResources::IconForRank(101) == ICO_TopRest16);
+		CHECK(AppResources::IconForRank(0) == ICO_TopRest16);
+		CHECK(AppResources::IconForStars(0) == ICO_Last);
+		CHECK(AppResources::IconForStars(1) == ICO_StarBad16);
+		CHECK(AppResources::IconForStars(5) == ICO_StarGold16);
+		CHECK(AppResources::IconForCollectionType(CTYPE_LocalFolder) == ICO_LocalFolder16);
+		CHECK(AppResources::IconForCollectionType(CTYPE_Removable) == ICO_Removable16);
+		CHECK(AppResources::IconForCollectionType(CTYPE_Unknown) == ICO_Last);
+		CHECK(AppResources::IconForInfoItemType(IIT_ArtistPicture) == ICO_Picture16);
+		CHECK(AppResources::IconForInfoItemType(IIT_ArtistBio) == ICO_Text16);
+		CHECK(AppResources::IconForInfoItemType(IIT_TrackLyrics) == ICO_Lyrics16);
+		CHECK(AppResources::IconForInfoItemType(IIT_TrackTablatures) == ICO_Tablature16);
+		CHECK(AppResources::IconForInfoItemType(IIT_Unknown) == ICO_Last);
+	}
+
+	//Width of an icon's color (or mask) bitmap.
+	INT IconWidth(HICON hIcon)
+	{
+		ICONINFO ii;
+		if (!GetIconInfo(hIcon, &ii))
+			return 0;
+		BITMAP bm = {0};
+		GetObject(ii.hbmColor != NULL ? ii.hbmColor : ii.hbmMask, sizeof(bm), &bm);
+		if (ii.hbmColor != NULL) DeleteObject(ii.hbmColor);
+		if (ii.hbmMask != NULL) DeleteObject(ii.hbmMask);
+		return bm.bmWidth;
+	}
+
+	//Loads every icon from the app's exe (built next to UnitTests.exe).
+	void TestResourcesFromApp()
+	{
+		WCHAR path[MAX_PATH];
+		GetModuleFileNameW(NULL, path, MAX_PATH);
+		*(wcsrchr(path, L'\\') + 1) = 0;
+#ifdef _DEBUG
+		wcscat(path, L"jaangledbg.exe");
+#else
+		wcscat(path, L"jaangle.exe");
+#endif
+		HMODULE hApp = LoadLibraryExW(path, NULL, LOAD_LIBRARY_AS_IMAGE_RESOURCE | LOAD_LIBRARY_AS_DATAFILE);
+		CHECK(hApp != NULL);
+		if (hApp == NULL)
+		{
+			wprintf(L"  (app exe not found: %s)\n", path);
+			return;
+		}
+		{
+			AppResources res(hApp);
+			for (int i = 0; i < ICO_Last; i++)
+			{
+				INT resID = 0, size = 0;
+				AppResources::GetIconResource((APP_ICONS)i, resID, size);
+				HICON hIcon = res.GetIcon((APP_ICONS)i);
+				CHECK(hIcon != NULL);
+				if (hIcon == NULL)
+				{
+					wprintf(L"    icon %d (res %d) missing\n", i, resID);
+					continue;
+				}
+				CHECK(IconWidth(hIcon) == size);
+				CHECK(res.GetIcon((APP_ICONS)i) == hIcon);	//cached
+			}
+			CHECK(res.GetIcon(ICO_Last) == NULL);
+			CImageList& il = res.GetImageList16();
+			CHECK(il.GetImageCount() == ICO_Last);
+			CHECK(&res.GetImageList16() == &il);
+
+			for (int i = 0; i < FONT_Last; i++)
+			{
+				CFont* pFont = res.GetFont((APP_FONTS)i);
+				CHECK(pFont != NULL && pFont->GetSafeHandle() != NULL);
+				CHECK(res.GetFont((APP_FONTS)i) == pFont);
+				LOGFONT expected, actual;
+				AppResources::GetFontSpec((APP_FONTS)i, expected);
+				CHECK(pFont != NULL && pFont->GetLogFont(&actual) && wcscmp(actual.lfFaceName, expected.lfFaceName) == 0
+					&& actual.lfHeight == expected.lfHeight && actual.lfWeight == expected.lfWeight);
+			}
+			CHECK(res.GetFont(FONT_Dialogs) != res.GetFont(FONT_DialogsBold));
+		}
+		FreeLibrary(hApp);
+	}
 }
 
 void RunAppServicesTests()
@@ -218,4 +336,6 @@ void RunAppServicesTests()
 	TestOptionValues();
 	TestOptionsIniRoundTrip();
 	TestStrings();
+	TestResourceMappings();
+	TestResourcesFromApp();
 }

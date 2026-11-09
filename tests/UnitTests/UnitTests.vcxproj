@@ -88,6 +88,7 @@
     <ClCompile Include="AppServicesTests.cpp" />
     <ClCompile Include="..\..\AppOptions.cpp" />
     <ClCompile Include="..\..\AppStrings.cpp" />
+    <ClCompile Include="..\..\AppResources.cpp" />
     <ClCompile Include="..\..\CommonSources\AppSettings\IniAppSettings.cpp" />
     <ClCompile Include="..\..\Taggers\TagLibTagger.cpp" />
     <ClInclude Include="TestFramework.h" />

@@ -44,7 +44,8 @@ test needs the 32-bit Jet 4.0 OLE DB provider.
   `InfoDownloadManager`, `InfoProviderFactory`, `StateManager`, `SkinManager`,
   `TranslationManager`, `LastFMServices`, trackers, hotkeys, menus, dialogs, and the shared WinInet
   handle. It is being decoupled incrementally: services move out into classes that take their
-  dependencies explicitly (`AppOptions` over `AppSettings`, `AppStrings` over `ITranslation`), with
+  dependencies explicitly (`AppOptions` over `AppSettings`, `AppStrings` over `ITranslation`, `AppResources` for fonts and
+  icons over a resource module), with
   PrgAPI keeping thin delegating methods so call sites don't change. New code should take those
   dependencies directly instead of calling `PRGAPI()`.
 - **`StateManager`** is the app-wide event bus: components implement `IStateChangeListener`

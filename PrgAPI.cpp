@@ -43,6 +43,7 @@
 #include "SearchDlg.h"
 #include "AppOptions.h"
 #include "AppStrings.h"
+#include "AppResources.h"
 
 
 
@@ -223,10 +224,9 @@ m_pShortcutManager(NULL),
 m_pConfigurationManager(NULL),
 m_pStateManager(NULL),
 m_pAppMonitor(NULL),
-m_pAppOptions(NULL)
+m_pAppOptions(NULL),
+m_pAppResources(NULL)
 {
-	memset(m_pAppFonts, 0, sizeof(m_pAppFonts));
-	memset(m_AppIcons, 0, sizeof(m_AppIcons));
 }
 
 PrgAPI::~PrgAPI()
@@ -303,17 +303,8 @@ PrgAPI::~PrgAPI()
 	//TRACE(_T("@2*delete* m_pSQLManager\r\n"));
 	delete m_pSQLManager;
 	m_pSQLManager = NULL;
-	//TRACE(_T("@2*delete* ..fonts...\r\n"));
-	ClearFonts();
-	//TRACE(_T("@2*delete* ..icons...\r\n"));
-	for (int i=0 ; i<ICO_Last; i++)
-	{
-		if (m_AppIcons[i] != NULL)
-		{
-			DestroyIcon(m_AppIcons[i]);
-			m_AppIcons[i] = NULL;
-		}
-	}
+	delete m_pAppResources;
+	m_pAppResources = NULL;
 	//TRACE(_T("@2*delete* m_pAppSettings\r\n"));
 	delete m_pAppOptions;
 	m_pAppOptions = NULL;
@@ -950,273 +941,11 @@ ServicesRegistrationSrv* PrgAPI::GetServicesRegistrationSrv()
 	return m_pServicesRegistrationSrv;
 }
 
-CFont* PrgAPI::GetFont(APP_FONTS fon)
+AppResources& PrgAPI::GetAppResources()
 {
-	if (m_pAppFonts[fon] == NULL)
-	{
-		LOGFONT lf;
-		lf.lfHeight = 13;
-		lf.lfWidth = 0;
-		lf.lfEscapement = 0; 
-		lf.lfOrientation = 0;
-		lf.lfWeight = FW_NORMAL;
-		lf.lfItalic = FALSE;
-		lf.lfUnderline = FALSE;
-		lf.lfStrikeOut = FALSE;
-		lf.lfCharSet = DEFAULT_CHARSET;
-		lf.lfOutPrecision = OUT_TT_ONLY_PRECIS;//OUT_DEFAULT_PRECIS;
-		lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
-		lf.lfQuality = DEFAULT_QUALITY;//ANTIALIASED_QUALITY;
-		lf.lfPitchAndFamily = VARIABLE_PITCH | FF_DONTCARE;
-		_tcscpy(lf.lfFaceName, _T("Tahoma"));
-
-		switch (fon)
-		{
-		case FONT_Dialogs:
-			break;
-		case FONT_DialogsUnderline:
-			lf.lfUnderline = TRUE;
-			break;
-		case FONT_DialogsItalics:
-			lf.lfItalic = TRUE;
-			break;
-		case FONT_DialogsBold:
-			lf.lfWeight = FW_BOLD;
-			break;
-		case FONT_DialogsBig:
-			lf.lfHeight = 18;
-			break;
-		case FONT_DialogsBigBold:
-			lf.lfHeight = 18;
-			lf.lfWeight = FW_BOLD;
-			break;
-		case FONT_Fixed:
-			lf.lfHeight = 15;
-			lf.lfPitchAndFamily = FIXED_PITCH | FF_DONTCARE;
-			_tcscpy(lf.lfFaceName, _T("Courier New"));
-			break;
-		//case FONT_Marlett:
-		//	lf.lfHeight = 11;
-		//	_tcscpy(lf.lfFaceName, _T("Marlett"));
-		//	break;
-		default:
-			ASSERT(0);
-			break;
-		}
-		CFont* pFont = new CFont;
-		pFont->CreateFontIndirect(&lf);
-		m_pAppFonts[fon] = pFont;
-	}
-	return m_pAppFonts[fon];
-
-}
-
-const int AppIcon2Resource[][2] = 
-{
-	{IDR_MAINFRAME, 48},		//ICO_Info,
-
-	{IDI_INFO,16},		//ICO_Info,
-	{IDI_WARN,16},		//ICO_Warning,
-	{IDI_TSERROR,16},	//ICO_Error,
-	{IDI_PREVIOUS24,24},	//ICO_Prev24,
-	{IDI_PLAY24,24},	//ICO_Play24,
-	{IDI_PAUSE24,24},		//ICO_Pause24,
-	{IDI_STOP24,24},		//ICO_Stop24,
-	{IDI_NEXT24,24},		//ICO_Next24
-
-	{IDI_CROSSFADE16,16},		//ICO_Crossfade16,
-	{IDI_CROSSFADE_AC16,16},	//ICO_CrossfadeAc16,
-	{IDI_EQUALIZER16,16},		//ICO_Equalizer16,
-	{IDI_EQUALIZER_AC16,16},	//ICO_EqualizerAc16,
-	
-	{IDI_BACK16,16},	//ICO_Back16
-	{IDI_FORWARD16,16},	//ICO_Forward16
-	{IDI_HOME16,16},	//ICO_Home16
-	{IDI_REFRESH16,16},	//ICO_Refresh16
-	{IDI_INTERNET16,16},//ICO_Internet16
-	{IDI_ADD16, 16},	//ICO_Add16
-
-	{IDI_ARTISTS_ICON, 16},	//ICO_Artist16,
-	{IDI_2STARS, 16},		//ICO_2Stars16,
-	{IDI_3STARS, 16},		//ICO_3Stars16,
-
-	{IDI_TOP1016, 16},		//ICO_Top1016,
-	{IDI_TOP10016, 16},		//ICO_Top10016,
-	{IDI_TOPREST16, 16},	//ICO_TopRest16,
-	{IDI_PLAYED16, 16},		//ICO_Played16,
-	{IDI_MOUSECLICK16, 16},	//ICO_MouseClick16,
-
-	{IDI_AUDIO16, 16},		//ICO_Audio16,
-	{IDI_VIDEO16, 16},		//ICO_Video16,
-	{IDI_VIRTUAL16, 16},	//ICO_Virtual16,
-	{IDI_COMMENTS16, 16},	//ICO_Comment16,
-	{IDI_LYRICS16, 16},		//ICO_Lyrics16,
-	{IDI_PERSONAL16, 16},	//ICO_Personal16,
-	{IDI_TABLATURE16, 16},	//ICO_Tablature16,
-
-	{IDI_STAREMPTY16, 16},	//ICO_StarEmpty16,
-	{IDI_STARGOLD16, 16},	//ICO_StarGold16,
-	{IDI_STARGOLDHALF16, 16},	//ICO_StarGoldHalf16,
-	{IDI_STARBADEMPTY16, 16},	//ICO_StarEmptyBad16,
-	{IDI_STARBAD16, 16},		//ICO_SrarBad16,
-	{IDI_MINUS16, 16},			//ICO_Minus16,
-	{IDI_NEW16, 16},			//ICO_New16
-
-	{IDI_COLLAPSED16, 16},		//ICO_Collapsed16,
-	{IDI_EXPANDED16, 16},		//ICO_Expanded16,
-	{IDI_LOCALFOLDER16, 16},	//ICO_LocalFolder16,
-	{IDI_NETFOLDER16, 16},		//ICO_NetFolder16,
-	{IDI_MEDIA16, 16},			//ICO_Media16,
-	{IDI_AUDIOCD16, 16},		//ICO_AudioCD16,
-	{IDI_REMOVABLE16, 16},		//ICO_Removable16,
-
-	{IDI_PLAY16, 16},			//ICO_Play16,
-	{IDI_COPY16, 16},			//ICO_Copy16,
-	{IDI_DELETE16, 16},			//ICO_Delete16,
-	{IDI_FIND16, 16},			//ICO_Find16,
-	{IDI_PROPERTIES16, 16},		//ICO_Properties16,
-	{IDI_PROVIDERS16, 16},		//ICO_Providers16,
-	{IDI_BUY16, 16},			//ICO_Buy16
-	{IDI_OPTIONS16, 16},		//ICO_Options16
-	{IDI_WINDOW16, 16},			//ICO_Window16
-	{IDI_CLEAR16, 16},			//ICO_Clear16
-
-	{IDI_TEXT16, 16},			//ICO_Text16,
-	{IDI_PICTURE16, 16},		//ICO_Picture16,
-
-	{IDI_UP16, 16},				//ICO_Up16,
-	{IDI_DOWN16, 16},			//ICO_Down16,
-
-
-	{IDI_COLLECTIONS16, 16},	//ICO_Collections16,
-	{IDI_HISTORY16, 16},		//ICO_History16,
-	{IDI_GAMES16, 16},			//ICO_Games16,
-	{IDR_MAINFRAME, 16},		//ICO_Main16
-	{IDI_SWITCHPANE16, 16},		//ICO_SwitchPane16
-
-	{IDI_MINIMIZE16, 16},		//ICO_Minimize16,
-	{IDI_RESTORE16, 16},		//ICO_Restore16,
-	{IDI_MAXIMIZE16, 16},		//ICO_Maximize16,
-	{IDI_CLOSE16, 16},			//ICO_Close16,
-
-	{IDI_INCREASEFONT16, 16},	//ICO_IncreaseFont16,
-	{IDI_DECREASEFONT16, 16},	//ICO_DecreaseFont16,
-	{IDI_RESETFONT16, 16},		//ICO_ResetFont16,
-
-	{IDI_ALBUM16, 16},		//ICO_DecreaseFont16,
-	{IDI_INSERT16, 16},		//ICO_ResetFont16,
-	{IDI_REMOVE16, 16},		//ICO_ResetFont16,
-
-	{IDI_MUTE16, 16},		//ICO_Mute16,
-	{IDI_NOMUTE16, 16}		//ICO_Unmute16,
-
-};
-
-HICON PrgAPI::GetIcon(APP_ICONS icon)
-{
-	ASSERT(sizeof(AppIcon2Resource)/(2*sizeof(INT)) == ICO_Last);
-	ASSERT(icon < ICO_Last);
-	if (m_AppIcons[icon] == NULL)
-	{
-		m_AppIcons[icon] = ( HICON ) ::LoadImage( AfxGetResourceHandle(),
-			MAKEINTRESOURCE(AppIcon2Resource[icon][0]),
-			IMAGE_ICON,
-			AppIcon2Resource[icon][1],
-			AppIcon2Resource[icon][1],
-			LR_VGACOLOR /*| LR_LOADTRANSPARENT */);
-		ASSERT(m_AppIcons[icon] != NULL);
-	}
-	return m_AppIcons[icon];
-}
-
-HICON PrgAPI::GetIconForTrackType(TrackTypesEnum tt)
-{
-	if (tt < TTYPE_FIRSTVIDEO)
-		return GetIcon(ICO_Audio16);
-	else if (tt < TTYPE_FIRSTVIRTUAL)
-		return GetIcon(ICO_Video16);
-	return GetIcon(ICO_Virtual16);
-
-}
-
-HICON PrgAPI::GetIconForRank(INT rank)
-{
-	return GetIcon(GetAppIconForRank(rank));
-}
-
-APP_ICONS PrgAPI::GetAppIconForRank(INT rank)
-{
-	if (rank >=1 && rank <=10)
-		return ICO_Top1016;
-	else if (rank >10 && rank <=100)
-		return ICO_Top10016;
-	return ICO_TopRest16;
-}
-
-HICON PrgAPI::GetIconForStars(INT stars)
-{
-	switch (stars)
-	{
-	case 0:
-		return NULL;
-	case 1:	
-		return GetIcon(ICO_StarBad16);
-	default:
-		return GetIcon(ICO_StarGold16);
-	//case 0:
-	//case 2:	
-	//	return GetIcon(ICO_Minus16);
-	//case 3:	return GetIcon(ICO_StarGold16);
-	//case 4:	return GetIcon(ICO_2Stars16);
-	//case 5:	return GetIcon(ICO_3Stars16);
-	}
-	ASSERT(0);
-	return AfxGetApp()->LoadStandardIcon(IDI_QUESTION);
-
-}
-
-HICON PrgAPI::GetIconForCollectionType(CollectionTypesEnum colType)
-{
-	APP_ICONS icon = GetAppIconForCollectionType(colType);
-	if (icon != ICO_Last)
-		return GetIcon(icon);
-	ASSERT(0);
-	return NULL;
-}
-
-HICON PrgAPI::GetIconForInfoItemType(InfoItemTypeEnum iit)
-{
-	switch (iit)
-	{
-	case IIT_AlbumPicture:
-	case IIT_ArtistPicture:
-		return GetIcon(ICO_Picture16);
-	case IIT_AlbumReview:
-	case IIT_ArtistBio:
-		return GetIcon(ICO_Text16);
-	case IIT_TrackLyrics:	
-		return GetIcon(ICO_Lyrics16);
-	case IIT_TrackPersonal:
-		return GetIcon(ICO_Personal16);
-	case IIT_TrackComment:
-		return GetIcon(ICO_Comment16);
-	case IIT_TrackTablatures:
-		return GetIcon(ICO_Tablature16);
-	}
-	return 0;
-}
-
-
-
-CImageList& PrgAPI::GetImageList16()
-{
-	if (m_il16.m_hImageList == 0)
-	{
-		m_il16.Create(16,16,ILC_MASK|ILC_COLOR32,5,1);
-		for (int i=0; i< ICO_Last; i++)
-			m_il16.Add(GetIcon((APP_ICONS)i));
-	}
-	return m_il16;
+	if (m_pAppResources == NULL)
+		m_pAppResources = new AppResources(AfxGetResourceHandle());
+	return *m_pAppResources;
 }
 
 void PrgAPI::SetGlobalButtonStyle(FlexButton& btn, APP_ICONS ico)
@@ -1228,21 +957,6 @@ void PrgAPI::SetGlobalButtonStyle(FlexButton& btn, APP_ICONS ico)
 }
 
 
-APP_ICONS PrgAPI::GetAppIconForCollectionType(CollectionTypesEnum colType)
-{
-	switch (colType)
-	{
-	case CTYPE_LocalFolder:		return ICO_LocalFolder16;
-	case CTYPE_NetFolder:		return ICO_NetFolder16;
-	case CTYPE_Media:			return ICO_Media16;
-	case CTYPE_AudioCD:			return ICO_AudioCD16;
-	case CTYPE_Virtual:			return ICO_Virtual16;
-	case CTYPE_Removable:		return ICO_Removable16;
-	}
-	ASSERT(0);
-	return ICO_Last;
-
-}
 
 
 
@@ -1662,15 +1376,6 @@ ITracker* PrgAPI::GetTracker()
 	return m_pTracker;
 }
 
-
-void PrgAPI::ClearFonts()
-{
-	for (int i=0 ; i<FONT_Last; i++)
-	{
-		delete m_pAppFonts[i];
-		m_pAppFonts[i] = NULL;
-	}
-}
 
 void PrgAPI::SendMessage(UINT stateMessage)
 {

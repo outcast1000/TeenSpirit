@@ -1,0 +1,26 @@
+# Store every file byte-for-byte: no line-ending conversion. The MSVC 2005
+# toolchain and the app's .lng loader depend on the exact on-disk format.
+* -text
+
+# UTF-16LE (with BOM) files: kept as UTF-16LE in the working tree, stored as
+# UTF-8 in the repository so diffs, blame and grep work.
+*.lng                                                    working-tree-encoding=UTF-16LE-BOM
+/changelog.txt                                           working-tree-encoding=UTF-16LE-BOM
+/CommonSources/cStringUtils.cpp                          working-tree-encoding=UTF-16LE-BOM
+/CommonSources/HTMLLite/PPHtmlDrawer.cpp                 working-tree-encoding=UTF-16LE-BOM
+/CommonSources/HTMLUtilities.cpp                         working-tree-encoding=UTF-16LE-BOM
+/CommonSources/WebPageUtilities.cpp                      working-tree-encoding=UTF-16LE-BOM
+/InformationProviders/AmazonProvider/AmazonProvider.cpp  working-tree-encoding=UTF-16LE-BOM
+/InformationProviders/LastFMProvider/LastFMProvider.cpp  working-tree-encoding=UTF-16LE-BOM
+
+# Binary assets
+*.ico binary
+*.ICO binary
+*.bmp binary
+*.png binary
+*.jpg binary
+*.gif binary
+*.psd binary
+*.avi binary
+*.chm binary
+*.lib binary

@@ -1,0 +1,71 @@
+#ifndef _CachedImageInfoProvider_H_
+#define _CachedImageInfoProvider_H_
+
+#include "../InfoProvider.h"
+#include <string>
+#include <vector>
+
+#ifdef _UNITTESTING
+BOOL TestCachedImageInfoProvider();
+#endif
+
+class CachedImageInfoProvider:public IInfoProvider
+{
+#ifdef _UNITTESTING
+public:
+	static BOOL UnitTest();
+#endif
+
+public:
+	CachedImageInfoProvider();
+	virtual ~CachedImageInfoProvider();
+
+	virtual IInfoProvider* Clone() const;
+
+	virtual BOOL OpenRequest(const Request& request);
+	virtual BOOL GetNextResult(Result& result);
+	virtual const Request& GetRequest()							{return m_request;}
+
+	virtual BOOL AddResult(const Result& result);
+	virtual BOOL DeleteResult();
+
+	virtual BOOL CanHandle(ServiceEnum service) const;
+	virtual LPCTSTR GetModuleInfo(ModuleInfo mi) const;
+
+	virtual void SetInternetHandle(LPVOID hInternet)	{}
+	virtual LPVOID GetInternetHandle() const			{return NULL;}
+
+	//=== IConfigurable
+	virtual BOOL GetSettingInfo(INT settingIndex, IConfigurable::SettingInfo& setting) const	{return FALSE;}
+	virtual INT GetIntSetting(INT settingIndex) const				{return 0;}
+	virtual LPCTSTR GetLPCTSTRSetting(INT settingIndex) const		{return NULL;}
+	virtual void SetIntSetting(INT settingIndex, INT intVal)			{}
+	virtual void SetLPCTSTRSetting(INT settingIndex, LPCTSTR strVal)	{}
+
+
+	void SetStoragePath(LPCTSTR storagePath);
+
+
+private:
+	std::basic_string<TCHAR> m_storagePath;
+	std::basic_string<TCHAR> m_Artist;
+	std::basic_string<TCHAR> m_Album;
+	//std::basic_string<TCHAR> m_result;
+	std::vector<std::basic_string<TCHAR> > m_results;
+	INT m_curResult;
+	Request m_request;
+private:
+	BOOL GetFiles(LPCTSTR path, std::vector<std::basic_string<TCHAR> >& files);
+	//BOOL GetFilePath(LPTSTR path);
+	//BOOL DeleteFiles(LPCTSTR path);
+	BOOL SaveFile(LPCTSTR mainPath, LPCTSTR extension, LPCTSTR srcPath);
+	INT GetFileSize(LPCTSTR fileName);
+	void GetArtistHash(LPTSTR hash, UINT hashLen);
+	void GetAlbumHash(LPTSTR hash, UINT hashLen);
+
+	void ConvertV2ArtistPictures();
+	void ConvertV2AlbumPictures();
+
+};
+
+#endif

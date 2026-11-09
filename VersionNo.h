@@ -1,0 +1,5 @@
+#define MAJOR_VERSION 0
+#define MINOR_VERSION 98
+#define BUILD_VERSION 973
+#define SUB_BUILD_VERSION 0
+#define STRFILEVER "0, 98, 973, 0"

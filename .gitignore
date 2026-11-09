@@ -1,0 +1,51 @@
+# --- Legacy SVN metadata (keep on disk until SVN is retired, never commit)
+.svn/
+
+# --- Secrets
+ApiKeys.local.h
+
+# --- Visual Studio per-user / IntelliSense / resource-editor state
+*.suo
+*.user
+*.ncb
+*.aps
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+.vs/
+ipch/
+
+# --- Build output
+[Dd]ebug/
+[Rr]elease/
+[Ff]inal [Rr]elease/
+*.obj
+*.pch
+*.pdb
+*.idb
+*.ilk
+*.exp
+*.res
+*.tlog
+*.lastbuildstate
+*.manifest.res
+BuildLog.htm
+*.exe
+*.dll
+# Vendored import libraries ARE tracked (Bass/, vld/, zlib/); anything else isn't.
+*.lib
+!Bass/*.lib
+!vld/*.lib
+!zlib/*.lib
+
+# --- Runtime files the app writes next to the exe
+debug.log
+*.dmp
+/Storage/
+
+# --- OS / editor
+Thumbs.db
+Desktop.ini
+*.bak
+*~

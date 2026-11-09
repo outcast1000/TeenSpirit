@@ -1,0 +1,1402 @@
+---------------- FINISHED
+
+
+
+---------------- UNDER TESTING
+
+---------------- UNDER CONSTRUCTION
+- Added support for Active Status in Collections. 
+	Add a menu Item in Collections and add the proper code in TrackFilter From Tree / List
+- Collection: Ive asked before about de/activating collections. You stated that wasn't clear. Maybe you would consider it further?
+>> Case one: i added tracks from another pc on the net. That music is now unavailable, but will be eventually, so i dun wanna delete that collection, just "hide" it or "deactivate" it, while the other pc is offline.
+>> Case two: i have 3 or more very distinctive music genres (classic, metal, psychedelic), each one with many many artists. So, itd be ideal not to mix these in a single list, but just "enable" the classic collection and "disable" the metal one, so i wont click accidentally on Warlock when i meant to play Wagner.
+- Track Properties: Added support for Composer & Album Artist
+- Database: Added support for Composer & Album Artist
+
+---------------- IMMEDIATE TODO (QUICK - BUGS)
+- Check the Caching of Thumbnail Images when setting a new default picture
+- I use a lot of programs that uses CPU and HDD very much. Even too much that Jaangle starts interrupting sound output. I request a feature, we should set Jaangle's default process priortiy from settings (e.g. High) (like in Winamp) so we should listen to music uniterrupted because of other workload on CPU.
+
+
+---------------- TODO FOR NEXT VERSION
+- Add support for Artist + Composer - Albums field (Music Browser)
+- Add support for Artist + AlbumArtist - Albums field (Music Browser)
+- Track List: Option to make it doubleclick to enqueue instead of play
+- AutoContinue Mode: If I can pick the level of rating i want in auto continue mode (ex: each track have "very good rating")
+- InfoControl: Does not switch to video view if it is a video at startup. Maybe change the way it detects the media changes (LastTickCount)
+- TrayToolTip: Restore Button
+- TrayToolTip: Set The number of seconds to be automatically displayed
+- TrayToolTip: Set The default position. Tray, UpLeft, DownLeft, UpRight, DownRight
+- TrayToolTip: Close Tooltip button
+- TrayToolTip: DoubleClick -> Show Main Window & Locate Album
+
+- Collections: Add a "Relative Drive Attribute" which will mean it will be in the same drive as Jaangle (for usb sticks)
+- QuickSearchDialog: Double click should play the track.
+
+--------- For 0.99
+- YouTube Player Engine
+- YouTube Media Type
+- Add YouTube Video Dialog
+--------- For 0.99b
+- YouTube Link Exchange (2nd version)
+
+
+--------------- TODO:
+- System: Music brainz integration using the external application (see MusicBee)
+- System: Add an option to copy all files on the playlist to a certain directory
+- System: Add a localized google search (use IDS_LYRICS for search)
+- System: New Tray Icon tooltip (when changing tracks)
+- System: Support of the original LastFM client. (Select Native / Client)
+- System: Add a feedback field in "about dialog"
+- System: Add Mass picture tagging
+- System: Add database entries for  Tracks: HasPicture, Composer (ArtistID) (see more on TagScanner)
+- System: Shell Integration ("Open in explorer"). If track not in DB then Add it in a "various" collection which will
+	not be monitored for changes. (Maybe only for track existance)
+- System: options - file associations (http://www.codeproject.com/shell/cgfiletype.asp)
+- System: Multiple files open correct handling (Basika etelei tin efarmogi polles fores...) (apo ton explorer)
+- System: In the windows "History" and "Advanced Search" I propose to have 3 buttons:"Play","Enqueue" and "Select all";
+- System: musotik integration...
+- System: Flickr plugin - IDs Flickr: [removed - keep API key/secret in ApiKeys.local.h]
+- System: ReadOnly mode for TeenSpirit (do not affect tags/Database). Optionally using password
+- System: Add No Database Mode - Drive only Mode (like mp3 tag) - Database will optionally index folders that will be browsed. Local/Net folders will be set as "Monitored"
+- System: Add a "Connections Table" or "Similar Artists".. Drag Drop an artist in tree to another to make a connection. Use
+	Them in auto continue. Show Them in properties. Or to make a map (Later).
+	I am thinking to add a second Artist name (canonical?) that it will be modified by the user. It will have by default the same as the original but without the "the"
+- System: HTTP Proxy settings
+- System: Test what is happenin on system shutdown
+- System: Different pane layout for full screen mode.
+- System: GetTagsDialog Dialog +Remember Options / Last Pattern
+- System: Renamer Dialog +Remember Options
+- System: Database Tags. Auto (from Split Words from Path, Artist, Album, Title) + Manual (Database: Many2Many: ID, TagID, TrackID, Manual or Auto)
+- System: SQLite
+- System: Finish Plugins Integration 
+- System: AllMusicGuide plugin
+- Database: Change Root Dirtectory for collections
+- Database: Support labels (like tags) for Albums, Artist, Tracks
+- System: All Panes: Add a CTRL+F (Firefox like find) in playlist.. If the user writes a number get him to
+	the appropriate playlist number. Otherwise strstr whatever it writes
+	Enter = Next. ESC = 
+- System: Complete the move from BCMenu to ITSMenu (MainListControl, Hist etc)
+- System: Some Rethinking on the "User Path"
+
+- Advanced Searching: When we relaunch Jaangle, it would be usefull for me if 'J' reminds its last time it gone to Advanced search function (tab and setting). I like to go to the Rating and filter only my 3 stars songs by using the cursor and the 'Over' check box... and don't have to set it each time.
+
+- Miniplayer: Ratings button
+- MiniPlayer: Add a "jump to" bar / Numbers in front of the tracks
+- MiniPlayer: It is possible that in Mini player to have the option "Scroll title?
+- MiniPlayer: In Mini player if by clicking on a button appears Playlist. (Auto show on mouse over?)
+- MiniPlayer: Transparency Dialog GUI improvement
+- MiniPlayer: Skin Options for Position / Volume slider
+- MiniPlayer: Add Mute Button
+
+- QuickSearchDialog: Check the colors and the drawing of the rectangular area
+- QuickSearchDialog: Setting: Transparency
+- QuickSearchDialog: Setting: Limit results count
+- QuickSearchDialog: Setting: Show Pictures
+- QuickSearchDialog: Show the searched strings
+- QuickSearchDialog: Setting: Show artist pictures
+- QuickSearchDialog: Skin options
+- QuickSearchDialog: Add a movable Caption.
+
+- TrayToolTip: Skin Options
+- TrayToolTip: Configuration Button
+
+- Panes: Check / Automate the shortcuts F1,F2,F3,F4,F5
+- Panes: Make All Panes to have MediaPlayer to be externally set. Not (by the PRGAPI)
+- Panes: Drag-Drop move the panes around the window. Add Pane should drop as last 
+
+- Options: Put the "Storage Folder" option and the "Database Folder" in the main (advanced) Options.
+
+- Database: Make a global path text replacer. for example ..replace c:\music with d:\music
+- Database: (Radio Pane) New data entry.. Needed.. URL, website URL, last KBps, Description?
+
+- Tree Pane: More buttons for style/mode toggling
+- Tree Pane: Add option for doubleclicking Nothing/Play/Enqueue/Enqueue after
+- Tree Pane: Menu Item tp "Clipboard: Add Picture - Set Picture - Set Review" (depends on the clipboard data)
+- Tree Pane: The problem with the delaying drawing of the tree pane at startup (Should draw just the background)
+
+- TrackList Pane: Correct the track list  - wheel issue
+- TrackList Pane. Add option for doubleclicking Nothing/Play/Enqueue/Enqueue after
+- TrackList Pane. Just noted that if you have a track named "(First Part) Second Part" 
+and want to change the case to 'First Cap' i.e. "(First part) second part" 
+TS doesn't filter out special charters and returns: "(first part) second part".
+- TrackList Pane: Options Double Click / Middle Click action (Play / Enqueue / Enqueue After / Properties)
+- TrackList Pane: Menu Item to "Clipboard: Paste Lyrics"
+- TrackList Pane: BUG: To bug me to UI pou kolaei an einai na bgei to accept apo ta lyrics
+- TrackList Pane: It would be nice to have a shortcut to delete a track from the filesystem (e.g. Control-Delete or Shift-Delete).
+
+- PlayList Pane: Read tags in a different thread and notify
+- PlayList Pane: I also think it'd be good to be able to set (easily) how many you want inserted (insert random tracks)
+- PlayList Pane: I would like to hear the entire album whose song is currently being played. I posted regarding this a few posts back and Outcast indicated he might try and incorporate it. What he described in the blog sounds like what I might be looking for. Just need a hotkey for it so I don't have to fiddle with the laptop (safety first you know)
+- Playlist Pane: Add "Insert random track" "Rating" option
+- Playlist Pane: Add "Insert random track" "Top 10 genres" option
+- PlayList Pane: Drag files from playlist to explorer (copy)
+- PlayList Pane: Drag-drop files on playlist on Vista. (There are problems ... sometimes)
+- PlayList Pane: Add a "Find Track Number" Text field 
+- PlayList Pane: Add a "Find Track" (like firefox) search
+- PlayList Pane: Enhanced view with Picture / Album Info
+- PlayList Pane: Enhanced view #2 with statistics
+
+- Trackers: Twitter
+
+- Lyrics Downloader: More options would be cool, such as choosing a site to check first for lyrics always, 
+	and if that site doesn't have it, go to another one from google. 
+- Lyrics Downloader: And a "download upon playing" option would be cool: as you play a track it opens 
+	the lyric downloading dialogue.
+- Lyrics Downloader: First check to the Music Story database
+- Lyrics Downloader: First check to lyrics.wikia database http://lyrics.wikia.com/A_Perfect_Circle:Magdelena
+
+- Cover Downloader: Google cover image
+
+- Info Pane: make it see multiple info
+- Info Pane: If it shows a track -> make a button to play/enqueue the album / artist
+- Info Pane: Add "Year" in the photo caption.
+- Info Pane: break to Info / Vis / Video / Browser panes
+- Info Pane: But it would be fine if the covers of the albums of an artist you clicked on appeared on the right-bottom window, then you choose an album and the songs are shown on the upper window[/quote]
+- Info Pane: I m thinking about upgrading the control above the track list and display clickable albums there. Also there is a thought to completely remove the big toolbar (top) and adding a windows "start" like button at the bottom-left with a popup menu. So there will be enough space freed. But don' t expect these in the 0.93.xxx series.
+- Info Pane: If you enter both comment and lyrics info for a track TS only shows lyrics in the main window. Any chance we can get both somewere in the future?
+- Info Pane: It would be a "Default Picture" still on the screen, and if that the user would like to see other parts of the cover, with a single click on the image would be changing
+- Info Pane: An interesting option for the future would be able to translate with Google translation of the lyrics and Artist Biography.
+- Info Pane: The info pane config icon shows a menu on press to select what info we want displayed. I think itd be better if we shouldnt click/select several times to de/select items, but instead each item had check box, so itd be only one click/select action.
+- Info Pane: Option to set image editor for artists images. Double click opens in default viewer but this one isn't always the editor; besides, im referring to the album/artist image properties "edit" button action.
+
+- Web Pane: Disable Right / Click - Popup windows
+
+- HTMLInfo Pane: REQ: HTML/CSS/JS info mode
+- HTMLInfo Pane: Template files in each skin
+
+- Radio Pane: Creation of a radio pane
+- Radio Pane: [SOS] .. Make a scheduler thing. like.. switch to this station every day at ...12:00am
+- Radio Pane: [SOS] Option to Enable/Disable the scheduler
+
+- Properties Dialog: Other way to go would be just switch to file multi-select in the artist image properties "import" button, to be able to add a bunch of images with one click ;)
+- Properties Dialog: Images removed through artist image properties "options/delete" action (should/may?) disappear immediately
+
+- PlayerBar: Ratings button
+- PlayerBar. Show number of tracks/current track/total playlist time in a status bar
+
+- Status Bar: Add a menu in Status bar with options to save logs in a file or even the debug log in a file etc (lpgging options)
+- Status Bar: Add Status Bar options
+- Status Bar: Make the status text read/parse a configurable rss feed. Click to go to the target.
+- Status Bar: Right Click Refresh/Go/Show Options
+- Status Bar: Add a permanant message to the status bar when a new version is available
+
+- Advanced Search: Skins
+
+- Track Properties: Add Picture Property page
+- Track Properties: Display current tag info.
+
+
+- History: "clear all history" button (with confirmation)
+
+- Collections: I ll try to implement an Internal Move Utility that will take care of such things. Another option it would be if Jaangle could automatically realize (with hashing?) the external moving operations...
+
+
+
+- Player: Bass: Bass Video Integration (http://www.un4seen.com/forum/?topic=7943.0)
+- Player: Bass: Bass SFX Integration (http://www.un4seen.com/forum/?topic=9488.0)
+- Player: Bass: BASS_VFX Integration http://www.un4seen.com/forum/?topic=8827.0
+- Player: Bass: BASS_min DownMix -> UpMix .. support for more than 2 speakers.
+
+- Player: pause, stop or seek, you will hear the smooth transitions.
+- Player: Rethink of volume as a "Config" value. Rethink the whole Config Thing
+- Player: FLV files (local & Online - YouTube)
+- Player: Add an option to use DirectShow Engine only
+- Player: (Radio Pane) BASS_SYNC_META (use) for title...
+- Player: (Radio Pane) Stream Files Only (URL)
+- Player: (Radio Pane) Check "http://www.un4seen.com/forum/?topic=5352.0;hl=streaming+title"
+- Player: Music Trimming (remove silent parts from start/end)
+	Track Trimming. Check the rule.. "If the track is in more than 90% and sound level is less than 10% then next track
+- Player: Crossfading more options
+- Player: Pitch Modification?
+- Player: BPM?
+- Player: Tempo?
+
+
+- Game: 2 player support
+	The Music Quiz is very nice as it is but it could be made better. Why not add the possibility to have a two person or two team game (or even a three person/team game)? You take turns in answering (or answer e.g. ten in a row). Different background colours on the quiz window to easily identify whose turn it is. And a locally stored scoreboard.
+	This would, I think, make the Music Quiz much more enjoyable.
+	Brilliant idea leif.
+	I thought of a different 2-player mode also. (not turn based as you suggest)
+	2 players may listen together a song, have different keyboard keys like q,w,e,r (1st player) u,i,o,p (2nd player) and the first to answer a question earn points. If he makes an error he looses some points.
+
+
+
+
+--------------------------------UNSORTED
+
+
+[quote="cherish"]What I'd love to see with it is some way of opening the Information Type and sources up a little more, so that a user could enter his preferred types and sources. For example, I read in another post about Guitar TABS. You'd probably need to be able to specify a regex for where to look for the information (I'm guessing you're doing that anyway)?[/quote]
+I think that what you are describing is the next logical step
+
+[quote="cherish"]The other slight change I'd like to see is that the different types of information is added to the page in groups with clickable links to the source, and links within the information retaining their links. For example, if a source was their MySpace page, the "send message" link would be clickable.[/quote]
+Once more i agree that i should stop thinking of various performance penalties on doing this and deal with it.
+
+
+Is there any way to make Jaangles add the song to the bottom of the playlist by defult (I.E. by double clicking on te song in the search)
+
+- Languages: Change the format from 
+		#522=English 
+		522=lang
+	to a more (future) editor friendly format like
+		@522
+		@Original=...(1)
+		...(1)
+		@523
+		@Original=...(2)
+		...(2)
+
+
+
+
+----SERVER----
+- ALTER TABLE REMOVE. Remove source txt. ALTER lms manager which depends on it. test
+- Make the server Ignore rating lyrics with artists / tracks with (,[, rule)
+- Make the server update the lyrics if from the same AppUniqueID and there is a VALID change (check lyrics size etc)
+
+TODO: The copy information-feature (an idea) (http://www.artificialspirit.com/phpbb/viewtopic.php?t=342)
+	Easy.
+
+
+//-----------------------HISTORY-----------------------
+//-----------------------HISTORY-----------------------
+//-----------------------HISTORY-----------------------
+//-----------------------HISTORY-----------------------
+//-----------------------HISTORY-----------------------
+//-----------------------HISTORY-----------------------
+//-----------------------HISTORY-----------------------
+//-----------------------HISTORY-----------------------
+//-----------------------HISTORY-----------------------
+//-----------------------HISTORY-----------------------
+//-----------------------HISTORY-----------------------
+
+
+--- 0.98e.971
+- TrackList: Limitless quick search results when the search is >= 3 characters
+- TrayToolTip: Clicking on the TrayToolTip now restores the main window
+- TrayToolTip: Close button added
+- TrayToolTip: GUI Changes
+- QuickSearchDialog: DblClick now plays files
+- QuickSearchDialog: Gui changes
+
+
+
+--- 0.98d.970
+- System: Better random generator (Specially for larger collections)
+- TrackList Pane: Column order/showing/width fix
+- TrackList Pane: Sorted by Collection name fixed 
+- TrackList Pane: Added columns for Composer & Album Artist fields
+- InfoPane: Settings saving fixed
+- Tagging: Added support for Composer & Album Artist
+- Bass Player: Added formal .wv support
+- AdvancedSearch Dialog: Bug fix on exiting application
+- TrayIcon now has a name (for win tray customizing)
+- Media Player: Default Player Action Added (You can find it Options-MediaPlayer). This will be the default option when you dblclick on a track on "Track List" and on "Music Browser"
+
+--- 0.98c.967
+- Track List Pane: Quick Search on Track List Changes: Max results limit set to 100 (it was unlimited) and there are no minimum characters (it was 3)
+- QuickSearch: Max result set to 30 (it was 10)
+- TrayToolTip: Position / volume slider added
+- MiniPlayer: OnTop fix
+- MiniPlayer: 1000 ms delay on mouse out shrinking
+- System: Replace the 3 Text Size buttons with one with sub menu +3 + 2 + 1 0 -1 etc....
+- Music Browser: Sorting tracks before execution. 
+- TrayToolTip: "Jaangle" text position fault
+
+--- 0.98b.965
+- TrackList Pane: Number of tracks fixed
+- MiniPlayer: Show MiniPlayer on Maximize fixed
+
+
+--- 0.98b.964
+- Player: Bugfix on Mute for video files
+- TrayToolTip: Remove the ontop property
+- TrayToolTip: Removed "Jaangle" Tooltip
+- TrayToolTip: Close button removed
+- TrayToolTip: Play/Pause/Stop/Next/Prev buttons added
+- TrayToolTip: GUI changes
+- MiniPlayer: Non printable characters sould not show QuickSearch
+- Amazon Plugin: Review - TrackList retrieval fixed
+- TrackListPane: Quick search resets when there are less than 3 letters in search box
+- Bass Media Engine: Fixed a crash bug on certain mp3s
+- Syatem: ShowMiniPlayer function re-added in the system menu
+- Hotkeys: Show Quick Search / Show Tray Tooltip added
+- MiniPlayer: ESC on MiniPlayer shows an artifact on QuickSearch
+
+
+--- 0.98.961
+- Panes: Removed gray line (accidentally added) in Pane Caption.
+
+--- 0.98.960
+
++ TrayTooltip: Added
++ TrayTooltip: Option to show on media changed (default = enabled)
++ HotKeys: Show TrayTooltip on hotkey
++ MiniPlayer: Settings has been added in the Context Menu
++ MiniPlayer: Volume slider Added
+- Tagging. Enabled wma - mp4  read support and mp4 write support
+- Tagging: FileTitle is used when artist exists and there is no track name info
+- Options: MediaPlayer Options bug fix
+- MiniPlayer: Option to disable transparency when the cursor is over the window
+- System: Show What I am listening is not working (All Trackers MSN / LastFM / Native) had this issue) Check the solution
+- PlayerWnd: Mute button added
+- Slider: Tick drawing to indicate minutes
+- TrayToolTip: Display artist picture if album cover is not available.
+- QuickSearchDialog: Showing Album pictures if available and then artist pictures
+- QuickSearchDialog: Setfocus on startup fixed
+- Skins: SubBk Skin Options for TreeCtrl (in colors.ini) are re-enabled
+- Advanced Search: BugFix The list in advanced search was empty
+- Player: Upgraded to Bass 2.4.4
+
+
+--- 0.97.955 (0.97b-2)
+- QuickSearchDialog: BugFix in showing pictures (in certain case they weren't shown) 
+- TrackList Pane: Sorting rememberance fixed
+- Advanced Search: Now remembers the track list state
+
+--- 0.97.954 (0.97b)
+- PlayList Pane: Bugfix on drop files
+- QuickSearch: Artist pictures / Ratings added in display
+- QuickSearch: Results are sorted by Rating and then by Title
+- MiniPlayer: Play: Album feature now plays the album sorted by TrackNo / Location
+
+
+--- 0.97.953 (0.97b pre-release)
++ System: QuickSearchDialog Added
++ Searching: Simple quick search replaced be Google-like search. 
+	Example: if you want to search the song "Nirvana" - "School", you can find it by typing just 'Nir Sch'.
++ System: CTRL+F initiates QuickSearch
++ MiniPlayer: Locate Album / Play Album / Open Containing Folder added in context menu
++ MiniPlayer: QuickSearch / Menu / Restore buttons added
++ MiniPlayer: Position Slider (Auto show on mouse over)
+- System: Tray menu fix
+- Tagging: TagLib 1.6 Update
+- QuickSearchDialog: ENTER -> Play, SHIFT + ENTER -> Enqueue, CTRL + ENTER -> Insert After
+- Miniplayer: Blank time when no time information
+- MiniPlayer: left/right arrow for +/- 5 sec. up/down for prev/next track
+- MiniPlayer: ForceOnTop Option bug fix
+- MiniPlayer: Press any character on miniplayer to Initiate QuickSearch.
+- Player: Fixed enqueue bug
+- System: [BACK] has been replaced by [SHIFT + ENTER] for enqueue. [CTRL + ENTER] is used for insert after operation
+- System: Drop down Buttons are drown correctly now
+
+
+---0.97.951 (0.97 - fix) 
+
+- System: Limit for valid Year Values set to 1500 (it was 1900)
+- Options: Bug in  displaying skin / language info
+
+---0.97.950 (0.97) 
+
+- DblClick on Pane Caption Maximizes (Restores) the Pane
+- Game: Full Screen
+- Options: Option "FORCE Window ONTOP" in MiniPlayer Options
+- Game: Return: "I don't know"
+- Panes: Rerurn to default layout button
+
+---0.97.914 (beta 2)
+- Sections Pane: Set Focus on left click on expand
+- Advanced Search fixed (bug introduced in beta 1)
+- System: DatabasePath, StoragePath are working again (bug introduced in beta 1)
+- Tracklist Pane: isn't picking up colours from the skin (bug introduced in beta 1)
+- MiniPlayer: Is keeping the state of the miniplayer (Not in auto show mode)
+- Playlist Pane: It Can accept folders drop (recursively)
+- Web Pane: Lock on services (For example: if the user select an artist .. a selected service must be initiated)
+- Web Pane: Fix. When restoring the main window.. Web viewer could dissappear
+- Web Pane: Fix. Previous / Next buttons were constantly disabled
+
+---0.97.912 (beta 1)
+- Information Retrieval: Fixed the amazon service (signed requests)
+- Tagging: Fixed a multi language (unicode) problem on the lyrics tagging.
+- Services: New format - better for sharing / updating (Not 100% compatible with the 0.96 version)
+- Services: Each service can now have an icon
+- System: Changed the hashing of artist/album names which are saved in the "Storage" Folder (There was a Unicode confict in Japanese). (Not compatible with the 0.96 version)
+- System: Thumbnail Image Cache added. This will help the application to start faster, use less the disk and draw the GUI elements a lot quicker
+- System: Each pane can be added multiple times.
+- System: BugFix on the OnTop state of MiniPlayer (could lost)
+- PlayList Pane: RandomizeNext Added
+- System: Add Pane & New Maximized Pane function added
+- PlayList Pane: Randomize Next Tracks in PlayList Contexct menu Command
+- PlayList Pane: Bugfix. Rating in now working for multi selections
+- Visualaztions Pane: BugFix (maybe crash?) On Starting / stopping.
+- Visualization Pane: Video is now played in a separate Pane
+- Video Pane: Independent VideoPane Added
+- Video Pane: Auto UnFullScreen when the video is over
+- Info Pane: Automatically Show Video Option
+- Options: "New" Definition moved to main options dialog
+- Options: Removed Obsolete Dialogs.
+- Skin Options: Now loading a lot faster
+- Play List Pane: Better handling of the current selections
+- Web Services: Separator added in every 5 webservices menu items
+- Web Services: http://www.discogs.com/ added
+- Web Services: http://lyrics.wikia.com/ added
+- Web Services: http://SongMeanings.com/ added
+- Web Pane added
+- Web Pane: Now you can open all services to the integrated WebBrowser
+
+---0.96b
+* CTRL+A,C,X,Z enabled for info controls / lyrics / bio etc
+* Stealth usage. Not using anymore "windows\Jaangle.ini" or the registry
+* Application statistics recovery fix
+* Application statistics in about dialog
+* Return of the (no button) Mouse-wheel volume function in MiniPlayer.
+
+---0.96
++ Skin Framework update. More options
++ Different Full Screen on Maximize
++ GUI: Toolbar has been re-added
++ Toolbar: Add the Close/Restore/Min buttons and show them on Maximize
++ Toolbar: Increase/Decrease/Reset font size buttons
++ Pane Captions: Switch pane containers / Alternate layout introduced
++ m3us are supported for association with the application
++ Basic Skin Editor. Changes in skin options.
++ Search operation in play list context menu
++ Tagging. Options For Selective Tag Support (List box with mp3/wma/m4a ... Read support .. and the same for write support)
++ Option added for safe mode of player. Use it with the Realtek driver when there is bad sound quality.
+
+* Dblclicking on a tree item now expands the item if it is expandable. Otherwise it is added to the playlist.
+* Fix in the Advanced search window, Track List, Play List, Tree View onOver behaviour
+* Player Bar has been refreshed
+* Track list control default display changes (Title is first and controls may be removed)
+* DblClicking on the info control opens the current picture.
+* Change colors in Advanced Search / History List boxes -> White/grey
+* PlayList - Options: Show the number of the track in front
+* Improved font scaling
+* Track List. Option not to show info icons (Lyrics / Comments etc)
+* New Option pages - rearrangements
+* New Option. Turn off the cleartype fonts
+* Delayed update of PlayList Items for faster load of large playlists.
+* Lyrics downloading (iGoogle) fix
+* Some translation changes / removals
+* History window size is now remembered
+* DoubleClicking on Lyrics Search plays the item.
+* Default language selection fixed 
+* Minimum number of characters for Quick search is 3 now
+* Automatic restore on Quick Search "Clear"
+* New skins/languages
+* Clear button added in Quick Search Edit
+* Skin Preview Added
+* "Play" button now restarts the playing track
+* Fix on delete from database not existing tracks.
+* Crossfading / MiniPlayer options updated
+* "Update Local Folders" now also updates network shares
+* fix minor bug on player pos
+* Transfer settings from teen spirit has been added
+* Holding Right Click Down and using the mouse wheel the Volume is changing
+* Fix on Delayed Playlist track update.
+* Add help links in the options / properties
+* Application Monitor Transfer Settings
+* "Force Cleartype fonts" bug fixed
+* Some dialogs beautification
+* BugFix. It couldn't remove a file from database if it didn't exist in the file system.
+* ESC key now works in every window except the main
+* Right Alignment for Hits in history
+* Some gui glitches fixed
+* 3 lines in Collection List
+* When playlist is finished player returns to the start of the last track
+* Some Message Dialogs have been beautified
+
+
+
+
+
+
+
+
+
+
+---0.96.909 (final)
+* String Changes
+* Skin Preview Added
+* "Play" button now restarts the playing track
+* Fix on delete from database not existing tracks.
+* Crossfading / MiniPlayer options updated
+* "Update Local Folders" now also updates (carefully) network shares
+* fix minor bug on player pos
+* Transfer settings from teen spirit has been added
+* Holding Right Click Down and using the mouse wheel the Volume is changing
+* Fix on Delayed Playlist track update.
+* Add help links in the options / properties
+* Application Monitor Transfer Settings
+* "Force Cleartype fonts" bug fixed
+
+
+---0.96.907 (beta 7)
+* PaneStates properly restored after restart
+* Some dialogs beautification
+* Crash bug on ToolTip fixed (from beta 6)
+* BugFix. It couldn't remove a file from database if it didn't exist in the file system.
+* ESC key now works in every window except the main
+* Right Alignment for Hits in history
+
+
+---0.96.906 (beta 6)
+* Some link buttons have been fixed
+* Some trimmed label text has been fixed
+* String /case fixes
+* Some gui glitches fixed
+* 3 lines in Collection List
+* When playlist is finished player returns to the start of the last track
+* Some Message Dialogs have been beautified
+
+---0.96.904-5 (beta 4 - 5)
+* String /case fixes
+
+
+---0.96.903 (beta 3)
++ Tagging. Options For Selective Tag Support (List box with mp3/wma/m4a ... Read support .. and the same for write support)
+* Delayed update of PlayList Items for faster load of large playlists.
+* Lyrics downloading (iGoogle) fix
+* Some translation fixes / removals
+* History window size is now remembered
+* DoubleClicking on Lyrics Search plays the item.
+* Default language selection fixed 
+* Minimum number of characters for Quick search is 3 now
+* Automatic restore on Quick Search "Clear"
+* New skins/languages
+
+
+---0.96.902 (beta 2)
++ Basic Skin Editor. Changes in skin options.
++ Search operation in play list context menu
+* Clear button added in Quick Search Edit
+
+
+---0.96.901 (beta 1)
++ Different Full Screen on Maximize
++ Toolbar has been re-added
++ Toolbar: Add the Close/Restore/Min buttons and show them on Maximize
++ Toolbar: Add the Increase/Decrease/Reset font size buttons
++ Pane Captions: Switch pane containers / ALternate layout introduced
++ Skin Framework update. Include Font / Sizes Instructions.
++ m3us are supported for association with the application
+* Dblclicking on a tree item now expands the item if it is expandable. Otherwise it is added to the playlist.
+* Fix in the Advanced search window, Track List, Play List, Tree View onOver behaviour
+* Tag-write support has been removed from wma's
+* Player Bar has been refreshed
+* Track list control default display changes (Title is first and controls may be removed)
+* DblClicking on the info control displays the current picture
+* Change colors in Advanced Search / History List boxes -> White/grey
+* Option added for safe mode of player. Use it with the Realtek driver when there is bad sound quality.
+* PlayList - Options: Show the number of the track in front
+* Improved font scaling
+* Track List. Option not to show info icons (Lyrics / Comments etc)
+* New Option pages - rearrangements
+* New Option. Turn off the cleartype fonts 
+
+
+---0.95h.866
+* Bug fixed in "Various" Tree mode
+* Tag update. Now supports it reads also "oga, wv, spx, tta, m4b, m4p, 3g2, aif, wav"
++ New support for "oga, wv, spx, tta, m4b, m4p, 3g2" files
++ Support embedded pictures in mp3
+* SetDefault artist/album picture while adding a new one is now working.
+* Page Up/down now is working in tree & playlist controls
+* Insert Random tracks now, adds new tracks after the selected track
+* Quiz: answers can now be controlled by keyboard using (1,2,3,4,5) keys.
+* Quiz: ambersand is now correctly displayed
+* Quiz: "I don't know" has been removed
+* Quiz: 3 second delay added before the sound
+* Quiz: much bigger question buttons
+* Some more translation options
+* Minor tweak in the search for bio/picture of an artist
+* TS does not close by pressing ESC any more
+* Ambersand display fixes
+* DblClick on a tree item now plays all the associated files
+* Style 7 Added. Only Names in tree control (32p height)
+* TS does not turn off when you press ESC anymore
+
+
+---0.95g.863
++ Change the relative font size 
+	Increase: CTRL + +
+	Reduce: CTRL + -
+	Reset: CTRL + *
++ New Tree Style added (a bigger one)
++ 2 .ini options added for player. If you are having problems with bad audio quality then try these two
+	UseSampleFloat=0 (default = 1)
+	UseFloatDSP=0 (default = 1)
+* Bug fix in the rare case (?) when curItem is null in InfoControl
+* Bug fix on Special Info Display Settings
+* Bug fix in saving GlobalHotkeys
+* Rare Bug fix in selecting a node
+* English GetLastError Messages
+* Bass (audio engine) has been updated to 2.4.2.3 (from 2.4.0.1)
+* Autocontinue avoid video files when selecting the next track
+* CrashReport does not start manually any more.
+* CrashReport can display a personalized message.
+- Ogg support for lyrics/rating tagging has been temporary removed for further testing 
+
+
+---0.95f.862
++ Language may be created / updated using a new integrated (sort of) environment
++ Debugging on language files
+* New FolderDialog (CommonDialog Based)
+* Translated buttons in Options Dialog
+* Options are stored when closing the options dialog
+* Immediate Crash Reporting with optional user feedback
+* More accurate crash detection.
+* Fixed some leaked resources
+* Fixed a case in Google Lyrics Failure
+
+---0.95e.858
+* Logging Changes. TRying to clean all bugs from the next version
+* Rating (Tagging) Fix
+* Focus capture on tree/playlist control on clicking scrollbar
+* Rare bug fix on downloading images
+* Better performance on checking for already tried requests
+* Bug Fix in Next Shuffle
+* A fix on locating local folders
+* Safer Collections Update
+* More Progress Bars on tagging tracks
+* Delete files is working again.(Bug introduced in 0.95d)
+
+
+---0.95d.857
+* Very rare Crash fix in selecting random tracks
+* Focus on List controls even on clicks on the scrollbar
+* Pause Player On End Session
+* Possible crash bug fixed. (DB FixStringField)
+* Unlimited loop case on adding random tracks corrected
+* Faster adding tracks to the player (No existence check)
+* Portability updated. Teen Spirit checks better for travelling mounted tracks while playing
+
+
+---0.95c.856
++ SHIFT + ARROW KEYS now working on PlayListControl
++ PlayList Pane shows the number of tracks and the total time of the current playlist.
++ New Global HotKey (Toggle Mini Player Visibility)
+* Some LastFM related changes to fix a bug.
+* Fixed a Media Slider bug for audio/video files larger than 50 minutes
+* Extra logging added in some places
+* Media Player does not show info when there is an empty playlist
+* Bug when reaching more than 10 consequently bad tracks in player
+* Bug on closing. Could crash the application
+* Global Hotkeys are working again
+* Some changes in "Auto" mode Selection between InfoControl/Video-Visualizations
+* Installer now closes Teen Spirit Automatically if running
+
+---0.95b.855
+* Crash on LastFM scrobbler module when playing external files
+* Internal changes in the player objects
+* MultiLine tooltips on player controls
+* TS now reads the tags when plays a file which is not in database (coming from explorer drop or from an m3u file) 
+* TS now searches for a "services.user.xml" in the program folder. It may contain extra user services (XC)
+* Fixed a bug in selecting the proper audio player (DShow or Bass).
+* Some benchmarks have been removed so there will be one more increase in the speed of Collection Add/Update
+* TS Internet connection could fail because of some large urls.
+* Some more efficiency in logging user messages
+* Advanced Search - Rating is working again
+* Crash Bug Fixed in the way the player handles invalid files.
+* PlayList now marks the invalid files as "grey" (no icon)
+* Player Controls (numpad) are disabled when you are inside an edit box
+* Some more logging in suspicious functions
+* Better startup time (player modules are loaded at first play)
+
+---0.95.854
+* Fix for the text in Tree Pane
+* Focus on Tree at startup
+* Fix Sound in Tree Control on "BackSpace"
+* Could download more pictures from the same artist
+* Default Picture setting could be lost if downloaded another picture
+* Bug fixed on amazon album picture/review module. It could fail to retrieve info
++ progress bar added in tagging
+* Bug fix on saving lasttraks.m3u
++ Online History
++ Submit Game Results
++ Crash Info added
++ Rating Shared
++ "Default Picture" setting added.
+* TS search less frequently for already searched (and failed) images
+* Fixed a load last playlist issue
+* LastFM: Detect no info (add info) page
+* LastFM: Download the engli0sh page if the localized is not available.
+* Proper url encoding of query strings ==> better international results in GoogleLyrics / LastFM / Amazon modules
+* Proper html entities replacement
+* Crash bug fixed #1
+* Media/Downloading animation returned in status bar
+* Bug fixed on show all album images.
+* When refreshing the tree control expanded state (for the selected item is remembered
++ Jump +/- 5 sec added (see shortcuts)
+* Shortcuts added:
+	f1: focus on tree.			
+		Enter: Play / Back: Enqueue / Insert: Insert Random / Home: Properties 
+	f2: focus on list.			
+		Enter: Play / Back: Enqueue / Home: Properties 
+	f3: focus on Quick Search
+	f4: focus on playlist.		
+		Enter: Play / Delete: Delete / Home: Locate track 
+	f5: focus on Info Control (if avalaible)
+	
+	Global: Num5: Play-Pause / Num4: Back 5s / Num6: Forward 5s / Num 8: Previous / Num 2: Next
+			Add: Vol +5% / Subtract: Vol -5% 
+* PlayList better delete handling
+* Changed "Empty Database" Dialog.
+* Added Option Confirmation Dialog
+* Added Overload protection for servers who provide Information.
++ Native LastFM scrobbling support. 
+* New Local Image Storage module to avoid name conficts
+
+
+(SETUP - Pending) Make setup script check if the TS is running and close it down if possible.
+
+
+
+---0.95.851 beta 2
+* Crash bug fixed on LastFM Module
+
+
+---0.95.850 beta 1
+* ReadCollection at twice the speed (optimization)
+* Updated Most Dialogs UI
+* Database structure updated (comID,lyrID,perID, album infoID, artist infoID removed)
+* Save Settings fix
+* CPU FREQ by registry
++ Tablature support added
+* Collection - Albums mode added
+* Personal Tag Write Support Removed (Not in spec)
+* Crash Dialog added
+* LastFM / Amazon fix for "&"
+* Tablatures support added
++ Google Lyrics download tablatures / chords also.
+* "Skins" / "Languages" added in the new start menu
+
+
+-------0.94.803
++ Save Tag Advanced Menu Item Added
++ Read Tag Advanced Menu Item Added (Renamed from "Update Info From Tags")
++ Get Tags From Filename Dialog + Advanced SubMenu Added
++ Renamer Dialog Added
+* Crash Bug fixed in "Games" (Label bug)
+* Randomize list issue fixed.
+* Randomize list now randomizes only the selected tracks (if these are more than 1)
+* Fixed an issue where crossfade will fail (2 tracks may be playing at the same time)
+* Lock Tree Menu Item modified
+* Now more info is downloaded while playing/selecting tracks
+* In Options -> Tree View -> Item Grouping, the checkbox Enabled was not working.
+* Memory info retrieval update
+* Changed Intro (Empty DB) Dialog
+* Changed Properties dialogs. Also a bit faster.
+* Lyrics was not tagged on download
+* Year was not changing in Album Properties
+* Redownload already existed picture fix
+* Does not accept anymore LastFM Image Files less than 4k
+* Options dialog changed
+* Global Hotkeys moved to a new Tab - separated from Media Player Options
+* Options to Enable/Disable retrieving images from the tracks folder (Info Retrieval) 
+* Delete File(s) window could go under the main window
++ New Info Control Display Options
+* Bug Fix in get Image from Directory
+
+
+-------0.94.801 beta 1
+
+* When you change year of an album in multiple files, year do not actually change
+* OnEndSession (TEST) has been forgotten. All crash reports were wrong...
+* Update to newest Bass version 
+* MiniPlayer / Track List Header updated
++ 3 Band Equalizer Added
++ L-R Level Meters Added
++ New Volume / Position Sliders with drag support
++ Tooltips in some player buttons
+* [Unknown] Artists - Albums were allowed in eCommerce
+* Simplier "Empty Collection Dialog"
+	
+---  0.93d 756
++ Similar Albums / Preview Tracks / Purchase Info Added (Menu items in Artists / Albums / Tracks)
+* Wouldn't remember the time of a track when closed
+* The text was not always get cleaned up properly and HTML-tags were visible within the text
+* AppCount & minutes running & crashcount
+* Crash when trying to load a removed skin fixed
+* Skin Duplicates removed
+* "...Front..." images are set as the first result for album cover
+* Long & Marathon game counter's doesn't match the time
+* Did not save configuration on windows shutdown.
+* if playlist is empty, pressing >>| OR > AND mode is autocontinue now leeds to a random song
+* Auto continue does not select virtual tracks anymore
+* DblClicking on the header divider TS resizes the column to the default width.
+* GUI wasn' t ready when playing the song at startup.
+* Modified Tooltip
+* Updated Spanish / Portuguese (BR)
+
+
+---  0.93c 755
+* New Icon (once more)
+* Minor Gui changes (fonts)
+* Album/Artist Properties - Change Album/Artist Name did not immediately change the tree.
+* More Tag Trimming On Adding/Updating DB
+* Minor Language Module changes (Ukranian available again)
+* White Skin updated to foriben's version
+
+--- 0.93c beta [754]
+* Exception catching in TagLib, Bug Fix in AttachedPicture processing
+
+--- 0.93b [753]
+* Manually Added Album Review wouldn't be saved if there weren't more changes 
+		in the album properties
+* Album Info not shown in some Tree modes
+* Crash when adding random tracks in am empty playlist by using the context menu
+* History Dialog was counting also clicks when it was creating the rankings
+
+* There is a problem with skin name and Directory name. 
+			Should be the dir name which is always unique
+* Simple Message boxes
+
+--- 0.93.752 (0.93 (2))
+(Solved) Artist Bio/ Album Review wouldn't appear in properties in certain case
+(Solved) In the default skin problem with current playlist
+
+--- 0.93.751 (Final)
+(Change - Trial) "TS crashed when i've been trying to delete album cover from TS internal storage... i haven't any logs, debugger was closed :/
+			+ ok, so try to import a new image to your album... TS is crashing... everytime... but new image is being saved properly 
+			+ it's the same situation, when i'm trying to delete old image... after crash i've noticed, that old image has beed deleted properly
+			+ and let's be straight - polish song was played in background - i've been doing changes in korn discography"
+(Solved) GoogleLyrics could return empty string as valid
+(Solved) Better decoding of HTML entities
+(Solved) Imported Collections (xtc files) menu
+(Solved) Cleaner results from amazon provider
+(Change) Changed rename collection dialog
+(Solved) Multiple Track Properties
+(Change) Debug Traces became safer
+(Change) www.theconium.com from skins / languages?
+
+
+
+--- 0.93.749
+(Solved) Multiple Images Import from Clipboard error (All are saved with the same path)
+(Solved) Set "Counting Files" where "working 0/0" is now
+(Trial) "TS crashed when i've been trying to delete album cover from TS internal storage... i haven't any logs, debugger was closed :/
+			+ ok, so try to import a new image to your album... TS is crashing... everytime... but new image is being saved properly 
+			+ it's the same situation, when i'm trying to delete old image... after crash i've noticed, that old image has beed deleted properly
+			+ and let's be straight - polish song was played in background - i've been doing changes in korn discography"
+
+--- 0.93.748
+(New) While Dragging over the last item. Tree / PlayList should scroll down (First Item -> Scroll Up)
+(Solved) Remove &mdash; from downloaded lyrics/review/bio
+(Solved) Refreshing while updating
+(Solved) MainListControl Cursor on column headers sometimes does not appear
+(Solved) TagLib does not get audio properties
+(Solved) Adding more than one pending collection does not appear in collectionlist.
+(Solved) Rating is shown twice in the contextmenu of the miniplayer
+(Solved) The history-log is shown with oldest entry and not with the last played track on top.
+(Solved) Deleting a track, Track count in Tree does not refresh
+(Solved) Potentially (very rare) crash situation handled
+(Solved) Artist Review malfunction
+
+--- 0.93.747
+(New) TagReader Read Depth Option for Manual & Auto Tagger
+(Solved) Flex ScrollBar Dragging is not working when you are out of the window
+(Solved) DragOverItem is showing while dragging scrollbar
+(Solved) MainList does not reset Focus when it is outside the window
+(Solved) When merging two artists in Tree using Artist Properties
+(Sloved) Reset tree (after changing) locates better the old track 
+(Solved) Locate Track Fixed (From playlist, mainlist)
+(Solved) [Unknown] illegally showing/downloading in Info Control & Searches for Covers/Info. Aslo the 
+	Context menu has been disabled
+(Solved) Locate don't work for "Various" Items when not expanded
+(Solved) Change the links (conium.php ->teenspirit.php) to support the new site
+(Solved) "Empty List" Is not Refreshing when changing the language
+(Solved) Options/Tagging. If it is already unchecked the checkboxes are enabled (should start disabled)
+(Solved) Randomize Tracks was not refreshing the playlist
+(Solved) Scroll Icons was missing from various controls
+(Solved) Crash(?) bug on clicking on Tree Empty space
+(Solved) [Unknown] illegally showing/downloading in Info Control & Searches for Covers/Info
+(Solved) Crash bug on illegal ID3 tags
+(Solved) Serious Tree failure when Closing a node which has >1 depth expanded items
+(Solved) Various Years / Months Added Fix
+(Solved) Personal Info takes the value of lyrics
+(Solved) Import Data From Text File in Info pages adds strange characters at the end
+(Solved) Track Properties .. If you change the Main Properties .. Comments & Lyrics are disappearing. More Tests are required
+(Change) ImportPicture was moving the source image. (Now it copies it)
+(Change) Now it is Showing [Unknown] for years = 0
+(Trial) TS crashed when i've been trying to delete album cover from TS internal storage... i haven't any logs, debugger was closed :/
+			+ ok, so try to import a new image to your album... TS is crashing... everytime... but new image is being saved properly 
+			+ it's the same situation, when i'm trying to delete old image... after crash i've noticed, that old image has beed deleted properly
+			+ and let's be straight - polish song was played in background - i've been doing changes in korn discography
+		= Better error handling in Picture loading and some changes to caching
+
+
+
+--- 0.93.746
+(New - Trial) Month-Artist-Album Tree Mode (Categorizes by month added)
+(Solved) Random Track insists on same tracks
+(Solved) When Downloading Lyrics they are not shown in Track Properties
+(Solved) Existing &#91; , &nbsp; entities in lyrics
+(Solved) When Downloading Lyrics the MainList is not Refreshing
+(Solved) (Ouchh) By opening options of a song and pasting song lyrics manually and afterwards accepting by clicking button ok, all id3-tag information is lost. 
+(Solved) Delayed Refresh of the mini player
+(Solved) Front Covers Issue (http://www.artificialspirit.com/phpbb/viewtopic.php?t=450)
+
+
+--- 0.93.745
+
+(Solved) Direct show didn't release all objects.
+(Solved) Mouse capture is not released correctly sometimes
+(Solved) Jump video in playlist
+(Solved) If you clear the playlist and closes TS, the old playlist reappear on restart
+(Solved) Sometimes the "DrawOver" Stays over the control even if the mouse is in different ctrl
+(Solved) When in SimpleSearch -  Change Filter is not Refreshing the Track List
+(Solved) Filter Change does not Relocate the Tree
+(Solved) Fading happens only in 50% of the times when a song is finishing
+
+
+--- 0.93.744
+(Solved) Track List Dragging crash bug.
+(Solved) Drag Drop m4a files in playlist
+(Solved) Rating Saving format
+(Solved) Track Properties.. Some are not working
+(Solved) Skin Change does not affect PlayList Control
+
+--- Initial 0.93.743
+
+
+--------------634 (0.92g (test3)--------------------------------
+* Crash bug when adding an artist in history with length > 70 fixed
+* New options dialog
+* New Options for MiniPlayer like ShowTooltips/ShowIcons/Transparency/MaxSize
+* Some Options have been reset
+* Change Languages bug fixed.
+* Updated Language Module
+* Cursor over rating fix
+* Quick Update Collection multi button menu added
+* A final solution to the international characters in Lyrics/LastFM downloads
+* Tooltip removed from list control. It will be replaced with something else sometime. It could hung the app
+* Menu changes for tray & Mini mode
+* Rating Option added in MiniPlayer
++ "Update Info From File (Tags)" - "Locate Album" in tracks menu items added
+
+		--------------633 (0.92g (test2)--------------------------------
+* Safer Add/Update collection (DShow Engine Modified)
+* Medal Icon Correction
+* Safety Option Added to All taggers (specially to the DShow / EnhTagLib) + Option at the ini file
+		--------------632 (0.92g (test1)--------------------------------
+* Add Collection menu item working again
+
+
+--------------631 (0.92f)--------------------------------
+(290907)* MiniPlayer will be 1 pixel smaller than the windows caption
+(290907)* New Ticker Control for Status info
+(300907)* Changes (Simplification) in the Track List Menu
+(011007)* Crash bug fixed
+(011007)* If you doubleclick on history and you have more than one versions of the same track it ll play the best quality one
+		--------------630 (0.92f) (test1)--------------------------------
+(270907)+ Play/Enqueue in external application
+(270907)* Bug Fix when saving/restoring a playlist with UNICODE characters
+(270907)+ (Mass) Change Case option in files
+(270907)* Wrong "Rest" icon in Top Tracks
+(280907)* No more LFMxx files in the app dir
+(280907)* App Name cannot be translated any more
+(280907)+ CrashDetector added
+(280907)* Bigger "Time" in MiniPlayer (Vista GUI fix)
+(280907)* Removed debug message on Shell Open
+(280907)* Quick Canplay function fixed.
+(280907)* Zero FileSize protection added in TagReader
+(290907)* LastFM Biography fixed
+
+
+
+--------------629 (0.92e)--------------------------------
+(100907)* BUG "Select Game" is left untranslated even through I have translated line 467"
+(100907)* Crossfade (+ Crossfade Options + new button in the player)
+(150907)* Change in the check new version code
+(210907)* Mini player "icon" update.
+(210907)* Mini player now displays the History rank of the currently played track.
+(210907)* Some new icons
+(240907)* Title/Artist/Album/Genre Names has been extended to 100 characters
+(250907)* Update check now checks every 3(configurable in ini) days
+(250907)* Tooltips in MiniPlayer Icons (Lyrics - Comments etc)
+(250907)* Hand Cursor in Volume/Slider
+(250907)* Docking MiniPlayer
+
+----------------628 (0.92d)--------------------------------
+(230807)* Vista UI list control fix
+(230807)* Better handling of html special characters on unicode (Downloaded text)
+(240807)* Potential bug fix at closing
+(240807)* Triple Click support for all edits in property pages (Selects all)
+(240807)+ Now you can live-edit the lyrics on downloading
+(280807)+ Accepts Drag=Drop on program icon (Windows Explorer).
+(280807)+ You can manually associate TS/C with mp3s etc.
+(280807)* Change in the control play options (added explicit "Normal" mode)
+(290807)* Rare Bug Fix on writing tags
+(010907)* Reject All in Lyrics & Check Info Box Update
+(010907)* Sample Project (TSExternal) + API for External Control (eg Foxytunes support) 
+(020907)+ Games Update (9 variations of the quiz)
+(020907)* EnsureVisible in Playlist on autocontinue
+(040907)* small fill on Clear playlist
+(040907)* LastFM Artist Picture update.
+
+----------------627 (0.92c)--------------------------------
+(140807)* Double Records in history
+(190807)* Fixed wma parser bug (potential crash)
+(190807)* Fixed MiniPlayer Display on empty playlist
+(190807)* Change in the way skin option is stored (current skin selection will reset)
+(190807)* Better HTML code hanling in Google Lyrics
+(200807)* Fix #2 for loading/storing columns. (This is the final)
+(200807)+ Multiple Pictures Support (Administration / Display)
+(200807)* New Version of logger integrated
+(200807)+ Auto check for updates (Optionally)
+(210807)* Some Add Collection related bugs fixed and tested
+(210807)+ Hungarian Translation
+
+----------------625 (0.92b)--------------------------------
+(110807)+ Option to have database/storage in a different path
+(110807)* About Dialog Text Fix
+(110807)* Gui Glitches in classic mode Resolved
+(110807)* List Columns Save Ordering bug resolved
+(110807)* "Various" Artists now showing in very small collections
+(110807)* Installer's Skin Problem Fixed
+
+---------------------624 (0.92a)------------------------------------
+(090707)* Volume appears in miniplayer when it is changed through wheel mouse
+(090707)* Different animation for net usage
+(110707)* More changes to Info Control - Better Picture Resize quality.
+(120707)* Added "Insert random tracks" in tree context
+(120707)* Always saving PlayList on changes (maybe put an option here)
+(130707)* Start Visualization at startup now works
+(130707)* Text Representation changes in PlayList Control
+(030807)* LastFM - New GoogleLyrics Infoprovider plugins.
+(060807)* Much better searching for album covers in directories 
+(070807)* Changes in Status bar
+(070807)* Locate Artist at the beginning fix. 
+(080807)* BugFix In Adv. Search
+(080807)* new Options added in Inforetrieval
+(090807)* Potential Crash on downloading Artist Image with LastFM
+(090807)* Fixed "SortBy" bug
+(090807)* Now Showing App Log
+
+
+----------------------621--------------------------------------
+(180607)* Some space in some windows (translation problems)
+(180607)* Wheel on mini player changes volume
+(180607)* Fixed a problem with MiniPlayer sizing
+(210607)* Changed a lot of code in fastsplitter. Now it remembers the splitter mode (Show only first/both)
+(210607)* All List Columns now have 2px margins (Don't mess up strings that much anymore)
+(210607)* Better view of the pictures in Info Control
+(220607)* Better handling of the "one instance" feature.
+(230607)* Embedded browser toolbar added
+(230607)* Potential Crash at finish fixed
+(230607)* Tree now correctly restores the Last Filter
+(230607)* Disabled AMG - Info Downloading (except lyrics)
+
+----------------------620---------------------------------------
+(180607)* "Reset column ordering when changing language" fixed
+(180607)* LastFM Scrobbling support added
+(110607)* Bug Fix in the MiniPlayer's colors
+(140607)* Info Control rewritten
+(170607)* Live Skinning (No restart needed to change skin)
+(170607)* New Icons for rating and better list handling when changing the icon
+
+----------------------619 --------------------------------------
+(030607)* History Logging is working again (Bug introduced in 618)
+(030607)* Auto Play Options are working again (Bug introduced in 6xx?)
+(030607)* Fixed AutoContinue Issue on empty playlist (Bug introduced in 618)
+(030607)* Fixed Reload Last PlayList Issue (Bug introduced in 618)
+(070607)* Quick Search moved over the track List
+(090607)* AutocontinueMode "New" added. WARNING: More options will follow
+(090607)* More Control Added to Info Control
+(100607)* MSN "Now Playing" feature added
+
+----------------------618 (0.92.618 beta)-------------------------------
+(170407)* Info Control now is syncronized with the playlist when there is a media change
+(170407)* BugFix when updating a DB Record (Could fail in certain conditions) [part II]
+(290407)* Improvements in data selection of the info control
+(130507)* Rare bug fixed in PlayList Control (Empty space on top of items)
+(130507)* New very rich menu in PlayList
+(130507)+ "Insert to playlist (m3u)" command added in the playlist 
+(140507)+ Insert Random Songs based on selected "Artist, Album, Collection, Genre, Year" or anything has been added
+(140507)+ Auto Continue Mode Added (All or same Artist, Album, Collection, Genre, Year)
+(140507)+ Added "Remove" & "Remove others" to the playlist menu
+(150507)* Visualizations / Video Window now remembers its position
+(150507)* Visual Enhancments In toolbar (Auto sized buttons)
+(170507)* Visualizations moved to Info Control (step I). Context Menu Added for the option
+(200507)* Explicit Pause button added
+(270507)* Certain bug (could crash the app) fixed in FileNameParser
+(290507)* Changed from XML to Ini style Settings
+
+
+----------------------616 (0.91d beta)-------------------------------
+
+(150407)* Corrected a compativbilty issue with iTunes in Unsynced lyrics 
+(120407)* BugFix when updating a DB Record (Could fail in certain conditions)
+(120407)* Removed "The", ",the", ", the" from artist name when searching for lyrics
+
+----------------------615 (0.91c)-------------------------------
+
+(090407)* Bug Fix in Lyrics/Comments TagTrack function on certain cases
+(100407)* Some warnings fixing
+(100407)* Delete was corrected for Virtual tracks
+(100407)* MO3,IT,XM,S3M,MTM,MOD,UMX now is correctly supported by the player
+(100407)* New mp3 service finder by g2p.org
+(100407)+ Added Russian / Ukrainian languages support
+
+
+----------------------614 (0.91b hotfix)-------------------------------
+
+(130307)* AMG Info now correctly translating in Western European code page (not to the system default)
+(130307)* BugFix. Track Edit was disabled in certain cases
+(130307)* 00:00 duration will not be visible anymore
+(130307)* Bugfix illegal rating warning appearance
+
+----------------------613 (0.91b)-------------------------------
+
+(110307)+ Import/Export added for Virtual Track Collections
+(110307)* GUI enhancments in History Dialog / Collections Dialog
+(110307)* Better UI drag-drop support
+(110307)* Minor changes in the Information GUI
+(100307)* Some more untranslatable strings were corrected
+(100307)* Changes to support better the new "Japanese" translation (you need to "install files for East Asian Languages" (Control Panel/Regional/Languages) to see this)
+(090307)* A new photo in the "Empty Database" Dialog
+(070307)* Update single collection is working again
+
+----------------------612 (0.91b)- (beta2)------------------------------
+
+(060307)* BugFixed 2 cases where TS/C could crash in "Update Collections" 
+
+----------------------611 (0.91b) (beta1)-------------------------------
+
+(050307)+ Testing Implementation of virtual tracks (eg YouTube videos added by right clicking on artists)
+(050307)* Artist Picture show when album picture is not available
+(050307)* Quicker code in Playlist additions
+(050307)* Added ctrl+A (Select All) & ctrl+I (Invert Selection)
+(040307)* Fix on filenames with '%'. (on collection update)
+(260207)* Changes in the look of some Properties windows
+(250207)+ See the most serious program actions (Warnings-File Operations-Downloads), using the application log. (DblClick in status bar)
+(250207)* Tagging support for filnames in Unicode fixed
+(240207)* Edition of Artist Name have been removed from Album Properties (Confusing for the user)
+(240207)* BugFix in "only one-instance" code
+(240207)* Fixed the behaviour of many search queries (Rewritten some code)
+(220207)+ Drop implemented in Tree View (Tag tracks if tagging is enabled)
+(210207)* m4a basic support added (can be added in the db through the filename parser)
+
+----------------------610 (0.91b) (alpha)-------------------------------
+
+(210207)* Correction for international characters in lyrics downloading 
+(200207)* BugFix in a strange effect in playList (black bars). Also Active Track correctly stays visible
+(200207)* Locate Items In Collection/Artists Mode
+(190207)* BugFix in Locate Track while quick searching
+(190207)* BugFix in writting id3v2 comments/lyrics/TrackNumbers
+(080207)* BugFix when tagging International characters (at least Greek) (This was serious)
+(070207)* Improved the way of reading/writing tags. There should be a lot of performance increase in these operations
+(070207)* Added icons in services
+(060207)* FreeCoversDownloading is working again. Not the best quality though (about 400x400)###Update### the site changed again ==> stopped working)
+(060207)* Grouping of artists now works only in Artists/Albums mode (BugFix)
+(060207)* Play/Pause Icon now changes correctly (BugFix)
+(060207)* XML Parser changed
+(050207)+ Added Web Services (Google - YouTube - Wikipedia more if you modify the services.xml). 
+	You can find these services in the 'services' submenu of the context menu in TreeView/ListView
+(300107)* Fixed Bug when dropping a folder in the Player List (BugFix)
+(290107)* TS will not affect "Wave Volume" anymore
+(240107)* Quicksearch now has a delay for keystrokes
+(240107)* Quicksearch now searches for Path also (BugFix)
+(240107)* New Icons based on Tango
+(210107)* 'folder' added to the album picture finder
+
+----------------------0.91a [609] (Download this version 1.3Mb)----------------------
++ Play Support for mpc, flac, ogg, aac, ape, ac3 (and more) added
++ Tag Support for wma, mpc, ogg added
++ Full Screen and Undocked Visualization / Video Viewer
++ New Visualizations
+* New Easy to create & use language module
+* Much code rewritten
+* Faster startup and better resource efficiency
+* Faded info view
+* Auto Lyrics download are working again.
+* A new name. 'Teen Spirit' becomes... 'Conium' (Which one is the worse?)
+
+----------------------0.9.541 (Download this version 566Kb)
++ Export main track list, and all history lists to HTML file (you can make your own css style)
++ Dynamically link files on CD/DVD media. (now you can play files located in CD/DVD media)
++ Renamer Upgrade (preview of the renaming process and new modes)
++ Import AudioCD (CDDB support)
++ Multimedia Keys (Play - Stop - Prev - Next) supported (optionally)
++ Copy Selected Files To Folder added
++ Ability to Add the same CD/DVD Disc
++ Ability to add a collection from a USB Flash, iPod, mp3 Players and other removable devices
++ "Show All Tracks" checkbox added in simple search
+- Bug Fix in Minimize to Tray - Restore code
+- Minor Fix in AMG module
+- Minor Bugfix in Language module (not permitting Portuguese, Polish)
+- Bug Fix in "Show History" in Artists/Tracks History.
+- Now the preferred Media reader for mp3 is id3lib
+- Minor Bug Fix in Track Rank calculation
+- Critical Bug Fix in updating Offline Collections
+- Multiple Rename Collections Added
+- Redraw optimization in Track List Control. Faster and smarter (not loosing the focus anymore)
+- Extendend m3u support (Save/Load)
+- Better Startup times when having a large playlist
+- Bug Fix in the display of Player List Control (blank area on top sometimes after restoring)
+- 'Show Track' in Player List Control now correctly shows Lyrics (if available)
+
+----------------------0.9.500 (Download this version 566Kb)
++ Now the Main List Control remembers the column width and order
+* Bug Fixes in multilanguage files (Italian and Spanish languages added)
+* Memory Optimizations (Graphics reuse)
+* Better behaviour in Auto Collection Update.
+* More Info in Collection Update & better handling of local collection updates (Now it is mount aware)
+* Improvements in Rename Collections
+
+----------------------0.9.488 (Download this version 558Kb)
++ Detailed search tab for Artist AND Album AND Title AND Location
++ Copy Text option added in Info View
++ New column "Collection" to indicate in which collection the tracks belongs to (useful if you have CD/DVDs - Removable storage)
++ Automatic Collection Update at startup (plus options) added.
+* BugFixes in Media Files Handling (Delete - Rename) produced an error when tracks were on media
+* Cleared the code on "Minimize to tray - Show Mini player options"
+* Bugfix on restore from tray
+* Gui Enhancements in Quiz, Icons (Best Score Added, became moveable dialog)
+* Gui Enhancements in Mini Player, Collections, Tooltip
+
+----------------------0.9.469 (Download this version 540Kb)
++ Music Quiz
++ Multilanguage support
++ Track Listing now appears under "[Various]"
++ Rename Collection Option added in Collections List (Morgothzz)
+* Bug Fix (Could not remove empty collections)
+* Small fix in obtaining AMG track List (site changed)
+* Generic menu for every tree item (play / enqueue)
+* Bug Fix on writing tags in wma files
+* Bug Fix on Open Containing folder when path included special characters
+* Gui Enhancements in CollectionsDialog
+* Some new images-icons
+
+----------------------0.9.427 (Download this version 534Kb)
++ New ToolTip in Main List. History Log Statistics replaced lyrics/comments
++ Quick Renamer Engine Added (Right Click on any track
++ Tooltips + Gui Enhancements added in History Dialog
++ New Mode of treeview added (now tree view can show Collections. This is good, if you have added CDs / DVDs etc.)
+* WinXP SP2 check replaced by a WMP9 check.
+* Volume in Media Player now correctly restored
+* Proper case fix
+* DblClick on mini window restores main mindow
+
+----------------------0.9.414.
++ Image Preview Added in File Dialogs
++ First Basic Version for a future History HTML Exporter
++ Windows Version Check at the beginning (WinXP SP2 or Win2k3 required)
++ Accept All & Try Again button added in Lyrics Downloading
+* Picture File Dialog now starts in the associated first track folder
+* Media Player Options Fix
+* Media Player Volume Control Change
+* Retry Button on Lyrics Accept Dialog
+* Bug Fix in Media Player's Global HotKeys
+
+----------------------0.9.409
++ Context Menu in Info Control (Properties - Save Picture)
+* All Music Parser Update (The site changed)
+* Minor bug fixes
+* Minor Memory improvements
+
+----------------------0.9.404
+* Small Bug Fix in Track Propereties handling
+
+----------------------0.9.403
++ Paste Picture Added in Picture Dialogs
+* Small Display Bug in Info Conreol
+* Potential Bug in Download Information module
+* Now it Keeps the Picture when you change The Artist / Album Name
+* Option for changing the Tags when Changing the Artist / Album Name From Artist/Album Properties
+* Small Error in calculating Number of records in Advanced Search
+* Various Small changes
+
+----------------------0.9.400
++ Clear List Added in Media Player
+
+----------------------0.9.398
+* Extra Information Retrieval On Video Files has been temporaly disabled as it may crash the Application in some systems
+
+----------------------0.9.395 (beta 2)
+*** New Database (This version database is incompatible with previous versions) Please delete the old one before installing
+Main New Features
++ AutoContinue (play random from the database when the playlist has finished)
++ Lyrics are now showing in the main info view
++ Check for updates in the About Box
++ Now you can add CD/DVDs (with mp3, avi.. etc) in your collection list (CDAudio not supported)
++ New CollectionAlbums View in Tree to see only the Album collections you obtain
++ Sorting in Tree (Name - Rating - Number of Tracks)
++ Rating In Artists/Albums (is showed in TreeView)
++ AutoPlay at Startup / Remember last track (even time) added
+Other new features
++ Options on "What new means" in List View
++ Option to Disable Artist Grouping in Tree View (Artists / Albums Style)
++ Special Tab in Options for Media Player
++ More Info Support for mpg, avi, wma, asf files...
++ Now you can rename a whole Artist / Album in Artists-Albums Property pages
++ Delete Track(s) Added
++ Icons in Player List
++ Whole New Info Control
+Changes - Fixes
+* Better Drag Handling in PlayList
+* Some Strictness Fixes in All Music Downloader. Now it must be much better (panopano)
+* Fixes in Tracks,Artists,Albums Page Tagging Options
+* Smarter Updates in the various panes
+* Fix on ID3 modification when file is in use (like playing)
+* Some visual changes in MediaPlayer (pankeman)
+* Media Player now uses its own playlist (great speed optimization)
+* Download Log is not using Database any more
+* Better SyncTrack from Player (now locates the track also in List View)
+* ListView now has sorting icons
+* ShortCut keys now working in ListView
+* Changes in colors of MediaPlayer
+* New Shuffle (this is the best in the world)
+* Randomize tracks added in Media Player
+* Optimization for Non-Latin characters in downloads
+
+----------------------0.9.155
++ Automatic downloading (Can be disabled)
+* Fixes for Dialup Users
+
+----------------------0.9.151
+* Potential bug found
+* Google Lyrics downloading fixes
+
+----------------------0.9.143 beta
+* Minor Fixes
++ Icons Added
+
+----------------------0.9.126 beta
++ Download Lyrics Command now on Context menu
+* New Version of Google Lyrics
+* Sync downloading in Properties Windows
++ Query Info Dialog for Async downloading 
++ Global Audio / Video Filtering Added
++ Volume in Media Player
++ Sync Track in Media Player Menu 
++ Transition in Search Results Added
++ In-Line Quick Search results
+* Fixed some icon bugs
+* Bug Fix when changing Tree Mode
+
+----------------------0.9.008 (beta started)
++ Quick Search Added
++ New Search Functions
++ Tagger now removes empty fields
+* Fix Tree View would not be updated in certain case when collection was changing
+* Fix When Media Player loading an unrecognisable track (not in database - no valid name)
+* Fix when Media Player loads/saves track list with Greek characters in the filenames path
+* Fix when Rating was updated could change the GenreName in certain cases
+* Media Player buttons are always enabled now
+ 
+----------------------0.8.582
++ New About Box
+* Fix Issue with Enter/Esc Keys That could crash the application
+
+----------------------0.8.579
++ New Toolbar
++ Header in ListView
++ Simple Search from the toolbar
+* Fix Showing '&' characters in TreeView
+* MainList Icons at the end of the Track Name
+* Track Name now with ellipses at the end
+* Fix Resizing Total Repaint Issue
+* Top is now the steady part in Splitters
+* Search Dialog is now modeless
+
+----------------------0.8.486
++ HotKeys on MediaPlayer + Options
++ Live refresh in TreeView while adding files
++ Wait cursors in some places
+* Bug fix in Status bar initial width
+* About Box changed
+* Fix when MediaPlayer can't get properly the name of the track. (History Log - Media Player Display was affected)
+* Fix when some files are not available
+* Read Tags in MPList from Db if exists (not from Media Player.. it was slow)

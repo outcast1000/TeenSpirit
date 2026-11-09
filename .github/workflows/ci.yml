@@ -15,8 +15,10 @@ on:
     - cron: '0 6 * * 1'
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Separate groups per event, so a manual or scheduled run never cancels a push run;
+  # every push to main is tested, superseded PR runs are cancelled.
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read

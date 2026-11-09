@@ -97,6 +97,7 @@
   </ItemDefinitionGroup>
   <PropertyGroup><GenerateManifest>false</GenerateManifest></PropertyGroup>
   <ItemGroup>
+    <ClCompile Include="CommonSources\FileVersion.cpp" />
     <ClCompile Include="AboutDlg.cpp" />
     <ClCompile Include="ActionManager.cpp" />
     <ClCompile Include="AddPaneDlg.cpp" />
@@ -140,14 +141,6 @@
     <ClCompile Include="CommonSources\GuiControls\PicWndEx.cpp" />
     <ClCompile Include="CommonSources\GuiControls\RectAlphaDrawer.cpp" />
     <ClCompile Include="CommonSources\hdcUtils.cpp" />
-    <ClCompile Include="CommonSources\hmac\hmac_sha2.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="CommonSources\hmac\sha2.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="CommonSources\HTMLLite\CeXDib.cpp" />
     <ClCompile Include="CommonSources\HTMLLite\PPDrawManager.cpp" />
     <ClCompile Include="CommonSources\HTMLLite\PPHtmlDrawer.cpp" />
@@ -173,9 +166,7 @@
     <ClCompile Include="CommonSources\LastFMServices.cpp" />
     <ClCompile Include="CommonSources\LevelMeter.cpp" />
     <ClCompile Include="CommonSources\MediaSlider.cpp" />
-    <ClCompile Include="CommonSources\MSNNotifier.cpp" />
     <ClCompile Include="CommonSources\MultiThreadJobQueue.cpp" />
-    <ClCompile Include="CommonSources\NewVersionChecker.cpp" />
     <ClCompile Include="CommonSources\OleDropTarget\DelegatedOleDropTarget.cpp" />
     <ClCompile Include="CommonSources\PerfTimer.cpp" />
     <ClCompile Include="CommonSources\Registry.cpp">
@@ -488,7 +479,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="CommunicationJob.cpp" />
     <ClCompile Include="ConfigurationManager.cpp" />
     <ClCompile Include="CountDownCtrl.cpp" />
     <ClCompile Include="CtrlColorsMediaSliderAdapter.cpp" />
@@ -526,7 +516,6 @@
     <ClCompile Include="InfoPaneCreator.cpp" />
     <ClCompile Include="InfoQueryDlg.cpp" />
     <ClCompile Include="InfoRetrievalPP.cpp" />
-    <ClCompile Include="InformationProviders\AmazonProvider\AmazonProvider.cpp" />
     <ClCompile Include="InformationProviders\CachedImageInfoProvider\CachedImageInfoProvider.cpp" />
     <ClCompile Include="InformationProviders\CompositeInfoProvider\CompositeInfoProvider.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -534,9 +523,7 @@
     </ClCompile>
     <ClCompile Include="InformationProviders\DirImageInfoProvider\DirImageInfoProvider.cpp" />
     <ClCompile Include="InformationProviders\ExternalInfoProvider\ExternalInfoProvider.cpp" />
-    <ClCompile Include="InformationProviders\GoogleLyrics\GoogleLyricsProvider.cpp" />
     <ClCompile Include="InformationProviders\InfoProviderFactory.cpp" />
-    <ClCompile Include="InformationProviders\LastFMProvider\LastFMProvider.cpp" />
     <ClCompile Include="InputBox.cpp" />
     <ClCompile Include="LanguagesPP.cpp" />
     <ClCompile Include="LastFMDlg.cpp" />
@@ -561,7 +548,6 @@
     <ClCompile Include="MediaPlayers\ShufflePlaylistHelper.cpp" />
     <ClCompile Include="MediaPlayers\VectorPlayList.cpp" />
     <ClCompile Include="MediaPlayers\WinampVisualization.cpp" />
-    <ClCompile Include="MediaPlayers\YouTubePlayerEngine.cpp" />
     <ClCompile Include="MenuManager.cpp" />
     <ClCompile Include="MessageDlg.cpp" />
     <ClCompile Include="MillionaireButton.cpp" />
@@ -616,9 +602,7 @@
     <ClCompile Include="ToolbarWnd.cpp" />
     <ClCompile Include="Trackers\LastFMAdapterTracker.cpp" />
     <ClCompile Include="Trackers\LocalHistoryTracker.cpp" />
-    <ClCompile Include="Trackers\MSNAdapterTracker.cpp" />
     <ClCompile Include="Trackers\MultiTracker.cpp" />
-    <ClCompile Include="Trackers\TSOnlineAdapterTracker.cpp" />
     <ClCompile Include="TrackListCtrl.cpp" />
     <ClCompile Include="TrackListPane.cpp" />
     <ClCompile Include="TrackListPaneCreator.cpp" />
@@ -628,7 +612,6 @@
     <ClCompile Include="TSBrowserEnh.cpp" />
     <ClCompile Include="TSConfigurable.cpp" />
     <ClCompile Include="TSMenu.cpp" />
-    <ClCompile Include="TSOnlineServices.cpp" />
     <ClCompile Include="TSPaneContainer.cpp" />
     <ClCompile Include="TSPropertyPage.cpp" />
     <ClCompile Include="TSSkin.cpp" />
@@ -651,6 +634,7 @@
     <ClCompile Include="WebPaneCreator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CommonSources\FileVersion.h" />
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="ActionManager.h" />
     <ClInclude Include="AddPaneDlg.h" />
@@ -697,8 +681,6 @@
     <ClInclude Include="CommonSources\GuiControls\PicWndEx.h" />
     <ClInclude Include="CommonSources\GuiControls\RectAlphaDrawer.h" />
     <ClInclude Include="CommonSources\hdcUtils.h" />
-    <ClInclude Include="CommonSources\hmac\hmac_sha2.h" />
-    <ClInclude Include="CommonSources\hmac\sha2.h" />
     <ClInclude Include="CommonSources\HTMLLite\CeXDib.h" />
     <ClInclude Include="CommonSources\HTMLLite\PPDrawManager.h" />
     <ClInclude Include="CommonSources\HTMLLite\PPHtmlDrawer.h" />
@@ -734,9 +716,7 @@
     <ClInclude Include="CommonSources\LevelMeter.h" />
     <ClInclude Include="CommonSources\MediaSlider.h" />
     <ClInclude Include="CommonSources\memdc.h" />
-    <ClInclude Include="CommonSources\MSNNotifier.h" />
     <ClInclude Include="CommonSources\MultiThreadJobQueue.h" />
-    <ClInclude Include="CommonSources\NewVersionChecker.h" />
     <ClInclude Include="CommonSources\NotificationTarget.h" />
     <ClInclude Include="CommonSources\OleDropTarget\DelegatedOleDropTarget.h" />
     <ClInclude Include="CommonSources\PerfTimer.h" />
@@ -841,7 +821,6 @@
     <ClInclude Include="CommonSources\XHTMLStatic.h" />
     <ClInclude Include="CommonSources\XmlLiteUtilities.h" />
     <ClInclude Include="CommonSources\XNamedColors.h" />
-    <ClInclude Include="CommunicationJob.h" />
     <ClInclude Include="ConfigurationManager.h" />
     <ClInclude Include="CountDownCtrl.h" />
     <ClInclude Include="CtrlColorsMediaSliderAdapter.h" />
@@ -878,7 +857,6 @@
     <ClInclude Include="InfoPaneCreator.h" />
     <ClInclude Include="InfoQueryDlg.h" />
     <ClInclude Include="InfoRetrievalPP.h" />
-    <ClInclude Include="InformationProviders\AmazonProvider\AmazonProvider.h" />
     <ClInclude Include="InformationProviders\CachedImageInfoProvider\CachedImageInfoProvider.h" />
     <ClInclude Include="InformationProviders\CompositeInfoProvider\CompositeInfoProvider.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -886,11 +864,9 @@
     </ClInclude>
     <ClInclude Include="InformationProviders\DirImageInfoProvider\DirImageInfoProvider.h" />
     <ClInclude Include="InformationProviders\ExternalInfoProvider\ExternalInfoProvider.h" />
-    <ClInclude Include="InformationProviders\GoogleLyrics\GoogleLyricsProvider.h" />
     <ClInclude Include="InformationProviders\InfoProvider.h" />
     <ClInclude Include="InformationProviders\InfoProviderFactory.h" />
     <ClInclude Include="InformationProviders\InfoProviderJob.h" />
-    <ClInclude Include="InformationProviders\LastFMProvider\LastFMProvider.h" />
     <ClInclude Include="InputBox.h" />
     <ClInclude Include="IStateChangeListener.h" />
     <ClInclude Include="ITSMenu.h" />
@@ -923,7 +899,6 @@
     <ClInclude Include="MediaPlayers\ShufflePlaylistHelper.h" />
     <ClInclude Include="MediaPlayers\VectorPlaylist.h" />
     <ClInclude Include="MediaPlayers\WinampVisualization.h" />
-    <ClInclude Include="MediaPlayers\YouTubePlayerEngine.h" />
     <ClInclude Include="MenuManager.h" />
     <ClInclude Include="MessageDlg.h" />
     <ClInclude Include="MessageViewer.h" />
@@ -981,9 +956,7 @@
     <ClInclude Include="Trackers\ITracker.h" />
     <ClInclude Include="Trackers\LastFMAdapterTracker.h" />
     <ClInclude Include="Trackers\LocalHistoryTracker.h" />
-    <ClInclude Include="Trackers\MSNAdapterTracker.h" />
     <ClInclude Include="Trackers\MultiTracker.h" />
-    <ClInclude Include="Trackers\TSOnlineAdapterTracker.h" />
     <ClInclude Include="TrackListCtrl.h" />
     <ClInclude Include="TrackListPane.h" />
     <ClInclude Include="TrackListPaneCreator.h" />
@@ -996,7 +969,6 @@
     <ClInclude Include="TSConfigurable.h" />
     <ClInclude Include="TSMenu.h" />
     <ClInclude Include="TSNodes.h" />
-    <ClInclude Include="TSOnlineServices.h" />
     <ClInclude Include="TSPaneContainer.h" />
     <ClInclude Include="TSPropertyPage.h" />
     <ClInclude Include="TSSkin.h" />
@@ -1160,7 +1132,6 @@
     <None Include="res\textreso.bin" />
     <None Include="res\UpdateAll.bmp" />
     <None Include="res\Warnings.bmp" />
-    <None Include="res\youtubeapi.htm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(MSBuildThisFileDirectory)build\vcpkg.targets" />

@@ -23,8 +23,6 @@
 #pragma once
 
 #include "ITracker.h"
-class MSNAdapterTracker;
-class TSOnlineAdapterTracker;
 class LocalHistoryTracker;
 class LastFMAdapterTracker;
 
@@ -38,8 +36,6 @@ public:
 	virtual LPCTSTR GetName()				{return _T("Multi Tracker");}
 
 private:
-	MSNAdapterTracker* m_pMSN;
-	TSOnlineAdapterTracker* m_pOH;
 	LocalHistoryTracker* m_pLH;
 	LastFMAdapterTracker* m_pLFM;
 

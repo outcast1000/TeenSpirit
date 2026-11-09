@@ -24,7 +24,7 @@
 #include "stdafx.h"
 #include "TeenSpirit.h"
 #include "AboutDlg.h"
-#include "NewVersionChecker.h"
+#include "FileVersion.h"
 #include "AppMonitor.h"
 #include "ActionManager.h"
 //#include "UrlDownloader.h"
@@ -62,10 +62,8 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
-	ON_MESSAGE(WM_APP_CHECKFORUPDATES, CheckForUpdates)
 	ON_MESSAGE(WM_APP_WEBSITE, GoToWebsite)
 	ON_MESSAGE(WM_APP_FORUM, GoToForum)
-	ON_MESSAGE(WM_APP_DONATE, GoToDonate)
 END_MESSAGE_MAP()
 
 BOOL CAboutDlg::OnInitDialog()
@@ -114,10 +112,8 @@ BOOL CAboutDlg::OnInitDialog()
 		return TRUE;
 	TCHAR bf[1000];
 	_sntprintf(bf, 1000, _T("<b>%s v%d.%d build %d.%d</b>")
-		_T("<br> - <font color=\"#0000ff\"><u><a href=\"app:WM_APP_CHECKFORUPDATES\">Check for updates</a></u></font>.")
-		_T("<br> - Visit <font color=\"#0000ff\"><u><a href=\"app:WM_APP_WEBSITE\">Jaangle Website</a></u></font>.")
-		_T("<br> - Get help in the <font color=\"#0000ff\"><u><a href=\"app:WM_APP_FORUM\">Forum</a></u></font>.")
-		_T("<br> - <font color=\"#0000ff\"><u><a href=\"app:WM_APP_DONATE\">Donate</a></u></font> to support this free project.")
+		_T("<br> - Source code and news on <font color=\"#0000ff\"><u><a href=\"app:WM_APP_WEBSITE\">GitHub</a></u></font>.")
+		_T("<br> - Report a problem or ask a question in the <font color=\"#0000ff\"><u><a href=\"app:WM_APP_FORUM\">issue tracker</a></u></font>.")
 		,
 		CTeenSpiritApp::sAppTitle,
 		fv.Major, fv.Minor, fv.Build, fv.SubBuild);
@@ -126,10 +122,8 @@ BOOL CAboutDlg::OnInitDialog()
 
 	XHTMLSTATIC_APP_COMMAND AppCommands[] = 
 	{
-		{ m_hWnd, WM_APP_CHECKFORUPDATES, 1, _T("WM_APP_CHECKFORUPDATES") },
 		{ m_hWnd, WM_APP_WEBSITE, 1, _T("WM_APP_WEBSITE") },
-		{ m_hWnd, WM_APP_FORUM, 1, _T("WM_APP_FORUM") },
-		{ m_hWnd, WM_APP_DONATE, 2, _T("WM_APP_DONATE") }
+		{ m_hWnd, WM_APP_FORUM, 1, _T("WM_APP_FORUM") }
 	};
 
 	m_VersionInfo.SetAppCommands(AppCommands, 
@@ -137,12 +131,6 @@ BOOL CAboutDlg::OnInitDialog()
 
 
 	return TRUE;  // return TRUE unless you set the focus to a control
-}
-
-LRESULT CAboutDlg::CheckForUpdates(WPARAM wParam, LPARAM lParam)
-{
-	PRGAPI()->GetActionManager()->CheckForUpdates(this);
-	return 0;
 }
 
 LRESULT CAboutDlg::GoToWebsite(WPARAM wParam, LPARAM lParam)
@@ -153,11 +141,6 @@ LRESULT CAboutDlg::GoToWebsite(WPARAM wParam, LPARAM lParam)
 LRESULT CAboutDlg::GoToForum(WPARAM wParam, LPARAM lParam)
 {
 	PRGAPI()->GoToSiteURL(PrgAPI::SA_Navigate, _T("forum"));
-	return 0;
-}
-LRESULT CAboutDlg::GoToDonate(WPARAM wParam, LPARAM lParam)
-{
-	PRGAPI()->GoToSiteURL(PrgAPI::SA_Navigate, _T("donate"));
 	return 0;
 }
 

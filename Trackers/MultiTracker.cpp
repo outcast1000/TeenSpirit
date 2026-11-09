@@ -23,9 +23,7 @@
 #include "stdafx.h"
 #include "MultiTracker.h"
 
-#include "MSNAdapterTracker.h"
 #include "LocalHistoryTracker.h"
-#include "TSOnlineAdapterTracker.h"
 #include "LastFMAdapterTracker.h"
 
 #include "PrgAPI.h"
@@ -33,8 +31,6 @@
 
 
 MultiTracker::MultiTracker():
-m_pMSN(NULL),
-m_pOH(NULL),
 m_pLH(NULL),
 m_pLFM(NULL)
 {
@@ -44,8 +40,6 @@ MultiTracker::~MultiTracker(void)
 {
 	delete m_pLFM;
 	delete m_pLH;
-	delete m_pMSN;
-	delete m_pOH;
 }
 
 void MultiTracker::SubmitTrack(Action action, const TrackerTrack& track, UINT actionTime)
@@ -61,12 +55,6 @@ void MultiTracker::SubmitTrack(Action action, const TrackerTrack& track, UINT ac
 		}
 		m_pLFM->SubmitTrack(action, track, actionTime);
 	}
-	if (pAPI->GetOption(OPT_GEN_NotifyMSN))
-	{
-		if (m_pMSN == NULL)
-			m_pMSN = new MSNAdapterTracker;
-		m_pMSN->SubmitTrack(action, track, actionTime);
-	}
 	if (pAPI->GetOption(OPT_GEN_NotifyHistory))
 	{
 		if (m_pLH == NULL)
@@ -75,14 +63,5 @@ void MultiTracker::SubmitTrack(Action action, const TrackerTrack& track, UINT ac
 			m_pLH->SetSQLManager(pAPI->GetSQLManager());
 		}
 		m_pLH->SubmitTrack(action, track, actionTime);
-	}
-	if (pAPI->GetOption(OPT_GEN_UseNativeOnlineServices))
-	{
-		if (m_pOH == NULL)
-		{
-			m_pOH = new TSOnlineAdapterTracker;
-			m_pOH->SetTSOnlineServices(pAPI->GetTSOnlineServices());
-		}
-		m_pOH->SubmitTrack(action, track, actionTime);
 	}
 }

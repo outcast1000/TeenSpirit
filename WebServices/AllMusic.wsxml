@@ -1,0 +1,11 @@
+<services>
+  <service name='AllMusic'
+           action='web@https://www.allmusic.com/search/artists/%artist%'
+           appliesto='%artist%'/>
+  <service name='AllMusic'
+           action='web@https://www.allmusic.com/search/albums/%artist%+%album%'
+           appliesto='%album%'/>
+  <service name='AllMusic'
+           action='web@https://www.allmusic.com/search/songs/%artist%+%title%'
+           appliesto='%title%'/>
+</services>

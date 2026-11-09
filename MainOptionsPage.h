@@ -27,7 +27,6 @@ protected:
 private:
 	afx_msg void OnBnClickedCmdLastfm();
 	afx_msg void OnChange();
-	afx_msg void OnBnClickedCmdOnlineservices();
 	virtual void OnOK();
 	void SaveChanges();
 	void LoadMainDlgOptions();
@@ -37,5 +36,4 @@ private:
 	BOOL m_bSomethingChanged;
 	BOOL m_bNeedsUpdating;
 	FlexButton m_cmdLastFM;
-	FlexButton m_cmdMusicStory;
 };

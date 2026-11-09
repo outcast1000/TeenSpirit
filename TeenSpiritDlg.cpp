@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "TeenSpirit.h"
 #include "TeenSpiritDlg.h"
+#include "FileVersion.h"
 #include "AppSettings/AppSettings.h"
 #include "ToolbarWnd.h"
 #include "ActionManager.h"
@@ -18,7 +19,6 @@
 #include "SQLManager.h"
 //#include "HotKeyManager.h"
 #include "Trackers/ITracker.h"
-#include "TSOnlineServices.h"
 #include "SystemTimeFunctions.h"
 #include "ShortcutManager.h"
 #include "ApplicationMonitor.h"
@@ -44,7 +44,6 @@
 #define DELAY_TIMER_DELAY	50
 
 //#define CHECKNEWVERSION_TIMER			510
-#define CHECKNEWVERSION_TIMER_DELAY		60000
 
 //#define AUTOUPDATEDB_TIMER	501
 //#define HEARTBEAT_TIMER			502
@@ -65,7 +64,6 @@
 
 #define IDC_TSDLGSTATUS 201
 
-#define MSG_UPDATECHECKER 200
 LPCTSTR CTeenSpiritDlg::SettingsCategory = _T("MAINDLG");
 
 // CTeenSpiritDlg dialog
@@ -111,7 +109,6 @@ BEGIN_MESSAGE_MAP(CTeenSpiritDlg, CDialog)
 	ON_WM_INITMENUPOPUP()
 	ON_WM_GETMINMAXINFO()
 	ON_MESSAGE(WM_ICON_NOTIFY, OnTrayNotify)
-	ON_MESSAGE(MSG_UPDATECHECKER, OnCheckVersion)
 	ON_WM_CREATE()
 	ON_WM_ERASEBKGND()
 	ON_WM_COPYDATA()
@@ -194,8 +191,6 @@ BOOL CTeenSpiritDlg::OnInitDialog()
 	//pHKM->Init();//m_hWnd);
 
 	SetTimer(TMR_InitialDelay, DELAY_TIMER_DELAY, NULL);
-	if (pAPI->GetOption(OPT_GEN_CheckForUpdates))
-		SetTimer(TMR_CheckNewVersion, CHECKNEWVERSION_TIMER_DELAY, NULL);
 	SetTimer(TMR_HeartBeat, HEARTBEAT_TIMER_DELAY, NULL);
 	SetTimer(TMR_AppMonitor, APPMONITOR_TIMER_DELAY, NULL);
 	//SetTimer(TMR_PlayerMonitor, PLAYERMONITOR_TIMER_DELAY, NULL);
@@ -487,42 +482,10 @@ void CTeenSpiritDlg::OnTimer(UINT nIDEvent)
 					break;
 				}
 			}
-			if (pAPI->GetOption(OPT_GEN_UseNativeOnlineServices) == -1)
-			{
-				CMessageDlg dlg(this);
-				
-				dlg.SetText(CMessageDlg::TT_Title, pAPI->GetString(IDS_OPTIONS));
-				dlg.SetText(CMessageDlg::TT_SubTitle, pAPI->GetString(IDS_CONFIRMATION));
-				TCHAR bf[1000];
-				_sntprintf(bf, 1000, _T("%s (beta)"), pAPI->GetString(IDS_TSONLINESERVICES));
-				dlg.SetText(CMessageDlg::TT_CheckBox, bf);
-				pAPI->GetSiteURL(bf, 1000, PrgAPI::SA_Navigate, _T("onlineservices-about"));
-				dlg.SetHelpLink(pAPI->GetString(IDS_HELP_S), bf);
-				dlg.SetCheck(TRUE);
-				dlg.SetText(CMessageDlg::TT_ButtonRight, pAPI->GetString(IDS_OK));
-				if (dlg.DoModal() != CMessageDlg::RES_Close)
-					pAPI->SetOption(OPT_GEN_UseNativeOnlineServices, dlg.IsChecked() ? 1 : 0);
-			}
 			MediaPlayer* pPlayer = PRGAPI()->GetMediaPlayer();
 			m_playerBar.SetMediaPlayer(pPlayer);
 			if (pAPI->GetOption(OPT_MINIPLR_ShowAtStartup) != 0)
 				pAPI->GetMiniPlayerDlg(TRUE)->Show();
-		}
-		break;
-	case TMR_CheckNewVersion:
-		KillTimer(nIDEvent);
-		if (pAPI->GetOption(OPT_GEN_CheckForUpdates))
-		{
-			PrgAPI* pAPI = PRGAPI();
-			SYSTEMTIME st;
-			GetLocalTime(&st);
-			DOUBLE thisDay;
-			SystemTimeToVariantTime(&st, &thisDay);
-			if (INT(thisDay) - pAPI->GetOption(OPT_GEN_CheckLastCheck) >= pAPI->GetOption(OPT_GEN_DaysBetweenCheck))
-			{
-				pAPI->SetOption(OPT_GEN_CheckLastCheck, INT(thisDay));
-				AfxBeginThread(&NewVersionCheckThreadST, (void*)this ,0 ,0 ,0);
-			}
 		}
 		break;
 	case TMR_AutoUpdateDB:
@@ -758,33 +721,6 @@ LRESULT CTeenSpiritDlg::OnTrayNotify(WPARAM wParam, LPARAM lParam)
 	return 0; 
 } 
 
-LRESULT CTeenSpiritDlg::OnCheckVersion(WPARAM wParam, LPARAM lParam) 
-{
-	if (m_newVerCheckResult.error == NewVersionChecker::ERR_OK)
-	{
-		PrgAPI* pAPI = PRGAPI();
-		FileVersion curVer;
-		GetFileVersion(curVer);
-		if (m_newVerCheckResult.stableVersion > curVer)
-		{
-			CMessageDlg dlg(this);
-			dlg.SetText(CMessageDlg::TT_SubTitle, pAPI->GetString(IDS_UPDATEAVAILABLE));
-			dlg.SetText(CMessageDlg::TT_ButtonRight, pAPI->GetString(IDS_NO_S));
-			dlg.SetText(CMessageDlg::TT_ButtonMid, pAPI->GetString(IDS_YES_S));
-			switch (dlg.DoModal())
-			{
-			case CMessageDlg::RES_Mid:
-				ShellExecute(m_hWnd, _T("open"), m_newVerCheckResult.infoURL.c_str(), 0,0,0);
-				break;
-			}
-		}
-		else
-			pAPI->NotifyUser(IDS_UPDATENOTAVAILABLE,0,SEV_InfoL1);
-
-	}
-	return 0;
-}
-
 BOOL CTeenSpiritDlg::OnEraseBkgnd(CDC* pDC)
 {
 	// TODO: Add your message handler code here and/or call default
@@ -920,27 +856,6 @@ BOOL CTeenSpiritDlg::OnCopyData(CWnd* pWnd, COPYDATASTRUCT* pCopyDataStruct)
 	return __super::OnCopyData(pWnd, pCopyDataStruct);
 }
 
-
-UINT CTeenSpiritDlg::NewVersionCheckThreadST(LPVOID pParam)
-{
-	ASSERT(pParam != NULL);
-	DWORD ret = 0;
-	if (pParam != NULL)
-		ret = ((CTeenSpiritDlg*)pParam)->NewVersionCheck();
-	return ret;
-}
-
-UINT CTeenSpiritDlg::NewVersionCheck()
-{
-	PrgAPI* pAPI = PRGAPI();
-	std::string sysID;
-	if (pAPI->GetURLSystemID(sysID))
-	{
-		m_newVerCheckResult = NewVersionChecker::CheckForNewVersion(pAPI->GetInternetHandle(), sUpdateURL, (LPCTSTR)CA2CT(sysID.c_str()));
-		PostMessage(MSG_UPDATECHECKER);
-	}
-	return 0;
-}
 
 void CTeenSpiritDlg::OnEndSession(BOOL bEnding)
 {

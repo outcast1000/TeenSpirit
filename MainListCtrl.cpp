@@ -20,7 +20,6 @@
 #include "RenamerDlg.h"
 #include "TagsFromFilenameDlg.h"
 #include "StateManager.h"
-#include "TSOnlineServices.h"
 
 
 #define ID_PROVIDERS 1000
@@ -1032,12 +1031,6 @@ void CMainListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 					(LPTSTR)pAPI->GetString(IDS_RATING), pAPI->GetIcon(ICO_StarGold16));
 
 
-				_sntprintf(bf, 500, _T("%s - %s - %s"), 
-					pAPI->GetString(IDS_PREVIEW), 
-					pAPI->GetString(IDS_SIMILAR), 
-					pAPI->GetString(IDS_PURCHASEINFO));
-				m_MainMenu.AppendMenu(MF_STRING, ACMD_PurchaseInfo, 
-					bf, pAPI->GetIcon(ICO_Buy16));
 				_sntprintf(bf, 1000, _T("%s\t%s"), pAPI->GetString(IDS_PROPERTIES), pAPI->GetString(IDS_KEYHOME));
 				m_MainMenu.AppendMenu(MF_STRING, ACMD_Properties, bf, pAPI->GetIcon(ICO_Properties16));
 				m_MainMenu.SetDefaultItem(ACMD_Play, FALSE);
@@ -1240,13 +1233,6 @@ BOOL CMainListCtrl::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 					pAPI->SendMessage(SM_DatabaseUpdated);
 				}
-			}
-			break;
-		case ACMD_PurchaseInfo:
-			if (m_selectedTracks.size() > 0)
-			{
-				am->GoToTrackBuyPage(m_selectedTracks[0]->artist.name.c_str(), 
-					m_selectedTracks[0]->track.name.c_str());
 			}
 			break;
 		case ACMD_Properties:

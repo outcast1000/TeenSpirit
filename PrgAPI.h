@@ -24,7 +24,6 @@ class FlexButton;
 class LocalPictureManager;
 class HotKeyManager;
 class LastFMServices;
-class TSOnlineServices;
 class ITracker;
 class ShortcutManager;
 class AppMonitor;
@@ -49,13 +48,9 @@ enum AppOptionsEnum
 	OPT_Unknown = -1,
 
 	OPT_GEN_Debugging,
-	OPT_GEN_NotifyMSN,
 	OPT_GEN_LastFMScrobbler,
 	OPT_GEN_NotifyHistory,
 
-	OPT_GEN_CheckForUpdates,
-	OPT_GEN_DaysBetweenCheck,
-	OPT_GEN_CheckLastCheck,
 	OPT_GEN_DaysMeansNew,
 	OPT_GEN_LastVersion,
 
@@ -63,7 +58,6 @@ enum AppOptionsEnum
 	OPT_GEN_AutoUpdateDBDelay,
 	OPT_GEN_MinimizeToTray,
 	OPT_GEN_MultimediaKeysActive,
-	OPT_GEN_UseNativeOnlineServices,
 
 	OPT_GEN_RelativeFontSize,
 	OPT_GEN_ForceClearTypeFonts,
@@ -262,7 +256,6 @@ enum APP_ICONS
 	ICO_Last
 };
 
-static LPCTSTR const sUpdateURL = _T("http://services.artificialspirit.com/tsvercheck.php");
 
 #define PRGAPI PrgAPI::Instance
 
@@ -400,7 +393,6 @@ public:
 	InfoProviderFactory* GetInfoProviderFactory();
 	HotKeyManager* GetHotKeyManager();
 	LastFMServices* GetLastFMServices();
-	TSOnlineServices* GetTSOnlineServices();
 	ITracker* GetTracker();
 	ShortcutManager* GetShortcutManager();
 	ConfigurationManager* GetConfigurationManager();
@@ -450,7 +442,6 @@ private:
 	HotKeyManager* m_pHotKeyManager;
 	LastFMServices* m_pLastFMServices;
 	ITracker* m_pTracker;
-	TSOnlineServices* m_pTSOnlineServices;
 	ShortcutManager* m_pShortcutManager;
 	ConfigurationManager* m_pConfigurationManager;
 	StateManager* m_pStateManager;
@@ -488,7 +479,6 @@ private:
 	//--------------------------------------------------------
 
 public:
-	BOOL GetURLSystemID(std::string& systemID);
 	BOOL IsTrackNew(SYSTEMTIME& dateAdded, UINT DaysMeansNew = 0);
 
 	enum SiteActionEnum

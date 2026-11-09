@@ -9,7 +9,6 @@
 #include "TeenSpiritPlayer.h"
 #include "SQLManager.h"
 #include "ActionManager.h"
-#include "TSOnlineServices.h"
 #include "SystemTimeFunctions.h"
 
 LPCTSTR CQuizRunningDlg::SettingsCategory = _T("QUIZ");
@@ -307,15 +306,6 @@ BOOL CQuizRunningDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		case BT_NewGame:
 			SetState(ST_Start);
 			break;
-		case BT_Submit:
-			{
-				CHAR gameName[200];
-				_snprintf(gameName, 200, "QUIZ|%d:%d:%d", m_curGame.totalTime, m_curGame.penaltyTime, m_curGame.bonusTime);
-				PrgAPI* pAPI = PRGAPI();
-				TSOnlineServices* pTS = pAPI->GetTSOnlineServices();
-				pTS->SendGameResults(gameName, m_correctAnswers, m_poolCount, m_gameTimeStamp, TRUE);
-			}
-			break;
 		case BT_Exit:
 			EndDialog(0);
 			break;
@@ -570,7 +560,7 @@ void CQuizRunningDlg::SetState(FormStates st)
 		KillTimer(TIMER_DISPLAYRESULTSTIMER);
 		KillTimer(TIMER_DISPLAYQUESTIONSTIMER);
 		HideAll();
-		m_pButtons[BT_Submit]->ShowWindow(SW_SHOW);
+		m_pButtons[BT_Submit]->ShowWindow(SW_HIDE);
 		m_pButtons[BT_NewGame]->ShowWindow(SW_SHOW);
 		m_pButtons[BT_Exit]->ShowWindow(SW_SHOW);
 		SYSTEMTIME st;

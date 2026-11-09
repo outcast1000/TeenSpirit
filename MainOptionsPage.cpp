@@ -26,7 +26,6 @@ void CMainOptionsPage::DoDataExchange(CDataExchange* pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_CMD_LASTFM, m_cmdLastFM);
-	DDX_Control(pDX, IDC_CMD_ONLINESERVICES, m_cmdMusicStory);
 }
 
 
@@ -37,17 +36,13 @@ BEGIN_MESSAGE_MAP(CMainOptionsPage, CPropertyPage)
 	ON_BN_CLICKED(IDC_CHK_MIN2TRAY, &CMainOptionsPage::OnChange)
 	ON_BN_CLICKED(IDC_CHK_AUTOUPDDB, &CMainOptionsPage::OnChange)
 	ON_EN_CHANGE(IDC_EDT_AUTOUPDDB, &CMainOptionsPage::OnChange)
-	ON_BN_CLICKED(IDC_CHK_MSNNOWPLAYING, &CMainOptionsPage::OnChange)
 	ON_BN_CLICKED(IDC_CHK_LASTFMSCROBBLING, &CMainOptionsPage::OnChange)
-	ON_BN_CLICKED(IDC_CHK_TSONLINESERVICES, &CMainOptionsPage::OnChange)
-	ON_BN_CLICKED(IDC_CHK_CHECKFORUPDATES, &CMainOptionsPage::OnChange)
 	ON_BN_CLICKED(IDC_CHK_FORCECLEARTYPEFONTS, &CMainOptionsPage::OnChange)
 	ON_EN_CHANGE(IDC_EDTNUMDAYS, &CMainOptionsPage::OnChange)
 	ON_BN_CLICKED(IDC_CHK_SHOWTOOLTIPSONMEDIACHANGED, &CMainOptionsPage::OnChange)
 	ON_BN_CLICKED(IDC_CHK_DEBUGGING, &CMainOptionsPage::OnChange)
 
 	ON_BN_CLICKED(IDC_CMD_LASTFM, &CMainOptionsPage::OnBnClickedCmdLastfm)
-	ON_BN_CLICKED(IDC_CMD_ONLINESERVICES, &CMainOptionsPage::OnBnClickedCmdOnlineservices)
 
 END_MESSAGE_MAP()
 
@@ -59,11 +54,8 @@ void CMainOptionsPage::ApplyTranslation(ITranslation& translation)
 		SetDlgItemText(IDC_GR_APPLICATION, pLang->GetString(IDS_APPLICATION));
 		SetDlgItemText(IDC_CHK_MIN2TRAY, pLang->GetString(IDS_MINIMIZETOTRAY));
 		SetDlgItemText(IDC_CHK_AUTOUPDDB, pLang->GetString(IDS_AUTOUPDDB));
-		SetDlgItemText(IDC_CHK_CHECKFORUPDATES, pLang->GetString(IDS_CHECKFORUPDATES));
 		SetDlgItemText(IDC_CHK_LASTFMSCROBBLING, pLang->GetString(IDS_LASTFMSCROBBLER));
-		SetDlgItemText(IDC_CHK_TSONLINESERVICES, pLang->GetString(IDS_TSONLINESERVICES));
 		//SetDlgItemText(IDC_CMD_LASTFM, pLang->GetString(IDS_OPTIONS));
-		SetDlgItemText(IDC_CHK_MSNNOWPLAYING, pLang->GetString(IDS_MESSENGERNOWPLAYING));
 		SetDlgItemText(IDC_CHK_FORCECLEARTYPEFONTS, pLang->GetString(IDS_FORCECLEARTYPEFONTS));
 		SetDlgItemText(IDC_ST_NEWSIGN, pLang->GetString(IDS_NEWDEFINITION));
 		SetDlgItemText(IDC_CHK_SHOWTOOLTIPSONMEDIACHANGED, pLang->GetString(IDS_SHOWTOOLTIPONMEDIACHANGED));
@@ -80,15 +72,10 @@ BOOL CMainOptionsPage::OnInitDialog()
 	PrgAPI* pAPI = PRGAPI();
 	EnumChildWindows(m_hWnd, SetFontToChilds, (LPARAM) pAPI->GetFont(FONT_Dialogs)->m_hObject);
 	
-	//SetDlgItemText(IDC_CHK_TSONLINESERVICES, pLang->GetString(IDS_TSONLINESERVICES));
 	m_cmdLastFM.ApplyPredifinedButtonsStyle(FlexButton::PBS_HotButton);
 	m_cmdLastFM.SetComponents(FlexButton::COMP_Image);
 	m_cmdLastFM.SetColor(FlexButton::COL_Bk, RGB(180,180,180));
 	m_cmdLastFM.SetIcon(pAPI->GetIcon(ICO_Options16), 16, 16);
-	m_cmdLastFM.ApplyPredifinedButtonsStyle(FlexButton::PBS_HotButton);
-	m_cmdLastFM.SetComponents(FlexButton::COMP_Image);
-	m_cmdMusicStory.SetColor(FlexButton::COL_Bk, RGB(180,180,180));
-	m_cmdMusicStory.SetIcon(pAPI->GetIcon(ICO_Internet16), 16, 16);
 
 
 
@@ -136,10 +123,7 @@ void CMainOptionsPage::LoadMainDlgOptions()
 	_itot(iDelay, bf, 10);
 	GetDlgItem(IDC_EDT_AUTOUPDDB)->SetWindowText(bf);
 
-	CheckDlgButton(IDC_CHK_CHECKFORUPDATES, pAPI->GetOption(OPT_GEN_CheckForUpdates) ? BST_CHECKED : BST_UNCHECKED);
-	CheckDlgButton(IDC_CHK_MSNNOWPLAYING, pAPI->GetOption(OPT_GEN_NotifyMSN) ? BST_CHECKED : BST_UNCHECKED);
 	CheckDlgButton(IDC_CHK_LASTFMSCROBBLING, pAPI->GetOption(OPT_GEN_LastFMScrobbler) ? BST_CHECKED : BST_UNCHECKED);
-	CheckDlgButton(IDC_CHK_TSONLINESERVICES, pAPI->GetOption(OPT_GEN_UseNativeOnlineServices) ? BST_CHECKED : BST_UNCHECKED);
 
 	CheckDlgButton(IDC_CHK_FORCECLEARTYPEFONTS, pAPI->GetOption(OPT_GEN_ForceClearTypeFonts) ? BST_CHECKED : BST_UNCHECKED);
 
@@ -166,10 +150,7 @@ void CMainOptionsPage::SaveMainDlgOptions()
 		iDelay = 5;//Sanity (delay) check
 	pAPI->SetOption(OPT_GEN_AutoUpdateDBDelay, iDelay);
 
-	pAPI->SetOption(OPT_GEN_CheckForUpdates, IsDlgButtonChecked(IDC_CHK_CHECKFORUPDATES));
-	pAPI->SetOption(OPT_GEN_NotifyMSN, IsDlgButtonChecked(IDC_CHK_MSNNOWPLAYING));
 	pAPI->SetOption(OPT_GEN_LastFMScrobbler, IsDlgButtonChecked(IDC_CHK_LASTFMSCROBBLING));
-	pAPI->SetOption(OPT_GEN_UseNativeOnlineServices, IsDlgButtonChecked(IDC_CHK_TSONLINESERVICES));
 
 
 	INT prevValue = pAPI->GetOption(OPT_GEN_ForceClearTypeFonts);
@@ -198,9 +179,4 @@ void CMainOptionsPage::OnBnClickedCmdLastfm()
 {
 	CLastFMDlg dlg;
 	dlg.DoModal();
-}
-
-void CMainOptionsPage::OnBnClickedCmdOnlineservices()
-{
-	PRGAPI()->GoToSiteURL(PrgAPI::SA_Navigate, _T("tsonlineservices"));
 }

@@ -25,11 +25,8 @@
 
 #include "stlStringUtils.h"
 #include "WebPageUtilities.h"
-#include "InformationProviders/GoogleLyrics/GoogleLyricsProvider.h"
 #include "InformationProviders/CachedImageInfoProvider/CachedImageInfoProvider.h"
-#include "InformationProviders/LastFMProvider/LastFMProvider.h"
 #include "InformationProviders/DirImageInfoProvider/DirImageInfoProvider.h"
-#include "InformationProviders/AmazonProvider/AmazonProvider.h"
 #include "MultiThreadJobQueue.h"
 #include "FreeDb/FreeDb.h"
 #include "SQLManager.h"
@@ -39,7 +36,6 @@
 #include "PrgAPI.h"
 #include "ApplicationMonitor.h"
 #include "FileNameParser.h"
-#include "TSOnlineServices.h"
 #include "SystemTimeFunctions.h"
 #include "AppMonitor.h"
 
@@ -48,11 +44,8 @@ BOOL RunTests()
 	//UNITTEST(TestStlStringUtils());
 	//UNITTEST(TestFreeDB());
 	//UNITTEST(TestWebPageUtilities());
-	//UNITTEST(GoogleLyricsProvider::UnitTest());
-	//UNITTEST(LastFMProvider::UnitTest());
 	//UNITTEST(CachedImageInfoProvider::UnitTest());
 	//UNITTEST(DirImageInfoProvider::UnitTest());
-	//UNITTEST(AmazonProvider::UnitTest());
 	//UNITTEST(TestMultiThreadJobQueue());
 	//UNITTEST(TestSQLManager());
 	//UNITTEST(TestCFolderDialog());
@@ -62,7 +55,6 @@ BOOL RunTests()
 	//UNITTEST(PrgAPI::UnitTest());
 	//UNITTEST(FileNameParser::UnitTest());
 	//UNITTEST(SQLManager::UnitTest());
-	//UNITTEST(TSOnlineServices::UnitTest());
 	//UNITTEST(SystemTimeFunctions_UnitTest());
 	return TRUE;
 }

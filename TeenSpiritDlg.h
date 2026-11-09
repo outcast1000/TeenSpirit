@@ -11,7 +11,6 @@
 #include "StatusBarWnd.h"
 
 #include "SystemTray.h"
-#include "NewVersionChecker.h"
 
 #define WM_THREADED_NOTIFICATION WM_APP + 100
 #define ID_TRAY_SHOWMAINWINDOW 300
@@ -63,7 +62,6 @@ private:
 	void ShowTray();
 	void HideTray();
 	LRESULT OnTrayNotify(WPARAM wParam, LPARAM lParam);
-	LRESULT OnCheckVersion(WPARAM wParam, LPARAM lParam);
 
 	void LoadSettings();
 	void SaveSettings();
@@ -72,7 +70,6 @@ private:
 	void MaximizeWindow(RECT& rcNormal);
 
 private:
-	static UINT __cdecl NewVersionCheckThreadST(LPVOID pParam);
 
 	CToolbarWnd m_toolBar;
 	PaneController m_PaneController;
@@ -85,8 +82,6 @@ private:
 	CSystemTray m_TrayIcon;
 	static LPCTSTR SettingsCategory;
 
-	NewVersionChecker::CheckResult m_newVerCheckResult;
-	UINT NewVersionCheck();
 	INT m_lastUpdateActionsPerformed;
 	UINT m_monitorPlayerTick;
 

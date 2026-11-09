@@ -1,0 +1,11 @@
+<services>
+  <service name='Spotify'
+           action='web@https://open.spotify.com/search/%artist%'
+           appliesto='%artist%'/>
+  <service name='Spotify'
+           action='web@https://open.spotify.com/search/%artist%%20%album%'
+           appliesto='%album%'/>
+  <service name='Spotify'
+           action='web@https://open.spotify.com/search/%artist%%20%title%'
+           appliesto='%title%'/>
+</services>

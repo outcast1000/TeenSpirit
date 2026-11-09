@@ -18,5 +18,6 @@ std::wstring TempPath(LPCWSTR name);
 void RunDatabaseTests();
 void RunJobQueueTests();
 void RunLastFMTests();
+void RunWebServicesTests();
 
 #endif

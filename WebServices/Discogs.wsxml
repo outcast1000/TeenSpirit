@@ -1,0 +1,11 @@
+<services>
+  <service name='Discogs'
+           action='web@https://www.discogs.com/search/?q=%artist%&amp;type=artist'
+           appliesto='%artist%'/>
+  <service name='Discogs'
+           action='web@https://www.discogs.com/search/?q=%artist%+%album%&amp;type=release'
+           appliesto='%album%'/>
+  <service name='Discogs'
+           action='web@https://www.discogs.com/search/?q=%artist%+%title%&amp;type=all'
+           appliesto='%title%'/>
+</services>

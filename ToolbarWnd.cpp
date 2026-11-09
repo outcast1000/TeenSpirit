@@ -275,17 +275,10 @@ BOOL CToolbarWnd::OnCommand(WPARAM wParam, LPARAM lParam)
 
 				m_aboutMenu.SetFont(pAPI->GetFont(FONT_Dialogs));
 				TCHAR bf[300];
-				_sntprintf(bf, 300, _T("%s..."), pAPI->GetString(IDS_PERSONALPAGE));
-				m_aboutMenu.AppendMenu(MF_STRING, ACMD_GotoPersonalPage, bf, pAPI->GetIcon(ICO_Internet16));
-				m_aboutMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
 				_sntprintf(bf, 300, _T("%s..."), pAPI->GetString(IDS_WEBSITE));
 				m_aboutMenu.AppendMenu(MF_STRING, ACMD_GotoWebSite, bf, pAPI->GetIcon(ICO_Internet16));
 				_sntprintf(bf, 300, _T("%s..."), pAPI->GetString(IDS_FORUM));
 				m_aboutMenu.AppendMenu(MF_STRING, ACMD_GotoForum, bf, pAPI->GetIcon(ICO_Internet16));
-				_sntprintf(bf, 300, _T("%s..."), pAPI->GetString(IDS_DONATION));
-				m_aboutMenu.AppendMenu(MF_STRING, ACMD_GotoDonation, bf, pAPI->GetIcon(ICO_Internet16));
-				m_aboutMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
-				m_aboutMenu.AppendMenu(MF_STRING, ACMD_CheckForUpdates, (LPTSTR)pAPI->GetString(IDS_CHECKFORUPDATES));
 			}
 			m_About.DisplayPopupMenu(&m_aboutMenu);
 			return TRUE;
@@ -336,20 +329,11 @@ BOOL CToolbarWnd::OnCommand(WPARAM wParam, LPARAM lParam)
 			m_setFontSize.DisplayPopupMenu(&m_fontSizeMenu);
 		}
 		break;
-	case ACMD_GotoPersonalPage:
-		pAPI->GoToSiteURL(PrgAPI::SA_Navigate, _T("tsonlineservices"));
-		return TRUE;
 	case ACMD_GotoWebSite:
 		pAPI->GoToSiteURL(PrgAPI::SA_Navigate, _T("home"));
 		return TRUE;
 	case ACMD_GotoForum:
 		pAPI->GoToSiteURL(PrgAPI::SA_Navigate, _T("forum"));
-		return TRUE;
-	case ACMD_GotoDonation:
-		pAPI->GoToSiteURL(PrgAPI::SA_Navigate, _T("donate"));
-		return TRUE;
-	case ACMD_CheckForUpdates:
-		pAPI->GetActionManager()->CheckForUpdates(this);
 		return TRUE;
 	case ID_UPDATE:
 		return pAPI->GetCollectionManager()->RefreshLocalCollections(TRUE, FALSE, TRUE);

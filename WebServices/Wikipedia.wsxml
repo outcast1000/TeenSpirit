@@ -1,0 +1,8 @@
+<services>
+  <service name='Wikipedia'
+           action='web@https://en.wikipedia.org/w/index.php?search=%artist%'
+           appliesto='%artist%'/>
+  <service name='Wikipedia'
+           action='web@https://en.wikipedia.org/w/index.php?search=%artist%+%album%'
+           appliesto='%album%'/>
+</services>

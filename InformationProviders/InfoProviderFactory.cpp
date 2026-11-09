@@ -22,9 +22,6 @@
 //	*/ 
 #include "stdafx.h"
 #include "InfoProviderFactory.h"
-#include "GoogleLyrics/GoogleLyricsProvider.h"
-#include "LastFMProvider/LastFMProvider.h"
-#include "AmazonProvider/AmazonProvider.h"
 #include "ExternalInfoProvider/ExternalInfoProvider.h"
 #include "AppSettings/AppSettings.h"
 
@@ -228,18 +225,6 @@ IInfoProvider* InfoProviderFactory::GetItemByIndex(INT idx)
 	if (!m_bInitialized)
 	{
 		IInfoProvider* pIP = NULL;
-		pIP = new GoogleLyricsProvider;
-		pIP->SetInternetHandle(m_hNet);
-		if (!RegisterInfoProvider(pIP, TRUE))
-			delete pIP;
-		pIP = new LastFMProvider;
-		pIP->SetInternetHandle(m_hNet);
-		if (!RegisterInfoProvider(pIP, TRUE))
-			delete pIP;
-		pIP = new AmazonProvider;
-		pIP->SetInternetHandle(m_hNet);
-		if (!RegisterInfoProvider(pIP, TRUE))
-			delete pIP;
 		m_bInitialized = TRUE;
 	}
 	if (idx >= 0 && idx < (INT)m_IPPrototypes.size())

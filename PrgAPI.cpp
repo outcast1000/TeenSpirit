@@ -15,7 +15,7 @@
 #include "MenuManager.h"
 #include "SQLManager.h"
 #include "CollectionManager.h"
-#include "UpdateChecker.h"
+#include "FileVersion.h"
 #include "FlexButton.h"
 #include "InformationProviders/InfoProviderFactory.h"
 #include "MessageDlg.h"
@@ -26,7 +26,6 @@
 #include "LastFMServices.h"
 #include "Trackers/MultiTracker.h"
 #include "UserProgressDlg.h"
-#include "TSOnlineServices.h"
 #include "VersionNo.h"
 #include "MediaPlayerUtilities.h"
 #include "ApplicationMonitor.h"
@@ -43,9 +42,6 @@
 #include "QuickSearchDlg.h"
 #include "SearchDlg.h"
 
-
-//=== For 0.99 Version
-//#define USE_YOUTUBEENGINE
 
 
 #ifdef _DEBUG
@@ -105,13 +101,9 @@ const OptInfo Option2Info[] =
 {
 
 	{OPT_GEN_Debugging, _T("Debugging"), cGeneral, 0},					//OPT_GEN_Debugging
-	{OPT_GEN_NotifyMSN, _T("NotifyMSN"), cGeneral, 1},	//OPT_GEN_NotifyMSN
 	{OPT_GEN_LastFMScrobbler, _T("LastFMScrobbler"), cGeneral, 0},		//OPT_GEN_LastFMScrobbler,
 	{OPT_GEN_NotifyHistory, _T("NotifyHistory"), cGeneral, 1},			//OPT_GEN_NotifyHistory,
 
-	{OPT_GEN_CheckForUpdates, _T("CheckForUpdates"), cGeneral, 1},				//OPT_GEN_CheckForUpdates
-	{OPT_GEN_DaysBetweenCheck, _T("DaysBetweenCheck"), cGeneral, 5},	//OPT_GEN_DaysBetweenCheck
-	{OPT_GEN_CheckLastCheck, _T("CheckLastCheck"), cGeneral, 0},			//OPT_GEN_CheckLastCheck
 	{OPT_GEN_DaysMeansNew, _T("DaysMeansNew"), cGeneral, 30},				//OPT_GEN_DaysMeansNew
 	{OPT_GEN_LastVersion, _T("LastVersion"), cGeneral, 0},		//OPT_GEN_LastVersion
 
@@ -119,7 +111,6 @@ const OptInfo Option2Info[] =
 	{OPT_GEN_AutoUpdateDBDelay, _T("AutoUpdateDBDelay"), cGeneral, 300},	//OPT_GEN_AutoUpdateDelay,(sec)
 	{OPT_GEN_MinimizeToTray, _T("MinimizeToTray"), cGeneral, 1},		//OPT_GEN_MinimizeToTray
 	{OPT_GEN_MultimediaKeysActive, _T("MultimediaKeysActive"), cGeneral, 1},	//OPT_GEN_MultimediaKeysActive
-	{OPT_GEN_UseNativeOnlineServices, _T("UseNativeOnlineServices"), cGeneral, -1},	//OPT_GEN_UseTSOnlineServices
 
 	{OPT_GEN_RelativeFontSize, _T("RelativeFontSize"), cGeneral, 0},		//OPT_GEN_RelativeFontSize
 	{OPT_GEN_ForceClearTypeFonts, _T("ForceClearTypeFonts"), cGeneral, 1},	//OPT_GEN_ForceClearTypeFonts
@@ -334,7 +325,6 @@ m_pQuickSearchDlg(NULL),
 m_pSearchDlg(NULL),
 m_pLastFMServices(NULL),
 m_pTracker(NULL),
-m_pTSOnlineServices(NULL),
 m_pShortcutManager(NULL),
 m_pConfigurationManager(NULL),
 m_pStateManager(NULL),
@@ -380,9 +370,6 @@ PrgAPI::~PrgAPI()
 	//TRACE(_T("@2*delete* m_pTracker\r\n"));
 	delete m_pTracker;
 	m_pTracker = NULL;
-	//TRACE(_T("@2*delete* m_pTSOnlineServices\r\n"));
-	delete m_pTSOnlineServices;
-	m_pTSOnlineServices = NULL;
 	//TRACE(_T("@2*delete* m_pCollectionManager\r\n"));
 	delete m_pCollectionManager;
 	m_pCollectionManager = NULL;
@@ -604,7 +591,6 @@ BOOL PrgAPI::Init()
 			state.Runs = 1;
 			state.Crashes = 0;
 			SetOption(OPT_GEN_LastVersion, fv.Build);
-			SetOption(OPT_GEN_CheckLastCheck, 0);//Make it perform an update check instantly after first time
 			//Write it here. Otherwise if the program crash It ll reset the creashes for the current version
 			GetAppSettings()->Write(Option2Info[OPT_GEN_LastVersion].category, GetStringForOption(OPT_GEN_LastVersion), fv.Build);
 		}
@@ -1119,7 +1105,6 @@ void PrgAPI::Monitor()
 #include "NativeVisualization.h"
 #include "FadeBassEngine.h"
 #include "VectorPlaylist.h"
-#include "YouTubePlayerEngine.h"
 
 
 
@@ -1136,19 +1121,7 @@ MediaPlayer* PrgAPI::GetMediaPlayer()
 		MultiEngine* eng = new MultiEngine;
 		eng->AddEngine(new FadeBassEngine);
 		eng->AddEngine(new DShowEngine);
-#ifdef USE_YOUTUBEENGINE
-		YouTubePlayerEngine* pYTEng = new YouTubePlayerEngine;
-		//=== Try to make it use directly the resource without writing a file
-		//=== Otherwise write it in the "User" sub folder and then use it.
-		TCHAR bf[MAX_PATH];
-		GetPath(PATH_AppRoot, bf);
-		_tcscat(bf, _T("youtubeapi.htm"));
-		pYTEng->SetYouTubeAPIURL(bf);
-		eng->AddEngine(pYTEng);
-#else
 		eng->AddEngine(new HttpLinkEngine);
-
-#endif
 		m_pMediaPlayer->SetMediaPlayerEngine(eng);
 		MediaPlayList* pList = new VectorPlayList;
 		m_pMediaPlayer->SetMediaPlayList(pList);
@@ -1757,87 +1730,6 @@ LPCTSTR PrgAPI::GetPath(PathsEnum pathType, LPTSTR buffer/* = NULL*/)
 
 
 
-#include "URLEncDecHelper.h"
-
-BOOL PrgAPI::GetURLSystemID(std::string& systemID)
-{
-	TRACEST(_T("PrgAPI::GetURLSystemID"));
-	CHAR sysID[500];
-	DWORD volSerial = 0;
-	GetWindowsDirectoryA(sysID, MAX_PATH);
-	sysID[3] = 0;
-	BOOL ret = GetVolumeInformationA(sysID, NULL, 0, &volSerial, 0,0,0,0);
-
-	MEMORYSTATUSEX memStat;
-	memStat.dwLength = sizeof(MEMORYSTATUSEX);
-	GlobalMemoryStatusEx(&memStat);
-
-	DWORD cpuFreq = 0;
-	DWORD dwBufLen = sizeof(DWORD);
-	HKEY hKey;
-	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, 
-		_T("Hardware\\Description\\System\\CentralProcessor\\0"), 
-		0, 
-		KEY_QUERY_VALUE, 
-		&hKey) == ERROR_SUCCESS)
-	{
-		if (RegQueryValueEx( hKey, _T("~MHz"), NULL, NULL,
-			(LPBYTE) &cpuFreq, &dwBufLen) != ERROR_SUCCESS)
-			cpuFreq = 0;
-		RegCloseKey(hKey);
-	}
-
-	SQLManager* pSM = GetSQLManager();
-	SQLManager::HistoryLogStats logStats;
-	pSM->GetHistoryLogStats(logStats);
-	DOUBLE days = 0.0;
-	if (logStats.firstTime.wYear > 0)
-		SystemTimeToVariantTime(&logStats.firstTime, &days);
-	UINT histFirstDateInDays = (UINT) days;
-
-	AppMonitor::State& appMonitorState = GetAppMonitor()->GetState();
-	SYSTEMTIME installDate = appMonitorState.InstallationDate;
-	SystemTimeToVariantTime(&installDate, &days);
-	UINT installedDay = (UINT) days;
-#ifdef _DEBUG
-	//Todays time
-	GetLocalTime(&installDate);
-	SystemTimeToVariantTime(&installDate, &days);
-#endif
-
-	INT len = _snprintf(sysID, 500, "%X:%X:%X:%X:%X:%X:%X:%X:%X:%X:%X:%X:%X:%X:%X:%X", 
-		//===AppMonitor Stats (7)
-		appMonitorState.AppUniqueID,
-		appMonitorState.Runs,
-		appMonitorState.TotalRuns,
-		appMonitorState.Crashes,
-		appMonitorState.TotalCrashes,
-		installedDay,
-		GetAppMonitor()->GetRunningTimeInMinutes(),
-		//===System Stats (4)
-		GetVersion(),
-		GetSystemDefaultLangID(),
-		(UINT)(memStat.ullTotalPhys/(1024.0*1024.0)),
-		cpuFreq,
-		//===DB Stats (3)
-		pSM->GetTrackCount(TracksFilter()), 
-		logStats.plays,
-		histFirstDateInDays,
-		//===Other (1)
-		volSerial,
-		BUILD_VERSION
-		);
-
-	CHAR* base64Data = URLEncDecHelper::EncodeData((LPBYTE)sysID, len, TRUE, FALSE);
-	if (base64Data != NULL)
-	{
-		systemID = "8:";
-		systemID.append(base64Data, len);
-		delete[] base64Data;
-		return TRUE;
-	}
-	return FALSE;
-}
 
 
 
@@ -1857,36 +1749,24 @@ BOOL PrgAPI::IsTrackNew(SYSTEMTIME& dateAdded, UINT DaysMeansNew/* = 0*/)
 
 BOOL PrgAPI::GetSiteURL(LPTSTR url, UINT urlLen, SiteActionEnum actID, LPCTSTR p1, LPCTSTR p2)
 {
-	TRACEST(_T("PrgAPI::GetSiteURL"));
-	ASSERT(actID < SA_Last);
-	if (p1 == NULL)
-		p1 = _T("");
-	if (p2 == NULL)
-		p2 = _T("");
-	LPCTSTR action = NULL;
+	ASSERT(actID < SA_Last && url != NULL && urlLen > 0);
+	if (url == NULL || urlLen == 0)
+		return FALSE;
+	LPCTSTR target = _T("https://github.com/outcast1000/TeenSpirit");
 	switch (actID)
 	{
 	case SA_Help:
-		action=_T("hlp");
+		target = _T("https://github.com/outcast1000/TeenSpirit#readme");
 		break;
 	case SA_Navigate:
-		action=_T("nav");
+		if (p1 != NULL && _tcscmp(p1, _T("forum")) == 0)
+			target = _T("https://github.com/outcast1000/TeenSpirit/issues");
 		break;
 	default:
 		return FALSE;
 	}
-	FileVersion fv;
-	GetFileVersion(fv);
-	int len = _sntprintf(url, urlLen, 
-		_T("http://services.artificialspirit.com/jaangle-fw.php?ver=%d&uid=%u&lng=%d&act=%s&p1=%s&p2=%s"), 
-		fv.Build, 
-		GetAppMonitor()->GetState().AppUniqueID,
-		GetSystemDefaultLangID(), 
-		action,
-		p1, 
-		p2
-		);
-	url[urlLen - 1] = 0; 
+	_tcsncpy(url, target, urlLen);
+	url[urlLen - 1] = 0;
 	return TRUE;
 }
 
@@ -2127,18 +2007,6 @@ ITracker* PrgAPI::GetTracker()
 	return m_pTracker;
 }
 
-TSOnlineServices* PrgAPI::GetTSOnlineServices()
-{
-	if (m_pTSOnlineServices == NULL)
-	{
-		TRACEST(_T("PrgAPI::GetTSOnlineServices"));
-		std::string str;
-		GetURLSystemID(str);
-		m_pTSOnlineServices = new TSOnlineServices(str.c_str(), GetInternetHandle());
-	}
-	return m_pTSOnlineServices;
-
-}
 
 void PrgAPI::ClearFonts()
 {

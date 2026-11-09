@@ -38,10 +38,8 @@ public:
 	enum { IDD = IDD_ABOUTBOX };
 
 protected:
-	LRESULT CheckForUpdates(WPARAM wParam, LPARAM lParam);
 	LRESULT GoToWebsite(WPARAM wParam, LPARAM lParam);
 	LRESULT GoToForum(WPARAM wParam, LPARAM lParam);
-	LRESULT GoToDonate(WPARAM wParam, LPARAM lParam);
 	//LRESULT CreateLangPack(WPARAM wParam, LPARAM lParam);
 	virtual BOOL OnInitDialog();
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support

@@ -1,0 +1,8 @@
+<services>
+  <service name='Bandcamp'
+           action='web@https://bandcamp.com/search?q=%artist%'
+           appliesto='%artist%'/>
+  <service name='Bandcamp'
+           action='web@https://bandcamp.com/search?q=%artist%+%album%'
+           appliesto='%album%'/>
+</services>

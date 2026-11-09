@@ -89,7 +89,8 @@ BOOL FreeDB::UnitTest()
 #endif
 
 
-const TCHAR* defFreeDBServer = _T("http://freedb.freedb.org/~cddb/cddb.cgi");
+//freedb.org closed in 2020; gnudb.org serves the same CDDB protocol.
+const TCHAR* defFreeDBServer = _T("https://gnudb.gnudb.org/~cddb/cddb.cgi");
 
 //-------------------------------------------------------------------
 //MSF Helper Class --------------------------------------------------------------

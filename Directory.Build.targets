@@ -15,13 +15,15 @@
              Text="BASS runtime DLLs not found in $(JaangleBassDir). Run tools\fetch-bass.ps1 to be able to start the player." />
     <Copy SourceFiles="@(JaangleBassDll)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
   </Target>
-  <!-- Skins and translations are read from next to the executable. -->
+  <!-- Skins, translations and web-search templates are read from next to the executable. -->
   <Target Name="JaangleCopyResources" AfterTargets="Build" Condition="'$(MSBuildProjectName)' == 'TeenSpirit'">
     <ItemGroup>
       <JaangleSkinFile Include="$(JaangleRoot)Skins\**\*" Exclude="$(JaangleRoot)Skins\**\.svn\**" />
       <JaangleLangFile Include="$(JaangleRoot)Langs\**\*" Exclude="$(JaangleRoot)Langs\**\.svn\**" />
+      <JaangleWebServiceFile Include="$(JaangleRoot)WebServices\*" />
     </ItemGroup>
     <Copy SourceFiles="@(JaangleSkinFile)" DestinationFiles="@(JaangleSkinFile->'$(OutDir)Skins\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(JaangleLangFile)" DestinationFiles="@(JaangleLangFile->'$(OutDir)Langs\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(JaangleWebServiceFile)" DestinationFolder="$(OutDir)WebServices" SkipUnchangedFiles="true" />
   </Target>
 </Project>

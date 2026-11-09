@@ -15,7 +15,6 @@
 #include "TagInfo.h"
 #include "ReEntryLock.h"
 
-#include "TSOnlineServices.h"
 
 #include "SystemTimeFunctions.h"
 
@@ -594,18 +593,6 @@ BOOL InfoDownloadManager::HandleTrackInfo(UINT traID, const IInfoProvider::Resul
 				ti.Lyrics = info;
 				ti.validFields = TagInfo_Lyrics;
 				pAPI->GetActionManager()->TagTrack(tr->track.location.c_str(), ti);
-				if (pAPI->GetOption(OPT_GEN_UseNativeOnlineServices))
-				{
-					TSOnlineServices* pTS = pAPI->GetTSOnlineServices();
-					TSOnlineServices::TrackInfo ti;
-					ti.artist = tr->artist.name.c_str();
-					ti.title = tr->track.name.c_str();
-					ti.album = tr->album.name.c_str();
-					ti.tag = tr->genre.name.c_str();
-					ti.rating = tr->track.rating;
-					ti.lyrics = info.c_str();
-					pTS->SendTrackInfo(ti);
-				}
 			}
 			pAPI->SendMessage(SM_InfoChanged);
 			TCHAR msg[500];

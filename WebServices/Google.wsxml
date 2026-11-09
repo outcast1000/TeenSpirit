@@ -1,0 +1,17 @@
+<services>
+  <service name='Google'
+           action='web@https://www.google.com/search?q="%artist%"'
+           appliesto='%artist%'/>
+  <service name='Google'
+           action='web@https://www.google.com/search?q="%artist%"+"%album%"'
+           appliesto='%album%'/>
+  <service name='Google'
+           action='web@https://www.google.com/search?q="%artist%"+"%title%"'
+           appliesto='%title%'/>
+  <service name='Google Images'
+           action='web@https://www.google.com/search?tbm=isch&amp;q="%artist%"'
+           appliesto='%artist%'/>
+  <service name='Google Images'
+           action='web@https://www.google.com/search?tbm=isch&amp;q="%artist%"+"%album%"'
+           appliesto='%album%'/>
+</services>

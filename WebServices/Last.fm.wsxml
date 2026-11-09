@@ -1,0 +1,11 @@
+<services>
+  <service name='Last.fm'
+           action='web@https://www.last.fm/search/artists?q=%artist%'
+           appliesto='%artist%'/>
+  <service name='Last.fm'
+           action='web@https://www.last.fm/search/albums?q=%artist%+%album%'
+           appliesto='%album%'/>
+  <service name='Last.fm'
+           action='web@https://www.last.fm/search/tracks?q=%artist%+%title%'
+           appliesto='%title%'/>
+</services>

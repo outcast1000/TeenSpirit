@@ -52,10 +52,9 @@
 #include "InformationProviders/InfoProviderFactory.h"
 #include "Trackers/ITracker.h"
 #include "SystemTimeFunctions.h"
-#include "TSOnlineServices.h"
 #include "MediaPlayerUtilities.h"
 #include "UserProgressDlg.h"
-#include "NewVersionChecker.h"
+#include "FileVersion.h"
 #include "StateManager.h"
 #include "QuickSearchDlg.h"
 
@@ -618,17 +617,6 @@ BOOL ActionManager::ShowTrackPropertiesDlg(FullTrackRecordSP& rec, CWnd* pParent
 			pSM->AdjustTrackInfo(rec->track.ID, IIT_TrackLyrics, LyricsPage.info);
 			ti.Lyrics = LyricsPage.info;
 			ti.validFields |= TagInfo_Lyrics;
-			if (pAPI->GetOption(OPT_GEN_UseNativeOnlineServices))
-			{
-				TSOnlineServices::TrackInfo ti;
-				ti.artist = rec->artist.name.c_str();
-				ti.title = rec->track.name.c_str();
-				ti.rating = rec->track.rating;
-				ti.lyrics = LyricsPage.info;
-				ti.album = rec->album.name.c_str();
-				ti.tag = rec->genre.name.c_str();
-				pAPI->GetTSOnlineServices()->SendTrackInfo(ti);
-			}
 			pAPI->SendMessage(SM_InfoChanged);
 		}
 		if (PersonalPage.IsSomethingChanged())
@@ -1471,18 +1459,7 @@ BOOL ActionManager::SetTrackRating(FullTrackRecordCollection& col, INT Rating)
 			ti.Rating = Rating;
 			ti.validFields = TagInfo_Rating;
 			TagTrack((*it)->track.location.c_str(), ti);
-			if (pAPI->GetOption(OPT_GEN_UseNativeOnlineServices))
-			{
-				TSOnlineServices* pTS = pAPI->GetTSOnlineServices();
-				TSOnlineServices::TrackInfo ti;
-				ti.artist = rec->artist.name.c_str();
-				ti.title = rec->track.name.c_str();
-				ti.rating = rec->track.rating;
-				ti.album = rec->album.name.c_str();
-				ti.tag = rec->genre.name.c_str();
-				pTS->SendTrackInfo(ti);
-				pAPI->PostMessage(SM_TrackUpdated);
-			}
+			pAPI->PostMessage(SM_TrackUpdated);
 		}
 	}
 	return TRUE;
@@ -1652,64 +1629,6 @@ BOOL ActionManager::ChangeCaseFiles(FullTrackRecordCollection& col, CaseStyleEnu
 //
 
 
-#ifdef _DEBUG
-LPCTSTR const sCheckPriceURL = _T("http://www.artificialspirit.com/services/ecommerce.php?debug=1&");
-#else
-LPCTSTR const sCheckPriceURL = _T("http://www.artificialspirit.com/services/ecommerce.php?");
-#endif
-//=== Build links here
-//===	http://affiliate-program.amazon.com/gp/associates/network/build-links/text/main.html/ref=amb_link_179935_2/104-2536978-2138309?pf_rd_m=ATVPDKIKX0DER&pf_rd_s=assoc-center-1&pf_rd_r=&pf_rd_t=501&pf_rd_p=&pf_rd_i=assoc_help_t5_a9
-
-
-BOOL ActionManager::GoToArtistBuyPage(LPCTSTR artist)
-{
-	TRACEST(_T("ActionManager::GoToArtistBuyPage."));
-	ASSERT(artist != NULL);
-	if (!(artist != NULL))
-		return FALSE;
-	if (artist[0] == '[')
-		return FALSE;
-	TCHAR bf[1000];
-	_sntprintf(bf, 1000, _T("%stype=artist&artist=%s&langid=%d"), 
-		sCheckPriceURL, 
-		artist,
-		GetSystemDefaultLangID());
-	ShellExecute(NULL, NULL, bf, 0,0,0);
-	return TRUE;
-}
-
-BOOL ActionManager::GoToAlbumBuyPage(LPCTSTR artist, LPCTSTR album)
-{
-	TRACEST(_T("ActionManager::GoToAlbumBuyPage."));
-	ASSERT(artist != NULL && album != NULL);
-	if (!(artist != NULL && album != NULL))
-		return FALSE;
-	if (artist[0] == '[' || album[0] == '[')
-		return FALSE;
-	TCHAR bf[1000];
-	_sntprintf(bf, 1000, _T("%stype=album&artist=%s&album=%s&langid=%d"), 
-		sCheckPriceURL, 
-		artist,
-		album,
-		GetSystemDefaultLangID());
-	ShellExecute(NULL, NULL, bf, 0,0,0);
-	return TRUE;
-}
-BOOL ActionManager::GoToTrackBuyPage(LPCTSTR artist, LPCTSTR title)
-{
-	TRACEST(_T("ActionManager::GoToTrackBuyPage."));
-	ASSERT(artist != NULL && title != NULL);
-	if (!(artist != NULL && title != NULL))
-		return FALSE;
-	TCHAR bf[1000];
-	_sntprintf(bf, 1000, _T("%stype=mp3&artist=%s&title=%s&langid=%d"), 
-		sCheckPriceURL, 
-		artist,
-		title,
-		GetSystemDefaultLangID());
-	ShellExecute(NULL, NULL, bf, 0,0,0);
-	return TRUE;
-}
 
 
 
@@ -2783,43 +2702,6 @@ BOOL ActionManager::ShowAboutDlg(CWnd* pParent)
 	CAboutDlg dlg(pParent);
 	dlg.DoModal();
 	return TRUE;
-}
-
-void ActionManager::CheckForUpdates(CWnd* pParent)
-{
-	PrgAPI* pAPI = PRGAPI();
-	CWaitCursor w;
-	std::string sysID;
-	NewVersionChecker::CheckResult res;
-	if (pAPI->GetURLSystemID(sysID))
-		res = NewVersionChecker::CheckForNewVersion(pAPI->GetInternetHandle(), sUpdateURL, (LPCTSTR)CA2CT(sysID.c_str()));
-	else
-		res.error = NewVersionChecker::ERR_Failed;
-	w.Restore();
-	HWND parent = 0;
-	if (pParent != NULL)
-		parent = pParent->m_hWnd;
-	if (res.error == NewVersionChecker::ERR_OK)
-	{
-		SYSTEMTIME st;
-		GetLocalTime(&st);
-		DOUBLE thisDay;
-		SystemTimeToVariantTime(&st, &thisDay);
-		pAPI->SetOption(OPT_GEN_CheckLastCheck, INT(thisDay));
-		FileVersion curVer;
-		GetFileVersion(curVer);
-		if (res.stableVersion > curVer)
-		{
-			if (pAPI->MessageBox(parent,IDS_UPDATEAVAILABLE, NULL, MB_YESNO| MB_ICONQUESTION) == IDYES)
-				ShellExecute(0, _T("open"), res.infoURL.c_str(), 0,0,0);
-		}
-		else
-			pAPI->MessageBox(parent, IDS_UPDATENOTAVAILABLE, NULL, MB_OK | MB_ICONWARNING);
-	}
-	else
-	{
-		pAPI->MessageBox(parent, IDS_UPDATECHECKFAILED, NULL, MB_OK | MB_ICONWARNING);
-	}
 }
 
 void ActionManager::RandomizePlayListItems(MediaPlayer& mediaPlayer, std::vector<INT>& selItems)

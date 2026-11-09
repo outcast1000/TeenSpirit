@@ -58,6 +58,7 @@
     <Filter Include="Trackers"><UniqueIdentifier>{26108fcc-25ed-5099-9a27-26b6a2319727}</UniqueIdentifier></Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CommonSources\FileVersion.cpp" />
     <ClCompile Include="AboutDlg.cpp"><Filter>GUIFiles\Other Dialogs</Filter></ClCompile>
     <ClCompile Include="ActionManager.cpp"><Filter>Managers</Filter></ClCompile>
     <ClCompile Include="AddPaneDlg.cpp"><Filter>GUIFiles\Other Dialogs</Filter></ClCompile>
@@ -101,8 +102,6 @@
     <ClCompile Include="CommonSources\GuiControls\PicWndEx.cpp"><Filter>Common\GdiPlus</Filter></ClCompile>
     <ClCompile Include="CommonSources\GuiControls\RectAlphaDrawer.cpp"><Filter>Common</Filter></ClCompile>
     <ClCompile Include="CommonSources\hdcUtils.cpp"><Filter>Common</Filter></ClCompile>
-    <ClCompile Include="CommonSources\hmac\hmac_sha2.c"><Filter>Common\HMAC</Filter></ClCompile>
-    <ClCompile Include="CommonSources\hmac\sha2.c"><Filter>Common\HMAC</Filter></ClCompile>
     <ClCompile Include="CommonSources\HTMLLite\CeXDib.cpp"><Filter>Common\HTMLLite</Filter></ClCompile>
     <ClCompile Include="CommonSources\HTMLLite\PPDrawManager.cpp"><Filter>Common\HTMLLite</Filter></ClCompile>
     <ClCompile Include="CommonSources\HTMLLite\PPHtmlDrawer.cpp"><Filter>Common\HTMLLite</Filter></ClCompile>
@@ -122,9 +121,7 @@
     <ClCompile Include="CommonSources\LastFMServices.cpp"><Filter>Common</Filter></ClCompile>
     <ClCompile Include="CommonSources\LevelMeter.cpp"><Filter>Common</Filter></ClCompile>
     <ClCompile Include="CommonSources\MediaSlider.cpp"><Filter>Common</Filter></ClCompile>
-    <ClCompile Include="CommonSources\MSNNotifier.cpp"><Filter>Common</Filter></ClCompile>
     <ClCompile Include="CommonSources\MultiThreadJobQueue.cpp"><Filter>Common</Filter></ClCompile>
-    <ClCompile Include="CommonSources\NewVersionChecker.cpp"><Filter>Common</Filter></ClCompile>
     <ClCompile Include="CommonSources\OleDropTarget\DelegatedOleDropTarget.cpp"><Filter>Common\OleDropTarget</Filter></ClCompile>
     <ClCompile Include="CommonSources\PerfTimer.cpp"><Filter>Common\DebugOnly</Filter></ClCompile>
     <ClCompile Include="CommonSources\Registry.cpp"><Filter>Common</Filter></ClCompile>
@@ -221,7 +218,6 @@
     <ClCompile Include="CommonSources\XHTMLStatic.cpp"><Filter>Common</Filter></ClCompile>
     <ClCompile Include="CommonSources\XmlLiteUtilities.cpp"><Filter>Common</Filter></ClCompile>
     <ClCompile Include="CommonSources\XNamedColors.cpp"><Filter>Common</Filter></ClCompile>
-    <ClCompile Include="CommunicationJob.cpp"><Filter>Managers</Filter></ClCompile>
     <ClCompile Include="ConfigurationManager.cpp"><Filter>Managers</Filter></ClCompile>
     <ClCompile Include="CountDownCtrl.cpp"><Filter>Common</Filter></ClCompile>
     <ClCompile Include="CtrlColorsMediaSliderAdapter.cpp"><Filter>GUIFiles\TeenSpiritDlg</Filter></ClCompile>
@@ -254,14 +250,11 @@
     <ClCompile Include="InfoPaneCreator.cpp"><Filter>GUIFiles\TeenSpiritDlg\Panes\InfoPane</Filter></ClCompile>
     <ClCompile Include="InfoQueryDlg.cpp"><Filter>GUIFiles\Other Dialogs</Filter></ClCompile>
     <ClCompile Include="InfoRetrievalPP.cpp"><Filter>GUIFiles\Options</Filter></ClCompile>
-    <ClCompile Include="InformationProviders\AmazonProvider\AmazonProvider.cpp"><Filter>InfoProviders\Providers</Filter></ClCompile>
     <ClCompile Include="InformationProviders\CachedImageInfoProvider\CachedImageInfoProvider.cpp"><Filter>InfoProviders\Providers</Filter></ClCompile>
     <ClCompile Include="InformationProviders\CompositeInfoProvider\CompositeInfoProvider.cpp"><Filter>InfoProviders\Providers</Filter></ClCompile>
     <ClCompile Include="InformationProviders\DirImageInfoProvider\DirImageInfoProvider.cpp"><Filter>InfoProviders\Providers</Filter></ClCompile>
     <ClCompile Include="InformationProviders\ExternalInfoProvider\ExternalInfoProvider.cpp"><Filter>InfoProviders\Providers</Filter></ClCompile>
-    <ClCompile Include="InformationProviders\GoogleLyrics\GoogleLyricsProvider.cpp"><Filter>InfoProviders\Providers</Filter></ClCompile>
     <ClCompile Include="InformationProviders\InfoProviderFactory.cpp"><Filter>InfoProviders</Filter></ClCompile>
-    <ClCompile Include="InformationProviders\LastFMProvider\LastFMProvider.cpp"><Filter>InfoProviders\Providers</Filter></ClCompile>
     <ClCompile Include="InputBox.cpp"><Filter>Common</Filter></ClCompile>
     <ClCompile Include="LanguagesPP.cpp"><Filter>GUIFiles\Options</Filter></ClCompile>
     <ClCompile Include="LastFMDlg.cpp"><Filter>GUIFiles\Other Dialogs</Filter></ClCompile>
@@ -286,7 +279,6 @@
     <ClCompile Include="MediaPlayers\ShufflePlaylistHelper.cpp"><Filter>MediaPlayers\PlayLists</Filter></ClCompile>
     <ClCompile Include="MediaPlayers\VectorPlayList.cpp"><Filter>MediaPlayers\PlayLists</Filter></ClCompile>
     <ClCompile Include="MediaPlayers\WinampVisualization.cpp"><Filter>MediaPlayers\Engines\Visualizations</Filter></ClCompile>
-    <ClCompile Include="MediaPlayers\YouTubePlayerEngine.cpp"><Filter>MediaPlayers\Engines</Filter></ClCompile>
     <ClCompile Include="MenuManager.cpp"><Filter>Managers</Filter></ClCompile>
     <ClCompile Include="MessageDlg.cpp"><Filter>GUIFiles\Other Dialogs</Filter></ClCompile>
     <ClCompile Include="MillionaireButton.cpp"><Filter>Common</Filter></ClCompile>
@@ -336,9 +328,7 @@
     <ClCompile Include="ToolbarWnd.cpp"><Filter>GUIFiles\TeenSpiritDlg</Filter></ClCompile>
     <ClCompile Include="Trackers\LastFMAdapterTracker.cpp"><Filter>Trackers</Filter></ClCompile>
     <ClCompile Include="Trackers\LocalHistoryTracker.cpp"><Filter>Trackers</Filter></ClCompile>
-    <ClCompile Include="Trackers\MSNAdapterTracker.cpp"><Filter>Trackers</Filter></ClCompile>
     <ClCompile Include="Trackers\MultiTracker.cpp"><Filter>Trackers</Filter></ClCompile>
-    <ClCompile Include="Trackers\TSOnlineAdapterTracker.cpp"><Filter>Trackers</Filter></ClCompile>
     <ClCompile Include="TrackListCtrl.cpp"><Filter>GUIFiles\QuickSearchDialog</Filter></ClCompile>
     <ClCompile Include="TrackListPane.cpp"><Filter>GUIFiles\TeenSpiritDlg\Panes\TrackListPane</Filter></ClCompile>
     <ClCompile Include="TrackListPaneCreator.cpp"><Filter>GUIFiles\TeenSpiritDlg\Panes\TrackListPane</Filter></ClCompile>
@@ -348,7 +338,6 @@
     <ClCompile Include="TSBrowserEnh.cpp"><Filter>GUIFiles\TeenSpiritDlg\Panes\WebPane</Filter></ClCompile>
     <ClCompile Include="TSConfigurable.cpp"><Filter>Managers</Filter></ClCompile>
     <ClCompile Include="TSMenu.cpp"><Filter>GUIFiles\Custom Controls</Filter></ClCompile>
-    <ClCompile Include="TSOnlineServices.cpp"><Filter>Managers</Filter></ClCompile>
     <ClCompile Include="TSPaneContainer.cpp"><Filter>GUIFiles\TeenSpiritDlg\Panes</Filter></ClCompile>
     <ClCompile Include="TSPropertyPage.cpp"><Filter>GUIFiles\Custom Controls</Filter></ClCompile>
     <ClCompile Include="TSSkin.cpp"><Filter>Managers</Filter></ClCompile>
@@ -368,6 +357,7 @@
     <ClCompile Include="WebPaneCreator.cpp"><Filter>GUIFiles\TeenSpiritDlg\Panes\WebPane</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CommonSources\FileVersion.h" />
     <ClInclude Include="AboutDlg.h"><Filter>GUIFiles\Other Dialogs</Filter></ClInclude>
     <ClInclude Include="ActionManager.h"><Filter>Managers</Filter></ClInclude>
     <ClInclude Include="AddPaneDlg.h"><Filter>GUIFiles\Other Dialogs</Filter></ClInclude>
@@ -414,8 +404,6 @@
     <ClInclude Include="CommonSources\GuiControls\PicWndEx.h"><Filter>Common\GdiPlus</Filter></ClInclude>
     <ClInclude Include="CommonSources\GuiControls\RectAlphaDrawer.h"><Filter>Common</Filter></ClInclude>
     <ClInclude Include="CommonSources\hdcUtils.h"><Filter>Common</Filter></ClInclude>
-    <ClInclude Include="CommonSources\hmac\hmac_sha2.h"><Filter>Common\HMAC</Filter></ClInclude>
-    <ClInclude Include="CommonSources\hmac\sha2.h"><Filter>Common\HMAC</Filter></ClInclude>
     <ClInclude Include="CommonSources\HTMLLite\CeXDib.h"><Filter>Common\HTMLLite</Filter></ClInclude>
     <ClInclude Include="CommonSources\HTMLLite\PPDrawManager.h"><Filter>Common\HTMLLite</Filter></ClInclude>
     <ClInclude Include="CommonSources\HTMLLite\PPHtmlDrawer.h"><Filter>Common\HTMLLite</Filter></ClInclude>
@@ -445,9 +433,7 @@
     <ClInclude Include="CommonSources\LevelMeter.h"><Filter>Common</Filter></ClInclude>
     <ClInclude Include="CommonSources\MediaSlider.h"><Filter>Common</Filter></ClInclude>
     <ClInclude Include="CommonSources\memdc.h"><Filter>Common</Filter></ClInclude>
-    <ClInclude Include="CommonSources\MSNNotifier.h"><Filter>Common</Filter></ClInclude>
     <ClInclude Include="CommonSources\MultiThreadJobQueue.h"><Filter>Common</Filter></ClInclude>
-    <ClInclude Include="CommonSources\NewVersionChecker.h"><Filter>Common</Filter></ClInclude>
     <ClInclude Include="CommonSources\NotificationTarget.h"><Filter>Common</Filter></ClInclude>
     <ClInclude Include="CommonSources\OleDropTarget\DelegatedOleDropTarget.h"><Filter>Common\OleDropTarget</Filter></ClInclude>
     <ClInclude Include="CommonSources\PerfTimer.h"><Filter>Common\DebugOnly</Filter></ClInclude>
@@ -552,7 +538,6 @@
     <ClInclude Include="CommonSources\XHTMLStatic.h"><Filter>Common</Filter></ClInclude>
     <ClInclude Include="CommonSources\XmlLiteUtilities.h"><Filter>Common</Filter></ClInclude>
     <ClInclude Include="CommonSources\XNamedColors.h"><Filter>Common</Filter></ClInclude>
-    <ClInclude Include="CommunicationJob.h"><Filter>Managers</Filter></ClInclude>
     <ClInclude Include="ConfigurationManager.h"><Filter>Managers</Filter></ClInclude>
     <ClInclude Include="CountDownCtrl.h"><Filter>Common</Filter></ClInclude>
     <ClInclude Include="CtrlColorsMediaSliderAdapter.h"><Filter>GUIFiles\TeenSpiritDlg</Filter></ClInclude>
@@ -589,16 +574,13 @@
     <ClInclude Include="InfoPaneCreator.h"><Filter>GUIFiles\TeenSpiritDlg\Panes\InfoPane</Filter></ClInclude>
     <ClInclude Include="InfoQueryDlg.h"><Filter>GUIFiles\Other Dialogs</Filter></ClInclude>
     <ClInclude Include="InfoRetrievalPP.h"><Filter>GUIFiles\Options</Filter></ClInclude>
-    <ClInclude Include="InformationProviders\AmazonProvider\AmazonProvider.h"><Filter>InfoProviders\Providers</Filter></ClInclude>
     <ClInclude Include="InformationProviders\CachedImageInfoProvider\CachedImageInfoProvider.h"><Filter>InfoProviders\Providers</Filter></ClInclude>
     <ClInclude Include="InformationProviders\CompositeInfoProvider\CompositeInfoProvider.h"><Filter>InfoProviders\Providers</Filter></ClInclude>
     <ClInclude Include="InformationProviders\DirImageInfoProvider\DirImageInfoProvider.h"><Filter>InfoProviders\Providers</Filter></ClInclude>
     <ClInclude Include="InformationProviders\ExternalInfoProvider\ExternalInfoProvider.h"><Filter>InfoProviders\Providers</Filter></ClInclude>
-    <ClInclude Include="InformationProviders\GoogleLyrics\GoogleLyricsProvider.h"><Filter>InfoProviders\Providers</Filter></ClInclude>
     <ClInclude Include="InformationProviders\InfoProvider.h"><Filter>InfoProviders</Filter></ClInclude>
     <ClInclude Include="InformationProviders\InfoProviderFactory.h"><Filter>InfoProviders</Filter></ClInclude>
     <ClInclude Include="InformationProviders\InfoProviderJob.h"><Filter>InfoProviders</Filter></ClInclude>
-    <ClInclude Include="InformationProviders\LastFMProvider\LastFMProvider.h"><Filter>InfoProviders\Providers</Filter></ClInclude>
     <ClInclude Include="InputBox.h"><Filter>Common</Filter></ClInclude>
     <ClInclude Include="IStateChangeListener.h"><Filter>Managers</Filter></ClInclude>
     <ClInclude Include="ITSMenu.h"><Filter>GUIFiles\Custom Controls</Filter></ClInclude>
@@ -631,7 +613,6 @@
     <ClInclude Include="MediaPlayers\ShufflePlaylistHelper.h"><Filter>MediaPlayers\PlayLists</Filter></ClInclude>
     <ClInclude Include="MediaPlayers\VectorPlaylist.h"><Filter>MediaPlayers\PlayLists</Filter></ClInclude>
     <ClInclude Include="MediaPlayers\WinampVisualization.h"><Filter>MediaPlayers\Engines\Visualizations</Filter></ClInclude>
-    <ClInclude Include="MediaPlayers\YouTubePlayerEngine.h"><Filter>MediaPlayers\Engines</Filter></ClInclude>
     <ClInclude Include="MenuManager.h"><Filter>Managers</Filter></ClInclude>
     <ClInclude Include="MessageDlg.h"><Filter>GUIFiles\Other Dialogs</Filter></ClInclude>
     <ClInclude Include="MessageViewer.h"><Filter>Common</Filter></ClInclude>
@@ -689,9 +670,7 @@
     <ClInclude Include="Trackers\ITracker.h"><Filter>Trackers</Filter></ClInclude>
     <ClInclude Include="Trackers\LastFMAdapterTracker.h"><Filter>Trackers</Filter></ClInclude>
     <ClInclude Include="Trackers\LocalHistoryTracker.h"><Filter>Trackers</Filter></ClInclude>
-    <ClInclude Include="Trackers\MSNAdapterTracker.h"><Filter>Trackers</Filter></ClInclude>
     <ClInclude Include="Trackers\MultiTracker.h"><Filter>Trackers</Filter></ClInclude>
-    <ClInclude Include="Trackers\TSOnlineAdapterTracker.h"><Filter>Trackers</Filter></ClInclude>
     <ClInclude Include="TrackListCtrl.h"><Filter>GUIFiles\QuickSearchDialog</Filter></ClInclude>
     <ClInclude Include="TrackListPane.h"><Filter>GUIFiles\TeenSpiritDlg\Panes\TrackListPane</Filter></ClInclude>
     <ClInclude Include="TrackListPaneCreator.h"><Filter>GUIFiles\TeenSpiritDlg\Panes\TrackListPane</Filter></ClInclude>
@@ -704,7 +683,6 @@
     <ClInclude Include="TSConfigurable.h"><Filter>Managers</Filter></ClInclude>
     <ClInclude Include="TSMenu.h"><Filter>GUIFiles\Custom Controls</Filter></ClInclude>
     <ClInclude Include="TSNodes.h"><Filter>GUIFiles\TeenSpiritDlg\Panes\TreePane</Filter></ClInclude>
-    <ClInclude Include="TSOnlineServices.h"><Filter>Managers</Filter></ClInclude>
     <ClInclude Include="TSPaneContainer.h"><Filter>GUIFiles\TeenSpiritDlg\Panes</Filter></ClInclude>
     <ClInclude Include="TSPropertyPage.h"><Filter>GUIFiles\Custom Controls</Filter></ClInclude>
     <ClInclude Include="TSSkin.h"><Filter>Managers</Filter></ClInclude>
@@ -757,7 +735,6 @@
     <None Include="res\textreso.bin"><Filter>MainApplication\Resource Files</Filter></None>
     <None Include="res\UpdateAll.bmp"><Filter>MainApplication\Resource Files</Filter></None>
     <None Include="res\Warnings.bmp"><Filter>MainApplication\Resource Files</Filter></None>
-    <None Include="res\youtubeapi.htm" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TeenSpirit.rc"><Filter>MainApplication</Filter></ResourceCompile>

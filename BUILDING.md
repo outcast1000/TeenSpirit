@@ -36,6 +36,7 @@ the remaining x64 blockers are the x86-only BASS import libraries and the code i
 - **Job queue**: concurrency limit, COM on workers, pause/resume, abort, start delay,
   no CPU use while idle, and shutdown never terminating threads.
 - **Last.fm worker**: started on demand and joined on destruction.
+- **Web search templates**: `WebServices\*.wsxml` load and expand to encoded URLs.
 
 ```
 build\out\Win32\Release\UnitTests.exe
@@ -68,7 +69,7 @@ powershell -ExecutionPolicy Bypass -File tools\fetch-bass.ps1
 
 This downloads BASS 2.4, BASS_FX and the format add-ons (WMA, CD, FLAC, MIDI, APE,
 WavPack, MPC, AC3, AAC) into `build\deps\bass\`. The build then copies them, together
-with `Skins\` and `Langs\`, next to the executable, so `build\out\Win32\<Configuration>\jaangle.exe`
+with `Skins\`, `Langs\` and `WebServices\`, next to the executable, so `build\out\Win32\<Configuration>\jaangle.exe`
 can be started directly. `-UpdateSdk` also refreshes the tracked headers and import
 libraries in `Bass\`.
 

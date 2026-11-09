@@ -423,7 +423,7 @@ LPCTSTR CachedImageInfoProvider::GetModuleInfo(ModuleInfo mi) const
 	case IPI_VersionStr:	return _T("1");
 	case IPI_VersionNum:	return _T("1");
 	case IPI_Description:	return _T("Cached Images");
-	case IPI_HomePage:		return _T("http://teenspirit.artificialspirit.com");
+	case IPI_HomePage:		return _T("https://github.com/outcast1000/TeenSpirit");
 	case IPI_Email:			return _T("alex@artificialspirit.com");
 	}
 	return NULL;

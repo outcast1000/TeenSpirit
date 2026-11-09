@@ -38,6 +38,7 @@ int wmain()
 	RunDatabaseTests();
 	RunJobQueueTests();
 	RunLastFMTests();
+	RunWebServicesTests();
 
 	wprintf(L"\n%d checks, %d failures\n", gChecks, gFailures);
 	CoUninitialize();

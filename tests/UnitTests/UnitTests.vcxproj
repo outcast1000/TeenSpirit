@@ -64,6 +64,11 @@
     <ClCompile Include="DatabaseTests.cpp" />
     <ClCompile Include="JobQueueTests.cpp" />
     <ClCompile Include="LastFMTests.cpp" />
+    <ClCompile Include="WebServicesTests.cpp" />
+    <ClCompile Include="..\..\ServicesRegistrationSrv.cpp" />
+    <ClCompile Include="..\..\CommonSources\IconSerialization.cpp" />
+    <ClCompile Include="..\..\CommonSources\XmlLiteUtilities.cpp" />
+    <ClCompile Include="..\..\CommonSources\URLEncDecHelper.cpp" />
     <ClCompile Include="..\..\CommonSources\MultiThreadJobQueue.cpp" />
     <ClCompile Include="..\..\CommonSources\LastFMServices.cpp" />
     <ClCompile Include="..\..\CommonSources\cMD5.cpp" />

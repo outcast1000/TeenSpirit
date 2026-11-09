@@ -76,7 +76,6 @@ public:
 	BOOL ShowGamesDlg(CWnd* pParent);
 	BOOL ShowAboutDlg(CWnd* pParent);
 
-	void CheckForUpdates(CWnd* pParent);
 
 private:
 	//CSearchDlg* m_pSearchDlg;
@@ -196,9 +195,6 @@ public:
 
 	static BOOL DeleteFile(LPCTSTR sFile);
 public:
-	BOOL GoToArtistBuyPage(LPCTSTR artist);
-	BOOL GoToAlbumBuyPage(LPCTSTR artist, LPCTSTR album);
-	BOOL GoToTrackBuyPage(LPCTSTR artist, LPCTSTR title);
 
 public:
 	//User Logging

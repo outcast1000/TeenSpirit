@@ -1,0 +1,8 @@
+<services>
+  <service name='YouTube'
+           action='web@https://www.youtube.com/results?search_query=%artist%'
+           appliesto='%artist%'/>
+  <service name='YouTube'
+           action='web@https://www.youtube.com/results?search_query=%artist%+%title%'
+           appliesto='%title%'/>
+</services>

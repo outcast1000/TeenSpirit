@@ -1,0 +1,11 @@
+<services>
+  <service name='MusicBrainz'
+           action='web@https://musicbrainz.org/search?type=artist&amp;query=%artist%'
+           appliesto='%artist%'/>
+  <service name='MusicBrainz'
+           action='web@https://musicbrainz.org/search?type=release_group&amp;query=%artist%+%album%'
+           appliesto='%album%'/>
+  <service name='MusicBrainz'
+           action='web@https://musicbrainz.org/search?type=recording&amp;query=%artist%+%title%'
+           appliesto='%title%'/>
+</services>

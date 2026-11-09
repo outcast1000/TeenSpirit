@@ -1841,32 +1841,6 @@ BOOL CMainTreeCtrl::ExecuteNode(AppCommandsEnum appCmd, const TreeNode& node)
 			}
 		}
 		break;
-	case ACMD_PurchaseInfo:
-		{
-			SectionTypeEnum st = ST_Unknown;
-			st = (SectionTypeEnum) node.GetType();
-			switch (st)
-			{
-			case ST_Artist:
-				{
-					FullArtistRecordSP rec;
-					if (GetFullArtistRecordSP(rec, node))
-						pAPI->GetActionManager()->GoToArtistBuyPage(rec->artist.name.c_str());
-				}
-				break;
-			case ST_Album:
-				{
-					FullAlbumRecordSP rec;
-					if (GetFullAlbumRecordSP(rec, node))
-						pAPI->GetActionManager()->GoToAlbumBuyPage(rec->artist.name.c_str(), rec->album.name.c_str());
-				}
-				break;
-			default:
-				ASSERT(0);
-				break;
-			}
-		}
-		break;
 	case ACMD_Properties:
 		{
 			SectionTypeEnum st = (SectionTypeEnum) node.GetType();
@@ -2360,9 +2334,6 @@ void CMainTreeCtrl::OnRButtonUp(UINT nFlags, CPoint point)
 				m_ArtistMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
 			}
 			m_ArtistMenu.AppendMenu(MF_POPUP, (UINT) mnuRatings.GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_RATING), pAPI->GetIcon(ICO_StarGold16));
-			_sntprintf(bf, 1000, _T("%s - %s"), pAPI->GetString(IDS_MOREALBUMS), pAPI->GetString(IDS_PURCHASEINFO));
-			m_ArtistMenu.AppendMenu(MF_POPUP, ACMD_PurchaseInfo, 
-				bf, pAPI->GetIcon(ICO_Buy16));
 			_sntprintf(bf, 1000, _T("%s\t%s"), pAPI->GetString(IDS_PROPERTIES), pAPI->GetString(IDS_KEYHOME));
 			m_ArtistMenu.AppendMenu(MF_STRING, ACMD_Properties, bf, pAPI->GetIcon(ICO_Properties16));
 		}
@@ -2409,12 +2380,6 @@ void CMainTreeCtrl::OnRButtonUp(UINT nFlags, CPoint point)
 			}
 			m_AlbumMenu.AppendMenu(MF_POPUP, (UINT) mnuRatings.GetInternalHandler(), 
 				(LPTSTR)pAPI->GetString(IDS_RATING), pAPI->GetIcon(ICO_StarGold16));
-			_sntprintf(bf, 500, _T("%s - %s - %s"), 
-				pAPI->GetString(IDS_PREVIEW), 
-				pAPI->GetString(IDS_SIMILAR), 
-				pAPI->GetString(IDS_PURCHASEINFO));
-			m_AlbumMenu.AppendMenu(MF_POPUP, ACMD_PurchaseInfo, 
-				bf, pAPI->GetIcon(ICO_Buy16));
 			_sntprintf(bf, 1000, _T("%s\t%s"), pAPI->GetString(IDS_PROPERTIES), pAPI->GetString(IDS_KEYHOME));
 			m_AlbumMenu.AppendMenu(MF_STRING, ACMD_Properties, bf, pAPI->GetIcon(ICO_Properties16));
 			//m_AlbumMenu.LoadToolbar(IDR_MAINLISTNORMAL);

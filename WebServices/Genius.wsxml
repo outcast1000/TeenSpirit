@@ -1,0 +1,5 @@
+<services>
+  <service name='Genius (lyrics)'
+           action='web@https://genius.com/search?q=%artist%+%title%'
+           appliesto='%title%'/>
+</services>

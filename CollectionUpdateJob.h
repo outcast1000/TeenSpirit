@@ -3,6 +3,7 @@
 
 #include "MultiThreadJobQueue.h"
 #include <atomic>
+#include <functional>
 #include "DataRecords.h"
 
 class SQLManager;
@@ -45,6 +46,15 @@ public:
 		BOOL bAllowUpdate;
 		BOOL bAllowRemove;
 	};
+	//Message prefixes ("<text>: <path>"), translated by the creator.
+	struct Texts
+	{
+		std::tstring adding;
+		std::tstring updating;
+		std::tstring removing;
+	};
+	//Called from the job's thread with each progress message.
+	typedef std::function<void(const std::tstring&)> MessageSink;
 
 
 	virtual ~CollectionUpdateJob();
@@ -71,9 +81,11 @@ public:
 	static CollectionUpdateJob* CreateJob(
 		CollectionRecordSP rec, Instructions instr, 
 		SQLManager& sqlManager, FileTagger& fileTagger,
-		Progress& progress)
+		Progress& progress, const Texts& texts, MessageSink messageSink)
 	{
 		CollectionUpdateJob* pJob = new CollectionUpdateJob(sqlManager, fileTagger, progress);
+		pJob->m_texts = texts;
+		pJob->m_messageSink = messageSink;
 		pJob->m_collection = rec;
 		pJob->m_instructions = instr;
 		return pJob;
@@ -100,6 +112,9 @@ private:
 	//Job Params
 	CollectionRecordSP m_collection;
 	Instructions m_instructions;
+	Texts m_texts;
+	MessageSink m_messageSink;
+	void PostMessage(const std::tstring& text, LPCTSTR path);
 	SQLManager& m_sqlManager;
 	FileTagger& m_fileTagger;
 private:

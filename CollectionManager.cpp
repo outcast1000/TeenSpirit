@@ -2,18 +2,27 @@
 #include "CollectionManager.h"
 #include "MultiThreadJobQueue.h"
 #include "SQLManager.h"
-#include "ObjFactory.h"
 #include "FileTagger.h"
 #include "FreeDb/FreeDb.h"
 #include "StateManager.h"
+#include "AppOptions.h"
+#include "AppStrings.h"
+#include "resource.h"
+#include <shlwapi.h>
 
 
-CollectionManager::CollectionManager():
+CollectionManager::CollectionManager(SQLManager& sqlManager, AppOptions& options, ITranslation& translation, std::unique_ptr<Host> host):
+m_sqlManager(sqlManager),
+m_options(options),
+m_translation(translation),
+m_host(std::move(host)),
 m_bWorkStopped(FALSE),
 m_bWorkerStillRunning(FALSE),
 m_pFileTagger(NULL),
-m_pJobSQLManager(NULL)
+m_pJobSQLManager(NULL),
+m_state(S_Idle)
 {
+	ASSERT(m_host.get() != NULL);
 	m_pMTQueue = new MultiThreadJobQueue;
 	m_pMTQueue->SetMaxThreads(1);
 	
@@ -30,7 +39,11 @@ CollectionManager::~CollectionManager()
 		delete m_pJobSQLManager;
 	}
 	else
+	{
+		//=== The job also posts messages to this object: leave the host alive too
 		TRACE(_T("@0 CollectionManager::~CollectionManager. Scan job still running; leaving its objects alive\r\n"));
+		m_host.release();
+	}
 }
 
 BOOL CollectionManager::StopBackgroundWork()
@@ -49,11 +62,8 @@ SQLManager* CollectionManager::GetJobSQLManager()
 {
 	if (m_pJobSQLManager == NULL)
 	{
-		SQLManager* pMain = PRGAPI()->GetSQLManager();
-		if (pMain == NULL)
-			return NULL;
 		SQLManager* pSM = new SQLManager;
-		if (!pSM->Init(pMain->GetDatabasePath()))
+		if (!pSM->Init(m_sqlManager.GetDatabasePath()))
 		{
 			TRACE(_T("@0 CollectionManager::GetJobSQLManager. Init failed\r\n"));
 			delete pSM;
@@ -67,9 +77,35 @@ SQLManager* CollectionManager::GetJobSQLManager()
 FileTagger& CollectionManager::GetFileTagger()
 {
 	if (m_pFileTagger == NULL)
-		m_pFileTagger = ObjFactory::Instance()->CreateFileTagger();
-	m_pFileTagger->SetConfig(FileTagger::CONF_ReadDepth, PRGAPI()->GetOption(OPT_TAG_SafetyOption));
+		m_pFileTagger = m_host->CreateFileTagger();
+	m_pFileTagger->SetConfig(FileTagger::CONF_ReadDepth, m_options.Get(OPT_TAG_SafetyOption));
 	return *m_pFileTagger;
+}
+
+BOOL CollectionManager::StartJob(CollectionRecordSP rec, const CollectionUpdateJob::Instructions& instr)
+{
+	SQLManager* pJobSM = GetJobSQLManager();
+	if (pJobSM == NULL)
+		return FALSE;
+	//=== The job runs on another thread: give it its texts now and let it queue
+	//=== its messages (it used to fetch both itself, from the scan thread)
+	CollectionUpdateJob::Texts texts;
+	texts.adding = AppStrings::Get(m_translation, IDS_ADDING);
+	texts.updating = AppStrings::Get(m_translation, IDS_UPDATING);
+	texts.removing = AppStrings::Get(m_translation, IDS_REMOVE);
+	m_workingCollections.push_back(rec->ID);
+	JobSP job(CollectionUpdateJob::CreateJob(rec, instr, *pJobSM, GetFileTagger(), m_progress,
+		texts, [this](const std::tstring& msg) {QueueMessage(msg);}));
+	m_host->SendStateMessage(SM_CollectionManagerEvent);
+	return m_pMTQueue->AddJob(job);
+}
+
+void CollectionManager::QueueMessage(const std::tstring& msg)
+{
+	std::lock_guard<std::mutex> lock(m_messagesLock);
+	m_messages.push_back(msg);
+	while (m_messages.size() > cMaxPendingMessages)
+		m_messages.pop_front();
 }
 
 
@@ -86,15 +122,13 @@ BOOL CollectionManager::AddCollection(LPCTSTR path, LPCTSTR name)
 	DWORD serialNum = GetVolumeSerial(path);
 
 	//---Add The Record
-	PrgAPI* pAPI = PRGAPI();
-	SQLManager* pSM = pAPI->GetSQLManager();
 	CollectionRecordSP rec(new CollectionRecord);
 	GetLocalTime(&rec->dateAdded);
 	rec->location = path;
 	rec->name = name;
 	rec->serial = serialNum;
 	rec->type = ct;
-	if (pSM->AddNewCollectionRecord(*rec))
+	if (m_sqlManager.AddNewCollectionRecord(*rec))
 	{
 		if (ct == CTYPE_AudioCD)
 			return ImportAudioCDCollection(rec);
@@ -105,13 +139,7 @@ BOOL CollectionManager::AddCollection(LPCTSTR path, LPCTSTR name)
 			instr.bProcessFiles = TRUE;
 			instr.bAllowUpdate = FALSE;
 			instr.bAllowRemove = FALSE;
-			SQLManager* pJobSM = GetJobSQLManager();
-			if (pJobSM == NULL)
-				return FALSE;
-			m_workingCollections.push_back(rec->ID);
-			JobSP job(CollectionUpdateJob::CreateJob(rec, instr, *pJobSM, GetFileTagger(), m_progress));
-			pAPI->SendMessage(SM_CollectionManagerEvent);
-			return m_pMTQueue->AddJob(job);
+			return StartJob(rec, instr);
 		}
 	}
 	return FALSE;
@@ -133,15 +161,8 @@ BOOL CollectionManager::UpdateCollection(CollectionRecordSP rec, BOOL bAllowAddN
 		instr.bProcessFiles = TRUE;
 		instr.bAllowUpdate = bAllowUpdate;
 		instr.bAllowRemove = bAllowRemove;
-
-		SQLManager* pJobSM = GetJobSQLManager();
-		if (pJobSM == NULL)
-			return FALSE;
-		m_workingCollections.push_back(rec->ID);
-		JobSP job(CollectionUpdateJob::CreateJob(rec, instr, *pJobSM, GetFileTagger(), m_progress));
-		PRGAPI()->SendMessage(SM_CollectionManagerEvent);
-		TRACE(_T("@3 CollectionManager::UpdateCollection. Adding Job"));
-		return m_pMTQueue->AddJob(job);
+		TRACE(_T("@3 CollectionManager::UpdateCollection. Adding Job\r\n"));
+		return StartJob(rec, instr);
 	}
 	return FALSE;
 }
@@ -149,7 +170,7 @@ BOOL CollectionManager::UpdateCollection(CollectionRecordSP rec, BOOL bAllowAddN
 BOOL CollectionManager::ImportFullTrackRecordCollection(CollectionRecord& cr, FullTrackRecordCollection& col)
 {
 	TRACEST(_T("CollectionManager::ImportFullTrackRecordCollection."));
-	SQLManager* pSM = PRGAPI()->GetSQLManager();
+	SQLManager* pSM = &m_sqlManager;
 	TagInfo ti;
 	INT tracksAdded = 0;
 	for (size_t i = 0; i < col.size(); i++)
@@ -175,7 +196,7 @@ BOOL CollectionManager::ImportFullTrackRecordCollection(CollectionRecord& cr, Fu
 		}
 	}
 	if (tracksAdded > 0)
-		PRGAPI()->SendMessage(SM_CollectionManagerEvent);
+		m_host->SendStateMessage(SM_CollectionManagerEvent);
 	return tracksAdded > 0;
 }
 
@@ -184,8 +205,7 @@ BOOL CollectionManager::ImportFullTrackRecordCollection(CollectionRecord& cr, Fu
 BOOL CollectionManager::RefreshLocalCollections(BOOL bAllowAddNew, BOOL bAllowUpdate, BOOL bAllowRemove)
 {
 	TRACEST(_T("CollectionManager::RefreshLocalCollections."));
-	PrgAPI* pAPI = PRGAPI();
-	SQLManager* pSM = pAPI->GetSQLManager();
+	SQLManager* pSM = &m_sqlManager;
 	UINT collectionsUpdated = 0;
 	CollectionRecordCollection col;
 	if (pSM->GetCollectionRecordCollectionByTypeID(col, CTYPE_LocalFolder))
@@ -221,34 +241,29 @@ BOOL CollectionManager::CollectionExists(LPCTSTR path)
 	DWORD serialNum = GetVolumeSerial(path);
 
 	//---Determine if collection already exists--------------------------------------------
-	PrgAPI* pAPI = PRGAPI();
-	SQLManager* pSM = pAPI->GetSQLManager();
 	CollectionRecord rec;
-	return pSM->GetCollectionRecordUnique(serialNum, path, rec);
+	return m_sqlManager.GetCollectionRecordUnique(serialNum, path, rec);
 }
 
 
 BOOL CollectionManager::RemoveCollection(UINT ID)
 {
-	PrgAPI* pAPI = PRGAPI();
-	if (pAPI->GetSQLManager()->DeleteCollectionRecord(ID, TRUE))
+	if (m_sqlManager.DeleteCollectionRecord(ID, TRUE))
 	{
-		pAPI->SendMessage(SM_CollectionManagerEvent);
+		m_host->SendStateMessage(SM_CollectionManagerEvent);
 		return TRUE;
 	}
 	return FALSE;
 }
 BOOL CollectionManager::RenameCollection(UINT ID, LPCTSTR newName)
 {
-	PrgAPI* pAPI = PRGAPI();
-	SQLManager* pSM = pAPI->GetSQLManager();
 	CollectionRecord rec;
-	if (pSM->GetCollectionRecord(ID, rec))
+	if (m_sqlManager.GetCollectionRecord(ID, rec))
 	{
 		rec.name = newName;
-		if (pAPI->GetSQLManager()->UpdateCollectionRecord(rec))
+		if (m_sqlManager.UpdateCollectionRecord(rec))
 		{
-			pAPI->SendMessage(SM_CollectionManagerEvent);
+			m_host->SendStateMessage(SM_CollectionManagerEvent);
 			return TRUE;
 		}
 
@@ -375,7 +390,7 @@ BOOL CollectionManager::ImportAudioCDCollection(CollectionRecordSP col)
 		return FALSE;//*** Unable To read disc
 
 	FreeDB fdb;
-	fdb.Init(_T("TeenSpirit"), _T("0.9"), PRGAPI()->GetInternetHandle());
+	fdb.Init(_T("TeenSpirit"), _T("0.9"), m_host->GetInternetHandle());
 	std::vector<FreeDBResult> qres;
 	if (fdb.Query(qres, cdInfo))
 		fdb.Read(qres[0], cdInfo);
@@ -388,8 +403,7 @@ BOOL CollectionManager::ImportAudioCDCollection(CollectionRecordSP col)
 	info.Genre = cdInfo.genre;
 	info.Year = cdInfo.year;
 
-	PrgAPI* pAPI = PRGAPI();
-	SQLManager* pSM = pAPI->GetSQLManager();
+	SQLManager* pSM = &m_sqlManager;
 
 	for (UINT i = 0; i < cdInfo.tracks.size(); i++)
 	{
@@ -416,6 +430,14 @@ void CollectionManager::ConsumeResult()
 {
 	if (m_pMTQueue == NULL)
 		return;
+	//=== The scan's progress messages, shown from this (UI) thread
+	std::deque<std::tstring> messages;
+	{
+		std::lock_guard<std::mutex> lock(m_messagesLock);
+		messages.swap(m_messages);
+	}
+	for (size_t i = 0; i < messages.size(); i++)
+		m_host->NotifyUser(messages[i].c_str());
 	JobSP job;
 	while (m_pMTQueue->RetrieveFinishedJob(job))
 	{
@@ -433,12 +455,11 @@ void CollectionManager::ConsumeResult()
 				{
 					ASSERT(col.get() != NULL);
 					ReleaseCollectionWorkingStatus(*col);
-					PrgAPI* pAPI = PRGAPI();
-					pAPI->SendMessage(SM_CollectionManagerEvent);
+					m_host->SendStateMessage(SM_CollectionManagerEvent);
 					const CollectionUpdateJob::Statistics& stats = pColJob->GetStatistics();
 					if (stats.FilesAdded || stats.FilesUpdated || stats.FilesDeleted)
 					{
-						pAPI->SendMessage(SM_DatabaseUpdated);
+						m_host->SendStateMessage(SM_DatabaseUpdated);
 					}
 				}
 			}

@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 #include "LocalPictureManager.h"
-#include "PrgAPI.h"
 #include "SQLManager.h"
 
 #include "InformationProviders/CachedImageInfoProvider/CachedImageInfoProvider.h"
@@ -8,14 +7,16 @@
 //#include "InformationProviders/CompositeInfoProvider/CompositeInfoProvider.h"
 //#include "InformationProviders/InfoProviderRequestHelper.h"
 #include "InformationProviders/InfoProviderFactory.h"
-#include "InfoDownloadManager.h"
 #include "resource.h"
 
 
 #define MAX_FAILED_ARTISTS_REQUESTS_QUEUE 15
 #define MAX_FAILED_ALBUMS_REQUESTS_QUEUE 15
 
-LocalPictureManager::LocalPictureManager():
+LocalPictureManager::LocalPictureManager(SQLManager& sqlManager, InfoProviderFactory& providers, std::unique_ptr<Host> host):
+m_sqlManager(sqlManager),
+m_providers(providers),
+m_host(std::move(host)),
 m_pCIIP(NULL),
 m_pDIIP(NULL),
 m_bEnableFolderImages(TRUE),
@@ -38,14 +39,12 @@ BOOL LocalPictureManager::Init(LPCTSTR storagePath)
 	if (m_pCIIP == NULL)
 	{
 		TRACEST(_T("LocalPictureManager::Init"));
-		PrgAPI* pAPI = PRGAPI();
-		InfoProviderFactory* pIPF = pAPI->GetInfoProviderFactory();
 		ASSERT(storagePath != NULL);
 		m_pCIIP = new CachedImageInfoProvider;
-		pIPF->RegisterInfoProvider(m_pCIIP, FALSE);
+		m_providers.RegisterInfoProvider(m_pCIIP, FALSE);
 		m_pDIIP = new DirImageInfoProvider;
-		m_pDIIP->SetSQLManager(pAPI->GetSQLManager());
-		pIPF->RegisterInfoProvider(m_pDIIP, FALSE);
+		m_pDIIP->SetSQLManager(&m_sqlManager);
+		m_providers.RegisterInfoProvider(m_pDIIP, FALSE);
 
 
 
@@ -168,7 +167,7 @@ void LocalPictureManager::SetMainArtistPicture(const ArtistRecord& rec, LPCTSTR 
 	PicRecord pr(IIT_ArtistPicture, rec.ID);
 	pr.path = path;
 	pr.pictureType = PT_Main;
-	PRGAPI()->GetSQLManager()->AddOrUpdatePicRecord(pr);
+	m_sqlManager.AddOrUpdatePicRecord(pr);
 }
 
 void LocalPictureManager::SetMainAlbumPicture(const FullAlbumRecord& rec, LPCTSTR path)
@@ -177,7 +176,7 @@ void LocalPictureManager::SetMainAlbumPicture(const FullAlbumRecord& rec, LPCTST
 	PicRecord pr(IIT_AlbumPicture, rec.album.ID);
 	pr.path = path;
 	pr.pictureType = PT_Main;
-	PRGAPI()->GetSQLManager()->AddOrUpdatePicRecord(pr);
+	m_sqlManager.AddOrUpdatePicRecord(pr);
 }
 
 
@@ -336,7 +335,7 @@ LPCTSTR LocalPictureManager::GetMainArtistPicture(const ArtistRecord& rec)
 		//TRACEST(_T("@4 LocalPictureManager::GetMainArtistPicture (Uncached)"));
 		//=== This is the first request. We will try to find one
 		//=== First Try the ArtistsPic Table
-		SQLManager* pSM = PRGAPI()->GetSQLManager();
+		SQLManager* pSM = &m_sqlManager;
 		PicRecord apr(IIT_ArtistPicture, rec.ID);
 		if (pSM->GetPicRecord(apr))
 		{
@@ -395,7 +394,7 @@ LPCTSTR LocalPictureManager::GetMainAlbumPicture(const FullAlbumRecord& rec)
 		//TRACEST(_T("LocalPictureManager::GetMainAlbumPicture (Uncached)"));
 		//=== This is the first request. We will try to find one
 		//=== First Try the AlbumsPic Table
-		SQLManager* pSM = PRGAPI()->GetSQLManager();
+		SQLManager* pSM = &m_sqlManager;
 		PicRecord apr(IIT_AlbumPicture, rec.album.ID);
 		if (pSM->GetPicRecord(apr))
 		{
@@ -453,8 +452,7 @@ void LocalPictureManager::ResetArtistCache(const ArtistRecord& rec)
 	}
 
 	//=== Reset DB Cache
-	SQLManager* pSM = PRGAPI()->GetSQLManager();
-	pSM->DeletePicRecord(IIT_ArtistPicture, rec.ID);
+	m_sqlManager.DeletePicRecord(IIT_ArtistPicture, rec.ID);
 }
 void LocalPictureManager::ResetAlbumCache(const FullAlbumRecord& rec)
 {
@@ -468,8 +466,7 @@ void LocalPictureManager::ResetAlbumCache(const FullAlbumRecord& rec)
 			m_albums.erase(it);
 	}
 	//=== Reset DB Cache
-	SQLManager* pSM = PRGAPI()->GetSQLManager();
-	pSM->DeletePicRecord(IIT_AlbumPicture, rec.album.ID);
+	m_sqlManager.DeletePicRecord(IIT_AlbumPicture, rec.album.ID);
 
 }
 
@@ -498,8 +495,6 @@ BOOL LocalPictureManager::DrawThumbnail(InfoItemTypeEnum iit, UINT itemID, HDC h
 BOOL LocalPictureManager::DrawThumbnail(InfoItemTypeEnum iit, UINT itemID, Gdiplus::Graphics& g, Gdiplus::Rect& rcDest)
 {
 	DWORD uid = CalculateCacheUID(iit, itemID);
-	PrgAPI* pAPI = PRGAPI();
-	InfoDownloadManager* pDM = pAPI->GetInfoDownloadManager();
 	BOOL bRet = FALSE;
 	if (itemID > 0)
 	{
@@ -510,7 +505,7 @@ BOOL LocalPictureManager::DrawThumbnail(InfoItemTypeEnum iit, UINT itemID, Gdipl
 			if (bRet == FALSE)
 			{
 				ArtistRecord rec;
-				if (pAPI->GetSQLManager()->GetArtistRecord(itemID, rec))
+				if (m_sqlManager.GetArtistRecord(itemID, rec))
 				{
 					LPCTSTR picPath = GetMainArtistPicture(rec);
 					if (picPath != NULL)
@@ -525,7 +520,7 @@ BOOL LocalPictureManager::DrawThumbnail(InfoItemTypeEnum iit, UINT itemID, Gdipl
 					{
 						//=== We don't have the picture.
 						//=== Ask for a download
-						pDM->RequestArtistPic(rec);
+						m_host->RequestArtistPicture(rec);
 					}
 				}
 			}
@@ -535,7 +530,7 @@ BOOL LocalPictureManager::DrawThumbnail(InfoItemTypeEnum iit, UINT itemID, Gdipl
 			if (bRet == FALSE)
 			{
 				FullAlbumRecordSP rec;
-				if (pAPI->GetSQLManager()->GetFullAlbumRecordByID(rec, itemID))
+				if (m_sqlManager.GetFullAlbumRecordByID(rec, itemID))
 				{
 					LPCTSTR picPath = GetMainAlbumPicture(*rec);
 					if (picPath != NULL)
@@ -549,7 +544,7 @@ BOOL LocalPictureManager::DrawThumbnail(InfoItemTypeEnum iit, UINT itemID, Gdipl
 					else
 					{
 						//=== We don't have the picture. Ask for a download
-						pDM->RequestAlbumPic(rec->album, rec->artist.name.c_str());
+						m_host->RequestAlbumPicture(rec->album, rec->artist.name.c_str());
 					}
 				}
 			}

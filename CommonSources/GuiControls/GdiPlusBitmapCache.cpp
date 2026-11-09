@@ -32,7 +32,7 @@ GdiPlusBitmapCache::GdiPlusBitmapCache(UINT cx, UINT cy, UINT capacity):
 }
 GdiPlusBitmapCache::~GdiPlusBitmapCache()																	
 {
-	delete m_items;
+	delete[] m_items;
 }
 
 BOOL GdiPlusBitmapCache::LoadState(LPCTSTR stateFile)

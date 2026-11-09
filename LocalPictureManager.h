@@ -4,15 +4,32 @@
 class IInfoProvider;
 class DirImageInfoProvider;
 class CachedImageInfoProvider;
+class SQLManager;
+class InfoProviderFactory;
 
 #include "DataRecords.h"
 #include "GuiControls/GdiPlusBitmapCache.h"
 #include "GuiControls/GdiPlusPicDrawer.h"
+#include <memory>
 
+//	Finds the pictures of artists and albums: the stored main picture (in the
+//	database), the pictures downloaded or added by the user (in the storage
+//	folder), and for albums the images in the album's folder.
 class LocalPictureManager
 {
 public:
-	LocalPictureManager();
+	//What the picture manager needs from the application.
+	class Host
+	{
+	public:
+		virtual ~Host()														{}
+		//Asked when a thumbnail is drawn for an item without a picture.
+		virtual void RequestArtistPicture(ArtistRecord& rec)				= 0;
+		virtual void RequestAlbumPicture(AlbumRecord& rec, LPCTSTR artist)	= 0;
+	};
+
+	//The two picture providers are registered with (and owned by) providers.
+	LocalPictureManager(SQLManager& sqlManager, InfoProviderFactory& providers, std::unique_ptr<Host> host);
 	~LocalPictureManager();
 
 public:
@@ -59,6 +76,12 @@ private:
 	//void RequestArtistPicDownload(const FullArtistRecordSP& rec);
 	//void RequestAlbumPicDownload(const FullAlbumRecordSP& rec);
 private:
+	LocalPictureManager(const LocalPictureManager&);
+	LocalPictureManager& operator=(const LocalPictureManager&);
+
+	SQLManager& m_sqlManager;
+	InfoProviderFactory& m_providers;
+	std::unique_ptr<Host> m_host;
 	BOOL m_bEnableFolderImages;
 
 	GdiPlusBitmapCache* m_pThumbnailCache; 

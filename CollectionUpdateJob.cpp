@@ -5,15 +5,24 @@
 #include "SQLManager.h"
 #include "FileTagger.h"
 #include "stlStringUtils.h"
-#include "resource.h"
-#include "PrgAPI.h"
-#include "StateManager.h"
+#include "TeenSpiritEnums.h"
+#include <shlwapi.h>
 
 //=== ENABLE THIS FOR BENCHMARKS
 //#define BENCMARK_COLLECTIONUPDATE
 
 CollectionUpdateJob::~CollectionUpdateJob()
 {
+}
+
+void CollectionUpdateJob::PostMessage(const std::tstring& text, LPCTSTR path)
+{
+	if (!m_messageSink)
+		return;
+	std::tstring msg(text);
+	msg += _T(": ");
+	msg += path;
+	m_messageSink(msg);
 }
 
 #ifdef	BENCMARK_COLLECTIONUPDATE
@@ -81,7 +90,6 @@ void CollectionUpdateJob::Execute()
 
 INT CollectionUpdateJob::ClearDeletedTracks(UINT collectionID, LPCTSTR startPath)
 {
-	PrgAPI* pAPI = PRGAPI();
 	INT fileDeleted = 0;
 	TrackRecordCollection col;
 	TracksFilter tf;
@@ -90,7 +98,6 @@ INT CollectionUpdateJob::ClearDeletedTracks(UINT collectionID, LPCTSTR startPath
 	if (!m_sqlManager.GetTrackRecordCollectionByTracksFilter(col, tf))
 		return -1;
 	m_progress.maxPos = col.size();
-	std::tstring msg = pAPI->GetString(IDS_REMOVE);
 	for (int i=0; i < m_progress.maxPos; i++)
 	{
 		if (m_bAbort)	break;
@@ -98,9 +105,7 @@ INT CollectionUpdateJob::ClearDeletedTracks(UINT collectionID, LPCTSTR startPath
 		if (!PathFileExists(col[i]->location.c_str()))
 		{
 			m_sqlManager.DeleteTrackRecord(col[i]->ID);
-			TCHAR bf[500];
-			_sntprintf(bf, 500, _T("%s: %s"), msg.c_str(), col[i]->location.c_str());
-			pAPI->NotifyUser(bf, NULL, SEV_InfoL3);
+			PostMessage(m_texts.removing, col[i]->location.c_str());
 			fileDeleted++;
 			m_progress.updateActionsPerformed++;
 		}	
@@ -114,8 +119,6 @@ void CollectionUpdateJob::RecurseDirectories(UINT collectionID,
 	ASSERT(collectionID != 0);
 	ASSERT(startPath != NULL);
 	ASSERT(_tcslen(startPath) < MAX_PATH - 10);
-	PrgAPI* pAPI = PRGAPI();
-	TCHAR bf[500];
 	UINT NumTracks = 0;
 	WIN32_FIND_DATA wfd;
 	
@@ -192,8 +195,7 @@ void CollectionUpdateJob::RecurseDirectories(UINT collectionID,
 #ifdef	BENCMARK_COLLECTIONUPDATE
 								__int64 Notification0 = timer.Measure();
 #endif
-								_sntprintf(bf, 500, _T("%s: %s"), pAPI->GetString(IDS_UPDATING), wildCard.c_str());
-								pAPI->NotifyUser(bf, 0, SEV_InfoL3);
+								PostMessage(m_texts.updating, wildCard.c_str());
 #ifdef	BENCMARK_COLLECTIONUPDATE
 								sNotifications += timer.Measure() - Notification0;
 #endif
@@ -218,9 +220,7 @@ void CollectionUpdateJob::RecurseDirectories(UINT collectionID,
 #ifdef	BENCMARK_COLLECTIONUPDATE
 								__int64 Notification0 = timer.Measure();
 #endif
-								_sntprintf(bf, 500, _T("%s: %s"), pAPI->GetString(IDS_ADDING), wildCard.c_str());
-								bf[499] = 0;
-								pAPI->NotifyUser(bf, 0, SEV_InfoL3);
+								PostMessage(m_texts.adding, wildCard.c_str());
 #ifdef	BENCMARK_COLLECTIONUPDATE
 								sNotifications += timer.Measure() - Notification0;
 #endif

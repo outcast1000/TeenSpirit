@@ -75,7 +75,9 @@ test needs the 32-bit Jet 4.0 OLE DB provider.
 - **Threads**: background work runs on `CommonSources\MultiThreadJobQueue` (condition variables,
   COM STA per worker) and the Last.fm worker. Never use `TerminateThread`: threads are asked to stop
   and joined; in-flight network calls are cancelled by closing the shared WinInet handle, which
-  `PrgAPI` does before destroying services.
+  `PrgAPI` does before destroying services. Job code must not call `PRGAPI()` or touch UI: it gets
+  what it needs when created and queues results/messages for the UI thread (e.g. `CollectionManager`
+  flushes scan messages in `ConsumeResult`, called from the main dialog's timer).
 - `Trackers\` record plays (local history + Last.fm scrobbling via `ITracker`/`MultiTracker`).
 - `CommonSources\` is a grab bag of reusable controls/utilities (Flex* controls, HTMLLite, ALog
   logging, etc.).

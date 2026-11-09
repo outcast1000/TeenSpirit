@@ -830,12 +830,27 @@ MediaPlayer* PrgAPI::GetMediaPlayer()
 
 //---GetInformationManager()
 //We Create on demand HERE and then we configure
+namespace
+{
+	//The application side of LocalPictureManager.
+	class LocalPictureManagerHost: public LocalPictureManager::Host
+	{
+	public:
+		explicit LocalPictureManagerHost(PrgAPI& api): m_api(api)	{}
+		virtual void RequestArtistPicture(ArtistRecord& rec)	{m_api.GetInfoDownloadManager()->RequestArtistPic(rec);}
+		virtual void RequestAlbumPicture(AlbumRecord& rec, LPCTSTR artist)	{m_api.GetInfoDownloadManager()->RequestAlbumPic(rec, artist);}
+	private:
+		PrgAPI& m_api;
+	};
+}
+
 LocalPictureManager* PrgAPI::GetLocalPictureManager()
 {
 	if (m_pLocalPictureManager == NULL)
 	{
 		TRACEST(_T("PrgAPI::GetLocalPictureManager [CREATION]"));
-		m_pLocalPictureManager = new LocalPictureManager;
+		m_pLocalPictureManager = new LocalPictureManager(*GetSQLManager(), *GetInfoProviderFactory(),
+			std::unique_ptr<LocalPictureManager::Host>(new LocalPictureManagerHost(*this)));
 		m_pLocalPictureManager->Init(GetPath(PATH_StorageRoot));
 		m_pLocalPictureManager->LoadState(GetPath(PATH_UserRoot));
 		m_pLocalPictureManager->EnableFolderImages(GetOption(OPT_IM_UseFolderImages) != 0);
@@ -1149,12 +1164,29 @@ TranslationManager* PrgAPI::GetTranslationManager()
 	return m_pTranslationManager;
 }
 
+namespace
+{
+	//The application side of CollectionManager.
+	class CollectionManagerHost: public CollectionManager::Host
+	{
+	public:
+		explicit CollectionManagerHost(PrgAPI& api): m_api(api)	{}
+		virtual void SendStateMessage(UINT stateMessage)	{m_api.GetStateManager()->SendMessage(stateMessage);}
+		virtual void NotifyUser(LPCTSTR msg)				{m_api.NotifyUser(msg, NULL, SEV_InfoL3);}
+		virtual HINTERNET GetInternetHandle()				{return m_api.GetInternetHandle();}
+		virtual FileTagger* CreateFileTagger()				{return ObjFactory::Instance()->CreateFileTagger();}
+	private:
+		PrgAPI& m_api;
+	};
+}
+
 CollectionManager* PrgAPI::GetCollectionManager()
 {
 	if (m_pCollectionManager == NULL)
 	{
 		TRACEST(_T("PrgAPI::GetCollectionManager [CREATION]"));
-		m_pCollectionManager = new CollectionManager;
+		m_pCollectionManager = new CollectionManager(*GetSQLManager(), GetAppOptions(), *GetTranslationManager(),
+			std::unique_ptr<CollectionManager::Host>(new CollectionManagerHost(*this)));
 	}
 	return m_pCollectionManager;
 }

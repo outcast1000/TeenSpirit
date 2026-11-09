@@ -23,6 +23,7 @@
 #include "stdafx.h"
 #include "InfoProviderFactory.h"
 #include "ExternalInfoProvider/ExternalInfoProvider.h"
+#include "OnlineInfoProvider.h"
 #include "AppSettings/AppSettings.h"
 
 
@@ -224,7 +225,19 @@ IInfoProvider* InfoProviderFactory::GetItemByIndex(INT idx)
 
 	if (!m_bInitialized)
 	{
-		IInfoProvider* pIP = NULL;
+		IInfoProvider* builtIn[] =
+		{
+			new CoverArtArchiveProvider,
+			new LrclibProvider,
+			new LastFmApiProvider,
+			new DeezerProvider,
+		};
+		for (size_t i = 0; i < sizeof(builtIn) / sizeof(builtIn[0]); i++)
+		{
+			builtIn[i]->SetInternetHandle(m_hNet);
+			if (!RegisterInfoProvider(builtIn[i], TRUE))
+				delete builtIn[i];
+		}
 		m_bInitialized = TRUE;
 	}
 	if (idx >= 0 && idx < (INT)m_IPPrototypes.size())

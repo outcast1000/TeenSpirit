@@ -9,7 +9,7 @@
   - **vcpkg package manager** (bundled component), or a vcpkg clone pointed to by `VCPKG_ROOT`
 - Git (vcpkg uses it to fetch the registry baseline)
 
-Third-party C++ dependencies (SQLite and zlib) are declared in `vcpkg.json` and
+Third-party C++ dependencies (SQLite, zlib, nlohmann-json) are declared in `vcpkg.json` and
 are restored automatically on the first build into `vcpkg_installed\`.
 
 ## Build
@@ -37,6 +37,8 @@ the remaining x64 blockers are the x86-only BASS import libraries and the code i
   no CPU use while idle, and shutdown never terminating threads.
 - **Last.fm worker**: started on demand and joined on destruction.
 - **Web search templates**: `WebServices\*.wsxml` load and expand to encoded URLs.
+- **Online info providers**: API response parsing (offline). Set `JAANGLE_LIVE_TESTS=1`
+  to also query the real services (and `JAANGLE_LASTFM_API_KEY` for Last.fm).
 
 ```
 build\out\Win32\Release\UnitTests.exe
@@ -83,10 +85,21 @@ each) and on the Last.fm worker. Threads are never terminated: on shutdown they 
 asked to stop and waited for. Network calls in progress are cancelled by closing the
 shared WinInet handle, which `PrgAPI` does before destroying the services.
 
-## Online-service credentials
+## Online information
 
-See `ApiKeys.h`. Real keys go in the gitignored `ApiKeys.local.h`, enabled by
-defining `JAANGLE_LOCAL_KEYS`.
+Album covers, lyrics, artist pictures and biographies are downloaded from public
+web APIs (`InformationProviders\OnlineInfoProvider.cpp`):
+
+| Information | Service | Key |
+|---|---|---|
+| Album covers | MusicBrainz + Cover Art Archive | none |
+| Lyrics | LRCLIB | none |
+| Artist pictures | Deezer | none |
+| Artist biographies, album descriptions | Last.fm API 2.0 | free API key |
+
+The Last.fm key can be entered in the program (Options, information providers,
+Last.fm), or compiled in: see `ApiKeys.h` (real keys go in the gitignored
+`ApiKeys.local.h`, enabled by defining `JAANGLE_LOCAL_KEYS`).
 
 ## Known build compromises (to be removed)
 

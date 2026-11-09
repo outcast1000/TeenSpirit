@@ -2,6 +2,7 @@
   "name": "jaangle",
   "version-string": "0.98f-rc1",
   "dependencies": [
+    "nlohmann-json",
     "sqlite3",
     "zlib"
   ],

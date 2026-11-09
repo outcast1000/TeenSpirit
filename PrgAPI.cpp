@@ -1235,7 +1235,12 @@ HINTERNET PrgAPI::GetInternetHandle()
 		TRACEST(_T("PrgAPI::GetInternetHandle [CREATION]"));
 		INT i = 0;
 		GetAppSettings()->Read(_T("General"), _T("ImpersonateAgent"), (INT&) i,  0);
-		std::tstring agent = _T("Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9) Gecko/2008052906 Firefox/3.0");
+		FileVersion fv;
+		GetFileVersion(fv);
+		TCHAR defAgent[200];
+		_sntprintf(defAgent, 200, _T("Jaangle/%d.%d.%d (+https://github.com/outcast1000/TeenSpirit)"), fv.Major, fv.Minor, fv.Build);
+		defAgent[199] = 0;
+		std::tstring agent = defAgent;
 		if (i != 0)
 			GetAppSettings()->Read(_T("General"), _T("FalseAgentName"), agent,  _T(""));
 		TRACE(_T("@2{Internet Handle Created}\n"));

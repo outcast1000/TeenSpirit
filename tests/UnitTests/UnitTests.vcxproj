@@ -65,6 +65,8 @@
     <ClCompile Include="JobQueueTests.cpp" />
     <ClCompile Include="LastFMTests.cpp" />
     <ClCompile Include="WebServicesTests.cpp" />
+    <ClCompile Include="OnlineProvidersTests.cpp" />
+    <ClCompile Include="..\..\InformationProviders\OnlineInfoProvider.cpp" />
     <ClCompile Include="..\..\ServicesRegistrationSrv.cpp" />
     <ClCompile Include="..\..\CommonSources\IconSerialization.cpp" />
     <ClCompile Include="..\..\CommonSources\XmlLiteUtilities.cpp" />

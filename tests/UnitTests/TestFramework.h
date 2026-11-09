@@ -19,5 +19,6 @@ void RunDatabaseTests();
 void RunJobQueueTests();
 void RunLastFMTests();
 void RunWebServicesTests();
+void RunOnlineProvidersTests();
 
 #endif

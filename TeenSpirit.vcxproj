@@ -97,6 +97,7 @@
   </ItemDefinitionGroup>
   <PropertyGroup><GenerateManifest>false</GenerateManifest></PropertyGroup>
   <ItemGroup>
+    <ClCompile Include="InformationProviders\OnlineInfoProvider.cpp" />
     <ClCompile Include="CommonSources\FileVersion.cpp" />
     <ClCompile Include="AboutDlg.cpp" />
     <ClCompile Include="ActionManager.cpp" />
@@ -634,6 +635,7 @@
     <ClCompile Include="WebPaneCreator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="InformationProviders\OnlineInfoProvider.h" />
     <ClInclude Include="CommonSources\FileVersion.h" />
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="ActionManager.h" />

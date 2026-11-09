@@ -11,7 +11,9 @@ source so it builds and runs on current Windows with current tools.
 - Playback through BASS (MP3, OGG, FLAC, WMA, AAC/M4A, APE, WavPack, MPC, AC3, MIDI,
   audio CD) with crossfading and equalizer; video through DirectShow.
 - Tag reading and editing (TagLib), ratings, play history and statistics.
-- Album pictures from the music folders, lyrics, comments and personal notes per track.
+- Album covers, artist pictures, lyrics and biographies downloaded automatically
+  (Cover Art Archive, Deezer, LRCLIB, Last.fm), plus pictures from the music folders,
+  comments and personal notes per track.
 - Last.fm scrobbling, mini player, skins and 17 translations.
 
 ## Status

@@ -284,6 +284,9 @@ public:
 
 private:
 	PrgAPI();
+	//Cancels network calls and stops the background job queues. FALSE if a job
+	//thread is still running (it still uses the services owned by PrgAPI).
+	BOOL StopBackgroundWork();
 	static PrgAPI* m_pInst;
 	MessageViewer* m_pNotificationTarget;
 

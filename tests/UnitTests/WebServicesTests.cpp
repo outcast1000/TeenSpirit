@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include "TestFramework.h"
 #include "ServicesRegistrationSrv.h"
+#include "WebPageUtilities.h"
 
 namespace
 {
@@ -79,4 +80,15 @@ void RunWebServicesTests()
 	inf.title = L"Lithium";
 	CHECK(srv.Execute(genius, inf, &viewer));
 	CHECK(viewer.url == L"https://genius.com/search?q=Nirvana+Lithium");
+
+	//URLEncodeW: UTF-8 of the whole string, so surrogate pairs survive
+	std::wstring enc;
+	CHECK(URLEncodeW(enc, L"AC/DC & \x0391"));
+	CHECK(enc == L"AC%2FDC%20%26%20%CE%91");
+	enc.clear();
+	CHECK(URLEncodeW(enc, L"a\xD83C\xDFB5z"));	//U+1F3B5 (musical note)
+	CHECK(enc == L"a%F0%9F%8E%B5z");
+	enc.clear();
+	CHECK(URLEncodeW(enc, L""));
+	CHECK(enc.empty());
 }

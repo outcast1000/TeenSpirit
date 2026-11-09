@@ -24,6 +24,8 @@
  
 InfoDownloadManager::InfoDownloadManager(InfoProviderFactory& ipf):
 m_pMTQueue(NULL),
+m_bWorkStopped(FALSE),
+m_bWorkerStillRunning(FALSE),
 m_IPFactory(ipf),
 m_bAcceptAll(FALSE),
 m_bCancelAll(FALSE),
@@ -35,8 +37,19 @@ m_bOldInfoRequestsRead(FALSE)
 InfoDownloadManager::~InfoDownloadManager()
 {
 	TRACEST(_T("InfoDownloadManager::~InfoDownloadManager"));
-	if (m_pMTQueue != NULL)
-		delete m_pMTQueue;
+	StopBackgroundWork();
+	delete m_pMTQueue;
+}
+BOOL InfoDownloadManager::StopBackgroundWork()
+{
+	//Shutdown only reports a still-running thread the first time (it forgets
+	//the threads), so remember the result.
+	if (!m_bWorkStopped && m_pMTQueue != NULL)
+	{
+		m_bWorkStopped = TRUE;
+		m_bWorkerStillRunning = !m_pMTQueue->Shutdown(MultiThreadJobQueue::cDefaultShutdownTimeout);
+	}
+	return !m_bWorkerStillRunning;
 }
 BOOL InfoDownloadManager::RequestArtistInfo(ArtistRecord& rec, LPCTSTR providerName, BOOL bForce, BOOL bSync)
 {

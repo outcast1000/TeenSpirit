@@ -23,6 +23,8 @@
 #include "stdafx.h"
 #include "DirImageInfoProvider.h"
 #include "cStringUtils.h"
+#include <algorithm>
+#include <string>
 
 
 
@@ -242,38 +244,31 @@ LPCTSTR DirImageInfoProvider::GetModuleInfo(ModuleInfo mi) const
 	return NULL;
 }
 
-//Strings WILL be Modified. (in order to avoid more memory allocations)
+//Is strFind contained in strMain, optionally ignoring case and the excludedCharacters.
 BOOL DirImageInfoProvider::IsIncluded(LPCTSTR strMain, LPCTSTR strFind, BOOL bIgnoreCase, LPCTSTR excludedCharacters)
 {
 	ASSERT(strMain != NULL && strFind != NULL);
-	size_t strMainLen = _tcslen(strMain);
-	if (strMainLen == 0)	return FALSE;
-	size_t strFindLen = _tcslen(strFind);
-	if (strFindLen == 0)	return FALSE;
-	TCHAR sMain[MAX_PATH];
-	TCHAR sFind[MAX_PATH];
-	_tcscpy(sMain, strMain);
-	_tcscpy(sFind, strFind);
-
-	if (bIgnoreCase)
-	{
-		_tcslwr(sMain);
-		_tcslwr(sFind);
-		SetLastError(0);//=== For Some reason _tcslwr produces a 998 error
-	}
-
+	std::basic_string<TCHAR> sMain(strMain);
+	std::basic_string<TCHAR> sFind(strFind);
 	if (excludedCharacters != NULL)
 	{
-		for (UINT i = 0; i < _tcslen(excludedCharacters); i++)
+		struct IsExcluded
 		{
-			TCHAR strCh[2];
-			strCh[1] = 0;
-			strCh[0] = excludedCharacters[i];
-			_tcsReplaceInl(sMain, strMainLen, strCh, _T(""));
-			_tcsReplaceInl(sFind, strFindLen, strCh, _T(""));
-		}
+			LPCTSTR chars;
+			bool operator()(TCHAR c) const	{return _tcschr(chars, c) != NULL;}
+		};
+		IsExcluded pred = {excludedCharacters};
+		sMain.erase(std::remove_if(sMain.begin(), sMain.end(), pred), sMain.end());
+		sFind.erase(std::remove_if(sFind.begin(), sFind.end(), pred), sFind.end());
 	}
-	return _tcsstr(strMain, strFind) != NULL;
+	if (sMain.empty() || sFind.empty())
+		return FALSE;
+	if (bIgnoreCase)
+	{
+		CharLowerBuff(&sMain[0], (DWORD)sMain.size());
+		CharLowerBuff(&sFind[0], (DWORD)sFind.size());
+	}
+	return sMain.find(sFind) != std::basic_string<TCHAR>::npos;
 }
 
 BOOL DirImageInfoProvider::HasMoreThanXFilesWithMinSizeY(LPCTSTR path, UINT maxNumFiles, UINT minFileSize)

@@ -15,6 +15,10 @@ public:
 	CollectionManager();
 	~CollectionManager();
 
+	//Stops the background scan job (asks it to abort and waits). Returns FALSE if
+	//it did not exit in time; it then keeps running and still uses PrgAPI.
+	BOOL StopBackgroundWork();
+
 public:
 	//The caller should call "CollectionExists" first so it can inform the user.
 	//The caller may call the "GetCollectionType". 
@@ -62,6 +66,8 @@ private:
 	SQLManager* GetJobSQLManager();
 private:
 	MultiThreadJobQueue* m_pMTQueue;
+	BOOL m_bWorkStopped;
+	BOOL m_bWorkerStillRunning;
 	FileTagger* m_pFileTagger;
 	SQLManager* m_pJobSQLManager;
 	State m_state;

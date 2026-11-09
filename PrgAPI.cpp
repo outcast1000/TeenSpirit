@@ -233,7 +233,38 @@ void PrgAPI::Shutdown()
 {
 	if (m_pInst == NULL)
 		return;
-	delete m_pInst;	
+	if (!m_pInst->StopBackgroundWork())
+	{
+		//=== A job thread is still running and uses the services (and PRGAPI()).
+		//=== Destroying them would be a use-after-free; the process is exiting,
+		//=== so save the settings and leave everything alive instead.
+		TRACE(_T("@0 PrgAPI::Shutdown. Background work still running; skipping teardown\r\n"));
+		m_pInst->GetAppMonitor()->StopMonitoring();
+		m_pInst->SaveSettings();
+		if (m_pInst->m_pAppSettings != NULL)
+			m_pInst->m_pAppSettings->Save();
+		return;
+	}
+	//=== m_pInst stays valid while the destructor runs: the services call PRGAPI()
+	//=== while being destroyed (e.g. TSStateChangeListener unregistering).
+	delete m_pInst;
+	m_pInst = NULL;
+}
+
+BOOL PrgAPI::StopBackgroundWork()
+{
+	//=== Closing the shared handle makes in-flight WinInet calls return at once.
+	if (m_hInternet != 0)
+	{
+		InternetCloseHandle(m_hInternet);
+		m_hInternet = NULL;
+	}
+	BOOL bStopped = TRUE;
+	if (m_pCollectionManager != NULL && !m_pCollectionManager->StopBackgroundWork())
+		bStopped = FALSE;
+	if (m_pInfoDownloadManager != NULL && !m_pInfoDownloadManager->StopBackgroundWork())
+		bStopped = FALSE;
+	return bStopped;
 }
 
 void PrgAPI::SaveSettings()
@@ -362,8 +393,6 @@ PrgAPI::~PrgAPI()
 	m_pShortcutManager = NULL;
 	delete m_pConfigurationManager;
 	m_pConfigurationManager = NULL;
-	delete m_pStateManager;
-	m_pStateManager = NULL;
 	//TRACE(_T("@2*delete* m_pLastFMServices\r\n"));
 	delete m_pLastFMServices;
 	m_pLastFMServices = NULL;
@@ -400,6 +429,11 @@ PrgAPI::~PrgAPI()
 	//TRACE(_T("@2*delete* m_pLanguageManager\r\n"));
 	delete m_pTranslationManager;
 	m_pTranslationManager = NULL;
+	//=== Deleted after the services above: they may send state messages or
+	//=== unregister listeners while being destroyed, which would otherwise
+	//=== lazily re-create a StateManager that is never freed.
+	delete m_pStateManager;
+	m_pStateManager = NULL;
 	//TRACE(_T("@2*delete* ObjFactory\r\n"));
 	delete ObjFactory::Instance();
 	//TRACE(_T("@2*delete* m_pSQLManager\r\n"));

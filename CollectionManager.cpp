@@ -9,6 +9,8 @@
 
 
 CollectionManager::CollectionManager():
+m_bWorkStopped(FALSE),
+m_bWorkerStillRunning(FALSE),
 m_pFileTagger(NULL),
 m_pJobSQLManager(NULL)
 {
@@ -20,7 +22,7 @@ CollectionManager::~CollectionManager()
 {
 	//The running scan job uses m_pFileTagger and m_pJobSQLManager: free them
 	//only once its thread has really exited.
-	BOOL bStopped = m_pMTQueue->Shutdown(MultiThreadJobQueue::cDefaultShutdownTimeout);
+	BOOL bStopped = StopBackgroundWork();
 	delete m_pMTQueue;
 	if (bStopped)
 	{
@@ -29,6 +31,18 @@ CollectionManager::~CollectionManager()
 	}
 	else
 		TRACE(_T("@0 CollectionManager::~CollectionManager. Scan job still running; leaving its objects alive\r\n"));
+}
+
+BOOL CollectionManager::StopBackgroundWork()
+{
+	//Shutdown only reports a still-running thread the first time (it forgets
+	//the threads), so remember the result.
+	if (!m_bWorkStopped)
+	{
+		m_bWorkStopped = TRUE;
+		m_bWorkerStillRunning = !m_pMTQueue->Shutdown(MultiThreadJobQueue::cDefaultShutdownTimeout);
+	}
+	return !m_bWorkerStillRunning;
 }
 
 SQLManager* CollectionManager::GetJobSQLManager()

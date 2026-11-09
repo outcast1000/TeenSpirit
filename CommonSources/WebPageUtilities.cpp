@@ -911,49 +911,32 @@ BOOL URLEncodeW(std::wstring& encoded, LPCWSTR source)
 	ASSERT(source != NULL);
 	if (source == NULL)
 		return FALSE;
-	LPCWSTR pInBuf = source;
-	while (*pInBuf)
+	if (*source == 0)
+		return TRUE;
+	//=== Convert the whole string at once: converting one WCHAR at a time turns
+	//=== each half of a surrogate pair (emoji, CJK Ext. B...) into U+FFFD.
+	INT len = WideCharToMultiByte(CP_UTF8, 0, source, -1, NULL, 0, NULL, NULL);
+	if (len <= 0)
 	{
-		CHAR utf8[5];
-		INT ret = WideCharToMultiByte(CP_UTF8, 0, pInBuf, 1, utf8, 5, 0, 0);
-		if (ret <1 || ret >4)
-		{
-			TRACE(_T("URLEncodeW WideCharToMultiByte Failed (%d)\r\n"), ret);
-			return FALSE;
-		}
-		utf8[ret] = 0;
-		if (ret == 1)
-		{
-			CHAR tmp = utf8[0];
-			if( (tmp>='A' && tmp <= 'Z') ||
-				(tmp>='a' && tmp <= 'z') ||
-				(tmp>='0' && tmp <= '9'))
-				encoded += tmp;
-			else
-			{
-				//if(*pInBuf == 32)
-				//	encoded += '+';
-				//else
-				{
-					encoded += '%';
-					encoded +=  toHex(tmp>> 4);
-					encoded +=  toHex(tmp%16);
-				}
-			}
-		}
+		TRACE(_T("URLEncodeW WideCharToMultiByte Failed (%d)\r\n"), GetLastError());
+		return FALSE;
+	}
+	std::string utf8(len, 0);
+	WideCharToMultiByte(CP_UTF8, 0, source, -1, &utf8[0], len, NULL, NULL);
+	utf8.resize(len - 1);	//=== drop the terminating NUL
+	for (size_t i = 0; i < utf8.size(); i++)
+	{
+		BYTE tmp = (BYTE) utf8[i];
+		if ((tmp >= 'A' && tmp <= 'Z') ||
+			(tmp >= 'a' && tmp <= 'z') ||
+			(tmp >= '0' && tmp <= '9'))
+			encoded += (WCHAR) tmp;
 		else
 		{
-			INT i = 0;
-			while (utf8[i] != 0)
-			{
-				BYTE tmp = (BYTE) utf8[i];
-				encoded += '%';
-				encoded +=  toHex(tmp>> 4);
-				encoded +=  toHex(tmp%16);
-				i++;
-			}
+			encoded += '%';
+			encoded += toHex(tmp >> 4);
+			encoded += toHex(tmp % 16);
 		}
-		pInBuf++;
 	}
 	return TRUE;
 }

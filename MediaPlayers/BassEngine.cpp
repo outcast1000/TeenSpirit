@@ -47,8 +47,10 @@ void BassEngine::MemberSyncProc(HSYNC handle, DWORD channel, DWORD data)
 {
 	if (m_hwndMessages != 0)
 	{
+		//=== Runs on a BASS thread. Tag the message with the channel so that an end
+		//=== posted for a stream that Open/Close has since replaced is ignored.
 		if (handle == m_EndSync)
-			::PostMessage(m_hwndMessages, UM_BASS_MSG, MPE_ReachedEnd, 0);
+			::PostMessage(m_hwndMessages, UM_BASS_MSG, MPE_ReachedEnd, (LPARAM)channel);
 	}
 }
 
@@ -89,7 +91,15 @@ LRESULT CALLBACK BassEngine::WindowProcST(HWND hwnd, UINT uMsg, WPARAM wParam, L
 LRESULT BassEngine::WinProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	if (message == UM_BASS_MSG && m_pEvTarget != NULL)
+	{
+		if (wParam == MPE_ReachedEnd)
+		{
+			if ((DWORD)lParam != m_stream)
+				return 0;	//=== Stale: the stream that ended is no longer the current one
+			lParam = 0;
+		}
 		return m_pEvTarget->OnEvent((INT)wParam, (INT)lParam, this);
+	}
 	
 	if (message == WM_TIMER && wParam == ID_FADEDSTOP)
 	{

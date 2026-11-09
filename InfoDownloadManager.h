@@ -14,6 +14,10 @@ public:
 	InfoDownloadManager(InfoProviderFactory& ipf);
 	~InfoDownloadManager();
 
+	//Stops the download jobs (asks them to abort and waits). Returns FALSE if one
+	//did not exit in time; it then keeps running and still uses PrgAPI.
+	BOOL StopBackgroundWork();
+
 public:
 	BOOL RequestArtistInfo(ArtistRecord& rec, LPCTSTR providerName = NULL, BOOL bForce = FALSE, BOOL bSync = FALSE);
 	BOOL RequestArtistPic(ArtistRecord& rec, LPCTSTR providerName = NULL, BOOL bForce = FALSE, BOOL bSync = FALSE);
@@ -57,6 +61,8 @@ private:
 
 private:
 	MultiThreadJobQueue* m_pMTQueue;
+	BOOL m_bWorkStopped;
+	BOOL m_bWorkerStillRunning;
 	InfoProviderFactory& m_IPFactory;
 	BOOL m_bAcceptAll;
 	BOOL m_bCancelAll;

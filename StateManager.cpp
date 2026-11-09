@@ -6,6 +6,7 @@
 #include "PrgAPI.h"
 #include "SQLManager.h"
 #include "AppSettings/AppSettings.h"
+#include <vector>
 
 //===========================================================================
 //=== TSStateChangeListener
@@ -108,20 +109,29 @@ void StateManager::SendMessage(UINT stateMessage)
 			break;
 		}
 
+		//=== Broadcast over a snapshot: a listener may register or unregister listeners
+		//=== (create/destroy windows) while handling the message, which would invalidate
+		//=== an iterator into m_pListeners. Skip listeners removed during the broadcast.
+		std::vector<IStateChangeListener*> listeners(m_pListeners.begin(), m_pListeners.end());
 #ifdef _DEBUG
 		TRACE(_T("StateManager::SendMessage Broadcasting '%s' * * * * * * *\r\n"), SM2Str(stateMessage));
-		std::set<IStateChangeListener*>::iterator it = m_pListeners.begin();
-		for (; it != m_pListeners.end(); it++)
+#endif
+		for (size_t i = 0; i < listeners.size(); i++)
 		{
-			if ((*it)->OnStateChanged(stateMessage))
-				TRACE(_T("\t+ %s\r\n"), (*it)->GetStateListenerName());
+			IStateChangeListener* pListener = listeners[i];
+			if (m_pListeners.find(pListener) == m_pListeners.end())
+				continue;
+#ifdef _DEBUG
+			if (pListener->OnStateChanged(stateMessage))
+				TRACE(_T("\t+ %s\r\n"), pListener->GetStateListenerName());
 			else
-				TRACE(_T("\t- %s\r\n"), (*it)->GetStateListenerName());
-		}
-		TRACE(_T("StateManager::SendMessage Broadcasting '%s' - - - - - - -\r\n"), SM2Str(stateMessage));
+				TRACE(_T("\t- %s\r\n"), pListener->GetStateListenerName());
 #else
-		for (std::set<IStateChangeListener*>::iterator i = m_pListeners.begin(); i != m_pListeners.end(); i++)
-			(*i)->OnStateChanged(stateMessage);
+			pListener->OnStateChanged(stateMessage);
+#endif
+		}
+#ifdef _DEBUG
+		TRACE(_T("StateManager::SendMessage Broadcasting '%s' - - - - - - -\r\n"), SM2Str(stateMessage));
 #endif
 	}
 
@@ -137,13 +147,17 @@ void StateManager::PostMessage(UINT stateMessages)
 
 void StateManager::HeartBeat()
 {
-	//I do this, this way because a Message May Generate other Messages
-	//which i want to be sent in the next heartbeat
-	CSingleLock lock(&m_cs, TRUE);
-	std::set<UINT>::iterator it = m_messagesInQueue.begin();
-	for (; it != m_messagesInQueue.end(); it++)
+	//=== Take the queued messages and dispatch them without holding the lock.
+	//=== Messages posted while dispatching (by a listener or a worker thread) stay
+	//=== queued for the next heartbeat, and a re-entrant HeartBeat (from a modal
+	//=== loop inside a listener) only sees an empty or new queue.
+	std::set<UINT> messages;
+	{
+		CSingleLock lock(&m_cs, TRUE);
+		messages.swap(m_messagesInQueue);
+	}
+	for (std::set<UINT>::const_iterator it = messages.begin(); it != messages.end(); ++it)
 		SendMessage(*it);
-	m_messagesInQueue.clear();
 }
 
 //BOOL StateManager::LoadState(AppSettings& params)

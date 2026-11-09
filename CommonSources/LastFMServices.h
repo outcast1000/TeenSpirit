@@ -81,6 +81,9 @@ public:
 	virtual ~LastFMServices(void);
 
 	void Init(HINTERNET hNet);
+	//Asks the worker thread to exit and waits. FALSE if it is still running
+	//after timeoutMs (the object must then stay alive).
+	BOOL StopWorker(DWORD timeoutMs);
 	BOOL CheckLogin();
 	LPCTSTR GetUserName()		{return m_username.c_str();}
 	LPCTSTR GetMD5Password()	{return m_MD5password.c_str();}
@@ -104,7 +107,7 @@ private:
 	BOOL SubmitTracks(LPCTSTR sessionID, LPCTSTR submissionURL, size_t& submittedCount);
 	BOOL IsTrackAvailable();
 	void SetFailure(Error err);
-	static BOOL ConvertString(LPCTSTR src, LPSTR bf, UINT bfLen);
+	static std::string FormEncode(LPCTSTR src);
 
 private:
 	std::basic_string<TCHAR> m_username;

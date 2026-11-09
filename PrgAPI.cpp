@@ -264,6 +264,8 @@ BOOL PrgAPI::StopBackgroundWork()
 		bStopped = FALSE;
 	if (m_pInfoDownloadManager != NULL && !m_pInfoDownloadManager->StopBackgroundWork())
 		bStopped = FALSE;
+	if (m_pLastFMServices != NULL && !m_pLastFMServices->StopWorker(30000))
+		bStopped = FALSE;
 	return bStopped;
 }
 
@@ -1720,13 +1722,14 @@ LPCTSTR PrgAPI::GetPath(PathsEnum pathType, LPTSTR buffer/* = NULL*/)
 			{
 				if (path[path.size() - 1] != '\\')
 					path.push_back('\\');
-				_tcscpy(buffer, path.c_str());
-				if (CreateDirectory(path.c_str(), NULL))
-					bUseDefaultPath = FALSE;
+				//=== Callers pass MAX_PATH buffers; a longer configured path
+				//=== (plus a file name) cannot be used, so fall back to the default.
+				if (path.size() >= MAX_PATH - 20)
+					TRACE(_T("@0 PrgAPI::GetPath. Configured path too long; using the default\r\n"));
 				else
 				{
-					INT le = GetLastError();
-					if (le == ERROR_ALREADY_EXISTS)
+					_tcscpy(buffer, path.c_str());
+					if (CreateDirectory(path.c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
 						bUseDefaultPath = FALSE;
 				}
 			}

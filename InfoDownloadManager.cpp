@@ -687,16 +687,17 @@ void InfoDownloadManager::ConsumeResult()
 			TRACEST(_T("InfoDownloadManager::ConsumeResult. Failure (p=srv)"), result.service);
 			InfoItemTypeEnum iit = IIT_Unknown;
 			TCHAR msg[500];
+			msg[0] = 0;
 			switch (request.service)
 			{
 			case IInfoProvider::SRV_ArtistBio:
 				iit = IIT_ArtistBio;
-				_tcscpy(msg, request.artist);
+				_sntprintf(msg, 500, _T("%s"), request.artist);
 				break;
 			case IInfoProvider::SRV_ArtistImage:
 				{
 					iit = IIT_ArtistPicture;
-					_tcscpy(msg, request.artist);
+					_sntprintf(msg, 500, _T("%s"), request.artist);
 					//Add a Download "FAILURE" record in the database
 				}
 				break;
@@ -728,6 +729,7 @@ void InfoDownloadManager::ConsumeResult()
 					request.title);
 				break;
 			}
+			msg[499] = 0;	//=== _sntprintf does not terminate a truncated string
 			ASSERT(iit != IIT_Unknown);
 			if (iit != IIT_Unknown)
 			{
@@ -742,6 +744,7 @@ void InfoDownloadManager::ConsumeResult()
 					pAPI->GetString(IDS_FAILURE), 
 					pAPI->GetString(IDS_TYPE), pAPI->GetStringForInfoItemType(iit),
 					msg);
+				bf[999] = 0;
 				pAPI->NotifyUser(bf, 0, SEV_Warning);
 			}
 		}

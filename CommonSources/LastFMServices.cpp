@@ -44,18 +44,30 @@ m_lastHandShakeTickCount(0)
 
 LastFMServices::~LastFMServices(void)
 {
-	m_bExitThread = TRUE;
-	m_wakeEvent.SetEvent();
-	if (m_pThread != NULL)
+	//=== PrgAPI calls StopWorker first and does not delete us if it failed.
+	if (!StopWorker(30000))
+		TRACE(_T("@0 LastFMServices::~LastFMServices. Worker thread did not exit\r\n"));
+}
+
+BOOL LastFMServices::StopWorker(DWORD timeoutMs)
+{
+	CWinThread* pThread = NULL;
 	{
-		//The thread is never terminated. Network calls in progress return as soon as
-		//the shared internet handle is closed (PrgAPI does that before deleting us).
-		if (WaitForSingleObject(m_pThread->m_hThread, 30000) == WAIT_OBJECT_0)
-			delete m_pThread;
-		else
-			TRACE(_T("@0 LastFMServices::~LastFMServices. Worker thread did not exit\r\n"));
-		m_pThread = NULL;
+		CSingleLock lock(&m_cs, TRUE);
+		m_bExitThread = TRUE;	//=== Submit no longer starts a thread
+		pThread = m_pThread;
 	}
+	m_wakeEvent.SetEvent();
+	if (pThread == NULL)
+		return TRUE;
+	//The thread is never terminated. Network calls in progress return as soon as
+	//the shared internet handle is closed (PrgAPI does that before stopping us).
+	if (WaitForSingleObject(pThread->m_hThread, timeoutMs) != WAIT_OBJECT_0)
+		return FALSE;
+	delete pThread;
+	CSingleLock lock(&m_cs, TRUE);
+	m_pThread = NULL;
+	return TRUE;
 }
 
 void LastFMServices::Init(HINTERNET hNet)
@@ -68,6 +80,8 @@ void LastFMServices::Init(HINTERNET hNet)
 void LastFMServices::SetUserName(LPCTSTR username)
 {
 	ASSERT(username != NULL);
+	//=== The worker thread reads the credentials (HandShake): change them under the lock
+	CSingleLock lock(&m_cs, TRUE);
 	if (username != NULL)
 		m_username = username;
 	else
@@ -77,6 +91,7 @@ void LastFMServices::SetUserName(LPCTSTR username)
 void LastFMServices::SetMD5Password(LPCTSTR MD5password)
 {
 	ASSERT(MD5password != NULL);
+	CSingleLock lock(&m_cs, TRUE);
 	if (MD5password != NULL)
 		m_MD5password = MD5password;
 	else
@@ -227,7 +242,13 @@ BOOL LastFMServices::HandShake(std::basic_string<TCHAR>& sessionID,
 	sessionID.clear();
 	nowPlayingURL.clear();
 	submissionURL.clear();
-	if (m_username.empty() || m_MD5password.empty())
+	std::basic_string<TCHAR> username, MD5password;
+	{
+		CSingleLock lock(&m_cs, TRUE);
+		username = m_username;
+		MD5password = m_MD5password;
+	}
+	if (username.empty() || MD5password.empty())
 	{
 		//TRACE(_T("@4 LastFMServices::HandShake. Empty Authorization.\r\n"));
 		m_error = ERR_BadAuth;
@@ -239,7 +260,7 @@ BOOL LastFMServices::HandShake(std::basic_string<TCHAR>& sessionID,
 	LPCTSTR auth = _T("auth");
 	cMD5 md5;
 	CHAR authStr[100];
-	_snprintf(authStr, 100, "%s%u", (LPCSTR)CT2CA(m_MD5password.c_str()), ts);
+	_snprintf(authStr, 100, "%s%u", (LPCSTR)CT2CA(MD5password.c_str()), ts);
 
 
 	//http://post.audioscrobbler.com/?hs=true&p=1.2.1&c=<client-id>&v=<client-ver>&u=<user>&t=<timestamp>&a=<auth>
@@ -249,7 +270,7 @@ BOOL LastFMServices::HandShake(std::basic_string<TCHAR>& sessionID,
 		sProtocolVer,
 		sClientID,
 		sClientVer,
-		m_username.c_str(),
+		(LPCTSTR)CA2CT(FormEncode(username.c_str()).c_str()),
 		ts,
 		(LPCTSTR)CA2CT(_strlwr(md5.CalcMD5FromString(authStr))));
 
@@ -319,12 +340,18 @@ BOOL LastFMServices::HandShake(std::basic_string<TCHAR>& sessionID,
 }
 
 
-BOOL LastFMServices::ConvertString(LPCTSTR src, LPSTR bf, UINT bfLen)
+//=== Percent-encoded UTF-8 of src, for a form field or URL query value
+//=== (all reserved characters such as & + % = are encoded).
+std::string LastFMServices::FormEncode(LPCTSTR src)
 {
-	std::tstring temp = src;
-	replace(temp, _T("&"), _T("%26"));
-	INT ret = WideCharToMultiByte(CP_UTF8, 0, temp.c_str(), (INT)temp.size() + 1, bf, bfLen, NULL, NULL);
-	return ret > 0;
+	std::wstring encoded;
+	if (src == NULL || !URLEncodeW(encoded, src))
+		return std::string();
+	std::string ret;
+	ret.reserve(encoded.size());
+	for (size_t i = 0; i < encoded.size(); i++)
+		ret += (CHAR) encoded[i];	//=== ASCII only
+	return ret;
 }
 
 
@@ -344,7 +371,6 @@ BOOL LastFMServices::SubmitTracks(LPCTSTR sessionID, LPCTSTR submissionURL, size
 	const INT bfSize = 1000;
 	postData.reserve(bfSize);
 	CHAR bf[bfSize];
-	CHAR utf8bf[bfSize];
 	//s=<sessionID>
 	//The Session ID string returned by the handshake request. Required
 	_snprintf(bf, bfSize, "s=%s&", (LPCSTR)CT2CA(sessionID));
@@ -359,16 +385,18 @@ BOOL LastFMServices::SubmitTracks(LPCTSTR sessionID, LPCTSTR submissionURL, size
 			const LastFMSubmitTrack& track = *it;
 			//a[0]=<artist>
 			//The artist name. Required.
-			ConvertString(track.artist.c_str(), utf8bf, bfSize);
-			_snprintf(bf, bfSize, "a[%d]=%s&", i, utf8bf);
+			_snprintf(bf, bfSize, "a[%d]=", i);
 			bf[bfSize - 1] = 0;
 			postData += bf;
+			postData += FormEncode(track.artist.c_str());
+			postData += '&';
 			//t[0]=<track>
 			//The track title. Required.
-			ConvertString(track.track.c_str(), utf8bf, bfSize);
-			_snprintf(bf, bfSize, "t[%d]=%s&", i, utf8bf);
+			_snprintf(bf, bfSize, "t[%d]=", i);
 			bf[bfSize - 1] = 0;
 			postData += bf;
+			postData += FormEncode(track.track.c_str());
+			postData += '&';
 			//i[0]=<time>
 			//The time the track started playing, in UNIX timestamp format. 
 			//This must be in the UTC time zone, and is required.
@@ -393,10 +421,11 @@ BOOL LastFMServices::SubmitTracks(LPCTSTR sessionID, LPCTSTR submissionURL, size
 
 			//b[0]=<album>
 			//The album title, or an empty string if not known.
-			ConvertString(track.album.c_str(), utf8bf, bfSize);
-			_snprintf(bf, bfSize, "b[%d]=%s&", i, utf8bf);
+			_snprintf(bf, bfSize, "b[%d]=", i);
 			bf[bfSize - 1] = 0;
 			postData += bf;
+			postData += FormEncode(track.album.c_str());
+			postData += '&';
 
 			//n[0]=<tracknumber>
 			//The position of the track on the album, or an empty string if not known.

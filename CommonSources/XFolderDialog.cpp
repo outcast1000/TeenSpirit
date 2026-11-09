@@ -117,7 +117,9 @@ BEGIN_MESSAGE_MAP(CXFolderDialog, CFileDialog)
 CXFolderDialog::CXFolderDialog(LPCTSTR lpszInitialFolder /*= NULL*/,
 							   DWORD dwFlags /*= 0*/,
 							   CWnd* pParentWnd /*= NULL*/)
-	: CFileDialog(TRUE, NULL, NULL, dwFlags | OFN_HIDEREADONLY, szFilter, pParentWnd)
+	//bVistaStyle=FALSE: this dialog customizes the old-style dialog (hook/template),
+	//which MFC rejects with CNotSupportedException in Vista style (the default since VS2008).
+	: CFileDialog(TRUE, NULL, NULL, dwFlags | OFN_HIDEREADONLY, szFilter, pParentWnd, 0, FALSE)
 //=============================================================================
 {
 	m_strInitialFolder     = lpszInitialFolder;

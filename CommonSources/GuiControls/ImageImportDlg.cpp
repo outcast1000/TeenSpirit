@@ -84,7 +84,7 @@ BOOL CImageImportDlg::CHookShellWnd::OnNotify(WPARAM, LPARAM lParam, LRESULT *pR
 }
 
 CImageImportDlg::CImageImportDlg(LPCTSTR lpszDefExt, LPCTSTR lpszFileName, DWORD dwFlags, LPCTSTR szFilter, CWnd* pParentWnd) : 
-CFileDialog(TRUE, lpszDefExt, lpszFileName, dwFlags, szFilter, pParentWnd)
+CFileDialog(TRUE, lpszDefExt, lpszFileName, dwFlags, szFilter, pParentWnd, 0, FALSE)	//Old-style: uses a template (preview)
 {
 	m_ofn.Flags |= OFN_ENABLETEMPLATE /*| OFN_ALLOWMULTISELECT*/ | OFN_ENABLESIZING | OFN_EXPLORER;
 	m_ofn.hInstance = AfxGetInstanceHandle();

@@ -41,6 +41,8 @@
 #include "MiniPlayerDlg.h"
 #include "QuickSearchDlg.h"
 #include "SearchDlg.h"
+#include "AppOptions.h"
+#include "AppStrings.h"
 
 
 
@@ -59,12 +61,9 @@ LPCTSTR cDefaultBaseFontName = _T("Tahoma");
 
 LPCTSTR const cGeneral =			_T("General");
 LPCTSTR const cPlayerSettings =		_T("Player");
-LPCTSTR const cInfoMgrSettings =	_T("InfoManager");
 LPCTSTR const cInfoControlSettings =_T("InfoControl");
 LPCTSTR const cPaneSettings	=		_T("Panes");
-LPCTSTR const cTagManager =			_T("TagManager");
 LPCTSTR const cViewerPane =			_T("ViewerPane");
-LPCTSTR const cMiniPlayer =			_T("MiniPlayer");
 LPCTSTR const cTree	=				_T("Tree");
 LPCTSTR const cTrackList =			_T("TrackList");
 LPCTSTR const cPlayList =			_T("PlayList");
@@ -78,144 +77,6 @@ LPCTSTR const cOptionSkin =			_T("Skin");
 
 LPCTSTR const cOptionUser =			_T("User");
 LPCTSTR const cOptionPass =			_T("Pass");
-
-LPCTSTR const cErrStr	=			_T("ErrorString");
-
-struct OptInfo
-{
-	AppOptionsEnum optID;
-	LPCTSTR valueName;
-	LPCTSTR category;
-	INT defVal;
-};
-struct StringOptInfo
-{
-	INT resID;
-	LPCTSTR valueName;
-	LPCTSTR category;
-	LPCTSTR defVal;
-};
-
-
-const OptInfo Option2Info[] =
-{
-
-	{OPT_GEN_Debugging, _T("Debugging"), cGeneral, 0},					//OPT_GEN_Debugging
-	{OPT_GEN_LastFMScrobbler, _T("LastFMScrobbler"), cGeneral, 0},		//OPT_GEN_LastFMScrobbler,
-	{OPT_GEN_NotifyHistory, _T("NotifyHistory"), cGeneral, 1},			//OPT_GEN_NotifyHistory,
-
-	{OPT_GEN_DaysMeansNew, _T("DaysMeansNew"), cGeneral, 30},				//OPT_GEN_DaysMeansNew
-	{OPT_GEN_LastVersion, _T("LastVersion"), cGeneral, 0},		//OPT_GEN_LastVersion
-
-	{OPT_GEN_AutoUpdateDB, _T("AutoUpdateDB"), cGeneral, 0},			//,
-	{OPT_GEN_AutoUpdateDBDelay, _T("AutoUpdateDBDelay"), cGeneral, 300},	//OPT_GEN_AutoUpdateDelay,(sec)
-	{OPT_GEN_MinimizeToTray, _T("MinimizeToTray"), cGeneral, 1},		//OPT_GEN_MinimizeToTray
-	{OPT_GEN_MultimediaKeysActive, _T("MultimediaKeysActive"), cGeneral, 1},	//OPT_GEN_MultimediaKeysActive
-
-	{OPT_GEN_RelativeFontSize, _T("RelativeFontSize"), cGeneral, 0},		//OPT_GEN_RelativeFontSize
-	{OPT_GEN_ForceClearTypeFonts, _T("ForceClearTypeFonts"), cGeneral, 1},	//OPT_GEN_ForceClearTypeFonts
-	{OPT_GEN_ShowToolTipOnMediaChanged, _T("ShowToolTipOnMediaChanged"), cGeneral, 1},
-	//{0, _T("PaneLayoutStyle"), cPaneSettings, 0},	//OPT_PANES_PaneLayoutStyle
-
-	{OPT_TAG_WriteComments, _T("WriteComments"), cTagManager, 1},		//,
-	{OPT_TAG_WriteLyrics, _T("WriteLyrics"), cTagManager, 1},		//OPT_TAG_WriteLyrics,
-	{OPT_TAG_WriteRating, _T("WriteRating"), cTagManager, 0},		//OPT_TAG_WriteRating,
-	{OPT_TAG_SafetyOption, _T("SafetyOption"), cTagManager, 50},			//OPT_TAG_SafetyOption
-	{OPT_TAG_SafetyOptionManual, _T("SafetyOptionManual"), cTagManager, 100},	//OPT_TAG_SafetyOptionManual
-
-	{OPT_TAG_MP3, _T("mp3"), cTagManager, 3},		//OPT_TAG_MP3,
-	{OPT_TAG_OGG, _T("ogg"), cTagManager, 3},		//OPT_TAG_OGG,
-	{OPT_TAG_OGA, _T("oga"), cTagManager, 3},		//OPT_TAG_OGA,
-	{OPT_TAG_FLAC, _T("flac"), cTagManager, 3},	//OPT_TAG_FLAC,
-	{OPT_TAG_MPC, _T("mpc"), cTagManager, 3},		//OPT_TAG_MPC,
-	{OPT_TAG_WV, _T("wv"), cTagManager, 3},		//OPT_TAG_WV,
-	{OPT_TAG_SPX, _T("spx"), cTagManager, 3},		//OPT_TAG_SPX,
-	{OPT_TAG_TTA, _T("tta"), cTagManager, 3},		//OPT_TAG_TTA,
-	{OPT_TAG_M4A, _T("m4a"), cTagManager, 1},		//OPT_TAG_M4A, read only (TagLib 1.6 crashed on some files; TagLib 2 reads them)
-	{OPT_TAG_WMA, _T("wma"), cTagManager, 1},		//OPT_TAG_WMA,
-	{OPT_TAG_AIF, _T("aif"), cTagManager, 3},		//OPT_TAG_AIF,
-	{OPT_TAG_WAV, _T("wav"), cTagManager, 3},		//OPT_TAG_WAV,
-
-	//{IDS_SHUFFLE, cPlayerSettings, 0},						//OPT_PL_Shuffle
-	//{IDS_LOOP, cPlayerSettings, 0},							//OPT_PL_Loop,
-	//{IDS_AUTOCONTINUE, cPlayerSettings, 1},					//OPT_PL_AutoContinue,
-
-	{OPT_PL_PlayMode, _T("PlayMode"), cPlayerSettings, 3},				//OPT_PL_PlayMode,
-	{OPT_PL_AutoContinueMode, _T("AutoContinueMode"), cPlayerSettings, RTM_All},	//OPT_PL_AutoContinueMode,
-	{OPT_PL_Volume, _T("Volume"), cPlayerSettings, 90},					//OPT_PL_Volume,
-	{OPT_PL_RememberLastTrack, _T("RememberLastTrack"), cPlayerSettings, 1},			//OPT_PL_RememberLastTrack,
-	{OPT_PL_LastTrack, _T("LastTrack"), cPlayerSettings, 0},			//OPT_PL_LastTrackIndex,
-	{OPT_PL_RememberLastTime, _T("RememberLastTime"), cPlayerSettings, 0},				//,
-	{OPT_PL_LastTime, _T("LastTime"), cPlayerSettings, 0},				//OPT_PL_LastTime,
-	{OPT_PL_AutoPlay, _T("AutoPlay"), cPlayerSettings, 0},					//OPT_PL_AutoPlay,
-	{OPT_PL_Crossfade, _T("Crossfade"), cPlayerSettings, 1},		//OPT_PL_Crossfade,
-	{OPT_PL_CrossfadeAtStart, _T("CrossfadeAtStart"), cPlayerSettings, 0},			//OPT_PL_CrossfadeAtStart,
-	{OPT_PL_Mute, _T("Mute"), cPlayerSettings, 0},
-	{OPT_PL_DefaultAction, _T("DefaultAction"), cPlayerSettings, MPA_Play},
-
-	
-
-	{OPT_PL_CrossfadeAtEnd, _T("CrossfadeAtEnd"), cPlayerSettings, 3000},		//OPT_PL_CrossfadeAtEnd,
-	{OPT_PL_EqualizerMode, _T("EqualizerMode"), cPlayerSettings, 0},		//OPT_PL_EqualizerMode,
-	{OPT_PL_UseSampleFloat, _T("UseSampleFloat"), cPlayerSettings, 1},	//OPT_PL_UseSampleFloat,
-	{OPT_PL_UseFloatDSP, _T("UseFloatDSP"), cPlayerSettings, 1},		//OPT_PL_UseFloatDSP,
-
-	{OPT_IM_AutoDlArtistBio, _T("AutoDlArtistBio"), cInfoMgrSettings, 1},		//OPT_IM_AutoDlArtistBio,
-	{OPT_IM_AutoDlAlbumReview, _T("AutoDlAlbumReview"), cInfoMgrSettings, 1},		//OPT_IM_AutoDlAlbumReview,
-	{OPT_IM_AutoDlLyrics, _T("AutoDlLyrics"), cInfoMgrSettings, 0},			//OPT_IM_AutoDlLyrics,
-	{OPT_IM_AutoDlAlbumPicture, _T("AutoDlAlbumPicture"), cInfoMgrSettings, 1},	//OPT_IM_AutoDlArtistPicture,
-	{OPT_IM_AutoDlArtistPicture, _T("AutoDlArtistPicture"), cInfoMgrSettings, 1},		//OPT_IM_AutoDlAlbumPicture,
-	{OPT_IM_AutoDlActivationDelay, _T("AutoDlActivationDelay"), cInfoMgrSettings, 3},	//OPT_IM_AutoDlActivationDelay
-	{OPT_IM_UseFolderImages, _T("UseFolderImages"), cInfoMgrSettings, 1},		//OPT_IM_UseFolderImages
-
-
-	{OPT_MINIPLR_ShowAtStartup, _T("ShowAtStartup"), cMiniPlayer, 0},				//OPT_MINIPLR_ShowAtStartup
-	{OPT_MINIPLR_Automatic, _T("Automatic"), cMiniPlayer, 1},
-	{OPT_MINIPLR_ForceOnTop, _T("ForceOntTop"), cMiniPlayer, 0},
-	{OPT_MINIPLR_ForceOnTopDelay, _T("ForceOntTopDelay"), cMiniPlayer, 15},
-	{OPT_MINIPLR_Transparency, _T("Transparency"), cMiniPlayer, 140},	//OPT_MINIPLR_Transparency,
-	{OPT_MINIPLR_ShowTooltips, _T("ShowTooltips"), cMiniPlayer, 1},			//OPT_MINIPLR_ShowTooltips,
-	{OPT_MINIPLR_ShowExtraInfo, _T("ShowExtraInfo"), cMiniPlayer, 1},			//OPT_MINIPLR_ShowExtraInfo,
-	{OPT_MINIPLR_MaxSize, _T("MaxSize"), cMiniPlayer, 400},			//OPT_MINIPLR_MaxSize
-	{OPT_MINIPLR_DisableTransparencyOnMouseOver, _T("DisableTransparencyOnMouseOver"), cMiniPlayer, 1},			//OPT_MINIPLR_MaxSize
-
-	
-
-	//{IDS_NUMBEROFTRACKS, 0, cTree, 1},			//OPT_TREE_ShowNumTracks,
-	//{IDS_YEAR, 0, cTree, 1},					//OPT_TREE_ShowYear,
-	//{IDS_ITEMGROUPING, 0, cTree, 0},			//OPT_TREE_GroupingEnabled,
-	//{IDS_MINNUMOFTRACKS, 0, cTree, 3},			//OPT_TREE_GroupingNumber,
-	//{IDS_MODE, 0, cTree, SMODE_ArtistsAlbums},	//OPT_TREE_Mode
-	//{IDS_ARTIST, 0, cTree, RSO_Title},			//OPT_TREE_SortArtist,
-	//{IDS_ALBUM, 0, cTree, RSO_Year},			//OPT_TREE_SortAlbum,
-	//{IDS_GENRE, 0, cTree, RSO_Title},			//OPT_TREE_SortGenre,
-	//{IDS_COLLECTION, 0, cTree, RSO_Title},		//OPT_TREE_SortCollection,
-	//{IDS_YEAR, 0, cTree, RSO_Title},			//OPT_TREE_SortYear,
-	//{IDS_MONTH, 0, cTree, RSO_Title},			//OPT_TREE_SortMonth,
-	//{IDS_FILTER, 0, cTree, SFILT_All},			//OPT_TREE_Filter,
-	//{IDS_STYLE, 0, cTree, SSTYL_3},				//OPT_TREE_Style,
-	//{0, _T("LastSectionID"), cTree, 0},			//OPT_TREE_LastSectionID,
-	//{0, _T("LastSectionType"), cTree, 0},		//OPT_TREE_LastSectionType,
-
-
-	//{IDS_SHOWINFOICONS, 0, cTrackList, 1},		//OPT_TRACKLIST_ShowInfoIcons
-
-	//{IDS_SHOWNUMBERS, 0, cPlayList, 0},			//OPT_PL_ShowNumbers
-
-
-	{OPT_Last,0,0,0}
-};
-
-const StringOptInfo StringOption2Info[] =
-{
-	{0, _T("AppMonitoring"), cGeneral, NULL},				//SOPT_GEN_Monitoring
-	{0, _T("PaneSorting"), cPaneSettings, NULL},			//SOPT_PANES_Sorting
-
-	{0,0,0,0}
-
-};
-
-
 
 
 PrgAPI* PrgAPI::m_pInst = NULL;
@@ -361,7 +222,8 @@ m_pTracker(NULL),
 m_pShortcutManager(NULL),
 m_pConfigurationManager(NULL),
 m_pStateManager(NULL),
-m_pAppMonitor(NULL)
+m_pAppMonitor(NULL),
+m_pAppOptions(NULL)
 {
 	memset(m_pAppFonts, 0, sizeof(m_pAppFonts));
 	memset(m_AppIcons, 0, sizeof(m_AppIcons));
@@ -453,6 +315,8 @@ PrgAPI::~PrgAPI()
 		}
 	}
 	//TRACE(_T("@2*delete* m_pAppSettings\r\n"));
+	delete m_pAppOptions;
+	m_pAppOptions = NULL;
 	if (m_pAppSettings != NULL)
 	{
 		m_pAppSettings->Save();
@@ -526,15 +390,8 @@ BOOL PrgAPI::Init()
 	TRACEST(_T("PrgAPI::Init"));
 
 
-#ifdef _DEBUG
-	for (INT i = 1; i < OPT_Last; i++)
-	{
-		if (Option2Info[i].optID != i)
-			ASSERT(0);
-	}
-#endif
-
-	ReadOptions();
+	ASSERT(AppOptions::IsTableConsistent());
+	GetAppOptions();	//=== Reads the options
 	//===Check for Crash
 	LPCTSTR files[] = CRASHREPORT_FILES;
 	TCHAR crashLogPath[MAX_PATH];
@@ -628,7 +485,7 @@ BOOL PrgAPI::Init()
 			state.Crashes = 0;
 			SetOption(OPT_GEN_LastVersion, fv.Build);
 			//Write it here. Otherwise if the program crash It ll reset the creashes for the current version
-			GetAppSettings()->Write(Option2Info[OPT_GEN_LastVersion].category, GetStringForOption(OPT_GEN_LastVersion), fv.Build);
+			GetAppOptions().Write(OPT_GEN_LastVersion);
 		}
 		else
 			TRACE(_T("@2Version: %d\r\n"), fv.Build);
@@ -649,252 +506,68 @@ AppSettings* PrgAPI::GetAppSettings()
 	return m_pAppSettings;
 }
 
+AppOptions& PrgAPI::GetAppOptions()
+{
+	if (m_pAppOptions == NULL)
+	{
+		TRACEST(_T("PrgAPI::GetAppOptions [CREATE]"));
+		m_pAppOptions = new AppOptions(*GetAppSettings());
+		m_pAppOptions->Read();
+	}
+	return *m_pAppOptions;
+}
+
 LPCTSTR PrgAPI::GetString(INT resID)
 {
-	ASSERT(resID != 0);
-	LPCTSTR ret = NULL;
-	if (resID > 0)
-	{
-		ret = GetTranslationManager()->GetString(resID);
-		//if (m_pTranslationManager != NULL && m_pLanguageManager->IsLanguageLoaded())
-		//	ret = m_pLanguageManager->GetLanguage().GetString(resID);
-		//if (ret == NULL)
-		//	ret = m_resourceBasedLanguage.GetString(resID);
-	}
-	else
-	{
-		TRACE(_T("@0 PrgAPI::GetString Unknown resID:%d\r\n"), resID);
-	}
-	if (ret == NULL)
-		return _T("");
-	return ret;
+	return AppStrings::Get(*GetTranslationManager(), resID);
 }
-
 LPCTSTR PrgAPI::GetStringForItemType(ItemTypeEnum it)
 {
-	ASSERT(it >= IT_Unknown && it < IT_Last);
-	INT resID = IDS_UNKNOWN;
-	if (it >= IT_Unknown && it < IT_Last)
-	{
-		static const INT ItemTypeToStringResource[] =
-		{
-			IDS_UNKNOWN,
-			IDS_VARIOUS,
-			IDS_ARTIST,
-			IDS_ALBUM,
-			IDS_GENRE,
-			IDS_YEAR,
-			IDS_UNKNOWN,	//????
-			IDS_COLLECTION,
-			IDS_TITLE,
-			IDS_UNKNOWN,	//???
-			IDS_UNKNOWN
-		};
-		resID = ItemTypeToStringResource[it];
-	}
-	return GetString(resID);
+	return AppStrings::ForItemType(*GetTranslationManager(), it);
 }
-
 LPCTSTR PrgAPI::GetStringForInfoItemType(InfoItemTypeEnum iit)
 {
-	ASSERT(iit >= IIT_Unknown && iit < IIT_Last);
-	INT resID = IDS_UNKNOWN;
-	if (iit >= IIT_Unknown && iit < IIT_Last)
-	{
-		static const INT InfoItemTypeToStringResource[] =
-		{
-			IDS_UNKNOWN,
-
-			IDS_ARTISTBIO,
-			IDS_ALBUMREVIEW,
-			IDS_COMMENTS,
-			IDS_LYRICS,
-			IDS_PERSONAL,
-			IDS_TABLATURES,
-			
-			IDS_ARTISTPICTURE,
-			IDS_ALBUMPICTURE,
-			IDS_UNKNOWN
-		};
-		resID = InfoItemTypeToStringResource[iit];
-	}
-
-
-	return GetString(resID);
+	return AppStrings::ForInfoItemType(*GetTranslationManager(), iit);
 }
-
-
 LPCTSTR PrgAPI::GetStringForCollectionType(CollectionTypesEnum ct)
 {
-	ASSERT(ct >= CTYPE_Unknown && ct < CTYPE_Last);
-	INT resID = IDS_UNKNOWN;
-	if (ct >= CTYPE_Unknown && ct < CTYPE_Last)
-	{
-		static const INT CollectionTypeToStringResource[] =
-		{
-			IDS_UNKNOWN,				//CTYPE_Unknown
-			IDS_LOCALFOLDER, 
-			IDS_MEDIA, 
-			IDS_NETFOLDER, 
-			IDS_VIRTUALTRACKS,	//CTYPE_Virtual
-			IDS_REMOVABLE, 
-			IDS_AUDIOCD, 
-			IDS_UNKNOWN
-		};
-		ASSERT(sizeof(CollectionTypeToStringResource) / sizeof(INT) == CTYPE_Last);
-		resID = CollectionTypeToStringResource[ct];
-	}
-	return GetString(resID);
+	return AppStrings::ForCollectionType(*GetTranslationManager(), ct);
 }
-const INT RandomModeToStringResource[] =
-{
-	IDS_ALL,
-	IDS_ARTIST, 
-	IDS_ALBUM,
-	IDS_GENRE,
-	IDS_YEAR,
-	IDS_COLLECTION,
-	IDS_NEW
-};
-
 LPCTSTR PrgAPI::GetStringForRandomMode(RandomTrackModeEnum rtm)
 {
-	ASSERT(rtm >= RTM_All && rtm < RTM_Last);
-	INT resID = IDS_UNKNOWN;
-	if (rtm >= RTM_All && rtm < RTM_Last)
-	{
-		ASSERT(sizeof(RandomModeToStringResource) / sizeof(INT) == RTM_Last);
-		resID = RandomModeToStringResource[rtm];
-	}
-	return GetString(resID);
+	return AppStrings::ForRandomMode(*GetTranslationManager(), rtm);
 }
-
-const INT TrackTextTypeToStringResource[] =
-{
-	IDS_TITLE,
-	IDS_ALBUM,
-	IDS_ARTIST
-};
-
 LPCTSTR PrgAPI::GetStringForTrackTextType(TrackTextType ttt)
 {
-	ASSERT(ttt >= 0 && ttt < TTT_Last);
-	INT resID = IDS_UNKNOWN;
-	if (ttt >= 0 && ttt < TTT_Last)
-	{
-		ASSERT(sizeof(TrackTextTypeToStringResource) / sizeof(INT) == TTT_Last);
-		resID = TrackTextTypeToStringResource[ttt];
-	}
-	return GetString(resID);
+	return AppStrings::ForTrackTextType(*GetTranslationManager(), ttt);
 }
-
-
-
-LPCTSTR PrgAPI::GetStringForOption(AppOptionsEnum option)
-{
-	ASSERT(option > OPT_Unknown && option < OPT_Last);
-	ASSERT((INT) option < sizeof(Option2Info) / sizeof(Option2Info[0]));
-	ASSERT(Option2Info[option].optID == option);
-	if (Option2Info[option].optID != option)
-		return NULL;
-	return Option2Info[option].valueName;
-	//INT resID = Option2Info[option].resID;
-	//if (resID == 0)
-	//{
-	//	ASSERT(bDefLang == TRUE);
-	//	ASSERT(Option2Info[option].valueName != NULL);
-	//	return Option2Info[option].valueName;
-	//}
-	//else
-	//{
-	//	if (bDefLang)
-	//		return GetTranslationManager()->GetDefaultTranslation().GetString(resID);
-	//	else
-	//		return GetString(resID);
-
-	//}
-
-	return NULL;
-}
-
-const INT PlayModeToStringResource[] =
-{
-	IDS_NORMAL,
-	IDS_SHUFFLE, 
-	IDS_LOOP,
-	IDS_AUTOCONTINUE
-};
-
 LPCTSTR PrgAPI::GetStringForPlayListMode(MediaPlayerNextMode mpm)
 {
-	ASSERT(mpm >= MPNM_Normal && mpm < MPNM_Last);
-	INT resID = IDS_NORMAL;
-	if (mpm >= MPNM_Normal && mpm < MPNM_Last)
-	{
-		ASSERT(sizeof(PlayModeToStringResource) / sizeof(INT) == MPNM_Last);
-		resID = PlayModeToStringResource[mpm];
-	}
-	return GetString(resID);
-
+	return AppStrings::ForPlayListMode(*GetTranslationManager(), mpm);
 }
 LPCTSTR PrgAPI::GetStringForTrackType(TrackTypesEnum tt)
 {
-	if (tt < TTYPE_FIRSTVIDEO)
-		return GetString(IDS_AUDIO);
-	else if (tt < TTYPE_FIRSTVIRTUAL)
-		return GetString(IDS_VIDEO);
-	return GetString(IDS_VIRTUALTRACKS);
+	return AppStrings::ForTrackType(*GetTranslationManager(), tt);
 }
-
-
 LPCTSTR PrgAPI::GetStringForStars(UINT Stars)
 {
-	ASSERT(Stars >= 0 && Stars < 6); //should be 1 - 5
-	if (!(Stars >= 0 && Stars < 6))
-		return cErrStr;
-	const INT stars2res[] = {IDS_CLEAR, IDS_POOR, IDS_OK, IDS_GOOD, IDS_VERYGOOD, IDS_OUTSTANDING};
-	return GetString(stars2res[Stars]);
+	return AppStrings::ForStars(*GetTranslationManager(), Stars);
 }
-
 LPCTSTR PrgAPI::GetStringForCaseStyle(CaseStyleEnum cStyle)
 {
-	ASSERT(cStyle < CASE_Last); //should be 1 - 5
-	if (!(cStyle < CASE_Last))
-		return cErrStr;
-	const INT cstyle2res[] = {IDS_ALLCAPS, IDS_NOCAPS, IDS_FIRSTCAP, IDS_PROPERCASE};
-	return GetString(cstyle2res[cStyle]);
-
+	return AppStrings::ForCaseStyle(*GetTranslationManager(), cStyle);
 }
-
 LPCTSTR PrgAPI::GetStringForRecordSortOption(RecordSortOptionsEnum rso)
 {
-	ASSERT(rso>RSO_None && rso<RSO_Last);
-	if (!(rso>RSO_None && rso<RSO_Last))
-		return cErrStr;
-	INT RecordSortOptionsEnum2Res[] ={0, IDS_NAME, IDS_TRACKNO, IDS_ALBUM, IDS_ARTIST,
-		IDS_RATING, IDS_LOCATION, IDS_SIZE, IDS_DURATION, IDS_BITRATE, IDS_YEAR, 
-		IDS_GENRE, IDS_COLLECTION, IDS_DATEADDED, IDS_NUMBEROFTRACKS};
-	return GetString(RecordSortOptionsEnum2Res[rso]);
-
+	return AppStrings::ForRecordSortOption(*GetTranslationManager(), rso);
 }
-
 LPCTSTR PrgAPI::GetStringForSectionFilter(SectionFiltersEnum sf)
 {
-	ASSERT(sf>SFILT_First && sf<SFILT_Last);
-	if (!(sf>SFILT_First && sf<SFILT_Last))
-		return cErrStr;
-	const INT SectionFilterResource[] ={0,IDS_ALL,IDS_AUDIO,IDS_VIDEO, IDS_NEW};
-	return GetString(SectionFilterResource[sf]);
+	return AppStrings::ForSectionFilter(*GetTranslationManager(), sf);
 }
-
 LPCTSTR PrgAPI::GetStringForSectionType(SectionTypeEnum st)
 {
-	ASSERT(st > ST_Unknown && st <ST_Last);
-	if (!(st > ST_Unknown && st < ST_Last))
-		return cErrStr;
-	const INT SectionTypeEnumResource[] ={0,0,IDS_ARTIST,IDS_ALBUM,IDS_GENRE,IDS_YEAR,IDS_COLLECTION,
-		IDS_ALBUM, IDS_MONTH, 0};
-	return GetString(SectionTypeEnumResource[st]);
+	return AppStrings::ForSectionType(*GetTranslationManager(), st);
 }
 
 void PrgAPI::GetStringForSectionMode(SectionModesEnum sm, LPTSTR bf, UINT bfLen)
@@ -977,65 +650,6 @@ int PrgAPI::MessageBox(HWND parentHWND, INT messageID, INT captionID, DWORD styl
 	return MessageBox(parentHWND, GetString(messageID), (captionID > 0) ? GetString(captionID) : 0, style);
 }
 
-INT PrgAPI::GetOption(AppOptionsEnum opt)
-{
-	ASSERT(opt>OPT_Unknown && opt<OPT_Last);
-	return m_Options[opt];
-}
-
-void PrgAPI::SetOption(AppOptionsEnum opt, INT val)
-{
-	ASSERT(opt>OPT_Unknown && opt<OPT_Last);
-	m_Options[opt] = val;
-}
-
-BOOL PrgAPI::GetStringOption(AppStringOptionsEnum opt, LPTSTR bf, UINT bfLen)
-{	
-	ASSERT(opt > SOPT_Unknown && opt < SOPT_Last);
-	AppSettings* appSettings = GetAppSettings();
-	LPCTSTR valueName = NULL;
-
-	INT resID = StringOption2Info[opt].resID;
-	if (resID == 0)
-		valueName = StringOption2Info[opt].valueName;
-	else
-		valueName = GetTranslationManager()->GetDefaultTranslation().GetString(resID);
-	if (valueName == NULL)
-		return FALSE;
-
-	std::tstring tmp;
-	if (appSettings->Read(StringOption2Info[opt].category, valueName, tmp, StringOption2Info[opt].defVal) == FALSE)
-		return FALSE;
-	if (tmp.size() >= bfLen)
-		return FALSE;
-	_tcscpy(bf, tmp.c_str());
-	return TRUE;
-}
-BOOL PrgAPI::SetStringOption(AppStringOptionsEnum opt, LPCTSTR value)
-{
-	ASSERT(opt > SOPT_Unknown && opt < SOPT_Last);
-	LPCTSTR valueName = NULL;
-
-	INT resID = StringOption2Info[opt].resID;
-	if (resID == 0)
-		valueName = StringOption2Info[opt].valueName;
-	else
-		valueName = GetTranslationManager()->GetDefaultTranslation().GetString(resID);
-	if (valueName == NULL)
-		return FALSE;
-	return GetAppSettings()->Write(StringOption2Info[opt].category, valueName, value);
-}
-
-
-
-void PrgAPI::ReadOptions()
-{
-	TRACEST(_T("PrgAPI::ReadOptions"));
-	AppSettings* appSettings = GetAppSettings();
-	for (int i = OPT_Unknown + 1; i < OPT_Last; i++)
-		appSettings->Read(Option2Info[i].category, GetStringForOption(AppOptionsEnum(i)), m_Options[i], Option2Info[i].defVal);
-}
-
 void PrgAPI::WriteOptions()
 {
 	TRACEST(_T("PrgAPI::WriteOptions."));
@@ -1072,8 +686,7 @@ void PrgAPI::WriteOptions()
 		SetOption(OPT_PL_LastTrack, m_pMediaPlayer->GetPlayListPos());
 		SetOption(OPT_PL_LastTime, (INT)m_pMediaPlayer->GetMediaPos());
 	}
-	for (int i = OPT_Unknown + 1; i < OPT_Last; i++)
-		pAppSettings->Write(Option2Info[i].category, GetStringForOption(AppOptionsEnum(i)), GetOption(AppOptionsEnum(i)));
+	GetAppOptions().Write();
 }
 
 void PrgAPI::FormatDuration(LPTSTR bf, UINT bfLen, INT duration)
@@ -1167,7 +780,7 @@ MediaPlayer* PrgAPI::GetMediaPlayer()
 		m_pMediaPlayer->SetMediaVisualization(pVis);
 		//m_pMediaPlayer->Init(eng, lst, pwVis, hwndPlayer);
 
-		m_pMediaPlayer->SetNextMode(MediaPlayerNextMode(m_Options[OPT_PL_PlayMode]), m_Options[OPT_PL_AutoContinueMode]);
+		m_pMediaPlayer->SetNextMode(MediaPlayerNextMode(GetOption(OPT_PL_PlayMode)), GetOption(OPT_PL_AutoContinueMode));
 		eng->SetVolume(GetOption(OPT_PL_Volume));
 		eng->SetMute(GetOption(OPT_PL_Mute));
 		eng->SetConfig(MECO_Crossfade, GetOption(OPT_PL_Crossfade));
@@ -1214,21 +827,21 @@ MediaPlayer* PrgAPI::GetMediaPlayer()
 		}
 		if (bLoadOldPlaylist)
 		{
-			if (m_Options[OPT_PL_RememberLastTrack])
+			if (GetOption(OPT_PL_RememberLastTrack))
 			{
-				if ((INT)m_pMediaPlayer->GetPlayListCount() > m_Options[OPT_PL_LastTrack])
+				if ((INT)m_pMediaPlayer->GetPlayListCount() > GetOption(OPT_PL_LastTrack))
 				{
-					m_pMediaPlayer->SetPlayListPos(m_Options[OPT_PL_LastTrack]);
-					if (m_Options[OPT_PL_RememberLastTime])
+					m_pMediaPlayer->SetPlayListPos(GetOption(OPT_PL_LastTrack));
+					if (GetOption(OPT_PL_RememberLastTime))
 					{
 						//m_pMediaPlayer->Start();
 						//m_pMediaPlayer->Pause();
-						m_pMediaPlayer->SetMediaPos(DOUBLE(m_Options[OPT_PL_LastTime]));
+						m_pMediaPlayer->SetMediaPos(DOUBLE(GetOption(OPT_PL_LastTime)));
 					}
 				}
 			}
 		}
-		if (m_Options[OPT_PL_AutoPlay] && m_pMediaPlayer->GetPlayListCount() > 0)
+		if (GetOption(OPT_PL_AutoPlay) && m_pMediaPlayer->GetPlayListCount() > 0)
 		{
 			m_pMediaPlayer->Start();
 		}
@@ -1778,7 +1391,7 @@ LPCTSTR PrgAPI::GetPath(PathsEnum pathType, LPTSTR buffer/* = NULL*/)
 BOOL PrgAPI::IsTrackNew(SYSTEMTIME& dateAdded, UINT DaysMeansNew/* = 0*/)
 {
 	if (DaysMeansNew == 0)
-		DaysMeansNew = m_Options[OPT_GEN_DaysMeansNew];
+		DaysMeansNew = GetOption(OPT_GEN_DaysMeansNew);
 	if (DaysMeansNew == 0)
 		return FALSE;
 	SYSTEMTIME dateCur;
@@ -1786,7 +1399,7 @@ BOOL PrgAPI::IsTrackNew(SYSTEMTIME& dateAdded, UINT DaysMeansNew/* = 0*/)
 	DOUBLE dAdded, dCur;
 	SystemTimeToVariantTime(&dateAdded, &dAdded);
 	SystemTimeToVariantTime(&dateCur, &dCur);
-	return (dCur - dAdded < m_Options[OPT_GEN_DaysMeansNew]);
+	return (dCur - dAdded < GetOption(OPT_GEN_DaysMeansNew));
 }
 
 BOOL PrgAPI::GetSiteURL(LPTSTR url, UINT urlLen, SiteActionEnum actID, LPCTSTR p1, LPCTSTR p2)

@@ -8,6 +8,7 @@
 #include "RecordCollectionSorter.h"
 #include "TranslationManager.h"
 #include "SkinManager.h"
+#include "AppOptions.h"
 
 class AppSettings;
 class TeenSpiritPlayer;
@@ -37,100 +38,6 @@ class CSearchDlg;
 
 
 
-//LPCTSTR const sKeyEnter = _T("enter");
-//LPCTSTR const sKeyBack = _T("back");
-//LPCTSTR const sKeyInsert = _T("insert");
-//LPCTSTR const sKeyHome = _T("home");
-//LPCTSTR const sKeyNumPad = _T("numpad");
-//
-enum AppOptionsEnum
-{
-	OPT_Unknown = -1,
-
-	OPT_GEN_Debugging,
-	OPT_GEN_LastFMScrobbler,
-	OPT_GEN_NotifyHistory,
-
-	OPT_GEN_DaysMeansNew,
-	OPT_GEN_LastVersion,
-
-	OPT_GEN_AutoUpdateDB,
-	OPT_GEN_AutoUpdateDBDelay,
-	OPT_GEN_MinimizeToTray,
-	OPT_GEN_MultimediaKeysActive,
-
-	OPT_GEN_RelativeFontSize,
-	OPT_GEN_ForceClearTypeFonts,
-	OPT_GEN_ShowToolTipOnMediaChanged,
-
-	OPT_TAG_WriteComments,
-	OPT_TAG_WriteLyrics,
-	OPT_TAG_WriteRating,
-	OPT_TAG_SafetyOption,
-	OPT_TAG_SafetyOptionManual,
-
-	OPT_TAG_MP3,
-	OPT_TAG_OGG,
-	OPT_TAG_OGA,
-	OPT_TAG_FLAC,
-	OPT_TAG_MPC,
-	OPT_TAG_WV,
-	OPT_TAG_SPX,
-	OPT_TAG_TTA,
-	OPT_TAG_M4A,
-	OPT_TAG_WMA,
-	OPT_TAG_AIF,
-	OPT_TAG_WAV,
-
-	OPT_PL_PlayMode,
-	OPT_PL_AutoContinueMode,
-	OPT_PL_Volume,
-	OPT_PL_RememberLastTrack,
-	OPT_PL_LastTrack,
-	OPT_PL_RememberLastTime,
-	OPT_PL_LastTime,
-	OPT_PL_AutoPlay,
-	OPT_PL_Crossfade,
-	OPT_PL_CrossfadeAtStart,
-	OPT_PL_Mute,
-	OPT_PL_DefaultAction,
-
-	OPT_PL_CrossfadeAtEnd,
-	OPT_PL_EqualizerMode,
-	OPT_PL_UseSampleFloat,
-	OPT_PL_UseFloatDSP,
-
-	OPT_IM_AutoDlArtistBio,
-	OPT_IM_AutoDlAlbumReview,
-	OPT_IM_AutoDlLyrics,
-	OPT_IM_AutoDlAlbumPicture,
-	OPT_IM_AutoDlArtistPicture,
-	OPT_IM_AutoDlActivationDelay,
-	OPT_IM_UseFolderImages,
-
-	OPT_MINIPLR_ShowAtStartup,
-	OPT_MINIPLR_Automatic,
-	OPT_MINIPLR_ForceOnTop,
-	OPT_MINIPLR_ForceOnTopDelay,
-	OPT_MINIPLR_Transparency,
-	OPT_MINIPLR_ShowTooltips,
-	OPT_MINIPLR_ShowExtraInfo,
-	OPT_MINIPLR_MaxSize,
-	OPT_MINIPLR_DisableTransparencyOnMouseOver,
-
-	OPT_Last
-};//* Remember to update the Option2Info in .cpp 
-
-
-enum AppStringOptionsEnum
-{
-	SOPT_Unknown = -1,
-
-	SOPT_GEN_Monitoring,
-
-	SOPT_Last
-};
-
 enum APP_FONTS
 {
 	FONT_Dialogs,
@@ -149,15 +56,6 @@ enum APP_TASKS
 	TSK_InformationDownload,
 	TSK_CollectionUpdate,
 	TSK_Last
-};
-
-enum CaseStyleEnum
-{
-	CASE_AllCaps,
-	CASE_NoCaps,
-	CASE_FirstCap,
-	CASE_Proper,
-	CASE_Last
 };
 
 enum APP_ICONS
@@ -319,7 +217,6 @@ public:
 	LPCTSTR GetStringForCollectionType(CollectionTypesEnum ct);
 	LPCTSTR GetStringForRandomMode(RandomTrackModeEnum rtm);
 	LPCTSTR GetStringForTrackTextType(TrackTextType ttt);
-	LPCTSTR GetStringForOption(AppOptionsEnum option);
 	LPCTSTR GetStringForPlayListMode(MediaPlayerNextMode mpm);
 	LPCTSTR GetStringForTrackType(TrackTypesEnum tt);
 	LPCTSTR GetStringForStars(UINT Stars);
@@ -465,14 +362,15 @@ private:
 	//------------------------------------------------OPTIONS
 	//--------------------------------------------------------
 public:
-	INT GetOption(AppOptionsEnum opt);
-	void SetOption(AppOptionsEnum opt, INT val);
-	BOOL GetStringOption(AppStringOptionsEnum opt, LPTSTR bf, UINT bfLen);
-	BOOL SetStringOption(AppStringOptionsEnum opt, LPCTSTR value);
+	AppOptions& GetAppOptions();
+	INT GetOption(AppOptionsEnum opt)							{return GetAppOptions().Get(opt);}
+	void SetOption(AppOptionsEnum opt, INT val)					{GetAppOptions().Set(opt, val);}
+	BOOL GetStringOption(AppStringOptionsEnum opt, LPTSTR bf, UINT bfLen)	{return GetAppOptions().GetString(opt, bf, bfLen);}
+	BOOL SetStringOption(AppStringOptionsEnum opt, LPCTSTR value)			{return GetAppOptions().SetString(opt, value);}
 
 private:
-	INT m_Options[OPT_Last];
-	void ReadOptions();
+	AppOptions* m_pAppOptions;
+	//Copies the player state into the options and writes them to the settings.
 	void WriteOptions();
 
 	//Returns the directory where the exe resides. (Including the last '\')

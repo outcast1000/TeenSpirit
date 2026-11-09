@@ -85,6 +85,10 @@
     <ClCompile Include="..\..\CommonSources\ALog\cputicker.cpp" />
     <ClCompile Include="..\..\CommonSources\PerfTimer.cpp" />
     <ClCompile Include="TaggerTests.cpp" />
+    <ClCompile Include="AppServicesTests.cpp" />
+    <ClCompile Include="..\..\AppOptions.cpp" />
+    <ClCompile Include="..\..\AppStrings.cpp" />
+    <ClCompile Include="..\..\CommonSources\AppSettings\IniAppSettings.cpp" />
     <ClCompile Include="..\..\Taggers\TagLibTagger.cpp" />
     <ClInclude Include="TestFramework.h" />
   </ItemGroup>

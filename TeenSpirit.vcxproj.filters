@@ -225,6 +225,8 @@
     <ClCompile Include="PlayListPane.cpp"><Filter>GUIFiles\TeenSpiritDlg\Panes\PlayListPane</Filter></ClCompile>
     <ClCompile Include="PlayListPaneCreator.cpp"><Filter>GUIFiles\TeenSpiritDlg\Panes\PlayListPane</Filter></ClCompile>
     <ClCompile Include="PrgAPI.cpp"><Filter>MainApplication</Filter></ClCompile>
+    <ClCompile Include="AppOptions.cpp"><Filter>MainApplication</Filter></ClCompile>
+    <ClCompile Include="AppStrings.cpp"><Filter>MainApplication</Filter></ClCompile>
     <ClCompile Include="PropertiesSheet.cpp"><Filter>GUIFiles\Properties</Filter></ClCompile>
     <ClCompile Include="QuickSearchDlg.cpp"><Filter>GUIFiles\QuickSearchDialog</Filter></ClCompile>
     <ClCompile Include="QuizRunningDlg.cpp"><Filter>GUIFiles\GamesDlg</Filter></ClCompile>
@@ -492,6 +494,8 @@
     <ClInclude Include="PlayListPane.h"><Filter>GUIFiles\TeenSpiritDlg\Panes\PlayListPane</Filter></ClInclude>
     <ClInclude Include="PlayListPaneCreator.h"><Filter>GUIFiles\TeenSpiritDlg\Panes\PlayListPane</Filter></ClInclude>
     <ClInclude Include="PrgAPI.h"><Filter>MainApplication</Filter></ClInclude>
+    <ClInclude Include="AppOptions.h"><Filter>MainApplication</Filter></ClInclude>
+    <ClInclude Include="AppStrings.h"><Filter>MainApplication</Filter></ClInclude>
     <ClInclude Include="PropertiesSheet.h"><Filter>GUIFiles\Properties</Filter></ClInclude>
     <ClInclude Include="QuickSearchDlg.h"><Filter>GUIFiles\QuickSearchDialog</Filter></ClInclude>
     <ClInclude Include="QuizRunningDlg.h"><Filter>GUIFiles\GamesDlg</Filter></ClInclude>

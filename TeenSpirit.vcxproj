@@ -290,6 +290,8 @@
     <ClCompile Include="PlayListPane.cpp" />
     <ClCompile Include="PlayListPaneCreator.cpp" />
     <ClCompile Include="PrgAPI.cpp" />
+    <ClCompile Include="AppOptions.cpp" />
+    <ClCompile Include="AppStrings.cpp" />
     <ClCompile Include="PropertiesSheet.cpp" />
     <ClCompile Include="QuickSearchDlg.cpp" />
     <ClCompile Include="QuizRunningDlg.cpp" />
@@ -574,6 +576,8 @@
     <ClInclude Include="PlayListPane.h" />
     <ClInclude Include="PlayListPaneCreator.h" />
     <ClInclude Include="PrgAPI.h" />
+    <ClInclude Include="AppOptions.h" />
+    <ClInclude Include="AppStrings.h" />
     <ClInclude Include="PropertiesSheet.h" />
     <ClInclude Include="QuickSearchDlg.h" />
     <ClInclude Include="QuizRunningDlg.h" />

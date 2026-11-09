@@ -293,4 +293,13 @@ enum TrackTextType
 	TTT_Last
 };
 
+enum CaseStyleEnum
+{
+	CASE_AllCaps,
+	CASE_NoCaps,
+	CASE_FirstCap,
+	CASE_Proper,
+	CASE_Last
+};
+
 #endif

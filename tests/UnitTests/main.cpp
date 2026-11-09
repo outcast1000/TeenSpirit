@@ -41,6 +41,7 @@ int wmain()
 	RunWebServicesTests();
 	RunOnlineProvidersTests();
 	RunTaggerTests();
+	RunAppServicesTests();
 
 	wprintf(L"\n%d checks, %d failures\n", gChecks, gFailures);
 	CoUninitialize();

@@ -21,5 +21,6 @@ void RunLastFMTests();
 void RunWebServicesTests();
 void RunOnlineProvidersTests();
 void RunTaggerTests();
+void RunAppServicesTests();
 
 #endif

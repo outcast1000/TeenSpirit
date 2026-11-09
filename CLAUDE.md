@@ -43,7 +43,10 @@ test needs the 32-bit Jet 4.0 OLE DB provider.
   owns and lazily creates every service: `SQLManager`, `MediaPlayer`, `CollectionManager`,
   `InfoDownloadManager`, `InfoProviderFactory`, `StateManager`, `SkinManager`,
   `TranslationManager`, `LastFMServices`, trackers, hotkeys, menus, dialogs, and the shared WinInet
-  handle. Decoupling it is the next planned modernization step.
+  handle. It is being decoupled incrementally: services move out into classes that take their
+  dependencies explicitly (`AppOptions` over `AppSettings`, `AppStrings` over `ITranslation`), with
+  PrgAPI keeping thin delegating methods so call sites don't change. New code should take those
+  dependencies directly instead of calling `PRGAPI()`.
 - **`StateManager`** is the app-wide event bus: components implement `IStateChangeListener`
   (`OnStateChanged(UINT)`) and receive `SM_*` messages (`SM_MediaChanged`, `SM_DatabaseUpdated`,
   `SM_CurrentSectionChanged`, ...) via `SendMessage`/`PostMessage`.

@@ -58,9 +58,22 @@ collation registered (`CommonSources\SQLite\SQLiteDB.cpp`).
 
 ## Running
 
-The executable needs `bass.dll` and `bass_fx.dll` (x86) next to it. They are not in
-the repository; download BASS and BASS_FX from <https://www.un4seen.com/> (check
-their license for redistribution).
+The player needs the BASS audio library DLLs. They are not in the repository (BASS is
+free for non-commercial use only, see <https://www.un4seen.com/bass.html#license>).
+Fetch them once from the official site:
+
+```
+powershell -ExecutionPolicy Bypass -File tools\fetch-bass.ps1
+```
+
+This downloads BASS 2.4, BASS_FX and the format add-ons (WMA, CD, FLAC, MIDI, APE,
+WavPack, MPC, AC3, AAC) into `build\deps\bass\`. The build then copies them, together
+with `Skins\` and `Langs\`, next to the executable, so `build\out\Win32\<Configuration>\jaangle.exe`
+can be started directly. `-UpdateSdk` also refreshes the tracked headers and import
+libraries in `Bass\`.
+
+The program keeps its settings (`jaangle.ini`) and database (`music.db`) next to the
+executable.
 
 ## Threads
 
@@ -78,6 +91,4 @@ defining `JAANGLE_LOCAL_KEYS`.
 
 - C++14, `/permissive` (conformance mode off) and warning C4996 disabled, to keep the
   legacy code compiling unchanged.
-- `/SAFESEH:NO` on Win32: the bundled `Bass\*.lib` import libraries predate SafeSEH.
-  Replacing them with current BASS import libraries allows re-enabling it.
 - TagLib is the vendored ~1.6 copy in `CommonSources\TagLib`, not the vcpkg port.

@@ -53,8 +53,6 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <!-- Bass/*.lib are old import libs without SafeSEH tables; refresh them to re-enable. -->
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Iphlpapi.lib;Version.lib;Wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>Bass;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -84,8 +82,6 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <!-- Bass/*.lib are old import libs without SafeSEH tables; refresh them to re-enable. -->
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Iphlpapi.lib;Version.lib;Wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>Bass;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

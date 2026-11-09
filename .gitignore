@@ -20,6 +20,7 @@ ipch/
 /build/out/
 /build/obj/
 /vcpkg_installed/
+/build/deps/
 [Dd]ebug/
 [Rr]elease/
 [Ff]inal [Rr]elease/

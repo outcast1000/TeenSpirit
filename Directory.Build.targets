@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copies the BASS runtime DLLs (fetched by tools\fetch-bass.ps1) next to the
+     player executable so it can be run from build\out. -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <JaangleBassPlatform Condition="'$(Platform)' == 'Win32'">x86</JaangleBassPlatform>
+    <JaangleBassPlatform Condition="'$(Platform)' == 'x64'">x64</JaangleBassPlatform>
+    <JaangleBassDir>$(JaangleRoot)build\deps\bass\$(JaangleBassPlatform)\</JaangleBassDir>
+  </PropertyGroup>
+  <Target Name="JaangleCopyBassRuntime" AfterTargets="Build" Condition="'$(MSBuildProjectName)' == 'TeenSpirit'">
+    <ItemGroup>
+      <JaangleBassDll Include="$(JaangleBassDir)*.dll" />
+    </ItemGroup>
+    <Warning Condition="'@(JaangleBassDll)' == ''"
+             Text="BASS runtime DLLs not found in $(JaangleBassDir). Run tools\fetch-bass.ps1 to be able to start the player." />
+    <Copy SourceFiles="@(JaangleBassDll)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
+  <!-- Skins and translations are read from next to the executable. -->
+  <Target Name="JaangleCopyResources" AfterTargets="Build" Condition="'$(MSBuildProjectName)' == 'TeenSpirit'">
+    <ItemGroup>
+      <JaangleSkinFile Include="$(JaangleRoot)Skins\**\*" Exclude="$(JaangleRoot)Skins\**\.svn\**" />
+      <JaangleLangFile Include="$(JaangleRoot)Langs\**\*" Exclude="$(JaangleRoot)Langs\**\.svn\**" />
+    </ItemGroup>
+    <Copy SourceFiles="@(JaangleSkinFile)" DestinationFiles="@(JaangleSkinFile->'$(OutDir)Skins\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(JaangleLangFile)" DestinationFiles="@(JaangleLangFile->'$(OutDir)Langs\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

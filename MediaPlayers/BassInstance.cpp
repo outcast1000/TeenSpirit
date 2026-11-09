@@ -340,8 +340,8 @@ BOOL BassInstance::InitBass()
 		AddPlugin(_T("bassmidi.dll"), _T(""));//_T(".midmidi"));
 		AddPlugin(_T("bass_ac3.dll"), _T(""));//_T(".ac3"));
 		AddPlugin(_T("bass_aac.dll"), _T(""));//_T(".mp4.aac.m4a"));
-		AddPlugin(_T("bass_ape.dll"), _T(""));//_T(".ape"));
-		AddPlugin(_T("bass_wv.dll"), _T(""));//_T(".wv"));
+		AddPlugin(_T("bassape.dll"), _T(""));//_T(".ape"));
+		AddPlugin(_T("basswv.dll"), _T(""));//_T(".wv"));
 	}
 	return TRUE;
 

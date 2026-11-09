@@ -33,15 +33,15 @@ jobs:
     env:
       VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\build\vcpkg-cache
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: microsoft/setup-msbuild@v2
+      - uses: microsoft/setup-msbuild@v3
 
       - name: Prepare the vcpkg binary cache
         shell: pwsh
         run: New-Item -ItemType Directory -Force $env:VCPKG_DEFAULT_BINARY_CACHE | Out-Null
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: build\vcpkg-cache
           key: vcpkg-x86-windows-static-${{ hashFiles('vcpkg.json', 'build/vcpkg.props') }}
@@ -64,7 +64,7 @@ jobs:
 
       - name: Upload binaries
         if: matrix.configuration == 'Release'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: jaangle-win32-release
           path: |

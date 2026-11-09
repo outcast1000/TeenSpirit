@@ -9,7 +9,7 @@
   - **vcpkg package manager** (bundled component), or a vcpkg clone pointed to by `VCPKG_ROOT`
 - Git (vcpkg uses it to fetch the registry baseline)
 
-Third-party C++ dependencies (currently only zlib) are declared in `vcpkg.json` and
+Third-party C++ dependencies (SQLite and zlib) are declared in `vcpkg.json` and
 are restored automatically on the first build into `vcpkg_installed\`.
 
 ## Build
@@ -21,10 +21,36 @@ msbuild Jaangle.sln -p:Configuration=Release -p:Platform=Win32 -m
 ```
 
 Output goes to `build\out\Win32\<Configuration>\` (`jaangle.exe` / `jaangledbg.exe`,
-`XCrashReport.exe`). Intermediate files go to `build\obj\`.
+`XCrashReport.exe`, `DatabaseTests.exe`). Intermediate files go to `build\obj\`.
 
-Only **Win32** is supported for now: the database layer uses Jet OLEDB 4.0 and the
-JRO type library, which exist only as 32-bit components.
+Only **Win32** is configured for now. The database no longer needs 32-bit components;
+the remaining x64 blockers are the x86-only BASS import libraries and the code itself
+(never built for 64-bit).
+
+## Tests
+
+`DatabaseTests.exe` exercises the database layer end to end (records, every query,
+case-insensitive matching, two connections in parallel, and importing a real Jet
+`music.mdb`). It prints the failures and returns their count:
+
+```
+build\out\Win32\Release\DatabaseTests.exe
+```
+
+The import test creates a Jet database, so it needs the Jet 4.0 OLE DB provider
+(it ships with Windows, as a 32-bit component only).
+
+## Database
+
+The library is stored in `music.db` (SQLite, WAL mode) next to the program data.
+On the first start without a `music.db`, an existing `music.mdb` (the Jet database
+used up to 0.98f) is imported automatically with all IDs preserved; the `.mdb` is
+left untouched. Importing needs the 32-bit build (the Jet provider is 32-bit only).
+
+Text columns use the custom collation `NOCASE_U` (Unicode, case-insensitive) and
+`LIKE` is overridden to fold case for all scripts, matching Jet. Generic SQLite
+tools can read the file, but queries that compare or sort those columns need the
+collation registered (`CommonSources\SQLite\SQLiteDB.cpp`).
 
 ## Running
 

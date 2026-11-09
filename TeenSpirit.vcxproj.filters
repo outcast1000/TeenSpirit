@@ -66,7 +66,6 @@
     <ClCompile Include="CollectionsDlg.cpp"><Filter>GUIFiles\CollectionsDlg</Filter></ClCompile>
     <ClCompile Include="CollectionsList.cpp"><Filter>GUIFiles\CollectionsDlg</Filter></ClCompile>
     <ClCompile Include="CollectionUpdateJob.cpp"><Filter>Managers</Filter></ClCompile>
-    <ClCompile Include="CommonSources\Ado\AdoWrap.cpp"><Filter>Common\Ado</Filter></ClCompile>
     <ClCompile Include="CommonSources\ALog\ALog.cpp"><Filter>Common\DebugOnly</Filter></ClCompile>
     <ClCompile Include="CommonSources\ALog\cputicker.cpp"><Filter>Common\DebugOnly</Filter></ClCompile>
     <ClCompile Include="CommonSources\ApplicationMonitor.cpp"><Filter>Common</Filter></ClCompile>
@@ -229,6 +228,8 @@
     <ClCompile Include="Database\DataRecords.cpp"><Filter>DataBase</Filter></ClCompile>
     <ClCompile Include="Database\DataRecordsXmlSerializer.cpp"><Filter>DataBase</Filter></ClCompile>
     <ClCompile Include="Database\RecordCollectionSorter.cpp"><Filter>DataBase</Filter></ClCompile>
+    <ClCompile Include="CommonSources\SQLite\SQLiteDB.cpp"><Filter>DataBase</Filter></ClCompile>
+    <ClCompile Include="Database\JetImporter.cpp"><Filter>DataBase</Filter></ClCompile>
     <ClCompile Include="Database\SQLManager.cpp"><Filter>DataBase</Filter></ClCompile>
     <ClCompile Include="DetailedSearchCHdlg.cpp"><Filter>GUIFiles\SearchDlg</Filter></ClCompile>
     <ClCompile Include="DriveDlg.cpp"><Filter>GUIFiles\Other Dialogs</Filter></ClCompile>
@@ -375,7 +376,6 @@
     <ClInclude Include="CollectionsDlg.h"><Filter>GUIFiles\CollectionsDlg</Filter></ClInclude>
     <ClInclude Include="CollectionsList.h"><Filter>GUIFiles\CollectionsDlg</Filter></ClInclude>
     <ClInclude Include="CollectionUpdateJob.h"><Filter>Managers</Filter></ClInclude>
-    <ClInclude Include="CommonSources\Ado\AdoWrap.h"><Filter>Common\Ado</Filter></ClInclude>
     <ClInclude Include="CommonSources\ALog\ALog.h"><Filter>Common\DebugOnly</Filter></ClInclude>
     <ClInclude Include="CommonSources\ALog\cputicker.h"><Filter>Common\DebugOnly</Filter></ClInclude>
     <ClInclude Include="CommonSources\ApplicationMonitor.h"><Filter>Common</Filter></ClInclude>
@@ -559,6 +559,8 @@
     <ClInclude Include="Database\DataRecords.h"><Filter>DataBase</Filter></ClInclude>
     <ClInclude Include="Database\DataRecordsXmlSerializer.h"><Filter>DataBase</Filter></ClInclude>
     <ClInclude Include="Database\RecordCollectionSorter.h"><Filter>DataBase</Filter></ClInclude>
+    <ClInclude Include="CommonSources\SQLite\SQLiteDB.h"><Filter>DataBase</Filter></ClInclude>
+    <ClInclude Include="Database\JetImporter.h"><Filter>DataBase</Filter></ClInclude>
     <ClInclude Include="Database\SQLManager.h"><Filter>DataBase</Filter></ClInclude>
     <ClInclude Include="DetailedSearchCHdlg.h"><Filter>GUIFiles\SearchDlg</Filter></ClInclude>
     <ClInclude Include="DockedWindow.h"><Filter>Common</Filter></ClInclude>
@@ -723,7 +725,6 @@
     <ClInclude Include="WebPaneCreator.h"><Filter>GUIFiles\TeenSpiritDlg\Panes\WebPane</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\SDKs\BassSDK\bass.chm"><Filter>BassLib</Filter></None>
     <None Include="changelog.txt" />
     <None Include="CommonSources\ShellFileOp\CShellFileOp_docs.html"><Filter>Common\ShellFileOp</Filter></None>
     <None Include="res\AddFiles.bmp"><Filter>MainApplication\Resource Files</Filter></None>

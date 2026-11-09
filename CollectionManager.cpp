@@ -9,7 +9,8 @@
 
 
 CollectionManager::CollectionManager():
-m_pFileTagger(NULL)
+m_pFileTagger(NULL),
+m_pJobSQLManager(NULL)
 {
 	m_pMTQueue = new MultiThreadJobQueue;
 	m_pMTQueue->SetMaxThreads(1);
@@ -17,8 +18,28 @@ m_pFileTagger(NULL)
 }
 CollectionManager::~CollectionManager()
 {
-	delete m_pMTQueue;
+	delete m_pMTQueue;	//Stops the job thread before its database connection is closed
 	delete m_pFileTagger;
+	delete m_pJobSQLManager;
+}
+
+SQLManager* CollectionManager::GetJobSQLManager()
+{
+	if (m_pJobSQLManager == NULL)
+	{
+		SQLManager* pMain = PRGAPI()->GetSQLManager();
+		if (pMain == NULL)
+			return NULL;
+		SQLManager* pSM = new SQLManager;
+		if (!pSM->Init(pMain->GetDatabasePath()))
+		{
+			TRACE(_T("@0 CollectionManager::GetJobSQLManager. Init failed\r\n"));
+			delete pSM;
+			return NULL;
+		}
+		m_pJobSQLManager = pSM;
+	}
+	return m_pJobSQLManager;
 }
 
 FileTagger& CollectionManager::GetFileTagger()
@@ -62,8 +83,11 @@ BOOL CollectionManager::AddCollection(LPCTSTR path, LPCTSTR name)
 			instr.bProcessFiles = TRUE;
 			instr.bAllowUpdate = FALSE;
 			instr.bAllowRemove = FALSE;
+			SQLManager* pJobSM = GetJobSQLManager();
+			if (pJobSM == NULL)
+				return FALSE;
 			m_workingCollections.push_back(rec->ID);
-			JobSP job(CollectionUpdateJob::CreateJob(rec, instr, *pSM, GetFileTagger(), m_progress));
+			JobSP job(CollectionUpdateJob::CreateJob(rec, instr, *pJobSM, GetFileTagger(), m_progress));
 			pAPI->SendMessage(SM_CollectionManagerEvent);
 			return m_pMTQueue->AddJob(job);
 		}
@@ -88,9 +112,11 @@ BOOL CollectionManager::UpdateCollection(CollectionRecordSP rec, BOOL bAllowAddN
 		instr.bAllowUpdate = bAllowUpdate;
 		instr.bAllowRemove = bAllowRemove;
 
-		SQLManager* pSM = PRGAPI()->GetSQLManager();
+		SQLManager* pJobSM = GetJobSQLManager();
+		if (pJobSM == NULL)
+			return FALSE;
 		m_workingCollections.push_back(rec->ID);
-		JobSP job(CollectionUpdateJob::CreateJob(rec, instr, *pSM, GetFileTagger(), m_progress));
+		JobSP job(CollectionUpdateJob::CreateJob(rec, instr, *pJobSM, GetFileTagger(), m_progress));
 		PRGAPI()->SendMessage(SM_CollectionManagerEvent);
 		TRACE(_T("@3 CollectionManager::UpdateCollection. Adding Job"));
 		return m_pMTQueue->AddJob(job);

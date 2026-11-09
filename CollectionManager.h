@@ -7,6 +7,7 @@
 #include "CollectionUpdateJob.h"
 
 class MultiThreadJobQueue;
+class SQLManager;
 
 class CollectionManager
 {
@@ -57,9 +58,12 @@ private:
 	BOOL ImportAudioCDCollection(CollectionRecordSP rec);
 	BOOL ReleaseCollectionWorkingStatus(const CollectionRecord& rec);
 	FileTagger& GetFileTagger();
+	//Database connection used by the (single) background job thread.
+	SQLManager* GetJobSQLManager();
 private:
 	MultiThreadJobQueue* m_pMTQueue;
 	FileTagger* m_pFileTagger;
+	SQLManager* m_pJobSQLManager;
 	State m_state;
 	std::vector<UINT> m_workingCollections;
 	CollectionUpdateJob::Progress m_progress;

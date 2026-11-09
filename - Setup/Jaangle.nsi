@@ -158,6 +158,9 @@ Section Uninstall
 	Delete $INSTDIR\jaangle.exe
 	Delete $INSTDIR\CrashReport.exe
 	Delete $INSTDIR\music.mdb
+	Delete $INSTDIR\music.db
+	Delete $INSTDIR\music.db-wal
+	Delete $INSTDIR\music.db-shm
 	Delete $INSTDIR\Jaangle.ini	
 	Delete $INSTDIR\Services.xml	
 	Delete $INSTDIR\lasttracks.m3u

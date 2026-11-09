@@ -6,8 +6,8 @@
 #include "TagInfo.h"
 
 
-class ADODatabase;
-class ADORecordset;
+class SQLiteDB;
+class SQLiteStmt;
 
 
 
@@ -24,7 +24,11 @@ public:
 	SQLManager():m_pDB(NULL)					{}
 	virtual ~SQLManager();
 
+	//Opens (creating if needed) the SQLite database at DatabasePath.
+	//When the database is created and a legacy Jet database with the same name
+	//and an .mdb extension exists next to it, its contents are imported.
 	BOOL Init(LPCTSTR DatabasePath);
+	LPCTSTR GetDatabasePath() const			{return m_dbPath.c_str();}
 
 	//BOOL TrackRecordCollectionByCollectionID(TrackRecordCollection& col, UINT collectionID);
 
@@ -364,37 +368,41 @@ public:
 	//BOOL UpdateTrack(FullTrackRecordSP track);
 
 private:
-	//BOOL GetInfo(LPCTSTR fldName, LPCTSTR tblName, InfoItemTypeEnum iit, UINT ID, InfoRecord& rec);
-	//BOOL SetInfo(LPCTSTR fldName, LPCTSTR tblName, InfoItemTypeEnum iit, UINT ID, LPCTSTR info);
+	enum
+	{
+		//PRAGMA user_version of the SQLite schema this code creates and reads.
+		cLatestSchemaVersion = 1
+	};
+	BOOL CreateSchema(BOOL bWithDefaultRows);
+	BOOL ImportLegacyDatabase(LPCTSTR mdbPath);
+	void InvalidateCaches();
+
 	BOOL RecordExists(LPCTSTR sql, UINT ID);
 	void AddSQLStrParameter(CString& ret, TextMatch tm, LPCTSTR str);
 	void AddSQLNumParameter(CString& ret, NumericMatch nm, LPCTSTR str);
 	void AddSQLCountParameter(CString& ret, NumericMatch nm, LPCTSTR fieldName);
 	void AddSQLDateParameter(CString& ret, DateMatch dm, LPCTSTR str);
-	
+
 	CString GetWhereSQL(TracksFilter& Filter);
 	CString GetHavingSQL(NumericMatch nm);
+	void AddHistoryWhere(CString& Where, SYSTEMTIME* startDate, SYSTEMTIME* endDate,
+		TCHAR* ArtistFilter, TCHAR* TrackFilter, HistoryLogActionsEnum actID);
 
-	static UINT FixStringField(LPCTSTR source, LPTSTR dest, UINT destLen);
-	static void GetSQLDateForQueries(SYSTEMTIME& input, LPTSTR bf, UINT bfLen);
+	//Returns value as a quoted SQL string literal ('it''s').
+	static std::tstring SQLQuote(LPCTSTR value);
+	//Returns the date part of input as a quoted SQL date literal at midnight.
+	static std::tstring SQLDate(const SYSTEMTIME& input);
 
-	//Appends the data from the current recordset (current position) to rec.
-	//Requests recordset fields using their index starting from fieldID
-	void GetTrackRecordFields(TrackRecord& rec, ADORecordset& rs, short& startIdx);
-	BOOL SetTrackRecordFields(TrackRecord& rec, ADORecordset& rs);
-	void GetAlbumRecordFields(AlbumRecord& rec, ADORecordset& rs, short& startIdx);
-	BOOL SetAlbumRecordFields(AlbumRecord& rec, ADORecordset& rs);
-	void GetArtistRecordFields(ArtistRecord& rec, ADORecordset& rs, short& startIdx);
-	BOOL SetArtistRecordFields(ArtistRecord& rec, ADORecordset& rs);
-	void GetGenreRecordFields(GenreRecord& rec, ADORecordset& rs, short& startIdx);
-	BOOL SetGenreRecordFields(GenreRecord& rec, ADORecordset& rs);
-	void GetCollectionRecordFields(CollectionRecord& rec, ADORecordset& rs, short& startIdx);
-	BOOL SetCollectionRecordFields(CollectionRecord& rec, ADORecordset& rs);
-	//void GetInfoRecordFields(InfoRecord& rec, ADORecordset& rs, short& startIdx);
-	//BOOL SetInfoRecordFields(InfoRecord& rec, ADORecordset& rs);
-	void GetHistArtistRecordFields(HistArtistRecord& rec, ADORecordset& rs, short& startIdx);
-	void GetHistLogRecordFields(HistLogRecord& rec, ADORecordset& rs, short& startIdx);
-	void GetHistTrackRecordFields(HistTrackRecord& rec, ADORecordset& rs, short& startIdx);
+	//Appends the data from the current row to rec.
+	//Requests fields using their index starting from startIdx
+	void GetTrackRecordFields(TrackRecord& rec, SQLiteStmt& rs, short& startIdx);
+	void GetAlbumRecordFields(AlbumRecord& rec, SQLiteStmt& rs, short& startIdx);
+	void GetArtistRecordFields(ArtistRecord& rec, SQLiteStmt& rs, short& startIdx);
+	void GetGenreRecordFields(GenreRecord& rec, SQLiteStmt& rs, short& startIdx);
+	void GetCollectionRecordFields(CollectionRecord& rec, SQLiteStmt& rs, short& startIdx);
+	void GetHistArtistRecordFields(HistArtistRecord& rec, SQLiteStmt& rs, short& startIdx);
+	void GetHistLogRecordFields(HistLogRecord& rec, SQLiteStmt& rs, short& startIdx);
+	void GetHistTrackRecordFields(HistTrackRecord& rec, SQLiteStmt& rs, short& startIdx);
 
 	BOOL GetFirstVal(LPCTSTR sql, INT& val);
 
@@ -403,48 +411,22 @@ private:
 	BOOL EvaluateTrackInfo(InfoItemTypeEnum iit);
 	BOOL EvaluateAlbumInfo(InfoItemTypeEnum iit);
 	BOOL EvaluateArtistInfo(InfoItemTypeEnum iit);
-	//UINT GetInfoID(LPCTSTR tblName, LPCTSTR fldName, UINT ID, InfoItemTypeEnum iit);
 	BOOL AddNewInfo(LPCTSTR tblName, LPCTSTR fldName, UINT ID, InfoItemTypeEnum iit, LPCTSTR info);
-
-
-
-	//===================================COLLECTIONS
-	//BOOL GetCollectionRecord(CollectionRecord& collection, UINT ID);
-	//BOOL GetCollectionRecordUnique(CollectionRecord& genre, LPCTSTR location, UINT serial);
-
-
-	//===================================GENRES
-	//BOOL GetGenreRecord(GenreRecord& genre, UINT ID);
-	//BOOL GetGenreRecordUnique(GenreRecord& genre, LPCTSTR name);
-
-	//===================================ARTISTS
-
-
-
-
-
-
-
-
-	//BOOL GetArtistRecordUnique(ArtistRecord& artist, LPCTSTR name);
-
-	//===================================ALBUMS
-	//BOOL AddNewAlbumRecord(AlbumRecord& album);
-
-	//BOOL GetAlbumRecordUnique(AlbumRecord& album, LPCTSTR name, UINT artID);
-
-
-
-
-
-	//BOOL SetCollectionRecordFields(CollectionRecord& collection, ADORecordset& rs);
-
+	BOOL UpdateInfo(LPCTSTR tblName, LPCTSTR fldName, UINT ID, InfoItemTypeEnum iit, LPCTSTR info);
+	BOOL DeleteInfo(LPCTSTR tblName, LPCTSTR fldName, UINT ID, InfoItemTypeEnum iit);
+	BOOL GetInfoRecord(LPCTSTR tblName, LPCTSTR fldName, UINT ID, InfoItemTypeEnum iit, InfoRecord& ir);
 
 private:
-	ADODatabase* m_pDB;
+	SQLiteDB* m_pDB;
+	std::tstring m_dbPath;
 	Changes m_changes;
+	//Last looked-up records (per instance: each instance is used by one thread).
+	GenreRecord m_genreCache;
+	AlbumRecord m_albumCache;
+	ArtistRecord m_artistCache;
 
+	SQLManager(const SQLManager&);
+	SQLManager& operator=(const SQLManager&);
 };
 
 #endif
-

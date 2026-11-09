@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "SQLManager.h"
 #include <algorithm>
-#include "Ado/AdoWrap.h"
+#include "SQLite/SQLiteDB.h"
+#include "JetImporter.h"
 #include "stlStringUtils.h"
 
 #ifdef _DEBUG
@@ -11,22 +12,17 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 
-
 //#define USE_INTEGRITY_CHECKS
 #define USE_CACHED_QUERIES
-
-#ifdef USE_CACHED_QUERIES
-GenreRecord sGenreCache;
-AlbumRecord sAlbumCache;
-ArtistRecord sArtistCache;
-#endif
 
 
 #ifdef _UNITTESTING
 BOOL SQLManager::UnitTest()
 {
 	TRACE(_T("@2 SQLManager:Unit-Testing\r\n"));
-	LPCTSTR dbPath = _T("c:\\test.mdb");
+	TCHAR dbPath[MAX_PATH];
+	GetTempPath(MAX_PATH, dbPath);
+	_tcscat(dbPath, _T("jaangle-unittest.db"));
 	DeleteFile(dbPath);
 	{
 		SQLManager sm;
@@ -36,245 +32,37 @@ BOOL SQLManager::UnitTest()
 		SQLManager sm;
 		UNITTEST(sm.Init(dbPath));
 
-		//---Collection records----------------
 		CollectionRecord col;
 		col.location = _T("d:\\mmm.mp3");
 		col.type = CTYPE_LocalFolder;
-		//------Should Success -Add - Update - Exists - GetById - GetUnique
 		UNITTEST(sm.AddNewCollectionRecord(col));
 		UNITTEST(col.IsValid());
 		col.name = _T("new col name");
 		UNITTEST(sm.UpdateCollectionRecord(col));
-		UNITTEST(col.IsValid());
 		UNITTEST(sm.GetCollectionRecord(col.ID, col));
 		UNITTEST(col.name == _T("new col name"));
-		UNITTEST(col.IsValid());
 		CollectionRecord col2;
 		UNITTEST(sm.GetCollectionRecordUnique(col.serial, col.location.c_str(), col2));
 		UNITTEST(col2.name == _T("new col name"));
-		UNITTEST(col2.IsValid());
 		UNITTEST(sm.CollectionRecordExists(col2.ID));
-		UNITTEST(col2.name == _T("new col name"));
-		UNITTEST(col.IsValid());
-
-		//------Should Fail -Add - Update - Exists - GetById - GetUnique
-		//col.ID = 0;
-		//UNITTEST(!sm.AddNewCollectionRecord(col) && _T("Record is not Unique"));
 		col.ID = 947;
 		UNITTEST(!sm.UpdateCollectionRecord(col) && _T("Record is not Existent"));
 		UNITTEST(!sm.GetCollectionRecord(col.ID, col) && _T("Record is not Existent"));
-		UNITTEST(!sm.GetCollectionRecordUnique(12, col.location.c_str(), col) && _T("Record is not Existent"));
 		UNITTEST(!sm.CollectionRecordExists(col.ID) && _T("Record is not Existent"));
-
-		//---GenreRecord----------------
-		GenreRecord gen;
-		gen.name = _T("This is a new fucking genre with a very large name");
-		gen.name += gen.name;
-		gen.name += gen.name;
-		gen.name += gen.name;
-		INT len = gen.name.size();
-		UNITTEST(sm.AddNewGenreRecord(gen));
-		UNITTEST(gen.IsValid());
-		gen.name = _T("new name");
-		UNITTEST(sm.UpdateGenreRecord(gen, FALSE));
-		UNITTEST(gen.name == _T("new name"));
-		UNITTEST(gen.IsValid());
-		UNITTEST(sm.GetGenreRecord(gen.ID, gen));
-		UNITTEST(gen.name == _T("new name"));
-		UNITTEST(gen.IsValid());
-		GenreRecord gen2;
-		UNITTEST(sm.GetGenreRecordUnique(gen.name.c_str(), gen2));
-		UNITTEST(gen2.name == _T("new name"));
-		UNITTEST(gen2.IsValid());
-		UNITTEST(sm.GenreRecordExists(gen2.ID));
-		UNITTEST(gen2.name == _T("new name"));
-		UNITTEST(gen2.IsValid());
-		//gen.ID = 0;
-		//UNITTEST(!sm.AddNewGenreRecord(gen) && _T("Record is not Unique"));
-		gen.ID = 947;
-		UNITTEST(!sm.UpdateGenreRecord(gen, FALSE) && _T("Record is not Existent"));
-		UNITTEST(!sm.GetGenreRecord(gen.ID, gen) && _T("Record is not Existent"));
-		UNITTEST(!sm.GetGenreRecordUnique(_T("Not Existent"), gen) && _T("Record is not Existent"));
-		UNITTEST(!sm.GenreRecordExists(gen.ID) && _T("Record is not Existent"));
-
-		//---ArtistRecord----------------
-		ArtistRecord art;
-		art.name = _T("This is a new fucking artist with a very large name");
-		art.name += art.name;
-		art.name += art.name;
-		art.name += art.name;
-		art.genID = 1;
-		UNITTEST(sm.AddNewArtistRecord(art));
-		UNITTEST(art.IsValid());
-		art.name = _T("new name");
-		UNITTEST(sm.UpdateArtistRecord(art, FALSE));
-		UNITTEST(art.IsValid());
-		UNITTEST(art.name == _T("new name"));
-		UNITTEST(sm.GetArtistRecord(art.ID, art));
-		UNITTEST(art.IsValid());
-		UNITTEST(art.name == _T("new name"));
-		ArtistRecord art2;
-		UNITTEST(sm.GetArtistRecordUnique(art.name.c_str(), art2));
-		UNITTEST(art2.IsValid());
-		UNITTEST(art2.name == _T("new name"));
-		UNITTEST(sm.ArtistRecordExists(art2.ID));
-		UNITTEST(art2.IsValid());
-		UNITTEST(art2.name == _T("new name"));
-		//art.ID = 0;
-		//UNITTEST(!sm.AddNewArtistRecord(art) && _T("Record is not Unique"));
-		art.ID = 947;
-		UNITTEST(!sm.UpdateArtistRecord(art, FALSE) && _T("Record is not Existent"));
-		UNITTEST(!sm.GetArtistRecord(art.ID, art) && _T("Record is not Existent"));
-		UNITTEST(!sm.GetArtistRecordUnique(_T("Not Existent"), art) && _T("Record is not Existent"));
-		UNITTEST(!sm.ArtistRecordExists(art.ID) && _T("Record is not Existent"));
-
-
-		//---ArtistRecord----------------
-		AlbumRecord alb;
-		alb.name = _T("This is a new fucking album with a very large name");
-		alb.name += alb.name;
-		alb.name += alb.name;
-		alb.name += alb.name;
-		alb.artID = 1;
-		UNITTEST(sm.AddNewAlbumRecord(alb));
-		UNITTEST(sm.UpdateAlbumRecord(alb, FALSE));
-		UNITTEST(sm.GetAlbumRecord(alb.ID, alb));
-		UNITTEST(sm.GetAlbumRecordUnique(alb.artID, alb.name.c_str(), alb));
-		UNITTEST(sm.AlbumRecordExists(alb.ID));
-		//alb.ID = 0;
-		//UNITTEST(!sm.AddNewAlbumRecord(alb) && _T("Record is not Unique"));
-		alb.ID = 947;
-		UNITTEST(!sm.UpdateAlbumRecord(alb, FALSE) && _T("Record is not Existent"));
-		UNITTEST(!sm.GetAlbumRecord(alb.ID, alb) && _T("Record is not Existent"));
-		UNITTEST(!sm.GetAlbumRecordUnique(456, _T("Not Existent"), alb) && _T("Record is not Existent"));
-		UNITTEST(!sm.AlbumRecordExists(alb.ID) && _T("Record is not Existent"));
-
-
-		TrackRecord tra;
-		tra.name = _T("This is a new fucking track name with a very large name");
-		tra.name += tra.name;
-		tra.name += tra.name;
-		tra.name += tra.name;
-		tra.location = _T("This is a new fucking location with a very large name");
-		tra.location += tra.location;
-		tra.location += tra.location;
-		tra.location += tra.location;
-		tra.artID = 1;
-		tra.genID = 1;
-		tra.colID = 1;
-		tra.albID = 1;
-		tra.trackType = TTYPE_ac3;
-
-
-		UNITTEST(sm.AddNewTrackRecord(tra));
-		UNITTEST(sm.UpdateTrackRecord(tra));
-		UNITTEST(sm.GetTrackRecord(tra.ID, tra));
-		UNITTEST(sm.GetTrackRecordUnique(tra.colID, tra.location.c_str(), tra));
-		UNITTEST(sm.TrackRecordExists(tra.ID));
-		//tra.ID = 0;
-		//UNITTEST(!sm.AddNewTrackRecord(tra) && _T("Record is not Unique"));
-		tra.ID = 947;
-		UNITTEST(!sm.UpdateTrackRecord(tra) && _T("Record is not Existent"));
-		UNITTEST(!sm.GetTrackRecord(tra.ID, tra) && _T("Record is not Existent"));
-		UNITTEST(!sm.GetTrackRecordUnique(456, _T("Not Existent"), tra) && _T("Record is not Existent"));
-		UNITTEST(!sm.TrackRecordExists(tra.ID) && _T("Record is not Existent"));
-
-
-		CollectionRecord collection;
-		collection.location = _T("d:\\musi1");
-		collection.type = CTYPE_LocalFolder;
-		UNITTEST(sm.AddNewCollectionRecord(collection));
-		UINT ID = collection.ID;
-
-		GenreRecord genre;
-		genre.name = _T("Genre#1");
-		UNITTEST(sm.AddNewGenreRecord(genre));
-		ID = genre.ID;
-		genre.ID = ID;
-
-		ArtistRecord artist;
-		artist.name = _T("Artist#1");
-		artist.genID = genre.ID;
-		UNITTEST(sm.AddNewArtistRecord(artist));
-		ID = artist.ID;	artist.ID = 0;
-		artist.ID = ID;
-
-		AlbumRecord album;
-		album.name = _T("Album#1");
-		album.artID = artist.ID;
-		UNITTEST(sm.AddNewAlbumRecord(album));
-		ID = album.ID;	album.ID = 0;
-		album.ID = ID;
-
-		TrackRecord track;
-		track.location = _T("d:\\path#1.mp3");
-		track.name = _T("Track#1");
-		track.artID = artist.ID;
-		track.genID = genre.ID;
-		track.colID = collection.ID;
-		track.albID = album.ID;
-		track.trackType = GetTrackType(track.location.c_str());
-		UNITTEST(sm.AddNewTrackRecord(track));
-		ID = track.ID;	track.ID = 0;
-		track.ID = ID;
-
-
-
-		TagInfo tag;
-		INT trackID = sm.AddNewTrackFromTagInfo(collection.ID, _T("xmm.mp3"), tag);
-		UNITTEST(trackID != 0);
-		tag.Title = _T("Title2#");
-		//UNITTEST(!sm.AddNewTrackFromTagInfo(collection.ID, _T("xmm.mp3"), tag));
-		UNITTEST(sm.UpdateTrackFromTagInfo(trackID, collection.ID, _T("xmm.mp3"), tag));
-		UNITTEST(sm.UpdateTrackFromTagInfo(trackID, collection.ID, _T("222xmm.mp3"), tag));
-
-		HistArtistRecord hart;
-		hart.name = _T("Art name");
-		UNITTEST(sm.AddNewHistArtistRecord(hart));
-		HistArtistRecord hart2 = hart;
-		hart2.ID = 0;
-		//UNITTEST(!sm.AddNewHistArtistRecord(hart2));
-		UNITTEST(hart.IsValid());
-		UNITTEST(sm.GetHistArtistRecord(hart.ID, hart));
-		UNITTEST(hart.IsValid());
-
-		HistTrackRecord htra;
-		htra.artID = hart.ID;
-		htra.name = _T("track Name");
-		UNITTEST(sm.AddNewHistTrackRecord(htra));
-		UNITTEST(htra.IsValid());
-		HistTrackRecord htra2 = htra;
-		htra2.ID = 0;
-		//UNITTEST(!sm.AddNewHistTrackRecord(htra2));
-		UNITTEST(sm.GetHistTrackRecord(htra.ID, htra));
-		UNITTEST(hart.IsValid());
 
 		SYSTEMTIME st;
 		GetLocalTime(&st);
 		UNITTEST(sm.LogTrackInHistory(_T("ArtName#2"), _T("TraName#2"), HLA_Clicked, st));
 		UNITTEST(sm.LogTrackInHistory(_T("ArtName#2"), _T("TraName#2"), HLA_Played, st));
-		UNITTEST(sm.LogTrackInHistory(_T("ArtName#2"), _T("TraName#2"), HLA_Played, st));
-		UNITTEST(sm.LogTrackInHistory(_T("ArtName#2"), _T("TraName#2"), HLA_Played, st));
-		UNITTEST(sm.LogTrackInHistory(_T("ArtName#2"), _T("TraName#3"), HLA_Played, st));
-		UNITTEST(sm.LogTrackInHistory(_T("ArtName#2"), _T("TraName#4"), HLA_Played, st));
-		UNITTEST(sm.LogTrackInHistory(_T("ArtName#3"), _T("TraName#4"), HLA_Clicked, st));
 		SQLManager::HistoryLogStats	stats;
 		UNITTEST(sm.GetHistoryLogStats(stats));
-		UNITTEST(stats.actions == 2);
-		UNITTEST(stats.plays == 5);
-
+		UNITTEST(stats.actions == 1);
+		UNITTEST(stats.plays == 1);
 	}
 	DeleteFile(dbPath);
 	return TRUE;
-
 }
 #endif
-
-LPCTSTR const sDBPassword = _T("DontMessWithIt");
-
-
-
-const INT cMaxStringLen = 256;
 
 //==============================================================
 //		INITIALIZATION - DESTRUCTION
@@ -285,522 +73,262 @@ SQLManager::~SQLManager()
 	delete m_pDB;
 }
 
+namespace
+{
+	void DeleteDatabaseFiles(LPCTSTR path)
+	{
+		std::tstring p(path);
+		DeleteFile(p.c_str());
+		DeleteFile((p + _T("-wal")).c_str());
+		DeleteFile((p + _T("-shm")).c_str());
+	}
+}
 
 BOOL SQLManager::Init(LPCTSTR DatabasePath)
 {
 	TRACE(_T("@3 SQLManager::Init. DatabasePath: %s\r\n"), DatabasePath);
-
 	ASSERT(m_pDB == NULL);//Initialize only once
-	if (m_pDB != NULL)
+	if (m_pDB != NULL || DatabasePath == NULL)
 		return FALSE;
-	if (_taccess(_T("cdb.ins"), 00) == 0)
-	{
-		DeleteFile(_T("cdb.ins"));
-		std::tstring tmp = DatabasePath;
-		tmp += _T(".tmp");
-		if (AdoWrap::CompactDatabase(DatabasePath, tmp.c_str(), sDBPassword))
-		{
-			DeleteFile(DatabasePath);
-			MoveFile(tmp.c_str(), DatabasePath);
-		}
-	}
+	m_dbPath = DatabasePath;
+	const BOOL bExisted = PathFileExists(DatabasePath);
 
-	BOOL newDb = FALSE;
-	TCHAR sConnection[600];
-	_sntprintf(sConnection, 600, _T("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=%s;")
-		_T("Jet OLEDB:Database Password=%s;")
-		_T("Jet OLEDB:Encrypt Database=True;")
-		,DatabasePath, 
-		sDBPassword);
-	if (!PathFileExists(DatabasePath))
-	{
-		TRACE(_T("@2 SQLManager::Init. Creating Database\r\n"));
-		ADOXCatalog cat;
-		if (cat.Init())
-		{
-			TRACE(_T("@3 SQLManager::Init. ADOXCatalog-CreateDatabase\r\n"));
-			if (!cat.CreateDatabase(sConnection))
-			{
-				TRACE(_T("@0 SQLManager::Init. ADOXCatalog-CreateDatabase FAILED. Aborting\r\n"));
-				return FALSE;
-			}
-		}
-		else
-		{
-			TRACE(_T("@0 SQLManager::Init. ADOXCatalog failed to initialize. Aborting\r\n"));
-			return FALSE;
-		}
-		newDb = TRUE;
-	}
-
-	TRACE(_T("@3 SQLManager::Init. Connecting to Database\r\n"));
-	m_pDB = new ADODatabase;
-	if (!m_pDB->Open(sConnection))
+	m_pDB = new SQLiteDB;
+	if (!m_pDB->Open(DatabasePath))
 	{
 		TRACE(_T("@0 SQLManager::Init. DB Connection Failed. Aborting.\r\n"));
 		delete m_pDB;
 		m_pDB = NULL;
 		return FALSE;
 	}
-	TRACE(_T("@3 SQLManager::Init. DB Connection Succeeded\r\n"));
-	INT latestDBVersion = 6;
-	INT currentDBVersion = 0;
-	if (newDb)
+
+	INT version = m_pDB->GetUserVersion();
+	if (version == 0)
 	{
-		//===Creating Tables=============================================
+		//=== New database: create the schema, importing a legacy Jet database if present.
+		std::tstring mdbPath(DatabasePath);
+		std::tstring::size_type dot = mdbPath.find_last_of(_T('.'));
+		if (dot != std::tstring::npos && mdbPath.find_last_of(_T("\\/")) < dot)
+			mdbPath.resize(dot);
+		mdbPath += _T(".mdb");
+		const BOOL bImport = !bExisted && PathFileExists(mdbPath.c_str());
 
-		//======DBInfo======
-		TRACE(_T("@3 SQLManager::Init. Creating DBInfo Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE DBInfo (version int NOT NULL)"));
-		TCHAR bf[500];
-		_sntprintf(bf, 500, _T("INSERT INTO DBInfo VALUES (%d)"), latestDBVersion);
-		m_pDB->Execute(bf);
-		currentDBVersion = latestDBVersion; 
-
-		
-		//======Genres======
-		TRACE(_T("@3 SQLManager::Init. Creating Genres Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE Genres ( ")
-						_T("ID COUNTER PRIMARY KEY,")
-						_T("Name varchar(100) WITH COMP NOT NULL)")
-						);
-		m_pDB->Execute(_T("CREATE INDEX GenresName ON Genres (Name)"));
-		m_pDB->Execute(_T("INSERT INTO Genres (Name) VALUES ('[Unknown]')"));
-
-		//======Artists======
-		TRACE(_T("@3 SQLManager::Init. Creating Artists Table\r\n"));
-		m_pDB->Execute(_T("CREATE TABLE Artists ( ")
-			_T("ID COUNTER PRIMARY KEY,")
-			_T("Name varchar(100) WITH COMP NOT NULL,")
-			_T("GenreID int NOT NULL,")
-			_T("Rating smallint NOT NULL)")
-			);
-		m_pDB->Execute(	_T("CREATE INDEX ArtistsName ON Artists (Name)"));
-		m_pDB->Execute(	_T("INSERT INTO Artists (Name, GenreID, Rating) VALUES ('[Unknown]', 1, 0)"));
-		m_pDB->Execute(	_T("INSERT INTO Artists (Name, GenreID, Rating) VALUES ('[Various]', 1, 0)"));
-
-		//======Albums======
-		TRACE(_T("@3 SQLManager::Init. Creating Albums Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE Albums ( ")
-						_T("ID COUNTER PRIMARY KEY,")
-						_T("Name varchar(100) WITH COMP NOT NULL,")
-						_T("artID int NOT NULL,")
-						_T("[Year] smallint NOT NULL,")
-						_T("Rating smallint NOT NULL)")
-						);
-		m_pDB->Execute(_T("CREATE INDEX AlbumsName ON Albums(Name)"));
-
-		//======Collections======
-		TRACE(_T("@3 SQLManager::Init. Creating Collections Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE Collections ( ")
-						_T("ID COUNTER PRIMARY KEY,")
-						_T("Name varchar(255) WITH COMP NOT NULL,")
-						_T("PathName varchar(255) WITH COMP NOT NULL,")
-						_T("Serial int NOT NULL,")				//Media Serial Number
-						_T("Type smallint NOT NULL,")			//CollectionTypesEnum CTYPE_LocalFolder,CTYPE_Media...
-						//_T("Status smallint NOT NULL,")			//CollectionStatusEnum CSTAT_Ready, CSTAT_Pending...
-						_T("DateAdded date NOT NULL,")
-						_T("DateUpdated date)")
-						);
-		m_pDB->Execute(	_T("CREATE INDEX Name ON Collections (Name)"));
-
-		//======Tracks======
-		TRACE(_T("@3 SQLManager::Init. Creating Tracks Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE Tracks ( ")
-						_T("ID COUNTER PRIMARY KEY,")
-						_T("Name varchar(100) WITH COMP NOT NULL,")
-						_T("Type smallint NOT NULL,")	//TrackTypesEnum TTYPE_mp3,TTYPE_mp2...
-						_T("DateAdded date NOT NULL,")
-						_T("albID int NOT NULL,")
-						_T("artID int NOT NULL,")
-						_T("CollectionID int NOT NULL,")
-						_T("genreID int NOT NULL,")
-						_T("Path varchar(255) WITH COMP NOT NULL,")
-						_T("Bitrate smallint,")			//In Kbps
-						_T("Duration int,")				//In seconds
-						_T("[Size] int,")
-						_T("TrackNo smallint,")
-						_T("[Year] smallint NOT NULL,")
-						_T("Rating smallint NOT NULL)")
-						);
-		m_pDB->Execute(	_T("CREATE INDEX TracksName ON Tracks (Name)"));
-		m_pDB->Execute(	_T("CREATE INDEX TracksPath ON Tracks (Path)"));
-
-		//======HistArtists======
-		TRACE(_T("@3 SQLManager::Init. Creating HistArtists Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE HistArtists ( ")
-						_T("ID COUNTER PRIMARY KEY,")
-						_T("Name varchar(100) WITH COMP NOT NULL)"));
-		m_pDB->Execute(	_T("CREATE INDEX HistArtistsName ON HistArtists (Name)"));
-		m_pDB->Execute(	_T("INSERT INTO HistArtists (Name) VALUES ('[Unknown]')"));
-
-		//======HistTracks======
-		TRACE(_T("@3 SQLManager::Init. Creating HistTracks Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE HistTracks ( ")
-						_T("ID COUNTER PRIMARY KEY,")
-						_T("Name varchar(100) WITH COMP NOT NULL,")
-						_T("artID int NOT NULL)"));
-		m_pDB->Execute(	_T("CREATE INDEX HistTracksName ON HistTracks (Name)"));
-
-		//======HistLog======
-		TRACE(_T("@3 SQLManager::Init. Creating HistLog Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE HistLog ( ")
-						_T("ID COUNTER PRIMARY KEY,")
-						_T("actID smallint NOT NULL,")
-						_T("DateAdded date NOT NULL,")
-						_T("trackID int NOT NULL)"));
-		m_pDB->Execute(	_T("CREATE INDEX HistLogTrackID ON HistLog (trackID)"));
-
-		//======TracksInfo======
-		TRACE(_T("@3 SQLManager::Init. Creating TracksInfo Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE TracksInfo ( ")
-			_T("ID COUNTER PRIMARY KEY,")
-			_T("trackID int NOT NULL,")
-			_T("Name LONGTEXT NOT NULL,")
-			_T("DateAdded date NOT NULL,")
-			_T("Type smallint NOT NULL)"));
-		m_pDB->Execute(	_T("CREATE INDEX TracksInfoTrackID ON TracksInfo (trackID)"));
-		//======AlbumsInfo======
-		TRACE(_T("@3 SQLManager::Init. Creating AlbumsInfo Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE AlbumsInfo ( ")
-			_T("ID COUNTER PRIMARY KEY,")
-			_T("albID int NOT NULL,")
-			_T("Name LONGTEXT NOT NULL,")
-			_T("DateAdded date NOT NULL,")
-			_T("Type smallint NOT NULL)"));
-		m_pDB->Execute(	_T("CREATE INDEX AlbumsInfoAlbID ON AlbumsInfo (albID)"));
-		//======ArtistsInfo======
-		TRACE(_T("@3 SQLManager::Init. Creating ArtistsInfo Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE ArtistsInfo ( ")
-			_T("ID COUNTER PRIMARY KEY,")
-			_T("artID int NOT NULL,")
-			_T("Name LONGTEXT NOT NULL,")
-			_T("DateAdded date NOT NULL,")
-			_T("Type smallint NOT NULL)"));
-		m_pDB->Execute(	_T("CREATE INDEX ArtistsInfoArtID ON ArtistsInfo (artID)"));
-		//======LocalPic======
-		TRACE(_T("@3 SQLManager::Init. Creating LocalPic Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE LocalPic ( ")
-			_T("parID int NOT NULL,")
-			_T("infoType smallint NOT NULL,")
-			_T("Path varchar(255) NOT NULL,")
-			_T("Type smallint NOT NULL)"));
-		m_pDB->Execute(	_T("CREATE UNIQUE INDEX LocalPicID ON LocalPic (parID, infoType)"));
-
-		//======InfoRequests======
-		TRACE(_T("@3 SQLManager::Init. Creating InfoRequests Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE InfoRequests ( ")
-			_T("requestTimeStamp int NOT NULL,")
-			_T("hash int NOT NULL)"));
-		m_pDB->Execute(	_T("CREATE UNIQUE INDEX hashInfoRequests ON InfoRequests (parID)"));
-
-
+		BOOL bOK = m_pDB->BeginTransaction();
+		bOK = bOK && CreateSchema(!bImport);
+		if (bOK && bImport)
+			bOK = ImportLegacyDatabase(mdbPath.c_str());
+		bOK = bOK && m_pDB->SetUserVersion(cLatestSchemaVersion);
+		if (bOK)
+			bOK = m_pDB->CommitTransaction();
+		else
+			m_pDB->RollbackTransaction();
+		if (!bOK)
+		{
+			TRACE(_T("@0 SQLManager::Init. Schema creation / import failed: %s\r\n"), m_pDB->GetLastError());
+			delete m_pDB;
+			m_pDB = NULL;
+			if (!bExisted)
+				DeleteDatabaseFiles(DatabasePath);
+			return FALSE;
+		}
+		version = cLatestSchemaVersion;
 	}
-	else
+	if (version > cLatestSchemaVersion || version < 0)
 	{
-		ADORecordset rs(m_pDB);
-		if (rs.Open(_T("SELECT version FROM DBInfo")) && !rs.IsEOF())
-			currentDBVersion = rs.GetINTFieldValue(_T("version"));
-	}
-
-	if (currentDBVersion > latestDBVersion)
-	{
-		::MessageBox(0, 
-			_T("Database (music.mdb) is not compatible with this version of Jaangle.\r\n")
-			_T("Delete it or get the latest program version."), 
-			_T("Database Error"), 
+		::MessageBox(0,
+			_T("The music database is not compatible with this version of the program.\r\n")
+			_T("Delete it or get the latest program version."),
+			_T("Database Error"),
 			MB_OK);
+		delete m_pDB;
+		m_pDB = NULL;
 		return FALSE;
 	}
-
-
-	//Start some Initializations/correction in the database
-	//m_pDB->Execute(_T("Update Collections Set Status = 1 WHERE Status <> 1"));
-
-	BOOL bDBNeedsUpgrade = (currentDBVersion != latestDBVersion);
-	if (bDBNeedsUpgrade)
-		CopyFile(_T("music.mdb"), _T("music.mdb.bkp"), TRUE);
-
-	if (currentDBVersion == 0)
-	{
-		TRACE(_T("@1 SQLManager::Init. Applying 0-->1 DBPatch\r\n"));
-		//Alter Tables for 0.92e
-		m_pDB->Execute(_T("ALTER TABLE Tracks ALTER COLUMN Name TEXT(100)"));
-		m_pDB->Execute(_T("ALTER TABLE Artists ALTER COLUMN Name TEXT(100)"));
-		m_pDB->Execute(_T("ALTER TABLE Albums ALTER COLUMN Name TEXT(100)"));
-		m_pDB->Execute(_T("ALTER TABLE Genres ALTER COLUMN Name TEXT(100)"));
-		m_pDB->Execute(_T("ALTER TABLE HistTracks ALTER COLUMN Name TEXT(100)"));
-		//m_pDB->Execute(_T("ALTER TABLE HistArtists ALTER COLUMN Name TEXT(100)"));
-		m_pDB->Execute(_T("CREATE TABLE DBInfo (version int NOT NULL)"));
-		currentDBVersion = 1;
-	}
-	if (currentDBVersion == 1)
-	{
-		TRACE(_T("@1 SQLManager::Init. Applying 1-->2 DBPatch\r\n"));
-		//Alter Tables for 0.92g. I have forgotten to change the script that
-		//was creating HistArtistsTable. The name len was 70 and not 100
-		m_pDB->Execute(_T("ALTER TABLE HistArtists ALTER COLUMN Name TEXT(100)"));
-		currentDBVersion = 2;
-	}
-	if (currentDBVersion == 2)
-	{
-		TRACE(_T("@1 SQLManager::Init. Applying 2-->3 DBPatch START\r\n"));
-		INT records = m_pDB->Execute(_T("UPDATE Albums Set Rating = 0 WHERE Rating=76"));
-		records += m_pDB->Execute(_T("UPDATE Artists Set Rating = 0 WHERE Rating=76"));
-		records += m_pDB->Execute(_T("UPDATE Tracks Set Rating = 0 WHERE Rating=76"));
-		records += m_pDB->Execute(_T("UPDATE DBInfo SET version=3"));
-		TRACE(_T("@1 SQLManager::Init. Applying 2-->3. Updated Records: %d\r\n"), records);
-		currentDBVersion = 3;
-
-	}
-	if (currentDBVersion == 3)//Upgrade from 3 (0.94) ->4 (0.95 beta)
-	{
-		TRACE(_T("@1 SQLManager::Init. Applying 3-->4 DBPatch START\r\n"));
-		//===CREATE NEW TABLES
-		//======TracksInfo======
-		TRACE(_T("@3 SQLManager::Init. Creating TracksInfo Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE TracksInfo ( ")
-			_T("ID COUNTER PRIMARY KEY,")
-			_T("trackID int NOT NULL,")
-			_T("Name LONGTEXT NOT NULL,")
-			_T("DateAdded date NOT NULL,")
-			_T("Type smallint NOT NULL)"));
-		m_pDB->Execute(	_T("CREATE INDEX TracksInfoTrackID ON TracksInfo (trackID)"));
-		//======AlbumsInfo======
-		TRACE(_T("@3 SQLManager::Init. Creating AlbumsInfo Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE AlbumsInfo ( ")
-			_T("ID COUNTER PRIMARY KEY,")
-			_T("albID int NOT NULL,")
-			_T("Name LONGTEXT NOT NULL,")
-			_T("DateAdded date NOT NULL,")
-			_T("Type smallint NOT NULL)"));
-		m_pDB->Execute(	_T("CREATE INDEX AlbumsInfoAlbID ON AlbumsInfo (albID)"));
-		//======ArtistsInfo======
-		TRACE(_T("@3 SQLManager::Init. Creating ArtistsInfo Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE ArtistsInfo ( ")
-			_T("ID COUNTER PRIMARY KEY,")
-			_T("artID int NOT NULL,")
-			_T("Name LONGTEXT NOT NULL,")
-			_T("DateAdded date NOT NULL,")
-			_T("Type smallint NOT NULL)"));
-		m_pDB->Execute(	_T("CREATE INDEX ArtistsInfoArtID ON ArtistsInfo (artID)"));
-		//===TRANFER INFO
-		ADORecordset rs(m_pDB);
-		if (rs.Open(_T("SELECT artists.ID, info.name, info.dateAdded FROM artists INNER JOIN info on artists.infoID = info.ID WHERE artists.infoID > 0")))
-		{
-			ADORecordset rsInsert(m_pDB);
-			if (rsInsert.Open(_T("artistsinfo"), adOpenKeyset, adLockOptimistic, adCmdTable))
-			{
-				std::tstring name;
-				SYSTEMTIME dateAdded;
-				while (!rs.IsEOF())
-				{
-					UINT ID = rs.GetUINTFieldValue(0);
-					rs.GetStringFieldValue(1, name);
-					dateAdded = rs.GetSYSTEMTIMEFieldValue(2);
-
-					rsInsert.AddNew();
-					rsInsert.SetVariantFieldValue(_T("artID"), ID);
-					rsInsert.SetVariantFieldValue(_T("type"), IIT_ArtistBio);
-					rsInsert.SetVariantFieldValue(_T("name"), name.c_str());
-					rsInsert.SetSystemTimeFieldValue(_T("dateAdded"), dateAdded);
-					if (!rsInsert.Update())
-						return FALSE;
-					rs.MoveNext();
-				}
-			}
-			else
-				return FALSE;
-		}
-
-		if (rs.Open(_T("SELECT albums.ID, info.name, info.dateAdded FROM albums INNER JOIN info on albums.infoID = info.ID WHERE albums.infoID > 0")))
-		{
-			ADORecordset rsInsert(m_pDB);
-			if (rsInsert.Open(_T("albumsinfo"), adOpenKeyset, adLockOptimistic, adCmdTable))
-			{
-				std::tstring name;
-				SYSTEMTIME dateAdded;
-				while (!rs.IsEOF())
-				{
-					UINT ID = rs.GetUINTFieldValue(0);
-					rs.GetStringFieldValue(1, name);
-					dateAdded = rs.GetSYSTEMTIMEFieldValue(2);
-
-					rsInsert.AddNew();
-					rsInsert.SetVariantFieldValue(_T("albID"), ID);
-					rsInsert.SetVariantFieldValue(_T("type"), IIT_AlbumReview);
-					rsInsert.SetVariantFieldValue(_T("name"), name.c_str());
-					rsInsert.SetSystemTimeFieldValue(_T("dateAdded"), dateAdded);
-					if (!rsInsert.Update())
-						return FALSE;
-					rs.MoveNext();
-				}
-			}
-			else
-				return FALSE;
-		}
-
-		if (rs.Open(_T("SELECT tracks.ID, info.name, info.dateAdded FROM tracks INNER JOIN info on tracks.comID = info.ID WHERE tracks.comID > 0")))
-		{
-			ADORecordset rsInsert(m_pDB);
-			if (rsInsert.Open(_T("tracksinfo"), adOpenKeyset, adLockOptimistic, adCmdTable))
-			{
-				std::tstring name;
-				SYSTEMTIME dateAdded;
-				while (!rs.IsEOF())
-				{
-					UINT ID = rs.GetUINTFieldValue(0);
-					rs.GetStringFieldValue(1, name);
-					dateAdded = rs.GetSYSTEMTIMEFieldValue(2);
-
-					rsInsert.AddNew();
-					rsInsert.SetVariantFieldValue(_T("trackID"), ID);
-					rsInsert.SetVariantFieldValue(_T("type"), IIT_TrackComment);
-					rsInsert.SetVariantFieldValue(_T("name"), name.c_str());
-					rsInsert.SetSystemTimeFieldValue(_T("dateAdded"), dateAdded);
-					if (!rsInsert.Update())
-						return FALSE;
-					rs.MoveNext();
-				}
-			}
-			else
-				return FALSE;
-		}
-		if (rs.Open(_T("SELECT tracks.ID, info.name, info.dateAdded FROM tracks INNER JOIN info on tracks.lyrID = info.ID WHERE tracks.lyrID > 0")))
-		{
-			ADORecordset rsInsert(m_pDB);
-			if (rsInsert.Open(_T("tracksinfo"), adOpenKeyset, adLockOptimistic, adCmdTable))
-			{
-				std::tstring name;
-				SYSTEMTIME dateAdded;
-				while (!rs.IsEOF())
-				{
-					UINT ID = rs.GetUINTFieldValue(0);
-					rs.GetStringFieldValue(1, name);
-					dateAdded = rs.GetSYSTEMTIMEFieldValue(2);
-
-					rsInsert.AddNew();
-					rsInsert.SetVariantFieldValue(_T("trackID"), ID);
-					rsInsert.SetVariantFieldValue(_T("type"), IIT_TrackLyrics);
-					rsInsert.SetVariantFieldValue(_T("name"), name.c_str());
-					rsInsert.SetSystemTimeFieldValue(_T("dateAdded"), dateAdded);
-					if (!rsInsert.Update())
-						return FALSE;
-					rs.MoveNext();
-				}
-			}
-			else
-				return FALSE;
-		}
-		if (rs.Open(_T("SELECT tracks.ID, info.name, info.dateAdded FROM tracks INNER JOIN info on tracks.perID = info.ID WHERE tracks.perID > 0")))
-		{
-			ADORecordset rsInsert(m_pDB);
-			if (rsInsert.Open(_T("tracksinfo"), adOpenKeyset, adLockOptimistic, adCmdTable))
-			{
-				std::tstring name;
-				SYSTEMTIME dateAdded;
-				while (!rs.IsEOF())
-				{
-					UINT ID = rs.GetUINTFieldValue(0);
-					rs.GetStringFieldValue(1, name);
-					dateAdded = rs.GetSYSTEMTIMEFieldValue(2);
-
-					rsInsert.AddNew();
-					rsInsert.SetVariantFieldValue(_T("trackID"), ID);
-					rsInsert.SetVariantFieldValue(_T("type"), IIT_TrackPersonal);
-					rsInsert.SetVariantFieldValue(_T("name"), name.c_str());
-					rsInsert.SetSystemTimeFieldValue(_T("dateAdded"), dateAdded);
-					if (!rsInsert.Update())
-						return FALSE;
-					rs.MoveNext();
-				}
-			}
-			else
-				return FALSE;
-		}
-		rs.Close();
-
-		//DROP oldData
-		m_pDB->Execute(_T("ALTER TABLE artists DROP COLUMN infoID"));
-		m_pDB->Execute(_T("ALTER TABLE albums DROP COLUMN infoID"));
-		m_pDB->Execute(_T("ALTER TABLE tracks DROP COLUMN comID"));
-		m_pDB->Execute(_T("ALTER TABLE tracks DROP COLUMN lyrID"));
-		m_pDB->Execute(_T("ALTER TABLE tracks DROP COLUMN perID"));
-		m_pDB->Execute(_T("ALTER TABLE tracks DROP COLUMN SyncState"));
-		m_pDB->Execute(_T("ALTER TABLE tracks DROP COLUMN WriteAbleState"));
-		m_pDB->Execute(_T("DROP TABLE Info"));
-		m_pDB->Execute(_T("ALTER TABLE collections DROP COLUMN status"));
-		currentDBVersion = 4;
-
-	}
-
-	if (currentDBVersion == 4)//Upgrade from 4 (0.95 beta) ->5 (0.95 internal - 1)
-	{
-		//======Cached Failed Info Requests======
-		TRACE(_T("@3 SQLManager::Init. Creating InfoRecordRequest Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE InfoRecordRequest ( ")
-			_T("parID int NOT NULL,")
-			_T("infoType smallint NOT NULL,")
-			_T("result smallint NOT NULL,")
-			_T("requestTimeStamp int NOT NULL)"));
-		m_pDB->Execute(	_T("CREATE UNIQUE INDEX InfoRecordRequestID ON InfoRecordRequest (parID,infoType)"));
-		//======LocalPic======
-		TRACE(_T("@3 SQLManager::Init. Creating LocalPic Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE LocalPic ( ")
-			_T("parID int NOT NULL,")
-			_T("infoType smallint NOT NULL,")
-			_T("Path varchar(255) NOT NULL,")
-			_T("Type smallint NOT NULL)"));
-		m_pDB->Execute(	_T("CREATE UNIQUE INDEX LocalPicID ON LocalPic (parID, infoType)"));
-
-
-		currentDBVersion = 5;
-	}
-
-	if (currentDBVersion == 5)//Upgrade from 5 (0.95d) ->6 (0.95e)
-	{
-		//======Cached Failed Info Requests======
-
-		TRACE(_T("@3 SQLManager::Init. Creating InfoRequests Table\r\n"));
-		m_pDB->Execute(	_T("CREATE TABLE InfoRequests ( ")
-			_T("requestTimeStamp int NOT NULL,")
-			_T("hash int NOT NULL)"));
-		m_pDB->Execute(	_T("CREATE UNIQUE INDEX hashInfoRequests ON InfoRequests (hash)"));
-		m_pDB->Execute(_T("DROP TABLE InfoRecordRequest"));
-		currentDBVersion = 6;
-	}
-
-
-	//--- INSERT NEW PATCHES HERE
-	//--- SET THE latestDBVersion
-
-
-
-	if (bDBNeedsUpgrade)
-	{
-		CreateFile(_T("cdb.ins"), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-		TRACE(_T("@1 SQLManager::Init. Update DB Version\r\n"));
-		TCHAR bf[500];
-		_sntprintf(bf, 500, _T("UPDATE DBInfo SET version = %d"), latestDBVersion);
-		m_pDB->Execute(bf);
-		TRACE(_T("@1 SQLManager::Init. Upgrade Finished\r\n"));
-	}
-
+	//=== Future schema upgrades: if (version == 1) {...; version = 2;}
 	return TRUE;
 }
 
+BOOL SQLManager::CreateSchema(BOOL bWithDefaultRows)
+{
+	//Text columns use NOCASE_U (Unicode, case-insensitive): Jet compared text
+	//case-insensitively and the lookups by name/path rely on it.
+	//AUTOINCREMENT: like Jet COUNTER, IDs of deleted rows are never reused.
+	static LPCTSTR const schema =
+		_T("CREATE TABLE Genres (")
+		_T(" ID INTEGER PRIMARY KEY AUTOINCREMENT,")
+		_T(" Name TEXT NOT NULL COLLATE NOCASE_U);")
+		_T("CREATE INDEX GenresName ON Genres (Name);")
 
+		_T("CREATE TABLE Artists (")
+		_T(" ID INTEGER PRIMARY KEY AUTOINCREMENT,")
+		_T(" Name TEXT NOT NULL COLLATE NOCASE_U,")
+		_T(" GenreID INTEGER NOT NULL,")
+		_T(" Rating INTEGER NOT NULL);")
+		_T("CREATE INDEX ArtistsName ON Artists (Name);")
 
+		_T("CREATE TABLE Albums (")
+		_T(" ID INTEGER PRIMARY KEY AUTOINCREMENT,")
+		_T(" Name TEXT NOT NULL COLLATE NOCASE_U,")
+		_T(" artID INTEGER NOT NULL,")
+		_T(" Year INTEGER NOT NULL,")
+		_T(" Rating INTEGER NOT NULL);")
+		_T("CREATE INDEX AlbumsName ON Albums (Name);")
+		_T("CREATE INDEX AlbumsArtID ON Albums (artID);")
 
+		_T("CREATE TABLE Collections (")
+		_T(" ID INTEGER PRIMARY KEY AUTOINCREMENT,")
+		_T(" Name TEXT NOT NULL COLLATE NOCASE_U,")
+		_T(" PathName TEXT NOT NULL COLLATE NOCASE_U,")
+		_T(" Serial INTEGER NOT NULL,")		//Media Serial Number
+		_T(" Type INTEGER NOT NULL,")		//CollectionTypesEnum
+		_T(" DateAdded TEXT NOT NULL,")
+		_T(" DateUpdated TEXT);")
+		_T("CREATE INDEX CollectionsName ON Collections (Name);")
 
-//=============================================
-//====================Public Utilities
-//=============================================
+		_T("CREATE TABLE Tracks (")
+		_T(" ID INTEGER PRIMARY KEY AUTOINCREMENT,")
+		_T(" Name TEXT NOT NULL COLLATE NOCASE_U,")
+		_T(" Type INTEGER NOT NULL,")		//TrackTypesEnum
+		_T(" DateAdded TEXT NOT NULL,")
+		_T(" albID INTEGER NOT NULL,")
+		_T(" artID INTEGER NOT NULL,")
+		_T(" CollectionID INTEGER NOT NULL,")
+		_T(" genreID INTEGER NOT NULL,")
+		_T(" Path TEXT NOT NULL COLLATE NOCASE_U,")
+		_T(" Bitrate INTEGER,")				//In Kbps
+		_T(" Duration INTEGER,")			//In seconds
+		_T(" Size INTEGER,")
+		_T(" TrackNo INTEGER,")
+		_T(" Year INTEGER NOT NULL,")
+		_T(" Rating INTEGER NOT NULL);")
+		_T("CREATE INDEX TracksName ON Tracks (Name);")
+		_T("CREATE INDEX TracksPath ON Tracks (Path);")
+		_T("CREATE INDEX TracksAlbID ON Tracks (albID);")
+		_T("CREATE INDEX TracksArtID ON Tracks (artID);")
+		_T("CREATE INDEX TracksGenreID ON Tracks (genreID);")
+		_T("CREATE INDEX TracksCollectionID ON Tracks (CollectionID);")
+
+		_T("CREATE TABLE HistArtists (")
+		_T(" ID INTEGER PRIMARY KEY AUTOINCREMENT,")
+		_T(" Name TEXT NOT NULL COLLATE NOCASE_U);")
+		_T("CREATE INDEX HistArtistsName ON HistArtists (Name);")
+
+		_T("CREATE TABLE HistTracks (")
+		_T(" ID INTEGER PRIMARY KEY AUTOINCREMENT,")
+		_T(" Name TEXT NOT NULL COLLATE NOCASE_U,")
+		_T(" artID INTEGER NOT NULL);")
+		_T("CREATE INDEX HistTracksName ON HistTracks (Name);")
+		_T("CREATE INDEX HistTracksArtID ON HistTracks (artID);")
+
+		_T("CREATE TABLE HistLog (")
+		_T(" ID INTEGER PRIMARY KEY AUTOINCREMENT,")
+		_T(" actID INTEGER NOT NULL,")
+		_T(" DateAdded TEXT NOT NULL,")
+		_T(" trackID INTEGER NOT NULL);")
+		_T("CREATE INDEX HistLogTrackID ON HistLog (trackID);")
+
+		_T("CREATE TABLE TracksInfo (")
+		_T(" ID INTEGER PRIMARY KEY AUTOINCREMENT,")
+		_T(" trackID INTEGER NOT NULL,")
+		_T(" Name TEXT NOT NULL COLLATE NOCASE_U,")
+		_T(" DateAdded TEXT NOT NULL,")
+		_T(" Type INTEGER NOT NULL);")
+		_T("CREATE INDEX TracksInfoTrackID ON TracksInfo (trackID);")
+
+		_T("CREATE TABLE AlbumsInfo (")
+		_T(" ID INTEGER PRIMARY KEY AUTOINCREMENT,")
+		_T(" albID INTEGER NOT NULL,")
+		_T(" Name TEXT NOT NULL COLLATE NOCASE_U,")
+		_T(" DateAdded TEXT NOT NULL,")
+		_T(" Type INTEGER NOT NULL);")
+		_T("CREATE INDEX AlbumsInfoAlbID ON AlbumsInfo (albID);")
+
+		_T("CREATE TABLE ArtistsInfo (")
+		_T(" ID INTEGER PRIMARY KEY AUTOINCREMENT,")
+		_T(" artID INTEGER NOT NULL,")
+		_T(" Name TEXT NOT NULL COLLATE NOCASE_U,")
+		_T(" DateAdded TEXT NOT NULL,")
+		_T(" Type INTEGER NOT NULL);")
+		_T("CREATE INDEX ArtistsInfoArtID ON ArtistsInfo (artID);")
+
+		_T("CREATE TABLE LocalPic (")
+		_T(" parID INTEGER NOT NULL,")
+		_T(" infoType INTEGER NOT NULL,")
+		_T(" Path TEXT NOT NULL COLLATE NOCASE_U,")
+		_T(" Type INTEGER NOT NULL);")
+		_T("CREATE UNIQUE INDEX LocalPicID ON LocalPic (parID, infoType);")
+
+		_T("CREATE TABLE InfoRequests (")
+		_T(" requestTimeStamp INTEGER NOT NULL,")
+		_T(" hash INTEGER NOT NULL);")
+		_T("CREATE UNIQUE INDEX hashInfoRequests ON InfoRequests (hash);");
+
+	static LPCTSTR const defaultRows =
+		_T("INSERT INTO Genres (ID, Name) VALUES (1, '[Unknown]');")
+		_T("INSERT INTO Artists (ID, Name, GenreID, Rating) VALUES (1, '[Unknown]', 1, 0);")
+		_T("INSERT INTO Artists (ID, Name, GenreID, Rating) VALUES (2, '[Various]', 1, 0);")
+		_T("INSERT INTO HistArtists (ID, Name) VALUES (1, '[Unknown]');");
+
+	TRACE(_T("@2 SQLManager::CreateSchema\r\n"));
+	if (m_pDB->Execute(schema) == -1)
+		return FALSE;
+	if (bWithDefaultRows && m_pDB->Execute(defaultRows) == -1)
+		return FALSE;
+	return TRUE;
+}
+
+BOOL SQLManager::ImportLegacyDatabase(LPCTSTR mdbPath)
+{
+	TRACE(_T("@2 SQLManager::ImportLegacyDatabase '%s'\r\n"), mdbPath);
+	std::tstring error;
+	if (JetImporter::Import(mdbPath, *m_pDB, error))
+		return TRUE;
+	std::tstring msg(_T("The existing music database could not be converted:\r\n"));
+	msg += mdbPath;
+	msg += _T("\r\n\r\n");
+	msg += error;
+	msg += _T("\r\n\r\nThe old database has not been modified.");
+	::MessageBox(0, msg.c_str(), _T("Database Error"), MB_OK | MB_ICONERROR);
+	return FALSE;
+}
+
+void SQLManager::InvalidateCaches()
+{
+	m_genreCache.ID = 0;
+	m_albumCache.ID = 0;
+	m_artistCache.ID = 0;
+}
+
+std::tstring SQLManager::SQLQuote(LPCTSTR value)
+{
+	std::tstring ret(_T("'"));
+	if (value != NULL)
+	{
+		for (LPCTSTR p = value; *p != 0; p++)
+		{
+			if (*p == _T('\''))
+				ret += _T('\'');
+			ret += *p;
+		}
+	}
+	ret += _T("'");
+	return ret;
+}
+
+std::tstring SQLManager::SQLDate(const SYSTEMTIME& input)
+{
+	SYSTEMTIME day = input;
+	day.wHour = day.wMinute = day.wSecond = day.wMilliseconds = 0;
+	std::tstring ret(_T("'"));
+	ret += SQLiteDB::FormatDate(day);
+	ret += _T("'");
+	return ret;
+}
+
 
 INT SQLManager::AddNewTrackFromTagInfo(UINT collectionID, LPCTSTR location, TagInfo& info)
 {
 	TRACEST(_T("SQLManager::AddNewTrackFromTagInfo"));
-	//ASSERT(info.validFields != TagInfo_None);
 	ASSERT(collectionID != 0 && location != NULL);
 	if (collectionID == 0)
 	{
@@ -971,15 +499,9 @@ BOOL SQLManager::UpdateTrackFromTagInfo(UINT ID, UINT collectionID, LPCTSTR loca
 			{
 				//=== We have changed Artist but not Album Name
 				AlbumRecord album;
-				if (GetAlbumRecordUnique(track.artID, existing.name.c_str(), album))
-				{
-					//=== An album name with the same name exists under the new artist
-					//=== We just assign the album.ID to the track.albID 
-				}
-				else
+				if (!GetAlbumRecordUnique(track.artID, existing.name.c_str(), album))
 				{
 					//=== There is no Album with such name in this new artist
-					//=== We are creating a new one and assigning the new albID 
 					album.artID = track.artID;
 					album.year = existing.year;
 					album.name = existing.name.c_str();
@@ -987,10 +509,6 @@ BOOL SQLManager::UpdateTrackFromTagInfo(UINT ID, UINT collectionID, LPCTSTR loca
 						return FALSE;
 				}
 				track.albID = album.ID;
-			}
-			else
-			{
-				//=== We haven' t change artist
 			}
 		}
 	}
@@ -1030,30 +548,30 @@ BOOL SQLManager::UpdateTrackFromTagInfo(UINT ID, UINT collectionID, LPCTSTR loca
 //=================== SQL Strings / GetField functions
 //==============================================
 
-const TCHAR* const TrackSQL = _T("SELECT Tracks.ID,[Tracks.Name],[Tracks.Type],Tracks.DateAdded,")
+const TCHAR* const TrackSQL = _T("SELECT Tracks.ID,Tracks.Name,Tracks.Type,Tracks.DateAdded,")
 _T("Tracks.albID,Tracks.artID,Tracks.CollectionID,Tracks.GenreID,Tracks.Path,")
-_T("Tracks.Bitrate,Tracks.Duration,[Tracks.Size],Tracks.TrackNo,")
+_T("Tracks.Bitrate,Tracks.Duration,Tracks.Size,Tracks.TrackNo,")
 _T("Tracks.Year,Tracks.Rating ")
 _T("FROM Tracks ");
 
-void SQLManager::GetTrackRecordFields(TrackRecord& rec, ADORecordset& rs, short& fieldID)
+void SQLManager::GetTrackRecordFields(TrackRecord& rec, SQLiteStmt& rs, short& fieldID)
 {
 	rec.ID = rs.GetUINTFieldValue(fieldID++);
 	rs.GetStringFieldValue(fieldID++, rec.name);
 	rec.trackType = (TrackTypesEnum)rs.GetINTFieldValue(fieldID++);
 	rec.dateAdded = rs.GetSYSTEMTIMEFieldValue(fieldID++);
-	
+
 	rec.albID = rs.GetINTFieldValue(fieldID++);
 	rec.artID = rs.GetINTFieldValue(fieldID++);
 	rec.colID = rs.GetINTFieldValue(fieldID++);
 	rec.genID = rs.GetINTFieldValue(fieldID++);
 	rs.GetStringFieldValue(fieldID++, rec.location);
-	
+
 	rec.bitrate = rs.GetINTFieldValue(fieldID++);
 	rec.duration = rs.GetINTFieldValue(fieldID++);
 	rec.size = rs.GetINTFieldValue(fieldID++);
 	rec.trackNo = rs.GetINTFieldValue(fieldID++);
-	
+
 	rec.year = rs.GetINTFieldValue(fieldID++);
 	rec.rating = rs.GetINTFieldValue(fieldID++);
 
@@ -1064,7 +582,7 @@ const TCHAR* const AlbumSQL = _T("SELECT ")
 _T("ID, Name, artID, Year, Rating ")
 _T("FROM Albums ");
 
-void SQLManager::GetAlbumRecordFields(AlbumRecord& album, ADORecordset& rs, short& startIdx)
+void SQLManager::GetAlbumRecordFields(AlbumRecord& album, SQLiteStmt& rs, short& startIdx)
 {
 	album.ID = rs.GetUINTFieldValue(startIdx++);
 	rs.GetStringFieldValue(startIdx++, album.name);
@@ -1078,13 +596,12 @@ const TCHAR* const ArtistSQL = _T("SELECT ")
 _T("ID, Name, GenreID, Rating ")
 _T("FROM Artists ");
 
-void SQLManager::GetArtistRecordFields(ArtistRecord& artist, ADORecordset& rs, short& startIdx)
+void SQLManager::GetArtistRecordFields(ArtistRecord& artist, SQLiteStmt& rs, short& startIdx)
 {
 	artist.ID = rs.GetUINTFieldValue(startIdx++);
 	rs.GetStringFieldValue(startIdx++, artist.name);
 	artist.genID = rs.GetUINTFieldValue(startIdx++);
 	artist.rating = rs.GetSHORTFieldValue(startIdx++);
-	ASSERT(artist.IsValid());
 }
 
 const TCHAR* const GenreSQL = _T("SELECT ")
@@ -1092,12 +609,14 @@ _T("Genres.ID, Genres.Name ")
 _T(", -1 ")
 _T("FROM Genres ");
 
+//Grouped queries select "bare" columns: SQLite takes all of them from the same
+//row of each group, which is what Jet's first() did.
 const TCHAR* const CountGenreSQL = _T("SELECT ")
-_T("first(Genres.ID), first(Genres.Name)")
+_T("Genres.ID, Genres.Name")
 _T(", count(*) ")
 _T("FROM Tracks INNER JOIN Genres ON Tracks.genreID = Genres.ID ");
 
-void SQLManager::GetGenreRecordFields(GenreRecord& genre, ADORecordset& rs, short& startIdx)
+void SQLManager::GetGenreRecordFields(GenreRecord& genre, SQLiteStmt& rs, short& startIdx)
 {
 	genre.ID = rs.GetUINTFieldValue(startIdx++);
 	rs.GetStringFieldValue(startIdx++, genre.name);
@@ -1112,66 +631,29 @@ _T(", 0, 0, 0 ")
 _T("FROM Collections ");
 
 const TCHAR* const CountCollectionSQL = _T("SELECT ")
-_T("first(Collections.ID), first(Collections.Name), first(Collections.PathName) ")
-_T(", first(Collections.Serial), first(Collections.Type) ")
-_T(", first(Collections.DateAdded), first(Collections.DateUpdated) ")
-_T(", count(Tracks.ID), Sum([Tracks.Size]), Sum(Tracks.Duration) ")
+_T("Collections.ID, Collections.Name, Collections.PathName ")
+_T(", Collections.Serial, Collections.Type ")
+_T(", Collections.DateAdded, Collections.DateUpdated ")
+_T(", count(Tracks.ID), Sum(Tracks.Size), Sum(Tracks.Duration) ")
 _T("FROM Collections LEFT JOIN Tracks ON Collections.ID = Tracks.CollectionID ");
 
-
-
-void SQLManager::GetCollectionRecordFields(CollectionRecord& rec, ADORecordset& rs, short& startIdx)
+void SQLManager::GetCollectionRecordFields(CollectionRecord& rec, SQLiteStmt& rs, short& startIdx)
 {
 	rec.ID = rs.GetINTFieldValue(startIdx++);
 	rs.GetStringFieldValue(startIdx++, rec.name);
 	rs.GetStringFieldValue(startIdx++, rec.location);
 	rec.serial = rs.GetINTFieldValue(startIdx++);
 	rec.type = (CollectionTypesEnum) rs.GetINTFieldValue(startIdx++);
-	//rec.status = (CollectionStatusEnum)rs.GetINTFieldValue(startIdx++);
 	rec.dateAdded = rs.GetSYSTEMTIMEFieldValue(startIdx++);
 	rec.dateUpdated = rs.GetSYSTEMTIMEFieldValue(startIdx++);
 	ASSERT(rec.IsValid());
 }
 
-BOOL SQLManager::SetCollectionRecordFields(CollectionRecord& collection, ADORecordset& rs)
-{
-	INT ret = rs.SetVariantFieldValue(_T("name"), collection.name.c_str()) ? 1 : 0;
-	ret += rs.SetVariantFieldValue(_T("pathname"), collection.location.c_str()) ? 1 : 0;
-	ret += rs.SetVariantFieldValue(_T("serial"), collection.serial) ? 1 : 0;
-	ret += rs.SetVariantFieldValue(_T("type"), collection.type) ? 1 : 0;
-	//ret += rs.SetVariantFieldValue(_T("status"), collection.status) ? 1 : 0;
-	ret += rs.SetSystemTimeFieldValue(_T("dateAdded"), collection.dateAdded) ? 1 : 0;
-	ret += rs.SetSystemTimeFieldValue(_T("dateUpdated"), collection.dateUpdated) ? 1 : 0;
-	ASSERT(ret == 6);
-	return ret == 6;
-}
-
-
-//const TCHAR* const InfoSQL = _T("SELECT ")
-//_T("ID, Name, DateAdded ")
-//_T("FROM Info ");
-
-//void SQLManager::GetInfoRecordFields(InfoRecord& rec, ADORecordset& rs, short& fieldID)
-//{
-//	rec.ID = rs.GetUINTFieldValue(fieldID++);
-//	rs.GetStringFieldValue(fieldID++, rec.name);
-//	rec.dateAdded = rs.GetSYSTEMTIMEFieldValue(fieldID++);
-//	ASSERT(rec.IsValid());
-//}
-
-//BOOL SQLManager::SetInfoRecordFields(InfoRecord& rec, ADORecordset& rs)
-//{
-//	INT ret = rs.SetVariantFieldValue(_T("name"), rec.name.c_str()) ? 1 : 0;
-//	ret += rs.SetSystemTimeFieldValue(_T("dateAdded"), rec.dateAdded) ? 1 : 0;
-//	ASSERT(ret == 2);
-//	return ret == 2;
-//}
-
 const TCHAR* const HistArtistSQL = _T("SELECT ")
 _T("ID, Name ")
 _T("FROM HistArtists ");
 
-void SQLManager::GetHistArtistRecordFields(HistArtistRecord& rec, ADORecordset& rs, short& startIdx)
+void SQLManager::GetHistArtistRecordFields(HistArtistRecord& rec, SQLiteStmt& rs, short& startIdx)
 {
 	rec.ID = rs.GetUINTFieldValue(startIdx++);
 	rs.GetStringFieldValue(startIdx++, rec.name);
@@ -1180,9 +662,9 @@ void SQLManager::GetHistArtistRecordFields(HistArtistRecord& rec, ADORecordset& 
 
 const TCHAR* const HistLogSQL = _T("SELECT ")
 _T("ID, actID, DateAdded, trackID ")
-_T("FROM HistLog");
+_T("FROM HistLog ");
 
-void SQLManager::GetHistLogRecordFields(HistLogRecord& rec, ADORecordset& rs, short& startIdx)
+void SQLManager::GetHistLogRecordFields(HistLogRecord& rec, SQLiteStmt& rs, short& startIdx)
 {
 	rec.ID = rs.GetUINTFieldValue(startIdx++);
 	rec.actID = (HistoryLogActionsEnum) rs.GetINTFieldValue(startIdx++);
@@ -1195,7 +677,7 @@ const TCHAR* const HistTrackSQL = _T("SELECT ")
 _T("ID, Name, artID ")
 _T("FROM HistTracks ");
 
-void SQLManager::GetHistTrackRecordFields(HistTrackRecord& rec, ADORecordset& rs, short& fieldID)
+void SQLManager::GetHistTrackRecordFields(HistTrackRecord& rec, SQLiteStmt& rs, short& fieldID)
 {
 	rec.ID = rs.GetUINTFieldValue(fieldID++);
 	rs.GetStringFieldValue(fieldID++, rec.name);
@@ -1204,26 +686,22 @@ void SQLManager::GetHistTrackRecordFields(HistTrackRecord& rec, ADORecordset& rs
 }
 
 
-
-
-
 //=============================================
 //====================Retrieve Collections By SQL
 //=============================================
 BOOL SQLManager::GetTrackRecordCollectionBySQL(TrackRecordCollection& col, LPCTSTR sql, INT limitResults)
 {
-	ASSERT(sql != NULL);
-	ASSERT(sql[0] != 0);
-	ADORecordset rs(m_pDB);
+	ASSERT(sql != NULL && sql[0] != 0);
+	SQLiteStmt rs(m_pDB);
 	if (!rs.Open(sql))
 		return FALSE;
 	INT countResults = 0;
 	while (!rs.IsEOF())
 	{
-		TrackRecord* pRec = new TrackRecord;
+		TrackRecordSP rec(new TrackRecord);
 		short startIdx = 0;
-		GetTrackRecordFields(*pRec, rs, startIdx);
-		col.push_back(TrackRecordSP(pRec));
+		GetTrackRecordFields(*rec, rs, startIdx);
+		col.push_back(rec);
 		countResults++;
 		if (countResults == limitResults)
 			return TRUE;
@@ -1234,18 +712,17 @@ BOOL SQLManager::GetTrackRecordCollectionBySQL(TrackRecordCollection& col, LPCTS
 
 BOOL SQLManager::GetGenreRecordCollectionBySQL(GenreRecordCollection& col, LPCTSTR sql)
 {
-	ASSERT(sql != NULL);
-	ASSERT(sql[0] != 0);
-	ADORecordset rs(m_pDB);
+	ASSERT(sql != NULL && sql[0] != 0);
+	SQLiteStmt rs(m_pDB);
 	if (!rs.Open(sql))
 		return FALSE;
 	while (!rs.IsEOF())
 	{
-		GenreRecord* pRec = new GenreRecord;
+		GenreRecordSP rec(new GenreRecord);
 		short startIdx = 0;
-		GetGenreRecordFields(*pRec, rs, startIdx);
-		pRec->trackCount = rs.GetINTFieldValue(startIdx++);
-		col.push_back(GenreRecordSP(pRec));
+		GetGenreRecordFields(*rec, rs, startIdx);
+		rec->trackCount = rs.GetINTFieldValue(startIdx++);
+		col.push_back(rec);
 		rs.MoveNext();
 	}
 	return TRUE;
@@ -1253,20 +730,19 @@ BOOL SQLManager::GetGenreRecordCollectionBySQL(GenreRecordCollection& col, LPCTS
 
 BOOL SQLManager::GetCollectionRecordCollectionBySQL(CollectionRecordCollection& col, LPCTSTR sql)
 {
-	ASSERT(sql != NULL);
-	ASSERT(sql[0] != 0);
-	ADORecordset rs(m_pDB);
+	ASSERT(sql != NULL && sql[0] != 0);
+	SQLiteStmt rs(m_pDB);
 	if (!rs.Open(sql))
 		return FALSE;
 	while (!rs.IsEOF())
 	{
-		CollectionRecord* pRec = new CollectionRecord;
+		CollectionRecordSP rec(new CollectionRecord);
 		short startIdx = 0;
-		GetCollectionRecordFields(*pRec, rs, startIdx);
-		pRec->trackCount = rs.GetUINTFieldValue(startIdx++);
-		pRec->sumSize = (UINT)rs.GetDOUBLEFieldValue(startIdx++);
-		pRec->sumDuration = (UINT)rs.GetDOUBLEFieldValue(startIdx++);
-		col.push_back(CollectionRecordSP(pRec));
+		GetCollectionRecordFields(*rec, rs, startIdx);
+		rec->trackCount = rs.GetUINTFieldValue(startIdx++);
+		rec->sumSize = (UINT)rs.GetDOUBLEFieldValue(startIdx++);
+		rec->sumDuration = (UINT)rs.GetDOUBLEFieldValue(startIdx++);
+		col.push_back(rec);
 		rs.MoveNext();
 	}
 	return TRUE;
@@ -1274,18 +750,17 @@ BOOL SQLManager::GetCollectionRecordCollectionBySQL(CollectionRecordCollection& 
 
 BOOL SQLManager::GetYearRecordCollectionBySQL(YearRecordCollection& col, LPCTSTR sql)
 {
-	ASSERT(sql != NULL);
-	ASSERT(sql[0] != 0);
-	ADORecordset rs(m_pDB);
+	ASSERT(sql != NULL && sql[0] != 0);
+	SQLiteStmt rs(m_pDB);
 	if (!rs.Open(sql))
 		return FALSE;
 	while (!rs.IsEOF())
 	{
-		YearRecord* rec = new YearRecord;
+		YearRecordSP rec(new YearRecord);
 		short startIdx = 0;
 		rec->year = rs.GetINTFieldValue(startIdx++);
 		rec->trackCount = rs.GetINTFieldValue(startIdx++);
-		col.push_back(YearRecordSP(rec));
+		col.push_back(rec);
 		rs.MoveNext();
 	}
 	return TRUE;
@@ -1293,18 +768,17 @@ BOOL SQLManager::GetYearRecordCollectionBySQL(YearRecordCollection& col, LPCTSTR
 
 BOOL SQLManager::GetMonthAddedRecordCollectionBySQL(MonthAddedRecordCollection& col, LPCTSTR sql)
 {
-	ASSERT(sql != NULL);
-	ASSERT(sql[0] != 0);
-	ADORecordset rs(m_pDB);
+	ASSERT(sql != NULL && sql[0] != 0);
+	SQLiteStmt rs(m_pDB);
 	if (!rs.Open(sql))
 		return FALSE;
 	while (!rs.IsEOF())
 	{
-		MonthAddedRecord* rec = new MonthAddedRecord;
+		MonthAddedRecordSP rec(new MonthAddedRecord);
 		short startIdx = 0;
 		rec->month = rs.GetINTFieldValue(startIdx++);
 		rec->trackCount = rs.GetINTFieldValue(startIdx++);
-		col.push_back(MonthAddedRecordSP(rec));
+		col.push_back(rec);
 		rs.MoveNext();
 	}
 	return TRUE;
@@ -1313,9 +787,8 @@ BOOL SQLManager::GetMonthAddedRecordCollectionBySQL(MonthAddedRecordCollection& 
 
 BOOL SQLManager::GetFullTrackRecordCollectionBySQL(FullTrackRecordCollection& col, LPCTSTR sql, INT limitResults)
 {
-	ASSERT(sql != NULL);
-	ASSERT(sql[0] != 0);
-	ADORecordset rs(m_pDB);
+	ASSERT(sql != NULL && sql[0] != 0);
+	SQLiteStmt rs(m_pDB);
 	if (!rs.Open(sql))
 		return FALSE;
 	INT countResults = 0;
@@ -1335,27 +808,23 @@ BOOL SQLManager::GetFullTrackRecordCollectionBySQL(FullTrackRecordCollection& co
 			return TRUE;
 		rs.MoveNext();
 	}
-	if (col.size() == 0)
-		TRACE(_T("@1 SQLManager::GetFullTrackRecordCollectionBySQL. returning empty collection\r\n"));
 	return TRUE;
 }
 
 BOOL SQLManager::GetFullAlbumRecordCollectionBySQL(FullAlbumRecordCollection& col, LPCTSTR sql)
 {
-	ASSERT(sql != NULL);
-	ASSERT(sql[0] != 0);
-	ADORecordset rs(m_pDB);
+	ASSERT(sql != NULL && sql[0] != 0);
+	SQLiteStmt rs(m_pDB);
 	if (!rs.Open(sql))
 		return FALSE;
 	while (!rs.IsEOF())
 	{
-		FullAlbumRecord* rec = new FullAlbumRecord;
+		FullAlbumRecordSP rec(new FullAlbumRecord);
 		short fieldID = 0;
 		GetAlbumRecordFields(rec->album, rs, fieldID);
 		GetArtistRecordFields(rec->artist, rs, fieldID);
 		rec->album.trackCount = rs.GetINTFieldValue(fieldID++);
-
-		col.push_back(FullAlbumRecordSP(rec));
+		col.push_back(rec);
 		rs.MoveNext();
 	}
 	return TRUE;
@@ -1363,21 +832,18 @@ BOOL SQLManager::GetFullAlbumRecordCollectionBySQL(FullAlbumRecordCollection& co
 
 BOOL SQLManager::GetFullArtistRecordCollectionBySQL(FullArtistRecordCollection& col, LPCTSTR sql)
 {
-	ASSERT(sql != NULL);
-	ASSERT(sql[0] != 0);
-	ADORecordset rs(m_pDB);
+	ASSERT(sql != NULL && sql[0] != 0);
+	SQLiteStmt rs(m_pDB);
 	if (!rs.Open(sql))
 		return FALSE;
 	while (!rs.IsEOF())
 	{
-		//TCHAR bf[cMaxStringLen];//MAX_STRING_LEN
-		FullArtistRecord* rec = new FullArtistRecord;
+		FullArtistRecordSP rec(new FullArtistRecord);
 		short fieldID = 0;
 		GetArtistRecordFields(rec->artist, rs, fieldID);
 		GetGenreRecordFields(rec->genre, rs, fieldID);
 		rec->artist.trackCount = rs.GetINTFieldValue(fieldID++);
-
-		col.push_back(FullArtistRecordSP(rec));
+		col.push_back(rec);
 		rs.MoveNext();
 	}
 	return TRUE;
@@ -1385,23 +851,18 @@ BOOL SQLManager::GetFullArtistRecordCollectionBySQL(FullArtistRecordCollection& 
 
 
 //=============================================
-//====================Retrieve Records By ID
+//====================Pictures / Info requests
 //=============================================
-
-//===============Get-Xxx-Record: Gets a record from ID
-//REQUIRE:	ID!=0
-//RETURN:	FALSE if xxx does not exists || failure
-//			TRUE on success.
 
 BOOL SQLManager::GetPicRecord(PicRecord& rec)
 {
 	ASSERT(rec.parID > 0);
 	if (rec.parID == 0)
 		return FALSE;
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("SELECT path,type FROM localpic WHERE parID=%d AND infoType=%d"), rec.parID, rec.infoType);
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
+	SQLiteStmt rs(m_pDB);
+	if (rs.Prepare(_T("SELECT path,type FROM LocalPic WHERE parID=? AND infoType=?")) &&
+		rs.BindUInt(1, rec.parID) && rs.BindInt(2, rec.infoType) &&
+		rs.Step() && !rs.IsEOF())
 	{
 		short fieldID = 0;
 		rs.GetStringFieldValue(fieldID++, rec.path);
@@ -1417,82 +878,42 @@ BOOL SQLManager::AddOrUpdatePicRecord(PicRecord& rec)
 	ASSERT(rec.parID != NULL);
 	if (rec.parID == 0)
 		return FALSE;
-	TCHAR sql[200];
-	_sntprintf(sql, 200, _T("SELECT * FROM LocalPic WHERE parID=%d AND infoType=%d"), rec.parID, rec.infoType);
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenDynamic, adLockPessimistic, adCmdText) && !rs.IsEOF())
-	{
-		rs.Edit();
-	}
-	else
-	{
-		if (rs.Open(_T("LocalPic"), adOpenKeyset, adLockOptimistic, adCmdTable))
-		{
-			rs.AddNew();
-			rs.SetVariantFieldValue(_T("parID"), rec.parID);
-			rs.SetVariantFieldValue(_T("infoType"), rec.infoType);
-		}
-		else
-			return FALSE;
-	}
-	rs.SetVariantFieldValue(_T("path"), rec.path.c_str());
-	rs.SetVariantFieldValue(_T("type"), rec.pictureType);
-	return rs.Update();
-
+	SQLiteStmt st(m_pDB);
+	return st.Prepare(
+			_T("INSERT INTO LocalPic (parID, infoType, Path, Type) VALUES (?,?,?,?) ")
+			_T("ON CONFLICT(parID, infoType) DO UPDATE SET Path=excluded.Path, Type=excluded.Type")) &&
+		st.BindUInt(1, rec.parID) && st.BindInt(2, rec.infoType) &&
+		st.BindText(3, rec.path.c_str()) && st.BindInt(4, rec.pictureType) &&
+		st.Exec() > 0;
 }
 
 BOOL SQLManager::DeletePicRecord(InfoItemTypeEnum iit, UINT parID)
 {
 	ASSERT(iit >= IIT_Unknown && iit < IIT_Last);
-	ASSERT(parID >= 0);
 	ASSERT(m_pDB != NULL);
-	TCHAR sql[200];
-	_sntprintf(sql, 200, _T("DELETE FROM LocalPic WHERE parID=%d AND infoType=%d"), parID, iit);
-	return m_pDB->Execute(sql) != -1;
+	SQLiteStmt st(m_pDB);
+	return st.Prepare(_T("DELETE FROM LocalPic WHERE parID=? AND infoType=?")) &&
+		st.BindUInt(1, parID) && st.BindInt(2, iit) && st.Exec() != -1;
 }
-
-
-//BOOL SQLManager::GetInfoRecordRequestRecord(InfoRecordRequest& rec)
-//{
-//	ASSERT(rec.parID > 0);
-//	if (rec.parID == 0)
-//		return FALSE;
-//	TCHAR sql[1000];
-//	_sntprintf(sql, 1000, _T("SELECT result, requestTimeStamp FROM InfoRecordRequest WHERE parID=%d AND infoType=%d"), 
-//		rec.parID, 
-//		rec.infoType);
-//	ADORecordset rs(m_pDB);
-//	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-//	{
-//		short fieldID = 0;
-//		rec.result = (InfoRecordRequestResultEnum)rs.GetINTFieldValue(fieldID++);
-//		rec.requestTimeStamp = rs.GetUINTFieldValue(fieldID++);
-//		ASSERT(rec.IsValid());
-//		return TRUE;
-//	}
-//	return FALSE;
-//}
 
 BOOL SQLManager::AddInfoRequest(UINT timeStamp, UINT hash)
 {
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("INSERT INTO InfoRequests (requestTimeStamp,hash) VALUES (%u,%u)"), 
-		timeStamp, 
-		hash
-		);
-	return m_pDB->Execute(sql) == -1;
+	SQLiteStmt st(m_pDB);
+	return st.Prepare(_T("INSERT OR IGNORE INTO InfoRequests (requestTimeStamp,hash) VALUES (?,?)")) &&
+		st.BindUInt(1, timeStamp) && st.BindUInt(2, hash) && st.Exec() != -1;
 }
+
 BOOL SQLManager::DeleteInfoRequestsOlderThan(UINT timeStampLimit)
 {
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("DELETE FROM InfoRequests WHERE requestTimeStamp<%u"), timeStampLimit);
-	return m_pDB->Execute(sql) != - 1;
+	SQLiteStmt st(m_pDB);
+	return st.Prepare(_T("DELETE FROM InfoRequests WHERE requestTimeStamp<?")) &&
+		st.BindUInt(1, timeStampLimit) && st.Exec() != -1;
 }
 
 BOOL SQLManager::GetInfoRequests(std::set<UINT>& requestSet)
 {
-	ADORecordset rs(m_pDB);
-	if (rs.Open(_T("SELECT hash FROM InfoRequests"), adOpenForwardOnly, adLockReadOnly, adCmdText))
+	SQLiteStmt rs(m_pDB);
+	if (rs.Open(_T("SELECT hash FROM InfoRequests")))
 	{
 		while (!rs.IsEOF())
 		{
@@ -1504,143 +925,72 @@ BOOL SQLManager::GetInfoRequests(std::set<UINT>& requestSet)
 }
 
 
+//=============================================
+//====================Retrieve Records By ID
+//=============================================
+
+//===============Get-Xxx-Record: Gets a record from ID
+//REQUIRE:	ID!=0
+//RETURN:	FALSE if xxx does not exists || failure
+//			TRUE on success.
+
+#define GET_RECORD_BY_ID(baseSQL, readFields)							\
+	SQLiteStmt rs(m_pDB);												\
+	std::tstring sql(baseSQL);											\
+	sql += _T(" WHERE ID=?");											\
+	if (rs.Prepare(sql.c_str()) && rs.BindUInt(1, ID) && rs.Step() && !rs.IsEOF())	\
+	{																	\
+		short startIdx = 0;												\
+		readFields(rec, rs, startIdx);									\
+		return TRUE;													\
+	}																	\
+	return FALSE;
 
 BOOL SQLManager::GetTrackRecord(UINT ID, TrackRecord& rec)
 {
 	ASSERT(ID > 0);
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("%s WHERE ID=%d"), TrackSQL, ID);
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-	{
-		short startIdx = 0;
-		GetTrackRecordFields(rec, rs, startIdx);
-		return TRUE;
-	}
-	return FALSE;
+	GET_RECORD_BY_ID(TrackSQL, GetTrackRecordFields);
 }
 BOOL SQLManager::GetAlbumRecord(UINT ID, AlbumRecord& rec)
 {
 	ASSERT(ID > 0);
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("%s WHERE ID=%d"), AlbumSQL, ID);
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-	{
-		short startIdx = 0;
-		GetAlbumRecordFields(rec, rs, startIdx);
-		return TRUE;
-	}
-	return FALSE;
+	GET_RECORD_BY_ID(AlbumSQL, GetAlbumRecordFields);
 }
-
 BOOL SQLManager::GetArtistRecord(UINT ID, ArtistRecord& rec)
 {
 	ASSERT(ID > 0);
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("%s WHERE ID=%d"), ArtistSQL, ID);
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-	{
-		short startIdx = 0;
-		GetArtistRecordFields(rec, rs, startIdx);
-		return TRUE;
-	}
-	return FALSE;
+	GET_RECORD_BY_ID(ArtistSQL, GetArtistRecordFields);
 }
-
 BOOL SQLManager::GetGenreRecord(UINT ID, GenreRecord& rec)
 {
 	ASSERT(ID > 0);
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("%s WHERE ID=%d"), GenreSQL, ID);
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-	{
-		short startIdx = 0;
-		GetGenreRecordFields(rec, rs, startIdx);
-		return TRUE;
-	}
-	return FALSE;
+	GET_RECORD_BY_ID(GenreSQL, GetGenreRecordFields);
 }
-//BOOL SQLManager::GetInfoRecord(UINT ID, InfoRecord& rec)
-//{
-//	ASSERT(ID > 0);
-//	TCHAR sql[1000];
-//	_sntprintf(sql, 1000, _T("%s WHERE ID=%d"), InfoSQL, ID);
-//	ADORecordset rs(m_pDB);
-//	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-//	{
-//		short startIdx = 0;
-//		GetInfoRecordFields(rec, rs, startIdx);
-//		return TRUE;
-//	}
-//	return FALSE;
-//}
 BOOL SQLManager::GetCollectionRecord(UINT ID, CollectionRecord& rec)
 {
 	ASSERT(ID > 0);
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("%s WHERE ID=%d"), CollectionSQL, ID);
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-	{
-		short startIdx = 0;
-		GetCollectionRecordFields(rec, rs, startIdx);
-		return TRUE;
-	}
-	return FALSE;
+	GET_RECORD_BY_ID(CollectionSQL, GetCollectionRecordFields);
 }
 BOOL SQLManager::GetHistTrackRecord(UINT ID, HistTrackRecord& rec)
 {
 	ASSERT(ID > 0);
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("%s WHERE ID=%d"), HistTrackSQL, ID);
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-	{
-		short startIdx = 0;
-		GetHistTrackRecordFields(rec, rs, startIdx);
-		return TRUE;
-	}
-	return FALSE;
+	GET_RECORD_BY_ID(HistTrackSQL, GetHistTrackRecordFields);
 }
-
 BOOL SQLManager::GetHistArtistRecord(UINT ID, HistArtistRecord& rec)
 {
 	ASSERT(ID > 0);
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("%s WHERE ID=%d"), HistArtistSQL, ID);
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-	{
-		short startIdx = 0;
-		GetHistArtistRecordFields(rec, rs, startIdx);
-		return TRUE;
-	}
-	return FALSE;
+	GET_RECORD_BY_ID(HistArtistSQL, GetHistArtistRecordFields);
 }
-
 BOOL SQLManager::GetHistLogRecord(UINT ID, HistLogRecord& rec)
 {
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("%s WHERE ID=%d"), HistLogSQL, ID);
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-	{
-		short startIdx = 0;
-		GetHistLogRecordFields(rec, rs, startIdx);
-		return TRUE;
-	}
-	return FALSE;
+	GET_RECORD_BY_ID(HistLogSQL, GetHistLogRecordFields);
 }
 
 //=============================================
 //====================Retrieve Records By Unique Key
 //=============================================
 
-//===============Get-Xxx-RecordUnique: Gets a record from ID
-//REQUIRE:	ID!=0
+//===============Get-Xxx-RecordUnique
 //RETURN:	FALSE if xxx does not exists || failure
 //			TRUE on success.
 BOOL SQLManager::GetTrackRecordUnique(UINT colID, LPCTSTR location, TrackRecord& rec)
@@ -1649,16 +999,11 @@ BOOL SQLManager::GetTrackRecordUnique(UINT colID, LPCTSTR location, TrackRecord&
 	ASSERT(location != NULL);
 	if (location == NULL)
 		return FALSE;
-	std::tstring fname(location);
-	replace(fname, _T("'"), _T("''"));
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, 
-		_T("%s WHERE collectionID=%d AND path='%s' "), 
-		TrackSQL, 
-		colID,
-		fname.c_str());
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
+	std::tstring sql(TrackSQL);
+	sql += _T(" WHERE collectionID=? AND path=?");
+	SQLiteStmt rs(m_pDB);
+	if (rs.Prepare(sql.c_str()) && rs.BindUInt(1, colID) && rs.BindText(2, location) &&
+		rs.Step() && !rs.IsEOF())
 	{
 		short startIdx = 0;
 		GetTrackRecordFields(rec, rs, startIdx);
@@ -1670,31 +1015,28 @@ BOOL SQLManager::GetTrackRecordUnique(UINT colID, LPCTSTR location, TrackRecord&
 BOOL SQLManager::GetAlbumRecordUnique(UINT artID, LPCTSTR name, AlbumRecord& album)
 {
 	ASSERT(name != NULL);
-#ifdef USE_CACHED_QUERIES
-	if (sAlbumCache.ID != 0 && sAlbumCache.artID == artID && sAlbumCache.name == name)
-	{
-		album = sAlbumCache;
-		return TRUE;
-	}
-#endif // USE_CACHED_QUERIES
-	ADORecordset rs(m_pDB);
+	if (name == NULL)
+		return FALSE;
 	std::tstring fname(name);
 	if (fname.empty())
 		fname = TS_UnknownString;
-	else
-		replace(fname, _T("'"), _T("''"));
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, 
-		_T("%s WHERE name='%s' AND artID=%d"), 
-		AlbumSQL,
-		fname.c_str(), 
-		artID);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
+#ifdef USE_CACHED_QUERIES
+	if (m_albumCache.ID != 0 && m_albumCache.artID == artID && m_albumCache.name == fname)
+	{
+		album = m_albumCache;
+		return TRUE;
+	}
+#endif // USE_CACHED_QUERIES
+	std::tstring sql(AlbumSQL);
+	sql += _T(" WHERE name=? AND artID=?");
+	SQLiteStmt rs(m_pDB);
+	if (rs.Prepare(sql.c_str()) && rs.BindText(1, fname.c_str()) && rs.BindUInt(2, artID) &&
+		rs.Step() && !rs.IsEOF())
 	{
 		short startIdx = 0;
 		GetAlbumRecordFields(album, rs, startIdx);
 #ifdef USE_CACHED_QUERIES
-		sAlbumCache = album;
+		m_albumCache = album;
 #endif // USE_CACHED_QUERIES
 		return TRUE;
 	}
@@ -1704,6 +1046,8 @@ BOOL SQLManager::GetAlbumRecordUnique(UINT artID, LPCTSTR name, AlbumRecord& alb
 BOOL SQLManager::GetArtistRecordUnique(LPCTSTR name, ArtistRecord& artist)
 {
 	ASSERT(name != NULL);
+	if (name == NULL)
+		return FALSE;
 	if (name[0] == 0)
 	{
 		artist.ID = 1;
@@ -1711,38 +1055,32 @@ BOOL SQLManager::GetArtistRecordUnique(LPCTSTR name, ArtistRecord& artist)
 		return TRUE;
 	}
 #ifdef USE_CACHED_QUERIES
-	if (sArtistCache.ID != 0 && sArtistCache.name == name)
+	if (m_artistCache.ID != 0 && m_artistCache.name == name)
 	{
-		artist = sArtistCache;
+		artist = m_artistCache;
 		return TRUE;
 	}
 #endif // USE_CACHED_QUERIES
-	std::tstring fname(name);
-	replace(fname, _T("'"), _T("''"));
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, 
-		_T("%s WHERE name='%s' "), 
-		ArtistSQL, 
-		fname.c_str());
-
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
+	std::tstring sql(ArtistSQL);
+	sql += _T(" WHERE name=?");
+	SQLiteStmt rs(m_pDB);
+	if (rs.Prepare(sql.c_str()) && rs.BindText(1, name) && rs.Step() && !rs.IsEOF())
 	{
 		short startIdx = 0;
 		GetArtistRecordFields(artist, rs, startIdx);
 #ifdef USE_CACHED_QUERIES
-		sArtistCache = artist;
+		m_artistCache = artist;
 #endif // USE_CACHED_QUERIES
 		return TRUE;
 	}
 	return FALSE;
 }
 
-
-
 BOOL SQLManager::GetGenreRecordUnique(LPCTSTR name, GenreRecord& genre)
 {
 	ASSERT(name != NULL);
+	if (name == NULL)
+		return FALSE;
 	if (name[0] == 0)
 	{
 		genre.ID = 1;
@@ -1750,23 +1088,21 @@ BOOL SQLManager::GetGenreRecordUnique(LPCTSTR name, GenreRecord& genre)
 		return TRUE;
 	}
 #ifdef USE_CACHED_QUERIES
-	if (sGenreCache.ID != 0 && sGenreCache.name == name)
+	if (m_genreCache.ID != 0 && m_genreCache.name == name)
 	{
-		genre = sGenreCache;
+		genre = m_genreCache;
 		return TRUE;
 	}
 #endif // USE_CACHED_QUERIES
-	std::tstring fname(name);
-	replace(fname, _T("'"), _T("''"));
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("%s WHERE name='%s'"), GenreSQL, fname.c_str());
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
+	std::tstring sql(GenreSQL);
+	sql += _T(" WHERE name=?");
+	SQLiteStmt rs(m_pDB);
+	if (rs.Prepare(sql.c_str()) && rs.BindText(1, name) && rs.Step() && !rs.IsEOF())
 	{
 		short startIdx = 0;
 		GetGenreRecordFields(genre, rs, startIdx);
 #ifdef USE_CACHED_QUERIES
-		sGenreCache = genre;
+		m_genreCache = genre;
 #endif // USE_CACHED_QUERIES
 		return TRUE;
 	}
@@ -1776,16 +1112,13 @@ BOOL SQLManager::GetGenreRecordUnique(LPCTSTR name, GenreRecord& genre)
 BOOL SQLManager::GetCollectionRecordUnique(UINT serial, LPCTSTR location, CollectionRecord& rec)
 {
 	ASSERT(location != NULL);
-	std::tstring fname(location);
-	replace(fname, _T("'"), _T("''"));
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, 
-		_T("%s WHERE serial=%d AND pathName='%s'"), 
-		CollectionSQL, 
-		serial,
-		fname.c_str());
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
+	if (location == NULL)
+		return FALSE;
+	std::tstring sql(CollectionSQL);
+	sql += _T(" WHERE serial=? AND pathName=?");
+	SQLiteStmt rs(m_pDB);
+	if (rs.Prepare(sql.c_str()) && rs.BindInt(1, (INT)serial) && rs.BindText(2, location) &&
+		rs.Step() && !rs.IsEOF())
 	{
 		short startIdx = 0;
 		GetCollectionRecordFields(rec, rs, startIdx);
@@ -1799,16 +1132,11 @@ BOOL SQLManager::GetHistTrackRecordUnique(UINT artID, LPCTSTR name, HistTrackRec
 	ASSERT(artID != 0 && name != NULL);
 	if (artID == 0 || name == NULL)
 		return FALSE;
-	std::tstring fname(name);
-	replace(fname, _T("'"), _T("''"));
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, 
-		_T("%s WHERE artID=%d AND name='%s'"), 
-		HistTrackSQL, 
-		artID,
-		fname.c_str());
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql) && !rs.IsEOF())
+	std::tstring sql(HistTrackSQL);
+	sql += _T(" WHERE artID=? AND name=?");
+	SQLiteStmt rs(m_pDB);
+	if (rs.Prepare(sql.c_str()) && rs.BindUInt(1, artID) && rs.BindText(2, name) &&
+		rs.Step() && !rs.IsEOF())
 	{
 		short startIdx = 0;
 		GetHistTrackRecordFields(rec, rs, startIdx);
@@ -1816,20 +1144,16 @@ BOOL SQLManager::GetHistTrackRecordUnique(UINT artID, LPCTSTR name, HistTrackRec
 	}
 	return FALSE;
 }
+
 BOOL SQLManager::GetHistArtistRecordUnique(LPCTSTR name, HistArtistRecord& rec)
 {
 	ASSERT(name != NULL);
 	if (name == NULL)
 		return FALSE;
-	std::tstring fname(name);
-	replace(fname, _T("'"), _T("''"));
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, 
-		_T("%s WHERE name='%s'"), 
-		HistArtistSQL, 
-		fname.c_str());
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql) && !rs.IsEOF())
+	std::tstring sql(HistArtistSQL);
+	sql += _T(" WHERE name=?");
+	SQLiteStmt rs(m_pDB);
+	if (rs.Prepare(sql.c_str()) && rs.BindText(1, name) && rs.Step() && !rs.IsEOF())
 	{
 		short startIdx = 0;
 		GetHistArtistRecordFields(rec, rs, startIdx);
@@ -1839,93 +1163,59 @@ BOOL SQLManager::GetHistArtistRecordUnique(LPCTSTR name, HistArtistRecord& rec)
 }
 
 
-
-//===============Get-Xxx-UD: Gets the ID
-//REQUIRE:	...
+//===============Get-Xxx-ID: Gets the ID
 //RETURN:	0 if xxx does not exists || failure
 //			Database ID on success.
 UINT SQLManager::GetTrackID(UINT colID, LPCTSTR location)
 {
-	ASSERT(colID > 0);
-	ASSERT(location != NULL);
-	std::tstring fname(location);
-	replace(fname, _T("'"), _T("''"));
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("%s WHERE collectionID=%d AND path='%s'"), TrackSQL, colID, fname.c_str());
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-		return rs.GetUINTFieldValue(_T("ID"));
-	return 0;
+	TrackRecord rec;
+	return GetTrackRecordUnique(colID, location, rec) ? rec.ID : 0;
 }
 UINT SQLManager::GetAlbumID(UINT artID, LPCTSTR name)
 {
 	ASSERT(name != NULL);
+	if (name == NULL)
+		return 0;
 	std::tstring fname(name);
 	if (fname.empty())
 		fname = TS_UnknownString;
-	else
-		replace(fname, _T("'"), _T("''"));
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("SELECT * FROM albums WHERE name='%s' AND artID=%d"), fname.c_str(), artID);
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-		return rs.GetUINTFieldValue(_T("ID"));
+	SQLiteStmt rs(m_pDB);
+	if (rs.Prepare(_T("SELECT ID FROM Albums WHERE name=? AND artID=?")) &&
+		rs.BindText(1, fname.c_str()) && rs.BindUInt(2, artID) && rs.Step() && !rs.IsEOF())
+		return rs.GetUINTFieldValue(0);
 	return 0;
 }
 UINT SQLManager::GetArtistID(LPCTSTR name)
 {
 	ASSERT(name != NULL);
+	if (name == NULL)
+		return 0;
 	if (name[0] == 0)
 		return 1;
-	std::tstring fname(name);
-	replace(fname, _T("'"), _T("''"));
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("%s WHERE name='%s' "), ArtistSQL, fname.c_str());
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-		return rs.GetUINTFieldValue(_T("ID"));
+	SQLiteStmt rs(m_pDB);
+	if (rs.Prepare(_T("SELECT ID FROM Artists WHERE name=?")) &&
+		rs.BindText(1, name) && rs.Step() && !rs.IsEOF())
+		return rs.GetUINTFieldValue(0);
 	return 0;
 }
 UINT SQLManager::GetGenreID(LPCTSTR name)
 {
 	ASSERT(name != NULL);
+	if (name == NULL)
+		return 0;
 	if (name[0] == 0)
 		return 1;
-	std::tstring fname(name);
-	replace(fname, _T("'"), _T("''"));
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("%s WHERE name='%s'"), GenreSQL, fname.c_str());
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-		return rs.GetUINTFieldValue(_T("ID"));
+	SQLiteStmt rs(m_pDB);
+	if (rs.Prepare(_T("SELECT ID FROM Genres WHERE name=?")) &&
+		rs.BindText(1, name) && rs.Step() && !rs.IsEOF())
+		return rs.GetUINTFieldValue(0);
 	return 0;
-
 }
 UINT SQLManager::GetCollectionID(UINT serial, LPCTSTR location)
 {
-	ASSERT(location != NULL);
-	std::tstring fname(location);
-	replace(fname, _T("'"), _T("''"));
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("%s WHERE serial=%d AND pathName='%s'"), 
-		CollectionSQL, serial, fname.c_str());
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-		return rs.GetUINTFieldValue(_T("ID"));
-	return 0;
-
+	CollectionRecord rec;
+	return GetCollectionRecordUnique(serial, location, rec) ? rec.ID : 0;
 }
-//UINT SQLManager::GetHistTrackID(UINT artID, LPCTSTR name)
-//{
-//
-//}
-//UINT SQLManager::GetHistArtistID(LPCTSTR name)
-//{
-//
-//}
-
-
-
 
 
 //=============================================
@@ -1936,6 +1226,9 @@ UINT SQLManager::GetCollectionID(UINT serial, LPCTSTR location)
 //REQUIRE:	xxx with ID==0 && name != "" && foreign keys valid
 //RETURN:	FALSE if xxx exists || failure
 //			TRUE on success. Modifies ID with the new ID
+//INSERT ... RETURNING ID gives the new ID atomically, even when the
+//connection is shared between threads.
+
 BOOL SQLManager::AddNewTrackRecord(TrackRecord& rec)
 {
 	ASSERT(rec.ID == 0);
@@ -1959,17 +1252,21 @@ BOOL SQLManager::AddNewTrackRecord(TrackRecord& rec)
 	if (!GenreRecordExists(rec.genID))			return FALSE;
 	if (!CollectionRecordExists(rec.colID))		return FALSE;
 #endif // USE_INTEGRITY_CHECKS
-	ADORecordset rs(m_pDB);
-	if (rs.Open(_T("tracks"), adOpenKeyset, adLockOptimistic, adCmdTable))
+	SQLiteStmt st(m_pDB);
+	if (st.Prepare(_T("INSERT INTO Tracks (Name,Type,DateAdded,albID,artID,CollectionID,genreID,")
+			_T("Path,Bitrate,Duration,Size,TrackNo,Year,Rating) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING ID")) &&
+		st.BindText(1, rec.name.c_str()) && st.BindInt(2, rec.trackType) &&
+		st.BindDate(3, rec.dateAdded) && st.BindUInt(4, rec.albID) &&
+		st.BindUInt(5, rec.artID) && st.BindUInt(6, rec.colID) &&
+		st.BindUInt(7, rec.genID) && st.BindText(8, rec.location.c_str()) &&
+		st.BindInt(9, rec.bitrate) && st.BindInt(10, rec.duration) &&
+		st.BindInt(11, rec.size) && st.BindInt(12, rec.trackNo) &&
+		st.BindInt(13, rec.year) && st.BindInt(14, rec.rating) &&
+		st.Step() && !st.IsEOF())
 	{
-		rs.AddNew();
-		SetTrackRecordFields(rec, rs);
-		if (rs.Update())
-		{
-			m_changes.tracks.additions++;
-			rec.ID = rs.GetUINTFieldValue("ID");
-			return TRUE;
-		}
+		m_changes.tracks.additions++;
+		rec.ID = st.GetUINTFieldValue(0);
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -1981,9 +1278,8 @@ BOOL SQLManager::AddNewAlbumRecord(AlbumRecord& rec)
 	if (rec.name.empty())
 		rec.name = TS_UnknownString;
 #ifdef USE_CACHED_QUERIES
-	sAlbumCache.ID = 0;
+	m_albumCache.ID = 0;
 #endif // USE_CACHED_QUERIES
-
 	if (rec.ID != 0 || rec.artID == 0)
 		return FALSE;
 #ifdef USE_INTEGRITY_CHECKS
@@ -1992,17 +1288,15 @@ BOOL SQLManager::AddNewAlbumRecord(AlbumRecord& rec)
 		return FALSE;
 	if (!ArtistRecordExists(rec.artID))			return FALSE;
 #endif // USE_INTEGRITY_CHECKS
-	ADORecordset rs(m_pDB);
-	if (rs.Open(_T("albums"), adOpenKeyset, adLockOptimistic, adCmdTable))
+	SQLiteStmt st(m_pDB);
+	if (st.Prepare(_T("INSERT INTO Albums (Name,artID,Year,Rating) VALUES (?,?,?,?) RETURNING ID")) &&
+		st.BindText(1, rec.name.c_str()) && st.BindUInt(2, rec.artID) &&
+		st.BindInt(3, rec.year) && st.BindInt(4, rec.rating) &&
+		st.Step() && !st.IsEOF())
 	{
-		rs.AddNew();
-		SetAlbumRecordFields(rec, rs);
-		if (rs.Update())
-		{
-			m_changes.albums.additions++;
-			rec.ID = rs.GetUINTFieldValue("ID");
-			return TRUE;
-		}
+		m_changes.albums.additions++;
+		rec.ID = st.GetUINTFieldValue(0);
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -2015,26 +1309,22 @@ BOOL SQLManager::AddNewArtistRecord(ArtistRecord& rec)
 	if (rec.ID != 0 || rec.genID == 0 || rec.name.empty())
 		return FALSE;
 #ifdef USE_CACHED_QUERIES
-	sArtistCache.ID = 0;
+	m_artistCache.ID = 0;
 #endif // USE_CACHED_QUERIES
-
 #ifdef USE_INTEGRITY_CHECKS
 	ArtistRecord existing;
 	if (GetArtistRecordUnique(rec.name.c_str(), existing))
 		return FALSE;
 	if (!GenreRecordExists(rec.genID))			return FALSE;
 #endif // USE_INTEGRITY_CHECKS
-	ADORecordset rs(m_pDB);
-	if (rs.Open(_T("artists"), adOpenKeyset, adLockOptimistic, adCmdTable))
+	SQLiteStmt st(m_pDB);
+	if (st.Prepare(_T("INSERT INTO Artists (Name,GenreID,Rating) VALUES (?,?,?) RETURNING ID")) &&
+		st.BindText(1, rec.name.c_str()) && st.BindUInt(2, rec.genID) &&
+		st.BindInt(3, rec.rating) && st.Step() && !st.IsEOF())
 	{
-		rs.AddNew();
-		SetArtistRecordFields(rec, rs);
-		if (rs.Update())
-		{
-			m_changes.artists.additions++;
-			rec.ID = rs.GetUINTFieldValue(_T("ID"));
-			return TRUE;
-		}
+		m_changes.artists.additions++;
+		rec.ID = st.GetUINTFieldValue(0);
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -2046,61 +1336,32 @@ BOOL SQLManager::AddNewGenreRecord(GenreRecord& rec)
 	if (rec.ID != 0 || rec.name.empty())
 		return FALSE;
 #ifdef USE_CACHED_QUERIES
-	sGenreCache.ID = 0;
+	m_genreCache.ID = 0;
 #endif // USE_CACHED_QUERIES
-
 #ifdef USE_INTEGRITY_CHECKS
 	GenreRecord existing;
 	if (GetGenreRecordUnique(rec.name.c_str(), existing))
 		return FALSE;
 #endif // USE_INTEGRITY_CHECKS
-	ADORecordset rs(m_pDB);
-	if (rs.Open(_T("genres"), adOpenKeyset, adLockOptimistic, adCmdTable))
+	SQLiteStmt st(m_pDB);
+	if (st.Prepare(_T("INSERT INTO Genres (Name) VALUES (?) RETURNING ID")) &&
+		st.BindText(1, rec.name.c_str()) && st.Step() && !st.IsEOF())
 	{
-		rs.AddNew();
-		SetGenreRecordFields(rec, rs);
-		if (rs.Update())
-		{
-			m_changes.genres.additions++;
-			rec.ID = rs.GetUINTFieldValue("ID");
-			return TRUE;
-		}
+		m_changes.genres.additions++;
+		rec.ID = st.GetUINTFieldValue(0);
+		return TRUE;
 	}
 	return FALSE;
 }
 
-//BOOL SQLManager::AddNewInfoRecord(InfoRecord& rec)
-//{
-//	ASSERT(rec.ID == 0);
-//	ASSERT(!rec.name.empty());
-//	if (rec.ID != 0 || rec.name.empty())
-//		return FALSE;
-//	ADORecordset rs(m_pDB);
-//	if (rs.Open(_T("info"), adOpenKeyset, adLockOptimistic, adCmdTable))
-//	{
-//		rs.AddNew();
-//		SetInfoRecordFields(rec, rs);
-//		if (rs.Update())
-//		{
-//			m_changes.info.additions++;
-//			rec.ID = rs.GetUINTFieldValue("ID");
-//			return TRUE;
-//		}
-//	}
-//	return FALSE;
-//}
-
 BOOL SQLManager::AddNewCollectionRecord(CollectionRecord& rec)
 {
 	ASSERT(rec.ID == 0);
-	ASSERT(!rec.location.empty());	
+	ASSERT(!rec.location.empty());
 	ASSERT(rec.type > CTYPE_Unknown && rec.type < CTYPE_Last);
-	//ASSERT(rec.status >= CSTAT_Unknown && rec.status < CSTAT_Last);
 	if(rec.ID) return FALSE;
 	if(rec.location.empty()) return FALSE;
 	if(!(rec.type > CTYPE_Unknown && rec.type < CTYPE_Last)) return FALSE;
-	//if (rec.status == CSTAT_Unknown)	rec.status = CSTAT_Ready;
-	//if(!(rec.status > CSTAT_Unknown && rec.status < CSTAT_Last)) return FALSE;
 	if (rec.name.empty())
 		rec.name = rec.location;
 #ifdef USE_INTEGRITY_CHECKS
@@ -2108,21 +1369,19 @@ BOOL SQLManager::AddNewCollectionRecord(CollectionRecord& rec)
 	if (GetCollectionRecordUnique(rec.serial, rec.location.c_str(), existing))
 		return FALSE;
 #endif // USE_INTEGRITY_CHECKS
-	ADORecordset rs(m_pDB);
-	if (rs.Open(_T("collections"), adOpenKeyset, adLockOptimistic, adCmdTable))
+	::GetLocalTime(&rec.dateAdded);
+	::GetLocalTime(&rec.dateUpdated);
+	SQLiteStmt st(m_pDB);
+	if (st.Prepare(_T("INSERT INTO Collections (Name,PathName,Serial,Type,DateAdded,DateUpdated) ")
+			_T("VALUES (?,?,?,?,?,?) RETURNING ID")) &&
+		st.BindText(1, rec.name.c_str()) && st.BindText(2, rec.location.c_str()) &&
+		st.BindInt(3, (INT)rec.serial) && st.BindInt(4, rec.type) &&
+		st.BindDate(5, rec.dateAdded) && st.BindDate(6, rec.dateUpdated) &&
+		st.Step() && !st.IsEOF())
 	{
-		rs.AddNew();
-		if (rec.name.empty())
-			rec.name = rec.location;
-		::GetLocalTime(&rec.dateAdded);
-		::GetLocalTime(&rec.dateUpdated);
-		SetCollectionRecordFields(rec, rs);
-		if (rs.Update())
-		{
-			m_changes.collections.additions++;
-			rec.ID = rs.GetUINTFieldValue("ID");
-			return TRUE;
-		}
+		m_changes.collections.additions++;
+		rec.ID = st.GetUINTFieldValue(0);
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -2130,83 +1389,64 @@ BOOL SQLManager::AddNewCollectionRecord(CollectionRecord& rec)
 BOOL SQLManager::AddNewHistArtistRecord(HistArtistRecord& rec)
 {
 	ASSERT(rec.ID == 0 && !rec.name.empty());
-	if(rec.ID != 0 || rec.name.empty()) 
+	if(rec.ID != 0 || rec.name.empty())
 		return FALSE;
 #ifdef USE_INTEGRITY_CHECKS
 	HistArtistRecord existing;
 	if (GetHistArtistRecordUnique(rec.name.c_str(), existing))
 		return FALSE;
 #endif // USE_INTEGRITY_CHECKS
-	ADORecordset rs(m_pDB);
-	if (rs.Open(_T("histartists"), adOpenKeyset, adLockOptimistic, adCmdTable))
+	SQLiteStmt st(m_pDB);
+	if (st.Prepare(_T("INSERT INTO HistArtists (Name) VALUES (?) RETURNING ID")) &&
+		st.BindText(1, rec.name.c_str()) && st.Step() && !st.IsEOF())
 	{
-		rs.AddNew();
-		INT ret = rs.SetVariantFieldValue(_T("name"), rec.name.c_str()) ? 1 : 0;
-		ASSERT(ret == 1);
-		if (rs.Update())
-		{
-			rec.ID = rs.GetUINTFieldValue("ID");
-			return TRUE;
-		}
+		rec.ID = st.GetUINTFieldValue(0);
+		return TRUE;
 	}
 	return FALSE;
 }
 
-
-
 BOOL SQLManager::AddNewHistTrackRecord(HistTrackRecord& rec)
 {
 	ASSERT(rec.ID == 0 && !rec.name.empty() && rec.artID != 0);
-	if(rec.ID != 0 || rec.name.empty() || rec.artID == 0) 
+	if(rec.ID != 0 || rec.name.empty() || rec.artID == 0)
 		return FALSE;
 #ifdef USE_INTEGRITY_CHECKS
 	HistTrackRecord existing;
 	if (GetHistTrackRecordUnique(rec.artID, rec.name.c_str(), existing))
 		return FALSE;
 #endif // USE_INTEGRITY_CHECKS
-	ADORecordset rs(m_pDB);
-	if (rs.Open(_T("histtracks"), adOpenKeyset, adLockOptimistic, adCmdTable))
+	SQLiteStmt st(m_pDB);
+	if (st.Prepare(_T("INSERT INTO HistTracks (Name,artID) VALUES (?,?) RETURNING ID")) &&
+		st.BindText(1, rec.name.c_str()) && st.BindUInt(2, rec.artID) &&
+		st.Step() && !st.IsEOF())
 	{
-		rs.AddNew();
-		INT ret = rs.SetVariantFieldValue(_T("name"), rec.name.c_str()) ? 1 : 0;
-		ret += rs.SetVariantFieldValue(_T("artID"), rec.artID) ? 1 : 0;
-		ASSERT(ret == 2);
-		if (rs.Update())
-		{
-			rec.ID = rs.GetUINTFieldValue("ID");
-			return TRUE;
-		}
+		rec.ID = st.GetUINTFieldValue(0);
+		return TRUE;
 	}
 	return FALSE;
 }
+
 BOOL SQLManager::AddNewHistLogRecord(HistLogRecord& rec)
 {
 	ASSERT(rec.ID == 0 && rec.actID > HLA_Unknown && rec.actID < HLA_Last && rec.trackID);
-	if(!(rec.ID == 0 && rec.actID > HLA_Unknown && rec.actID < HLA_Last && rec.trackID)) 
+	if(!(rec.ID == 0 && rec.actID > HLA_Unknown && rec.actID < HLA_Last && rec.trackID))
 		return FALSE;
-	ADORecordset rs(m_pDB);
-	if (rs.Open(_T("histlog"), adOpenKeyset, adLockOptimistic, adCmdTable))
+	SQLiteStmt st(m_pDB);
+	if (st.Prepare(_T("INSERT INTO HistLog (actID,trackID,DateAdded) VALUES (?,?,?) RETURNING ID")) &&
+		st.BindInt(1, rec.actID) && st.BindUInt(2, rec.trackID) &&
+		st.BindDate(3, rec.dateAdded) && st.Step() && !st.IsEOF())
 	{
-		rs.AddNew();
-		INT ret = rs.SetVariantFieldValue(_T("actID"), rec.actID) ? 1 : 0;
-		ret += rs.SetVariantFieldValue(_T("trackID"), rec.trackID) ? 1 : 0;
-		ret += rs.SetSystemTimeFieldValue(_T("dateAdded"), rec.dateAdded) ? 1 : 0;
-		ASSERT(ret == 3);
-		if (rs.Update())
-		{
-			rec.ID = rs.GetUINTFieldValue("ID");
-			return TRUE;
-		}
+		rec.ID = st.GetUINTFieldValue(0);
+		return TRUE;
 	}
 	return FALSE;
-
 }
-
 
 
 //===============Update-Xxx-Record: Updates a Xxx record
 //REQUIRE:	xxx with ID!=0 && name != "" && foreign keys valid
-//RETURN:	FALSE on failure
+//RETURN:	FALSE on failure (including: the record does not exist)
 //			TRUE on success.
 BOOL SQLManager::UpdateTrackRecord(TrackRecord& rec)
 {
@@ -2223,12 +1463,6 @@ BOOL SQLManager::UpdateTrackRecord(TrackRecord& rec)
 	if (rec.name.empty())
 		rec.name = TS_UnknownString;
 #ifdef USE_INTEGRITY_CHECKS
-	TrackRecord existingINT;
-	if (GetTrackRecordUnique(rec.colID, rec.location.c_str(), existingINT))
-	{
-		if (existingINT.ID != rec.ID)
-			return FALSE;
-	}
 	if (!ArtistRecordExists(rec.artID))			return FALSE;
 	if (!AlbumRecordExists(rec.albID))			return FALSE;
 	if (!GenreRecordExists(rec.genID))			return FALSE;
@@ -2239,20 +1473,25 @@ BOOL SQLManager::UpdateTrackRecord(TrackRecord& rec)
 	GetTrackRecordUnique(rec.colID, rec.location.c_str(), existing);
 	if (existing.ID == 0 || existing.ID == rec.ID)
 	{
-		ADORecordset rs(m_pDB);
-		TCHAR sql[200];
-		_sntprintf(sql, 200, _T("SELECT * FROM tracks WHERE ID=%d"), rec.ID);
-		if (rs.Open(sql, adOpenDynamic, adLockPessimistic, adCmdText) && !rs.IsEOF())
+		SQLiteStmt st(m_pDB);
+		if (st.Prepare(_T("UPDATE Tracks SET Name=?,Type=?,DateAdded=?,albID=?,artID=?,CollectionID=?,")
+				_T("genreID=?,Path=?,Bitrate=?,Duration=?,Size=?,TrackNo=?,Year=?,Rating=? WHERE ID=?")) &&
+			st.BindText(1, rec.name.c_str()) && st.BindInt(2, rec.trackType) &&
+			st.BindDate(3, rec.dateAdded) && st.BindUInt(4, rec.albID) &&
+			st.BindUInt(5, rec.artID) && st.BindUInt(6, rec.colID) &&
+			st.BindUInt(7, rec.genID) && st.BindText(8, rec.location.c_str()) &&
+			st.BindInt(9, rec.bitrate) && st.BindInt(10, rec.duration) &&
+			st.BindInt(11, rec.size) && st.BindInt(12, rec.trackNo) &&
+			st.BindInt(13, rec.year) && st.BindInt(14, rec.rating) &&
+			st.BindUInt(15, rec.ID) && st.Exec() > 0)
 		{
-			rs.Edit();
-			SetTrackRecordFields(rec, rs);
 			m_changes.tracks.updates++;
-			return rs.Update();
+			return TRUE;
 		}
 	}
 	return FALSE;
-
 }
+
 BOOL SQLManager::UpdateAlbumRecord(AlbumRecord& rec, BOOL bForce)
 {
 	ASSERT(rec.ID != 0);
@@ -2260,7 +1499,7 @@ BOOL SQLManager::UpdateAlbumRecord(AlbumRecord& rec, BOOL bForce)
 	ASSERT(rec.IsValid());
 	if (!(rec.artID != 0))
 		return FALSE;
-	sAlbumCache.ID = 0;
+	m_albumCache.ID = 0;
 	if (rec.name.empty())
 		rec.name = TS_UnknownString;
 	//We must check for name duplication
@@ -2269,15 +1508,14 @@ BOOL SQLManager::UpdateAlbumRecord(AlbumRecord& rec, BOOL bForce)
 	if (existing.ID == 0 || existing.ID == rec.ID)
 	{
 		TRACE(_T("@4 SQLManager::UpdateAlbumRecord. Updating. Existing: %d\r\n"), existing.ID);
-		ADORecordset rs(m_pDB);
-		TCHAR sql[200];
-		_sntprintf(sql, 200, _T("SELECT * FROM albums WHERE ID=%d"), rec.ID);
-		if (rs.Open(sql, adOpenDynamic, adLockPessimistic, adCmdText) && !rs.IsEOF())
+		SQLiteStmt st(m_pDB);
+		if (st.Prepare(_T("UPDATE Albums SET Name=?,artID=?,Year=?,Rating=? WHERE ID=?")) &&
+			st.BindText(1, rec.name.c_str()) && st.BindUInt(2, rec.artID) &&
+			st.BindInt(3, rec.year) && st.BindInt(4, rec.rating) &&
+			st.BindUInt(5, rec.ID) && st.Exec() > 0)
 		{
-			rs.Edit();
-			SetAlbumRecordFields(rec, rs);
 			m_changes.albums.updates++;
-			return rs.Update();
+			return TRUE;
 		}
 	}
 	else if (bForce)
@@ -2286,22 +1524,22 @@ BOOL SQLManager::UpdateAlbumRecord(AlbumRecord& rec, BOOL bForce)
 		//There is already a record that has the same name as this one.
 		//FORCE WILL Keep the integrity of the database by
 		//	1. Update all Track Records to the existing ID
-		TCHAR sql[500];
-		_sntprintf(sql, 500, _T("UPDATE tracks SET albID=%d WHERE albID=%d"), existing.ID, rec.ID);
+		CString sql;
+		sql.Format(_T("UPDATE Tracks SET albID=%u WHERE albID=%u"), existing.ID, rec.ID);
 		m_pDB->Execute(sql);
 		//	2. Delete all the info related to this record
 		DeleteAllAlbumInfo(rec.ID);
 		//	3. Delete This record
 		m_changes.albums.removals++;
-		_sntprintf(sql, 500, _T("DELETE FROM albums WHERE ID=%d"), rec.ID);
+		sql.Format(_T("DELETE FROM Albums WHERE ID=%u"), rec.ID);
 		m_pDB->Execute(sql);
 		rec = existing;
 		return TRUE;
 	}
 	TRACE(_T("@1 SQLManager::UpdateAlbumRecord. Not forced. Do nothing\r\n"));
 	return FALSE;
-
 }
+
 BOOL SQLManager::UpdateArtistRecord(ArtistRecord& rec, BOOL bForce)
 {
 	ASSERT(rec.ID > 2);
@@ -2310,55 +1548,57 @@ BOOL SQLManager::UpdateArtistRecord(ArtistRecord& rec, BOOL bForce)
 	//We must check for name duplication
 	if (!(rec.ID > 2 && rec.genID != 0 && rec.IsValid()))
 		return FALSE;
-	sArtistCache.ID = 0;
+	m_artistCache.ID = 0;
 	ArtistRecord existing;
 	GetArtistRecordUnique(rec.name.c_str(), existing);
 	if (existing.ID == 0 || existing.ID == rec.ID)
 	{
 		TRACE(_T("@4 SQLManager::UpdateArtistRecord. Updating. Existing: %d\r\n"), existing.ID);
-		ADORecordset rs(m_pDB);
-		TCHAR sql[200];
-		_sntprintf(sql, 200, _T("SELECT * FROM artists WHERE ID=%d"), rec.ID);
-		if (rs.Open(sql, adOpenDynamic, adLockPessimistic, adCmdText) && !rs.IsEOF())
+		SQLiteStmt st(m_pDB);
+		if (st.Prepare(_T("UPDATE Artists SET Name=?,GenreID=?,Rating=? WHERE ID=?")) &&
+			st.BindText(1, rec.name.c_str()) && st.BindUInt(2, rec.genID) &&
+			st.BindInt(3, rec.rating) && st.BindUInt(4, rec.ID) && st.Exec() > 0)
 		{
-			rs.Edit();
-			SetArtistRecordFields(rec, rs);
 			m_changes.artists.updates++;
-			return rs.Update();
+			return TRUE;
 		}
 	}
 	else if (bForce)
 	{
 		TRACE(_T("@4 SQLManager::UpdateArtistRecord. There is already a record that has the same name\r\n"));
-
 		//There is already a record that has the same name as this one.
 		//FORCE WILL Keep the integrity of the database by
 		//	1. Update all Track Records to the existing ID
-		TCHAR sql[500];
-		_sntprintf(sql, 500, _T("UPDATE tracks SET artID=%d WHERE artID=%d"), existing.ID, rec.ID);
+		CString sql;
+		sql.Format(_T("UPDATE Tracks SET artID=%u WHERE artID=%u"), existing.ID, rec.ID);
 		m_changes.tracks.updates += m_pDB->Execute(sql);
-		//	2. Update all Album Records the same way
-		//There may be ALBUM DUPLICATION ********** BUGGGGGGGGGGGG
-		ADORecordset rs(m_pDB);
-		_sntprintf(sql, 500, _T("SELECT * FROM albums WHERE artID=%d"), rec.ID);
-		if (rs.Open(sql))
+		//	2. Move the albums to the existing artist (merging albums with the same name)
+		std::vector<AlbumRecord> albums;
 		{
-			AlbumRecord al;
-			while (!rs.IsEOF())
+			SQLiteStmt rs(m_pDB);
+			std::tstring asql(AlbumSQL);
+			asql += _T(" WHERE artID=?");
+			if (rs.Prepare(asql.c_str()) && rs.BindUInt(1, rec.ID) && rs.Step())
 			{
-				short idx = 0;
-				GetAlbumRecordFields(al, rs, idx);
-				al.artID = existing.ID;
-				UpdateAlbumRecord(al, TRUE);
-				rs.MoveNext();
+				while (!rs.IsEOF())
+				{
+					AlbumRecord al;
+					short idx = 0;
+					GetAlbumRecordFields(al, rs, idx);
+					albums.push_back(al);
+					rs.MoveNext();
+				}
 			}
 		}
-		//_sntprintf(sql, 500, _T("UPDATE albums SET artID=%d WHERE artID=%d"), existing.ID, rec.ID);
-		//m_changes.albums.updates += m_pDB->Execute(sql);
+		for (size_t i = 0; i < albums.size(); i++)
+		{
+			albums[i].artID = existing.ID;
+			UpdateAlbumRecord(albums[i], TRUE);
+		}
 		//	3. Delete all the info related to this record
 		DeleteAllArtistInfo(rec.ID);
 		//	4. Delete This record
-		_sntprintf(sql, 500, _T("DELETE FROM artists WHERE ID=%d"), rec.ID);
+		sql.Format(_T("DELETE FROM Artists WHERE ID=%u"), rec.ID);
 		m_changes.artists.removals += m_pDB->Execute(sql);
 		rec = existing;
 		return TRUE;
@@ -2366,25 +1606,23 @@ BOOL SQLManager::UpdateArtistRecord(ArtistRecord& rec, BOOL bForce)
 	TRACE(_T("@1 SQLManager::UpdateArtistRecord. Not forced. Do nothing\r\n"));
 	return FALSE;
 }
+
 BOOL SQLManager::UpdateGenreRecord(GenreRecord& rec, BOOL bForce)
 {
 	ASSERT(rec.ID != 0);
 	ASSERT(rec.name.empty() == FALSE);
-	sGenreCache.ID = 0;
+	m_genreCache.ID = 0;
 	//We must check for name duplication
 	GenreRecord existing;
 	GetGenreRecordUnique(rec.name.c_str(), existing);
 	if (existing.ID == 0 || existing.ID == rec.ID)
 	{
-		ADORecordset rs(m_pDB);
-		TCHAR sql[200];
-		_sntprintf(sql, 200, _T("SELECT * FROM genres WHERE ID=%d"), rec.ID);
-		if (rs.Open(sql, adOpenDynamic, adLockPessimistic, adCmdText) && !rs.IsEOF())
+		SQLiteStmt st(m_pDB);
+		if (st.Prepare(_T("UPDATE Genres SET Name=? WHERE ID=?")) &&
+			st.BindText(1, rec.name.c_str()) && st.BindUInt(2, rec.ID) && st.Exec() > 0)
 		{
-			rs.Edit();
-			SetGenreRecordFields(rec, rs);
 			m_changes.genres.updates++;
-			return rs.Update();
+			return TRUE;
 		}
 	}
 	else if (bForce)
@@ -2392,65 +1630,21 @@ BOOL SQLManager::UpdateGenreRecord(GenreRecord& rec, BOOL bForce)
 		//There is already a record that has the same name as this one.
 		//FORCE WILL Keep the integrity of the database by
 		//	1. Update all Track Records to the existing ID
-		TCHAR sql[500];
-		_sntprintf(sql, 500, _T("UPDATE tracks SET genID=%d WHERE genID=%d"), existing.ID, rec.ID);
+		CString sql;
+		sql.Format(_T("UPDATE Tracks SET genreID=%u WHERE genreID=%u"), existing.ID, rec.ID);
 		m_pDB->Execute(sql);
 		//	2. Update all Artists Records the same way
-		_sntprintf(sql, 500, _T("UPDATE artists SET genID=%d WHERE genID=%d"), existing.ID, rec.ID);
+		sql.Format(_T("UPDATE Artists SET GenreID=%u WHERE GenreID=%u"), existing.ID, rec.ID);
 		m_pDB->Execute(sql);
 		//	3. Delete This record
-		_sntprintf(sql, 500, _T("DELETE FROM genres WHERE ID=%d"), rec.ID);
+		sql.Format(_T("DELETE FROM Genres WHERE ID=%u"), rec.ID);
 		m_changes.genres.removals++;
 		m_pDB->Execute(sql);
 		rec = existing;
 		return TRUE;
 	}
-
 	return FALSE;
-
 }
-//BOOL SQLManager::UpdateInfoRecord(InfoRecord& rec)
-//{
-//	ASSERT(rec.ID != 0);
-//	ASSERT(rec.name.empty() == FALSE);
-//	ADORecordset rs(m_pDB);
-//	TCHAR sql[200];
-//	_sntprintf(sql, 200, _T("SELECT * FROM info WHERE ID=%d"), rec.ID);
-//	if (rs.Open(sql, adOpenDynamic, adLockPessimistic, adCmdText) && !rs.IsEOF())
-//	{
-//		rs.Edit();
-//		SetInfoRecordFields(rec, rs);
-//		m_changes.info.updates++;
-//		return rs.Update();
-//	}
-//	return FALSE;
-//}
-
-//BOOL SQLManager::AdjustInfoRecord(InfoRecord& rec)
-//{
-//	if (rec.ID == 0)
-//	{
-//		if (rec.name.empty())
-//			return TRUE;
-//		else
-//			return AddNewInfoRecord(rec);
-//	}
-//	else
-//	{
-//		if (rec.name.empty())
-//		{
-//			UINT ID = rec.ID;
-//			rec.ID = 0;
-//			return DeleteInfoRecord(ID);
-//		}
-//		else
-//			return UpdateInfoRecord(rec);
-//	}
-//
-//	return FALSE;
-//}
-
-
 
 BOOL SQLManager::UpdateCollectionRecord(CollectionRecord& rec)
 {
@@ -2458,22 +1652,21 @@ BOOL SQLManager::UpdateCollectionRecord(CollectionRecord& rec)
 	ASSERT(rec.location.empty() == FALSE);
 	if (rec.name.empty())
 		rec.name = rec.location;
-	//ASSERT(rec.status > CSTAT_Unknown && rec.status < CSTAT_Last);
 	ASSERT(rec.type > CTYPE_Unknown && rec.type < CTYPE_Last);
 	//We must check for name duplication
 	CollectionRecord existing;
 	GetCollectionRecordUnique(rec.serial, rec.location.c_str(), existing);
 	if (existing.ID == 0 || existing.ID == rec.ID)
 	{
-		ADORecordset rs(m_pDB);
-		TCHAR sql[200];
-		_sntprintf(sql, 200, _T("SELECT * FROM collections WHERE ID=%d"), rec.ID);
-		if (rs.Open(sql, adOpenDynamic, adLockPessimistic, adCmdText) && !rs.IsEOF())
+		SQLiteStmt st(m_pDB);
+		if (st.Prepare(_T("UPDATE Collections SET Name=?,PathName=?,Serial=?,Type=?,DateAdded=?,DateUpdated=? WHERE ID=?")) &&
+			st.BindText(1, rec.name.c_str()) && st.BindText(2, rec.location.c_str()) &&
+			st.BindInt(3, (INT)rec.serial) && st.BindInt(4, rec.type) &&
+			st.BindDate(5, rec.dateAdded) && st.BindDate(6, rec.dateUpdated) &&
+			st.BindUInt(7, rec.ID) && st.Exec() > 0)
 		{
 			m_changes.collections.updates++;
-			rs.Edit();
-			SetCollectionRecordFields(rec, rs);
-			return rs.Update();
+			return TRUE;
 		}
 	}
 	return FALSE;
@@ -2503,61 +1696,28 @@ BOOL SQLManager::UpdateHistArtistRecord(HistArtistRecord& rec)
 BOOL SQLManager::RecordExists(LPCTSTR sql, UINT ID)
 {
 	ASSERT(ID > 0);
-	TCHAR q[1000];
-	_sntprintf(q, 1000, _T("%s WHERE ID=%d"), sql, ID);
-	ADORecordset rs(m_pDB);
-	if (rs.Open(q, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
+	std::tstring q(sql);
+	q += _T(" WHERE ID=?");
+	SQLiteStmt rs(m_pDB);
+	if (rs.Prepare(q.c_str()) && rs.BindUInt(1, ID) && rs.Step() && !rs.IsEOF())
 		return TRUE;
-	TRACE(_T("@1 SQLManager::RecordExists. Not existent '%s'\r\n"), q);
 	return FALSE;
 }
-BOOL SQLManager::TrackRecordExists(UINT ID)
-{
-	return RecordExists(TrackSQL, ID);
-}
-BOOL SQLManager::AlbumRecordExists(UINT ID)
-{
-	return RecordExists(AlbumSQL, ID);
-}
-BOOL SQLManager::ArtistRecordExists(UINT ID)
-{
-	return RecordExists(ArtistSQL, ID);
-}
-BOOL SQLManager::GenreRecordExists(UINT ID)
-{
-	return RecordExists(GenreSQL, ID);
-}
-//BOOL SQLManager::InfoRecordExists(UINT ID)
-//{
-//	return RecordExists(InfoSQL, ID);
-//}
-BOOL SQLManager::CollectionRecordExists(UINT ID)
-{
-	return RecordExists(CollectionSQL, ID);
-}
-BOOL SQLManager::HistTrackRecordExists(UINT ID)
-{
-	return RecordExists(HistTrackSQL, ID);
-}
-BOOL SQLManager::HistArtistRecordExists(UINT ID)
-{
-	return RecordExists(HistArtistSQL, ID);
-}
-BOOL SQLManager::HistLogRecordExists(UINT ID)
-{
-	return RecordExists(HistLogSQL, ID);
-}
-
-
-
-
+BOOL SQLManager::TrackRecordExists(UINT ID)			{return RecordExists(TrackSQL, ID);}
+BOOL SQLManager::AlbumRecordExists(UINT ID)			{return RecordExists(AlbumSQL, ID);}
+BOOL SQLManager::ArtistRecordExists(UINT ID)		{return RecordExists(ArtistSQL, ID);}
+BOOL SQLManager::GenreRecordExists(UINT ID)			{return RecordExists(GenreSQL, ID);}
+BOOL SQLManager::CollectionRecordExists(UINT ID)	{return RecordExists(CollectionSQL, ID);}
+BOOL SQLManager::HistTrackRecordExists(UINT ID)		{return RecordExists(HistTrackSQL, ID);}
+BOOL SQLManager::HistArtistRecordExists(UINT ID)	{return RecordExists(HistArtistSQL, ID);}
+BOOL SQLManager::HistLogRecordExists(UINT ID)		{return RecordExists(HistLogSQL, ID);}
 
 
 BOOL SQLManager::UpdateFullArtistRecord(FullArtistRecord& artist, BOOL bForce)
 {
 	//======Genres
 	GenreRecord genre;
-	if (!GetGenreRecordUnique(artist.genre.name.c_str(), genre))//This Genre Exists in Database
+	if (!GetGenreRecordUnique(artist.genre.name.c_str(), genre))
 	{
 		genre.name = artist.genre.name.c_str();
 		if (!AddNewGenreRecord(genre))
@@ -2572,7 +1732,7 @@ BOOL SQLManager::UpdateFullAlbumRecord(FullAlbumRecord& album, BOOL bForce)
 {
 	//======Artist
 	ArtistRecord artist;
-	if (!GetArtistRecordUnique(album.artist.name.c_str(), artist))//This Genre Exists in Database
+	if (!GetArtistRecordUnique(album.artist.name.c_str(), artist))
 	{
 		artist.name = album.artist.name.c_str();
 		if (!AddNewArtistRecord(artist))
@@ -2591,7 +1751,7 @@ BOOL SQLManager::UpdateFullTrackRecord(FullTrackRecord& track)
 	ASSERT(!track.track.location.empty());
 	//======Genres
 	GenreRecord genre;
-	if (!GetGenreRecordUnique(track.genre.name.c_str(), genre))//This Genre Exists in Database
+	if (!GetGenreRecordUnique(track.genre.name.c_str(), genre))
 	{
 		genre.name = track.genre.name.c_str();
 		if (!AddNewGenreRecord(genre))
@@ -2600,7 +1760,7 @@ BOOL SQLManager::UpdateFullTrackRecord(FullTrackRecord& track)
 	track.track.genID = track.genre.ID = genre.ID;
 	//======Artist
 	ArtistRecord artist;
-	if (!GetArtistRecordUnique(track.artist.name.c_str(), artist))//This Genre Exists in Database
+	if (!GetArtistRecordUnique(track.artist.name.c_str(), artist))
 	{
 		artist.name = track.artist.name.c_str();
 		artist.genID = genre.ID;
@@ -2611,7 +1771,7 @@ BOOL SQLManager::UpdateFullTrackRecord(FullTrackRecord& track)
 
 	//======Album
 	AlbumRecord album;
-	if (!GetAlbumRecordUnique(artist.ID, track.album.name.c_str(), album))//This Genre Exists in Database
+	if (!GetAlbumRecordUnique(artist.ID, track.album.name.c_str(), album))
 	{
 		album.name = track.album.name.c_str();
 		album.artID = artist.ID;
@@ -2623,143 +1783,9 @@ BOOL SQLManager::UpdateFullTrackRecord(FullTrackRecord& track)
 }
 
 
-//BOOL SQLManager::GetInfo(LPCTSTR fldName, LPCTSTR tblName, 
-//						 InfoItemTypeEnum iit, UINT ID, InfoRecord& rec)
-//{
-//	ASSERT(ID != 0);
-//	ASSERT(fldName != NULL && tblName != NULL);
-//	TCHAR sql[1000];
-//	_sntprintf(sql, 1000, _T("SELECT %s FROM %s WHERE ID=%d"), fldName, tblName, ID);
-//	ADORecordset rs(m_pDB);
-//	if (rs.Open(sql) && !rs.IsEOF())
-//	{
-//		UINT comID = rs.GetUINTFieldValue(0);
-//		if (comID > 0)
-//			return GetInfoRecord(comID, rec);
-//	}
-//	return FALSE;
-//
-//}
-//
-//BOOL SQLManager::SetInfo(LPCTSTR fldName, LPCTSTR tblName, 
-//						 InfoItemTypeEnum iit, UINT ID, LPCTSTR info)
-//{
-//	ASSERT(ID != 0);
-//	ASSERT(fldName != NULL && tblName != NULL);
-//	TCHAR sql[1000];
-//	_sntprintf(sql, 1000, _T("SELECT %s FROM %s WHERE ID=%d"), fldName, tblName, ID);
-//	ADORecordset rs(m_pDB);
-//	if (rs.Open(sql) && !rs.IsEOF())
-//	{
-//		UINT infoID = rs.GetUINTFieldValue(0);
-//		if (infoID > 0)
-//		{
-//			if (info[0] != 0)
-//			{
-//				InfoRecord ir;
-//				ir.ID = infoID;
-//				ir.name = info;
-//				GetLocalTime(&ir.dateAdded);
-//				return UpdateInfoRecord(ir);
-//			}
-//			else
-//				DeleteInfoRecord(infoID);
-//			return TRUE;
-//		}
-//		else
-//		{
-//			if (info[0] != 0)
-//			{
-//				InfoRecord ir;
-//				ir.name = info;
-//				GetLocalTime(&ir.dateAdded);
-//				if (AddNewInfoRecord(ir))
-//				{
-//					TCHAR sql[1000];
-//					_sntprintf(sql, 1000, _T("UPDATE %s SET %s=%d WHERE ID=%d"),
-//						tblName, fldName, ir.ID, ID);
-//					return m_pDB->Execute(sql);
-//				}
-//			}
-//		}
-//	}
-//	return FALSE;
-//}
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-//==============================================================
-
-
-
-
-
-
-
-
-
-
-
 //==============================================================
 //		TRACKS TABLE
 //==============================================================
-
-
-
-//BOOL SQLManager::TrackRecordCollectionByCollectionID(TrackRecordCollection& col, UINT collectionID)
-//{
-//	ASSERT(collectionID > 0);
-//	if (collectionID == 0)
-//		return FALSE;
-//	std::tstring sql(TrackSQL);
-//	TCHAR bf[200];
-//	_sntprintf(bf, 200, _T(" WHERE Tracks.CollectionID=%d"), collectionID);
-//	sql += bf;
-//	return TrackRecordCollectionBySQL(col, sql.c_str());
-//}
-
-
 
 BOOL SQLManager::GetTrackRecordCollectionByTracksFilter(TrackRecordCollection& col, TracksFilter& Filter)
 {
@@ -2774,25 +1800,26 @@ BOOL SQLManager::GetTrackRecordCollectionByTracksFilter(TrackRecordCollection& c
 
 
 const TCHAR* const FullTrackSQL = _T("SELECT ")
-					_T("Tracks.ID,[Tracks.Name],[Tracks.Type],Tracks.DateAdded,")
+					_T("Tracks.ID,Tracks.Name,Tracks.Type,Tracks.DateAdded,")
 					_T("Tracks.albID,Tracks.artID,Tracks.CollectionID,Tracks.GenreID,Tracks.Path,")
-					_T("Tracks.Bitrate,Tracks.Duration,[Tracks.Size],Tracks.TrackNo,")
+					_T("Tracks.Bitrate,Tracks.Duration,Tracks.Size,Tracks.TrackNo,")
 					_T("Tracks.Year,Tracks.Rating,")
 					_T("Albums.ID,Albums.Name,Albums.artID,Albums.Year,Albums.Rating,")
 					_T("Artists.ID,Artists.Name,Artists.GenreID,Artists.Rating,")
-					_T("Genres.ID,Genres.Name,") 
+					_T("Genres.ID,Genres.Name,")
 					_T("Collections.ID,Collections.Name,Collections.PathName,Collections.Serial,")
 					_T("Collections.Type,Collections.DateAdded,Collections.DateUpdated ")
-					_T("FROM ((((Tracks INNER JOIN Albums ON Tracks.albID=Albums.ID) ")
-					_T("INNER JOIN Genres ON Tracks.GenreID=Genres.ID) ")
-					_T("INNER JOIN Artists ON Tracks.artID=Artists.ID) ")
-					_T("INNER JOIN Collections ON Tracks.collectionID=Collections.ID) ");
+					_T("FROM Tracks INNER JOIN Albums ON Tracks.albID=Albums.ID ")
+					_T("INNER JOIN Genres ON Tracks.GenreID=Genres.ID ")
+					_T("INNER JOIN Artists ON Tracks.artID=Artists.ID ")
+					_T("INNER JOIN Collections ON Tracks.collectionID=Collections.ID ");
 
+//(month + year * 12 - 1) of a date column: the "month added" key.
+#define MONTH_ADDED_SQL(col) _T("(CAST(strftime('%m',") col _T(") AS INTEGER) + CAST(strftime('%Y',") col _T(") AS INTEGER) * 12 - 1)")
 
 
 BOOL SQLManager::GetFullTrackRecordByID(FullTrackRecordSP& rec, UINT id)
 {
-	//TRACEST(_T("SQLManager::GetFullTrackRecordByID"));
 	TracksFilter tf;
 	tf.TrackID.match = NUMM_Exact;
 	tf.TrackID.val = id;
@@ -2808,11 +1835,8 @@ BOOL SQLManager::GetFullTrackRecordByID(FullTrackRecordSP& rec, UINT id)
 	return FALSE;
 }
 
-
-
 BOOL SQLManager::GetFullTrackRecordByLocation(FullTrackRecordSP& rec, LPCTSTR Location, UINT CollectionID)
 {
-	//TRACEST(_T("SQLManager::GetFullTrackRecordByLocation"));
 	ASSERT(Location != NULL);
 	if (Location != NULL)
 	{
@@ -2852,10 +1876,8 @@ BOOL SQLManager::GetFullTrackRecordCollectionByLocation(FullTrackRecordCollectio
 	return FALSE;
 }
 
-
 BOOL SQLManager::GetFullTrackRecordCollectionByTracksFilter(FullTrackRecordCollection& col, TracksFilter& Filter, INT limitResults)
 {
-	//TRACEST(_T("SQLManager::GetFullTrackRecordCollectionByTracksFilter"));
 	CString Where(GetWhereSQL(Filter));
 	if (Filter.MinNumTracks.match == NUMM_Disabled)
 	{
@@ -2870,8 +1892,7 @@ BOOL SQLManager::GetFullTrackRecordCollectionByTracksFilter(FullTrackRecordColle
 		if (Filter.Year.match == NUMM_Disabled)
 			AddSQLCountParameter(Where, Filter.YearTrackCount, _T("Tracks.Year"));
 		if (Filter.MonthAdded.match == NUMM_Disabled)
-			AddSQLCountParameter(Where, Filter.MonthAddedTrackCount, _T("(Month(Tracks.DateAdded) + Year(Tracks.DateAdded) * 12 - 1)"));
-
+			AddSQLCountParameter(Where, Filter.MonthAddedTrackCount, MONTH_ADDED_SQL(_T("Tracks.DateAdded")));
 	}
 	CString SQL;
 	if (!Where.IsEmpty())
@@ -2887,33 +1908,32 @@ BOOL SQLManager::GetFullTrackRecordCollectionBySimpleSearch(FullTrackRecordColle
 	ASSERT(searchStr != NULL);
 	if (searchStr[0] == 0)
 		return TRUE;//Does not touch the collection (Leave it empty usually - except if the user wanted to append)
-	std::tstring searchF(searchStr);
-	replace(searchF, _T("'"), _T("''"));
+	std::tstring pattern(_T("%"));
+	pattern += searchStr;
+	pattern += _T("%");
+	std::tstring quoted = SQLQuote(pattern.c_str());
 
 	std::tstring SQL(FullTrackSQL);
-	SQL.reserve(1000 + 4 * searchF.size());
-	SQL += _T(" WHERE (Tracks.Name LIKE '%");
-	SQL += searchF;
-	SQL += _T("%') OR (Artists.Name LIKE '%");
-	SQL += searchF;
-	SQL += _T("%') OR (Albums.Name LIKE '%");
-	SQL += searchF;
-	SQL += _T("%') OR (Tracks.Path LIKE '%");
-	SQL += searchF;
-	SQL += _T("%')");
-
-	//TCHAR SQL[2000];
-	//_sntprintf(SQL, 2000, 
-	//	_T("%s WHERE (Tracks.Name LIKE '%%%s%%' OR Artists.Name LIKE '%%%s%%' OR Albums.Name LIKE '%%%s%%' OR Tracks.Path LIKE '%%%s%%')"), 
-	//	FullTrackSQL, searchF.c_str(), searchF.c_str(), searchF.c_str(), searchF.c_str());
+	SQL += _T(" WHERE (Tracks.Name LIKE ");
+	SQL += quoted;
+	SQL += _T(") OR (Artists.Name LIKE ");
+	SQL += quoted;
+	SQL += _T(") OR (Albums.Name LIKE ");
+	SQL += quoted;
+	SQL += _T(") OR (Tracks.Path LIKE ");
+	SQL += quoted;
+	SQL += _T(")");
 	return GetFullTrackRecordCollectionBySQL(col, SQL.c_str(), limitResults);
 }
 
 void SQLManager::AddSmartSearchCondition(std::tstring& SQL, LPCTSTR condition)
 {
-	SQL += _T(" (Tracks.Name + Artists.Name + Albums.Name + Tracks.Path) LIKE '%");
-	SQL += condition;
-	SQL += _T("%' ");
+	std::tstring pattern(_T("%"));
+	pattern += condition;
+	pattern += _T("%");
+	SQL += _T(" (Tracks.Name || Artists.Name || Albums.Name || Tracks.Path) LIKE ");
+	SQL += SQLQuote(pattern.c_str());
+	SQL += _T(" ");
 }
 
 BOOL SQLManager::GetFullTrackRecordCollectionBySmartSearch(FullTrackRecordCollection& col, LPCTSTR searchStr, INT limitResults)
@@ -2923,55 +1943,43 @@ BOOL SQLManager::GetFullTrackRecordCollectionBySmartSearch(FullTrackRecordCollec
 	if (searchStr[0] == 0)
 		return TRUE;//Does not touch the collection (Leave it empty usually - except if the user wanted to append)
 	std::tstring searchF(searchStr);
-	replace(searchF, _T("'"), _T("''"));
 	trim(searchF);
+	if (searchF.empty())
+		return TRUE;
 
+	//Every space-separated word must match.
 	std::tstring SQL(FullTrackSQL);
 	SQL += _T(" WHERE ");
-	LPCTSTR posStart = searchF.c_str();
-	LPCTSTR posEnd = _tcschr(posStart, _T(' '));
-	while (TRUE)
+	BOOL bFirst = TRUE;
+	std::tstring::size_type pos = 0;
+	while (pos < searchF.size())
 	{
-		if (posEnd == NULL)
+		std::tstring::size_type end = searchF.find(_T(' '), pos);
+		if (end == std::tstring::npos)
+			end = searchF.size();
+		if (end > pos)
 		{
-			AddSmartSearchCondition(SQL, posStart);
-			break;
+			if (!bFirst)
+				SQL += _T(" AND ");
+			AddSmartSearchCondition(SQL, searchF.substr(pos, end - pos).c_str());
+			bFirst = FALSE;
 		}
-		const INT cbfLen = 100;
-		TCHAR bf[cbfLen];
-		_tcsncpy(bf, posStart, posEnd - posStart);
-		bf[posEnd - posStart] = 0; 
-		AddSmartSearchCondition(SQL, bf);
-		//=== Find the next
-		while (*posEnd == _T(' '))
-			posEnd++;
-		posStart = posEnd;
-		posEnd = _tcschr(posStart, _T(' '));
-		SQL += _T(" AND ");
+		pos = end + 1;
 	}
-
-
-	//TCHAR SQL[2000];
-	//_sntprintf(SQL, 2000, 
-	//	_T("%s WHERE (Tracks.Name LIKE '%%%s%%' OR Artists.Name LIKE '%%%s%%' OR Albums.Name LIKE '%%%s%%' OR Tracks.Path LIKE '%%%s%%')"), 
-	//	FullTrackSQL, searchF.c_str(), searchF.c_str(), searchF.c_str(), searchF.c_str());
 	return GetFullTrackRecordCollectionBySQL(col, SQL.c_str(), limitResults);
 }
-
-
-
-
 
 BOOL SQLManager::GetFullTrackRecordCollectionByInfoLikeness(FullTrackRecordCollection& col, InfoItemTypeEnum iit, LPCTSTR searchString)
 {
 	ASSERT(searchString != NULL);
 	if (searchString[0] == 0)	return FALSE;
-	TCHAR FixedString[500];
-	FixStringField(searchString, FixedString, 500);
+	std::tstring pattern(_T("%"));
+	pattern += searchString;
+	pattern += _T("%");
 	CString SQL;
-	SQL.Format(_T("%s INNER JOIN tracksinfo ON TracksInfo.trackid=Tracks.ID ")
-		_T("WHERE tracksinfo.Name LIKE '%%%s%%' AND tracksinfo.type=%d"),
-		FullTrackSQL, FixedString, iit);
+	SQL.Format(_T("%s INNER JOIN TracksInfo ON TracksInfo.trackID=Tracks.ID ")
+		_T("WHERE TracksInfo.Name LIKE %s AND TracksInfo.Type=%d"),
+		FullTrackSQL, SQLQuote(pattern.c_str()).c_str(), iit);
 	return GetFullTrackRecordCollectionBySQL(col, SQL);
 }
 
@@ -2986,21 +1994,19 @@ _T(", -1 ")
 _T("FROM Artists INNER JOIN Genres ON Artists.GenreID=Genres.ID ");
 
 const TCHAR* const CountFullArtistSQL = _T("SELECT ")
-_T("first(Artists.ID), first(Artists.Name), first(Artists.GenreID), first(Artists.Rating) ")
-_T(",first(Genres.ID),first(Genres.Name),")
+_T("Artists.ID, Artists.Name, Artists.GenreID, Artists.Rating ")
+_T(",Genres.ID,Genres.Name,")
 _T("count(*) ")
-_T("FROM Tracks INNER JOIN (Artists INNER JOIN Genres ")
-_T("ON Artists.genreID = Genres.ID) ON Tracks.artID = Artists.ID ");
+_T("FROM Tracks INNER JOIN Artists ON Tracks.artID = Artists.ID ")
+_T("INNER JOIN Genres ON Artists.genreID = Genres.ID ");
 
 BOOL SQLManager::GetFullArtistRecordByID(FullArtistRecordSP& rec, UINT id)
 {
 	ASSERT(id > 0);
 	FullArtistRecordCollection col;
-	std::tstring SQL = FullArtistSQL;
-	TCHAR bf[100];
-	_sntprintf(bf, 100, _T(" WHERE Artists.ID=%d"), id);
-	SQL += bf;
-	if (GetFullArtistRecordCollectionBySQL(col, SQL.c_str()))
+	CString SQL;
+	SQL.Format(_T("%s WHERE Artists.ID=%u"), FullArtistSQL, id);
+	if (GetFullArtistRecordCollectionBySQL(col, SQL))
 	{
 		ASSERT(col.size() == 1);
 		if (col.size() == 1)
@@ -3014,9 +2020,7 @@ BOOL SQLManager::GetFullArtistRecordByID(FullArtistRecordSP& rec, UINT id)
 
 BOOL SQLManager::GetFullArtistRecordCollectionByTracksFilter(FullArtistRecordCollection& col, TracksFilter& Filter)
 {
-	std::tstring SQL;
-	SQL = CountFullArtistSQL;
-	
+	std::tstring SQL(CountFullArtistSQL);
 	CString Where(GetWhereSQL(Filter));
 	if (!Where.IsEmpty())
 	{
@@ -3025,7 +2029,6 @@ BOOL SQLManager::GetFullArtistRecordCollectionByTracksFilter(FullArtistRecordCol
 	}
 	SQL += _T(" GROUP BY Tracks.artID ");
 	SQL += GetHavingSQL(Filter.MinNumTracks);
-
 	return GetFullArtistRecordCollectionBySQL(col, SQL.c_str());
 }
 
@@ -3034,7 +2037,6 @@ BOOL SQLManager::GetFullArtistRecordCollectionByTracksFilter(FullArtistRecordCol
 //		ALBUMS TABLE
 //==============================================================
 
-
 const TCHAR* const FullAlbumSQL = _T("SELECT ")
 _T("Albums.ID, Albums.Name, Albums.artID, Albums.Year, Albums.Rating ")
 _T(", Artists.ID, Artists.Name, Artists.GenreID, Artists.Rating ")
@@ -3042,19 +2044,11 @@ _T(", -1 ")
 _T("FROM Albums INNER JOIN Artists ON Albums.artID=Artists.ID ");
 
 const TCHAR* const CountFullAlbumSQL = _T("SELECT ")
-_T("first(Albums.ID), first(Albums.Name), first(Albums.artID), first(Albums.Year), first(Albums.Rating) ")
-_T(", first(Artists.ID), first(Artists.Name), first(Artists.GenreID), first(Artists.Rating)")
+_T("Albums.ID, Albums.Name, Albums.artID, Albums.Year, Albums.Rating ")
+_T(", Artists.ID, Artists.Name, Artists.GenreID, Artists.Rating")
 _T(", count(*) ")
-_T("FROM Tracks INNER JOIN (Albums INNER JOIN Artists ")
-_T("ON Albums.artID = Artists.ID) ON Tracks.albID = Albums.ID ");
-
-
-const TCHAR* const AlternativeFullAlbumSQL = _T("SELECT ")
-_T("first(Albums.ID), first(Albums.Name), first(Albums.artID), first(Albums.Year), first(Albums.Rating) ")
-_T(", count(distinct(Tracks.artID), '', 1, 0, 0")
-_T(", count(*) ")
-_T("FROM Tracks INNER JOIN Albums ")
-_T("ON Tracks.albID = Albums.ID ");
+_T("FROM Tracks INNER JOIN Albums ON Tracks.albID = Albums.ID ")
+_T("INNER JOIN Artists ON Albums.artID = Artists.ID ");
 
 BOOL SQLManager::GetFullAlbumRecordByID(FullAlbumRecordSP& rec, UINT id)
 {
@@ -3062,11 +2056,9 @@ BOOL SQLManager::GetFullAlbumRecordByID(FullAlbumRecordSP& rec, UINT id)
 	if (id == 0)
 		return FALSE;
 	FullAlbumRecordCollection col;
-	std::tstring SQL = FullAlbumSQL;
-	TCHAR bf[100];
-	_sntprintf(bf, 100, _T(" WHERE Albums.ID=%d"), id);
-	SQL += bf;
-	if (GetFullAlbumRecordCollectionBySQL(col, SQL.c_str()))
+	CString SQL;
+	SQL.Format(_T("%s WHERE Albums.ID=%u"), FullAlbumSQL, id);
+	if (GetFullAlbumRecordCollectionBySQL(col, SQL))
 	{
 		ASSERT(col.size() == 1);
 		if (col.size() == 1)
@@ -3080,7 +2072,7 @@ BOOL SQLManager::GetFullAlbumRecordByID(FullAlbumRecordSP& rec, UINT id)
 
 BOOL SQLManager::GetFullAlbumRecordCollectionByTracksFilter(FullAlbumRecordCollection& col, TracksFilter& Filter)
 {
-	std::tstring SQL = CountFullAlbumSQL;
+	std::tstring SQL(CountFullAlbumSQL);
 	CString Where(GetWhereSQL(Filter));
 	if (!Where.IsEmpty())
 	{
@@ -3094,7 +2086,7 @@ BOOL SQLManager::GetFullAlbumRecordCollectionByTracksFilter(FullAlbumRecordColle
 
 BOOL SQLManager::GetFullAlbumGPNRecordCollectionByTracksFilter(FullAlbumRecordCollection& col, TracksFilter& Filter)
 {
-	std::tstring SQL = CountFullAlbumSQL;
+	std::tstring SQL(CountFullAlbumSQL);
 	CString Where(GetWhereSQL(Filter));
 	if (!Where.IsEmpty())
 	{
@@ -3106,51 +2098,30 @@ BOOL SQLManager::GetFullAlbumGPNRecordCollectionByTracksFilter(FullAlbumRecordCo
 	return GetFullAlbumRecordCollectionBySQL(col, SQL.c_str());
 }
 
-
+//Albums whose name appears under more than one artist (compilations).
 BOOL SQLManager::GetFullAlbumRecordCollectionByTracksFilterForCollections(FullAlbumRecordCollection& col, TracksFilter& Filter)
 {
+	//Columns: album (5) + an empty artist (4) + track count.
 	std::tstring SQL = _T("SELECT ")
-		_T("first(Albums.ID), first(Albums.Name), first(Albums.artID), first(Albums.Year), first(Albums.Rating), 0, '', 0, 0, 0, count(*) ")
+		_T("Albums.ID, Albums.Name, Albums.artID, Albums.Year, Albums.Rating, 0, '', 0, 0, count(*) ")
 		_T("FROM Tracks INNER JOIN Albums ")
 		_T("ON Tracks.albID = Albums.ID ")
-		_T("WHERE Left(Albums.name,1)<>'[' ");
+		_T("WHERE substr(Albums.Name,1,1)<>'[' ");
 	CString Where(GetWhereSQL(Filter));
 	if (!Where.IsEmpty())
 		SQL += Where;
-	SQL += _T("GROUP BY (Albums.name) HAVING MAX(Tracks.artID) <> MIN(Tracks.artID) ");
+	SQL += _T(" GROUP BY Albums.Name HAVING MAX(Tracks.artID) <> MIN(Tracks.artID) ");
 	return GetFullAlbumRecordCollectionBySQL(col, SQL.c_str());
 }
-
-
-
-//SELECT
-//first(Albums.ID), first(Albums.Name), first(Albums.artID), first(Albums.Year), first(Albums.InfoID), first(Albums.Rating), count(Tracks.artID), 'aaaa', 1, 0, 0, count(*)
-//FROM Tracks INNER JOIN Albums 
-//ON Tracks.albID = Albums.ID 
-//WHERE Left(Albums.name,1)<>'['
-//GROUP BY (Albums.name)
-//HAVING MAX(Tracks.artID) <> MIN(Tracks.artID)
 
 
 //==============================================================
 //		GENRES TABLE
 //==============================================================
 
-
-
-
-
-
-
-
 BOOL SQLManager::GetGenreRecordCollectionByTracksFilter(GenreRecordCollection& col, TracksFilter& Filter, BOOL bCountTracks)
 {
-	std::tstring SQL;
-	if (bCountTracks)
-		SQL = CountGenreSQL;
-	else
-		SQL = GenreSQL;
-
+	std::tstring SQL(bCountTracks ? CountGenreSQL : GenreSQL);
 	CString Where(GetWhereSQL(Filter));
 	if (!Where.IsEmpty())
 	{
@@ -3169,18 +2140,9 @@ BOOL SQLManager::GetGenreRecordCollectionByTracksFilter(GenreRecordCollection& c
 //		COLLECTIONS TABLE
 //==============================================================
 
-
-
-
-
 BOOL SQLManager::GetCollectionRecordCollectionByTracksFilter(CollectionRecordCollection& col, TracksFilter& Filter, BOOL bCountTracks)
 {
-	std::tstring SQL;
-	if (bCountTracks)
-		SQL = CountCollectionSQL;
-	else
-		SQL = CollectionSQL;
-
+	std::tstring SQL(bCountTracks ? CountCollectionSQL : CollectionSQL);
 	CString Where(GetWhereSQL(Filter));
 	if (!Where.IsEmpty())
 	{
@@ -3192,19 +2154,14 @@ BOOL SQLManager::GetCollectionRecordCollectionByTracksFilter(CollectionRecordCol
 		SQL += _T(" GROUP BY Collections.ID ");
 		SQL += GetHavingSQL(Filter.MinNumTracks);
 	}
-
 	return GetCollectionRecordCollectionBySQL(col, SQL.c_str());
 }
 
 BOOL SQLManager::GetCollectionRecordCollectionByTypeID(CollectionRecordCollection& col, CollectionTypesEnum type)
 {
-	std::tstring SQL;
-	SQL = CollectionSQL;
-	TCHAR bf[200];
-	_sntprintf(bf, 200, _T(" WHERE type=%d"), type);
-	SQL += bf;
-	return GetCollectionRecordCollectionBySQL(col, SQL.c_str());
-	
+	CString SQL;
+	SQL.Format(_T("%s WHERE Type=%d"), CollectionSQL, type);
+	return GetCollectionRecordCollectionBySQL(col, SQL);
 }
 
 //==============================================================
@@ -3212,20 +2169,14 @@ BOOL SQLManager::GetCollectionRecordCollectionByTypeID(CollectionRecordCollectio
 //==============================================================
 
 const TCHAR* const CountYearSQL = _T("SELECT ")
-_T("first(Tracks.Year) ")
+_T("Tracks.Year ")
 _T(", count(*) ")
 _T("FROM Tracks ");
 
-
-
-
-
 BOOL SQLManager::GetYearRecordCollectionByTracksFilter(YearRecordCollection& col, TracksFilter& Filter, BOOL bCountTracks)
 {
-	std::tstring SQL;
 	ASSERT(bCountTracks);
-	SQL = CountYearSQL;
-
+	std::tstring SQL(CountYearSQL);
 	CString Where(GetWhereSQL(Filter));
 	if (!Where.IsEmpty())
 	{
@@ -3234,11 +2185,9 @@ BOOL SQLManager::GetYearRecordCollectionByTracksFilter(YearRecordCollection& col
 	}
 	if (bCountTracks)
 	{
-		SQL += _T(" GROUP BY Tracks.year ");
+		SQL += _T(" GROUP BY Tracks.Year ");
 		SQL += GetHavingSQL(Filter.MinNumTracks);
 	}
-
-
 	return GetYearRecordCollectionBySQL(col, SQL.c_str());
 }
 
@@ -3247,18 +2196,14 @@ BOOL SQLManager::GetYearRecordCollectionByTracksFilter(YearRecordCollection& col
 //==============================================================
 
 const TCHAR* const CountMonthAddedSQL = _T("SELECT ")
-_T("Month(Tracks.DateAdded) + Year(Tracks.DateAdded) * 12 - 1 ")
+MONTH_ADDED_SQL(_T("Tracks.DateAdded"))
 _T(", count(*) ")
 _T("FROM Tracks ");
 
-
-
 BOOL SQLManager::GetMonthAddedRecordCollectionByTracksFilter(MonthAddedRecordCollection& col, TracksFilter& Filter, BOOL bCountTracks)
 {
-	std::tstring SQL;
 	ASSERT(bCountTracks);
-	SQL = CountMonthAddedSQL;
-
+	std::tstring SQL(CountMonthAddedSQL);
 	CString Where(GetWhereSQL(Filter));
 	if (!Where.IsEmpty())
 	{
@@ -3267,44 +2212,18 @@ BOOL SQLManager::GetMonthAddedRecordCollectionByTracksFilter(MonthAddedRecordCol
 	}
 	if (bCountTracks)
 	{
-		SQL += _T(" GROUP BY Month(Tracks.DateAdded),Year(Tracks.DateAdded) ");
+		SQL += _T(" GROUP BY strftime('%Y-%m', Tracks.DateAdded) ");
 		SQL += GetHavingSQL(Filter.MinNumTracks);
 	}
-
-
 	return GetMonthAddedRecordCollectionBySQL(col, SQL.c_str());
 }
-
-//BOOL SQLManager::GetDirectoryRecordCollectionByTracksFilter(DirectoryRecordCollection& col, TracksFilter& Filter, BOOL bCountTracks)
-//{
-//	std::tstring SQL;
-//	ASSERT(bCountTracks);
-//	SQL = CountMonthAddedSQL;
-//
-//	CString Where(GetWhereSQL(Filter));
-//	if (!Where.IsEmpty())
-//	{
-//		SQL += _T(" WHERE ");
-//		SQL += &((LPCTSTR)Where)[4];
-//	}
-//	if (bCountTracks)
-//	{
-//		SQL += _T(" GROUP BY Month(Tracks.DateAdded),Year(Tracks.DateAdded) ");
-//		SQL += GetHavingSQL(Filter.MinNumTracks);
-//	}
-//
-//
-//	return GetMonthAddedRecordCollectionBySQL(col, SQL.c_str());
-//}
-
-
-
 
 
 //==============================================================
 //		PRIVATE UTILITIES
 //==============================================================
 
+//Returns " AND cond1 AND cond2 ..." (callers skip the first 4 characters).
 CString SQLManager::GetWhereSQL(TracksFilter& Filter)
 {
 	CString ret;
@@ -3321,9 +2240,9 @@ CString SQLManager::GetWhereSQL(TracksFilter& Filter)
 	AddSQLStrParameter(ret, Filter.Location,		_T("Tracks.Path"));
 	AddSQLStrParameter(ret, Filter.Genre,			_T("Genres.Name"));
 
-	AddSQLNumParameter(ret, Filter.Year,			_T("Tracks.year"));
+	AddSQLNumParameter(ret, Filter.Year,			_T("Tracks.Year"));
 	if (Filter.Rating.match != NUMM_Disabled)
-	{	
+	{
 		AddSQLNumParameter(ret, Filter.Rating,		_T("Tracks.Rating"));
 		NumericMatch rat2;
 		rat2.match = NUMM_Over;
@@ -3332,79 +2251,59 @@ CString SQLManager::GetWhereSQL(TracksFilter& Filter)
 	}
 	AddSQLNumParameter(ret, Filter.TrackNo,			_T("Tracks.TrackNo"));
 	AddSQLNumParameter(ret, Filter.Size,			_T("Tracks.Size"));
-	AddSQLNumParameter(ret, Filter.Duration,		_T("Tracks.duration"));
-	AddSQLNumParameter(ret, Filter.Bitrate,			_T("Tracks.bitrate"));
-	AddSQLNumParameter(ret, Filter.TrackType,		_T("Tracks.type"));
+	AddSQLNumParameter(ret, Filter.Duration,		_T("Tracks.Duration"));
+	AddSQLNumParameter(ret, Filter.Bitrate,			_T("Tracks.Bitrate"));
+	AddSQLNumParameter(ret, Filter.TrackType,		_T("Tracks.Type"));
 
-	AddSQLNumParameter(ret, Filter.MonthAdded,		_T("(Month(Tracks.DateAdded) + 12 * Year(Tracks.DateAdded) - 1)"));
-
+	AddSQLNumParameter(ret, Filter.MonthAdded,		MONTH_ADDED_SQL(_T("Tracks.DateAdded")));
 
 	AddSQLDateParameter(ret, Filter.DateAdded,		_T("Tracks.DateAdded"));
 	return ret;
-
 }
 
 CString SQLManager::GetHavingSQL(NumericMatch nm)
 {
+	CString ret;
 	if (nm.match != NUMM_Disabled)
 	{
 		ASSERT(nm.val > 0);
-		TCHAR bf[400];
-		_sntprintf(bf, 400,
-			_T(" HAVING count(*) %s %d"),
+		ret.Format(_T(" HAVING count(*) %s %d"),
 			nm.match == NUMM_Over ? _T(">") : (nm.match == NUMM_Under ? _T("<=") : _T("=")),
 			nm.val);
-		return CString(bf);
 	}
-	return CString();
+	return ret;
 }
 
 void SQLManager::AddSQLCountParameter(CString& ret, NumericMatch nm, LPCTSTR fieldName)
 {
 	if (nm.match == NUMM_Disabled || nm.val == 0)
 		return;
-	LPCTSTR oper = _T("=");
-	if (nm.match == NUMM_Over)
-		oper = _T(">");
-	else
-		oper = _T("<=");
-	TCHAR bf[400];
-	_sntprintf(bf, 400,
-		_T(" AND %s IN ")
-		_T("(Select %s from Tracks group by %s having count(%s) %s %d)"),
-		fieldName,
-		fieldName,
-		fieldName,
-		fieldName,
-		oper,
-		nm.val);
-	ret += bf;
+	LPCTSTR oper = nm.match == NUMM_Over ? _T(">") : _T("<=");
+	CString cond;
+	cond.Format(_T(" AND %s IN (SELECT %s FROM Tracks GROUP BY %s HAVING count(%s) %s %d)"),
+		fieldName, fieldName, fieldName, fieldName, oper, nm.val);
+	ret += cond;
 }
 
 void SQLManager::AddSQLNumParameter(CString& ret, NumericMatch nm, LPCTSTR str)
 {
 	if (nm.match == NUMM_Disabled)
 		return;
-	TCHAR* op;
+	LPCTSTR op;
 	switch (nm.match)
 	{
 	case NUMM_Exact:	op = _T("=");	break;
 	case NUMM_Over:		op = _T(">=");	break;
 	case NUMM_Under:	op = _T("<");	break;
 	case NUMM_Diff:		op = _T("<>");	break;
-	default: 
+	default:
 		TRACE(_T("@1 SQLManager::AddSQLNumParameter Unknown operator\r\n"));
 		ASSERT(FALSE);
 		return;
 	}
-	//if (!ret.IsEmpty())
-	ret += _T(" AND ");
-	ret += str;
-	ret += op;
-	TCHAR bf[20];
-	_itot(nm.val, bf, 10);
-	ret += bf;
-	//curLen += _sntprintf(&bf[curLen], TotalLen - curLen, _T(" AND %s %s %d"), str, op, nm.val);
+	CString cond;
+	cond.Format(_T(" AND %s%s%d"), str, op, nm.val);
+	ret += cond;
 }
 
 void SQLManager::AddSQLStrParameter(CString& ret, TextMatch tm, LPCTSTR str)
@@ -3412,26 +2311,29 @@ void SQLManager::AddSQLStrParameter(CString& ret, TextMatch tm, LPCTSTR str)
 	if (tm.match == TXTM_Disabled)
 		return;
 	ASSERT(!tm.val.empty());
-	if (!tm.val.empty())
+	if (tm.val.empty())
+		return;
+	ret += _T(" AND ");
+	ret += str;
+	switch (tm.match)
 	{
-		TCHAR FixedField[500];
-		//DbManager::FixStringField(tm.val, FixedField, 300);
-		FixStringField(tm.val.c_str(), FixedField, 500);
-		TCHAR bf[1000];
-		switch (tm.match)
+	case TXTM_Exact:
+		ret += _T(" = ");
+		ret += SQLQuote(tm.val.c_str()).c_str();
+		break;
+	case TXTM_Like:
 		{
-		case TXTM_Exact:	
-			_sntprintf(bf, 1000, _T(" AND %s = '%s'"), str, FixedField);
-			break;
-		case TXTM_Like:
-			_sntprintf(bf, 1000, _T(" AND %s Like '%%%s%%'"), str, FixedField);
-			break;
-		default: 
-			ASSERT(FALSE);
-			return;
+			std::tstring pattern(_T("%"));
+			pattern += tm.val;
+			pattern += _T("%");
+			ret += _T(" LIKE ");
+			ret += SQLQuote(pattern.c_str()).c_str();
 		}
-		ret += bf;
-		//curLen += _sntprintf(&bf[curLen], TotalLen - curLen, _T(" AND %s %s '%s'"), str, op, FixedField);
+		break;
+	default:
+		ASSERT(FALSE);
+		ret += _T(" IS NOT NULL");
+		return;
 	}
 }
 
@@ -3439,153 +2341,10 @@ void SQLManager::AddSQLDateParameter(CString& ret, DateMatch dm, LPCTSTR str)
 {
 	if (dm.match == DATM_Disabled)
 		return;
-	TCHAR bf[100];
-	GetDateFormat(MAKELCID(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), SORT_DEFAULT), DATE_SHORTDATE, &dm.val, NULL, bf, 100);
-	//if (!ret.IsEmpty())
 	ret += _T(" AND ");
 	ret += str;
 	ret += dm.match == DATM_After ? _T(">") : _T("<");
-	ret += _T("#");
-	ret += bf;
-	ret += _T("#");
-}
-
-
-UINT SQLManager::FixStringField(LPCTSTR source, LPTSTR dest, UINT destLen)
-{
-	ASSERT(source != NULL);
-	ASSERT(dest!=NULL);
-	ASSERT(destLen > _tcslen(source));
-	UINT i = 0;
-	UINT additions = 0;
-	while (source[i] != 0)
-	{
-		if (source[i] == 39)//Duplicate 39 "'"
-		{
-			dest[additions + i] = 39;
-			additions++;
-		}
-		if (additions + i >= destLen - 1)//Do not overwrite
-			break;
-		dest[additions + i] = source[i];
-		i++;
-	}
-	ASSERT(destLen > additions + i + 10);//Test for error boundaries
-	dest[min(additions + i, destLen - 1)] = 0;
-	return additions;
-}
-
-//========================================================================
-//========================================================================
-//========================================================================
-//========================================================================
-//========================================================================
-//========================================================================
-
-//===================================COLLECTIONS
-
-
-//BOOL SQLManager::GetCollectionRecordUnique(UINT serial, LPCTSTR location, CollectionRecord& collection)
-//{
-//	ASSERT(location != NULL);
-//	if (location[0] == 0)
-//	{
-//		collection.ID = 1;
-//		collection.name = location;
-//	}
-//	ADORecordset rs(m_pDB);
-//	std::tstring fname(location);
-//	replace2(fname, _T("'"), _T("''"));
-//	TCHAR sql[500];
-//	_sntprintf(sql, 500, _T("SELECT * FROM collections WHERE pathName='%s' AND serial=%d"), fname.c_str(), serial);
-//	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-//	{
-//		GetCollectionRecordFields(collection, rs, 0);
-//		return TRUE;
-//	}
-//	return FALSE;
-//}
-
-
-
-
-
-//===================================GENRES
-
-
-
-
-BOOL SQLManager::SetGenreRecordFields(GenreRecord& genre, ADORecordset& rs)
-{
-	//[DO NOT EDIT] rs.SetVariantFieldValue(_T("ID"), genre.ID); 
-	INT ret = rs.SetVariantFieldValue(_T("name"), genre.name.c_str()) ? 1 : 0;
-	ASSERT(ret == 1);
-	return ret == 1;
-}
-//===================================GENRES END
-
-//===================================ARTISTS
-
-
-
-
-
-BOOL SQLManager::SetArtistRecordFields(ArtistRecord& artist, ADORecordset& rs)
-{
-	INT ret = rs.SetVariantFieldValue(_T("name"), artist.name.c_str()) ? 1 : 0;
-	ret += rs.SetVariantFieldValue(_T("genreID"), artist.genID) ? 1 : 0;//Foreign Key
-	ret += rs.SetVariantFieldValue(_T("rating"), artist.rating) ? 1 : 0;
-	ASSERT(ret == 3);
-	return ret == 3;
-}
-//===================================ARTISTS END
-
-//===================================ALBUMS
-
-
-
-
-BOOL SQLManager::SetAlbumRecordFields(AlbumRecord& album, ADORecordset& rs)
-{
-	INT ret = 0;
-	ret += rs.SetVariantFieldValue(_T("name"), album.name.empty() ? TS_UnknownString : album.name.c_str()) ? 1 : 0;
-	ret += rs.SetVariantFieldValue(_T("artID"), album.artID) ? 1 : 0;//Foreign Key
-	ret += rs.SetVariantFieldValue(_T("Year"), album.year) ? 1 : 0;
-	ret += rs.SetVariantFieldValue(_T("rating"), album.rating) ? 1 : 0;
-	ASSERT(ret == 4);
-	return ret == 4;
-}
-
-//===================================ALBUMS END
-
-
-
-
-//Needs album.ID to be != 0
-//Needs artID-infoID to be Valid!!!!
-//UNIQUE KEY = ID, Name
-
-
-//==============SetFields
-BOOL SQLManager::SetTrackRecordFields(TrackRecord& track, ADORecordset& rs)
-{
-	//[DO NOT EDIT] rs.SetVariantFieldValue(_T("ID"), track.ID); 
-	INT ret = rs.SetVariantFieldValue(_T("name"), track.name.c_str()) ? 1 : 0;
-	ret += rs.SetVariantFieldValue(_T("type"), track.trackType) ? 1 : 0;
-	ret += rs.SetSystemTimeFieldValue(_T("dateAdded"), track.dateAdded) ? 1 : 0;
-	ret += rs.SetVariantFieldValue(_T("albID"), track.albID) ? 1 : 0;//Foreign Key
-	ret += rs.SetVariantFieldValue(_T("artID"), track.artID) ? 1 : 0;//Foreign Key
-	ret += rs.SetVariantFieldValue(_T("CollectionID"), track.colID) ? 1 : 0;//Foreign Key
-	ret += rs.SetVariantFieldValue(_T("genreID"), track.genID) ? 1 : 0;//Foreign Key
-	ret += rs.SetVariantFieldValue(_T("path"), track.location.c_str()) ? 1 : 0;
-	ret += rs.SetVariantFieldValue(_T("bitrate"), track.bitrate) ? 1 : 0;
-	ret += rs.SetVariantFieldValue(_T("duration"), track.duration) ? 1 : 0;
-	ret += rs.SetVariantFieldValue(_T("size"), track.size) ? 1 : 0;
-	ret += rs.SetVariantFieldValue(_T("trackno"), track.trackNo) ? 1 : 0;
-	ret += rs.SetVariantFieldValue(_T("year"), track.year) ? 1 : 0;
-	ret += rs.SetVariantFieldValue(_T("rating"), track.rating) ? 1 : 0;
-	ASSERT(ret == 14);
-	return ret == 14;
+	ret += SQLDate(dm.val).c_str();
 }
 
 
@@ -3593,8 +2352,8 @@ BOOL SQLManager::DeleteTrackRecord(UINT ID)
 {
 	ASSERT(ID > 0);
 	DeleteAllTrackInfo(ID);
-	TCHAR sql[100];
-	_sntprintf(sql, 100, _T("DELETE FROM Tracks WHERE id=%d"), ID);
+	CString sql;
+	sql.Format(_T("DELETE FROM Tracks WHERE ID=%u"), ID);
 	m_changes.tracks.removals++;
 	return m_pDB->Execute(sql) != -1;
 }
@@ -3606,7 +2365,7 @@ BOOL SQLManager::GetVirtualTrackCollectionRecord(CollectionRecord& cr)
 
 BOOL SQLManager::GetFirstVal(LPCTSTR sql, INT& val)
 {
-	ADORecordset rs(m_pDB);
+	SQLiteStmt rs(m_pDB);
 	if (rs.Open(sql) && !rs.IsEOF())
 	{
 		val = rs.GetINTFieldValue(0);
@@ -3618,65 +2377,42 @@ BOOL SQLManager::GetFirstVal(LPCTSTR sql, INT& val)
 BOOL SQLManager::DeleteAlbumRecord(UINT ID)
 {
 	ASSERT(ID > 0);
-#ifdef USE_INTEGRITY_CHECKS
-	TRACE(_T("@4 SQLManager::DeleteAlbumRecord. Integrity Test\r\n"));
-	INT count = 0;
-	if (!GetFirstVal(_T("Select count(*) FROM Tracks WHERE albID=%d"), count) || count == 0)
-		return FALSE;
-	TRACE(_T("@4 SQLManager::DeleteAlbumRecord. Integrity Test = OK\r\n"));
-#endif // USE_INTEGRITY_CHECKS
 	DeleteAllAlbumInfo(ID);
-	TCHAR sql[100];
-	_sntprintf(sql, 100, _T("DELETE FROM Albums WHERE id=%d"), ID);
+	CString sql;
+	sql.Format(_T("DELETE FROM Albums WHERE ID=%u"), ID);
 	m_changes.albums.removals++;
+	m_albumCache.ID = 0;
 	return m_pDB->Execute(sql) != -1;
 }
-
 
 BOOL SQLManager::DeleteArtistRecord(UINT ID)
 {
 	ASSERT(ID > 0);
-#ifdef USE_INTEGRITY_CHECKS
-	TRACE(_T("@4 SQLManager::DeleteArtistRecord. Integrity Test\r\n"));
-	INT count = 0;
-	if (!GetFirstVal(_T("Select count(*) FROM Tracks WHERE artID=%d"), count) || count != 0)
-		return FALSE;
-	if (!GetFirstVal(_T("Select count(*) FROM Albums WHERE artID=%d"), count) || count != 0)
-		return FALSE;
-	TRACE(_T("@4 SQLManager::DeleteArtistRecord. Integrity Test = OK\r\n"));
-#endif // USE_INTEGRITY_CHECKS
 	DeleteAllArtistInfo(ID);
-	TCHAR sql[100];
-	_sntprintf(sql, 100, _T("DELETE FROM Artists WHERE id=%d"), ID);
+	CString sql;
+	sql.Format(_T("DELETE FROM Artists WHERE ID=%u"), ID);
 	m_changes.artists.removals++;
+	m_artistCache.ID = 0;
 	return m_pDB->Execute(sql) != -1;
 }
 
 BOOL SQLManager::DeleteGenreRecord(UINT ID)
 {
 	ASSERT(ID > 0);
-#ifdef USE_INTEGRITY_CHECKS
-	TRACE(_T("@4 SQLManager::DeleteGenreRecord. Integrity Test\r\n"));
-	INT count = 0;
-	if (!GetFirstVal(_T("Select count(*) FROM Tracks WHERE genID=%d"), count) || count != 0)
-		return FALSE;
-	if (!GetFirstVal(_T("Select count(*) FROM Artists WHERE genID=%d"), count) || count != 0)
-		return FALSE;
-	TRACE(_T("@4 SQLManager::DeleteGenreRecord. Integrity Test = OK\r\n"));
-#endif // USE_INTEGRITY_CHECKS
-	TCHAR sql[100];
-	_sntprintf(sql, 100, _T("DELETE FROM Genres WHERE id=%d"), ID);
+	CString sql;
+	sql.Format(_T("DELETE FROM Genres WHERE ID=%u"), ID);
 	m_changes.genres.removals++;
+	m_genreCache.ID = 0;
 	return m_pDB->Execute(sql) != -1;
 }
 
 BOOL SQLManager::DeleteCollectionRecord(UINT ID, BOOL bForce)
 {
 	ASSERT(ID > 0);
-	TCHAR sql[100];
+	CString sql;
 	if (bForce)
 	{
-		_sntprintf(sql, 100, _T("DELETE FROM Tracks WHERE collectionid=%d"), ID);
+		sql.Format(_T("DELETE FROM Tracks WHERE CollectionID=%u"), ID);
 		if (m_pDB->Execute(sql) == -1)
 			return FALSE;
 	}
@@ -3686,93 +2422,65 @@ BOOL SQLManager::DeleteCollectionRecord(UINT ID, BOOL bForce)
 		return FALSE;
 	}
 #endif // USE_INTEGRITY_CHECKS
-	_sntprintf(sql, 100, _T("DELETE FROM Collections WHERE ID=%d"), ID);
+	sql.Format(_T("DELETE FROM Collections WHERE ID=%u"), ID);
 	if (m_pDB->Execute(sql) == -1)
 		return FALSE;
 	m_changes.collections.removals++;
 	return TRUE;
 }
 
-//BOOL SQLManager::DeleteInfoRecord(UINT ID)
-//{
-//	ASSERT(ID > 0);
-//	TCHAR sql[100];
-//	_sntprintf(sql, 100, _T("DELETE FROM Info WHERE id=%d"), ID);
-//	if (m_pDB->Execute(sql))
-//	{
-//		m_changes.info.removals++;
-//		return TRUE;
-//	}
-//	return FALSE;
-//}
-
 BOOL SQLManager::DeleteHistLogRecord(UINT ID)
 {
 	//CAUTION The track Record must be handled properly
 	ASSERT(ID > 0);
-	TCHAR sql[100];
-	_sntprintf(sql, 100, _T("DELETE FROM HistLog WHERE id=%d"), ID);
+	CString sql;
+	sql.Format(_T("DELETE FROM HistLog WHERE ID=%u"), ID);
 	return m_pDB->Execute(sql) != -1;
 }
-
-
-
-
-
 
 
 UINT SQLManager::GetTrackCount(TracksFilter& tf)
 {
 	CString Where = GetWhereSQL(tf);
-	CString SQL = _T("SELECT count(*) FROM tracks");
+	CString SQL = _T("SELECT count(*) FROM Tracks");
 	if (!Where.IsEmpty())
 	{
 		SQL += _T(" WHERE");
-		SQL +=  &((LPCTSTR)Where)[4];
+		SQL += &((LPCTSTR)Where)[4];
 	}
-	ADORecordset rs(m_pDB);
+	SQLiteStmt rs(m_pDB);
 	if (rs.Open(SQL) && !rs.IsEOF())
-		return rs.GetUINTFieldValue((short)0);
+		return rs.GetUINTFieldValue(0);
 	return 0;
 }
+
 BOOL SQLManager::GetTrackIDList(TracksFilter& tf, std::vector<UINT>& idList)
 {
 	CString Where = GetWhereSQL(tf);
 	CString SQL;
 	if (tf.Album.match == TXTM_Disabled)
-		SQL = _T("SELECT ID FROM tracks");
+		SQL = _T("SELECT ID FROM Tracks");
 	else
 	{
 		//This have been Changed because of AlbumByName case...
-		SQL = _T("SELECT tracks.ID FROM tracks INNER JOIN albums ON tracks.albID = albums.ID");
+		SQL = _T("SELECT Tracks.ID FROM Tracks INNER JOIN Albums ON Tracks.albID = Albums.ID");
 	}
-
 	if (!Where.IsEmpty())
 	{
 		SQL += _T(" WHERE");
 		SQL +=  &((LPCTSTR)Where)[4];
 	}
-	ADORecordset rs(m_pDB);
+	SQLiteStmt rs(m_pDB);
 	if (rs.Open(SQL))
 	{
-		short idx = 0;
 		while (!rs.IsEOF())
 		{
-			idList.push_back(rs.GetUINTFieldValue(idx));
+			idList.push_back(rs.GetUINTFieldValue(0));
 			rs.MoveNext();
 		}
 		return TRUE;
 	}
 	return FALSE;
-}
-
-void SQLManager::GetSQLDateForQueries(SYSTEMTIME& input, LPTSTR bf, UINT bfLen)
-{
-	ASSERT(bf != NULL && bfLen > 10);
-	TCHAR dateStr[100];
-	GetDateFormat(MAKELCID(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), SORT_DEFAULT), DATE_SHORTDATE, &input, NULL, dateStr, 100);
-	_sntprintf(bf, bfLen, _T("#%s#"), dateStr);
-	bf[bfLen - 1] = 0;
 }
 
 BOOL SQLManager::LogTrackInHistory(LPCTSTR artist, LPCTSTR track, HistoryLogActionsEnum actID, SYSTEMTIME& localTime)
@@ -3781,15 +2489,16 @@ BOOL SQLManager::LogTrackInHistory(LPCTSTR artist, LPCTSTR track, HistoryLogActi
 	ASSERT(artist!= NULL && track != NULL);
 	if (!(artist!= NULL && track != NULL && actID > HLA_Unknown && actID < HLA_Last))
 		return FALSE;
-	if (artist == _T(""))
+	if (artist[0] == 0)
 		artist = TS_UnknownString;
-	if (track == _T(""))
+	if (track[0] == 0)
 		track = TS_UnknownString;
 	HistArtistRecord art;
 	if (!GetHistArtistRecordUnique(artist, art))
 	{
 		art.name = artist;
-		AddNewHistArtistRecord(art);
+		if (!AddNewHistArtistRecord(art))
+			return FALSE;
 	}
 	ASSERT(art.IsValid());
 	HistTrackRecord tra;
@@ -3797,7 +2506,8 @@ BOOL SQLManager::LogTrackInHistory(LPCTSTR artist, LPCTSTR track, HistoryLogActi
 	{
 		tra.artID = art.ID;
 		tra.name = track;
-		AddNewHistTrackRecord(tra);
+		if (!AddNewHistTrackRecord(tra))
+			return FALSE;
 	}
 	ASSERT(tra.IsValid());
 
@@ -3811,8 +2521,8 @@ BOOL SQLManager::LogTrackInHistory(LPCTSTR artist, LPCTSTR track, HistoryLogActi
 
 BOOL SQLManager::GetHistoryLogStats(SQLManager::HistoryLogStats& stats)
 {
-	ADORecordset rs(m_pDB);
-	if (rs.Open(_T("SELECT count(*),actID,MIN(DateAdded),MAX(DateADDED) FROM HistLog GROUP BY actID")))
+	SQLiteStmt rs(m_pDB);
+	if (rs.Open(_T("SELECT count(*),actID,MIN(DateAdded),MAX(DateAdded) FROM HistLog GROUP BY actID")))
 	{
 		while (!rs.IsEOF())
 		{
@@ -3852,59 +2562,38 @@ BOOL SQLManager::GetHistoryTrackStats(LPCTSTR Artist, LPCTSTR Track, SYSTEMTIME*
 		ASSERT(CompareFileTime(&ftStart, &ftEnd) == -1);
 	}
 #endif
-	std::tstring fartist(Artist);
-	replace(fartist, _T("'"), _T("''"));
-	std::tstring ftrack(Track);
-	replace(ftrack, _T("'"), _T("''"));
-
-	CString SQL;
-	SQL.Format(_T("SELECT count(*), MIN(histLog.DateAdded), MAX(histLog.DateAdded) ")
-		_T("FROM (histLog INNER JOIN HistTracks ON histlog.trackID = HistTracks.ID) ")
-		_T("INNER JOIN HistArtists ON HistTracks.artID = HistArtists.ID ")
-		_T("WHERE HistArtists.Name = '%s' AND HistTracks.Name = '%s' AND histLog.actID = 1"),
-		fartist.c_str(), ftrack.c_str());
+	std::tstring dateWhere;
 	if (startDate != NULL)
 	{
-		SQL += _T(" AND HistLog.DateAdded >= ");
-		TCHAR dateStr[100];
-		GetSQLDateForQueries(*startDate, dateStr, 100);
-		SQL += dateStr;
+		dateWhere += _T(" AND HistLog.DateAdded >= ");
+		dateWhere += SQLDate(*startDate);
 	}
 	if (endDate != NULL)
 	{
-		SQL += _T(" AND HistLog.DateAdded < ");
-		TCHAR dateStr[100];
-		GetSQLDateForQueries(*endDate, dateStr, 100);
-		SQL += dateStr;
+		dateWhere += _T(" AND HistLog.DateAdded < ");
+		dateWhere += SQLDate(*endDate);
 	}
-	ADORecordset rs(m_pDB);
-	if (rs.Open(SQL) && !rs.IsEOF())
+
+	std::tstring SQL(_T("SELECT count(*), MIN(HistLog.DateAdded), MAX(HistLog.DateAdded) ")
+		_T("FROM HistLog INNER JOIN HistTracks ON HistLog.trackID = HistTracks.ID ")
+		_T("INNER JOIN HistArtists ON HistTracks.artID = HistArtists.ID ")
+		_T("WHERE HistArtists.Name = ? AND HistTracks.Name = ? AND HistLog.actID = 1"));
+	SQL += dateWhere;
+	SQLiteStmt rs(m_pDB);
+	if (rs.Prepare(SQL.c_str()) && rs.BindText(1, Artist) && rs.BindText(2, Track) &&
+		rs.Step() && !rs.IsEOF())
 	{
 		stats.hits = rs.GetUINTFieldValue(0);
 		if (stats.hits > 0)
 		{
 			stats.firstTime = rs.GetSYSTEMTIMEFieldValue(1);
 			stats.lastTime = rs.GetSYSTEMTIMEFieldValue(2);
-			SQL = _T("SELECT count(*) as Hits FROM HistLog WHERE actid=1 ");
-			if (startDate)
+			std::tstring rankSQL(_T("SELECT count(*) AS Hits FROM HistLog WHERE actID=1 "));
+			rankSQL += dateWhere;
+			rankSQL += _T(" GROUP BY trackID ORDER BY count(*) DESC");
+			SQLiteStmt rsRank(m_pDB);
+			if (rsRank.Open(rankSQL.c_str()))
 			{
-				SQL += _T(" AND HistLog.DateAdded >= ");
-				TCHAR dateStr[100];
-				GetSQLDateForQueries(*startDate, dateStr, 100);
-				SQL += dateStr;
-			}
-			if (endDate)
-			{
-				SQL += _T(" AND HistLog.DateAdded < ");
-				TCHAR dateStr[100];
-				GetSQLDateForQueries(*endDate, dateStr, 100);
-				SQL += dateStr;
-			}
-			SQL += _T(" GROUP BY trackID ORDER BY count(*) DESC");
-			ADORecordset rsRank(m_pDB);
-			if (rsRank.Open(SQL))
-			{
-				UINT rank = 0;
 				while (!rsRank.IsEOF())
 				{
 					stats.rank++;
@@ -3919,23 +2608,10 @@ BOOL SQLManager::GetHistoryTrackStats(LPCTSTR Artist, LPCTSTR Track, SYSTEMTIME*
 }
 
 
-
-BOOL SQLManager::GetFullLogRecordCollection(FullHistLogRecordCollection& col,
-											SYSTEMTIME* startDate/* = NULL*/,
-											SYSTEMTIME* endDate /*= NULL*/,
-											TCHAR* ArtistFilter /*= NULL*/,
-											TCHAR* TrackFilter /*= NULL*/,
-											HistoryLogActionsEnum actID /*= -1*/,
-											UINT limitResults /*= 0*/)
+//WHERE conditions shared by the three history collection queries.
+void SQLManager::AddHistoryWhere(CString& Where, SYSTEMTIME* startDate, SYSTEMTIME* endDate,
+	TCHAR* ArtistFilter, TCHAR* TrackFilter, HistoryLogActionsEnum actID)
 {
-	std::tstring SQL(_T("SELECT ")
-		_T("HistLog.ID, HistLog.actID, HistLog.DateAdded, HistLog.trackID, ")
-		_T("HistTracks.ID, HistTracks.Name, HistTracks.artID, ")
-		_T("HistArtists.ID, HistArtists.Name ")
-		_T("FROM (HistArtists INNER JOIN HistTracks ON HistTracks.artID = HistArtists.ID) ")
-		_T("INNER JOIN HistLog ON HistLog.trackID = Histtracks.ID "));
-
-	CString Where;
 	DateMatch dm;
 	if (startDate != NULL)
 	{
@@ -3969,25 +2645,44 @@ BOOL SQLManager::GetFullLogRecordCollection(FullHistLogRecordCollection& col,
 		nm.val = actID;
 		AddSQLNumParameter(Where, nm, _T("HistLog.actID"));
 	}
+}
 
+const TCHAR* const HistoryJoinSQL = _T("FROM HistArtists INNER JOIN HistTracks ON HistTracks.artID = HistArtists.ID ")
+	_T("INNER JOIN HistLog ON HistLog.trackID = HistTracks.ID ");
+
+BOOL SQLManager::GetFullLogRecordCollection(FullHistLogRecordCollection& col,
+											SYSTEMTIME* startDate/* = NULL*/,
+											SYSTEMTIME* endDate /*= NULL*/,
+											TCHAR* ArtistFilter /*= NULL*/,
+											TCHAR* TrackFilter /*= NULL*/,
+											HistoryLogActionsEnum actID /*= -1*/,
+											UINT limitResults /*= 0*/)
+{
+	std::tstring SQL(_T("SELECT ")
+		_T("HistLog.ID, HistLog.actID, HistLog.DateAdded, HistLog.trackID, ")
+		_T("HistTracks.ID, HistTracks.Name, HistTracks.artID, ")
+		_T("HistArtists.ID, HistArtists.Name "));
+	SQL += HistoryJoinSQL;
+	CString Where;
+	AddHistoryWhere(Where, startDate, endDate, ArtistFilter, TrackFilter, actID);
 	if (!Where.IsEmpty())
 	{
 		SQL += _T(" WHERE ");
 		SQL += &((LPCTSTR)Where)[4];
 	}
 
-	ADORecordset rs(m_pDB);
+	SQLiteStmt rs(m_pDB);
 	if (!rs.Open(SQL.c_str()))
 		return FALSE;
-	INT countResults = 0;
+	UINT countResults = 0;
 	while (!rs.IsEOF())
 	{
-		FullHistLogRecord* pRec = new FullHistLogRecord;
+		FullHistLogRecordSP rec(new FullHistLogRecord);
 		short startIdx = 0;
-		GetHistLogRecordFields(pRec->log, rs, startIdx);
-		GetHistTrackRecordFields(pRec->track, rs, startIdx);
-		GetHistArtistRecordFields(pRec->artist, rs, startIdx);
-		col.push_back(FullHistLogRecordSP(pRec));
+		GetHistLogRecordFields(rec->log, rs, startIdx);
+		GetHistTrackRecordFields(rec->track, rs, startIdx);
+		GetHistArtistRecordFields(rec->artist, rs, startIdx);
+		col.push_back(rec);
 		countResults++;
 		if (countResults == limitResults)
 			return TRUE;
@@ -4007,66 +2702,31 @@ BOOL SQLManager::GetFullHistTrackRecordCollection(FullHistTrackRecordCollection&
 	std::tstring SQL(_T("SELECT ")
 		_T("max(HistTracks.ID), max(HistTracks.Name), max(HistTracks.artID), ")
 		_T("max(HistArtists.ID), max(HistArtists.Name), ")
-		_T("count(*) as Hits, min(HistLog.DateAdded) as FirstTime, max(HistLog.DateAdded) as LastTime ")
-		_T("FROM (HistArtists INNER JOIN HistTracks ON HistTracks.artID = HistArtists.ID) ")
-		_T("INNER JOIN HistLog ON HistLog.trackID = Histtracks.ID "));
-
+		_T("count(*) AS Hits, min(HistLog.DateAdded) AS FirstTime, max(HistLog.DateAdded) AS LastTime "));
+	SQL += HistoryJoinSQL;
 	CString Where;
-	DateMatch dm;
-	if (startDate != NULL)
-	{
-		dm.match = DATM_After;
-		dm.val = *startDate;
-		AddSQLDateParameter(Where, dm, _T("HistLog.DateAdded"));
-	}
-	if (endDate != NULL)
-	{
-		dm.match = DATM_Before;
-		dm.val = *endDate;
-		AddSQLDateParameter(Where, dm, _T("HistLog.DateAdded"));
-	}
-	TextMatch tm;
-	if (ArtistFilter != NULL)
-	{
-		tm.match = TXTM_Like;
-		tm.val = ArtistFilter;
-		AddSQLStrParameter(Where, tm, _T("HistArtists.Name"));
-	}
-	if (TrackFilter != NULL)
-	{
-		tm.match = TXTM_Like;
-		tm.val = TrackFilter;
-		AddSQLStrParameter(Where, tm, _T("HistTracks.Name"));
-	}
-	if (actID > HLA_Unknown && actID < HLA_Last)
-	{
-		NumericMatch nm;
-		nm.match = NUMM_Exact;
-		nm.val = actID;
-		AddSQLNumParameter(Where, nm, _T("HistLog.actID"));
-	}
-
+	AddHistoryWhere(Where, startDate, endDate, ArtistFilter, TrackFilter, actID);
 	if (!Where.IsEmpty())
 	{
 		SQL += _T(" WHERE ");
 		SQL += &((LPCTSTR)Where)[4];
 	}
-	SQL += _T(" GROUP BY HistLog.TrackID");
+	SQL += _T(" GROUP BY HistLog.trackID");
 
-	ADORecordset rs(m_pDB);
+	SQLiteStmt rs(m_pDB);
 	if (!rs.Open(SQL.c_str()))
 		return FALSE;
-	INT countResults = 0;
+	UINT countResults = 0;
 	while (!rs.IsEOF())
 	{
-		FullHistTrackRecord* pRec = new FullHistTrackRecord;
+		FullHistTrackRecordSP rec(new FullHistTrackRecord);
 		short startIdx = 0;
-		GetHistTrackRecordFields(pRec->track, rs, startIdx);
-		GetHistArtistRecordFields(pRec->artist, rs, startIdx);
-		pRec->hits = rs.GetUINTFieldValue(startIdx++);
-		pRec->firstTime = rs.GetSYSTEMTIMEFieldValue(startIdx++);
-		pRec->lastTime = rs.GetSYSTEMTIMEFieldValue(startIdx++);
-		col.push_back(FullHistTrackRecordSP(pRec));
+		GetHistTrackRecordFields(rec->track, rs, startIdx);
+		GetHistArtistRecordFields(rec->artist, rs, startIdx);
+		rec->hits = rs.GetUINTFieldValue(startIdx++);
+		rec->firstTime = rs.GetSYSTEMTIMEFieldValue(startIdx++);
+		rec->lastTime = rs.GetSYSTEMTIMEFieldValue(startIdx++);
+		col.push_back(rec);
 		countResults++;
 		if (countResults == limitResults)
 			return TRUE;
@@ -4085,67 +2745,30 @@ BOOL SQLManager::GetFullHistArtistRecordCollection(FullHistArtistRecordCollectio
 {
 	std::tstring SQL(_T("SELECT ")
 		_T("max(HistArtists.ID), max(HistArtists.Name), ")
-		_T("count(*) as Hits, min(HistLog.DateAdded) as FirstTime, max(HistLog.DateAdded) as LastTime ")
-		_T("FROM (HistArtists INNER JOIN HistTracks ON HistTracks.artID = HistArtists.ID) ")
-		_T("INNER JOIN HistLog ON HistLog.trackID = Histtracks.ID "));
-
+		_T("count(*) AS Hits, min(HistLog.DateAdded) AS FirstTime, max(HistLog.DateAdded) AS LastTime "));
+	SQL += HistoryJoinSQL;
 	CString Where;
-	DateMatch dm;
-	if (startDate != NULL)
-	{
-		dm.match = DATM_After;
-		dm.val = *startDate;
-		AddSQLDateParameter(Where, dm, _T("HistLog.DateAdded"));
-	}
-	if (endDate != NULL)
-	{
-		dm.match = DATM_Before;
-		dm.val = *endDate;
-		AddSQLDateParameter(Where, dm, _T("HistLog.DateAdded"));
-	}
-	TextMatch tm;
-	if (ArtistFilter != NULL)
-	{
-		tm.match = TXTM_Like;
-		tm.val = ArtistFilter;
-		AddSQLStrParameter(Where, tm, _T("HistArtists.Name"));
-	}
-	if (TrackFilter != NULL)
-	{
-		tm.match = TXTM_Like;
-		tm.val = TrackFilter;
-		AddSQLStrParameter(Where, tm, _T("HistTracks.Name"));
-	}
-	if (actID > HLA_Unknown && actID < HLA_Last)
-	{
-		NumericMatch nm;
-		nm.match = NUMM_Exact;
-		nm.val = actID;
-		AddSQLNumParameter(Where, nm, _T("HistLog.actID"));
-	}
-
+	AddHistoryWhere(Where, startDate, endDate, ArtistFilter, TrackFilter, actID);
 	if (!Where.IsEmpty())
 	{
 		SQL += _T(" WHERE ");
 		SQL += &((LPCTSTR)Where)[4];
 	}
-
 	SQL += _T(" GROUP BY HistTracks.artID");
 
-
-	ADORecordset rs(m_pDB);
+	SQLiteStmt rs(m_pDB);
 	if (!rs.Open(SQL.c_str()))
 		return FALSE;
-	INT countResults = 0;
+	UINT countResults = 0;
 	while (!rs.IsEOF())
 	{
-		FullHistArtistRecord* pRec = new FullHistArtistRecord;
+		FullHistArtistRecordSP rec(new FullHistArtistRecord);
 		short startIdx = 0;
-		GetHistArtistRecordFields(pRec->artist, rs, startIdx);
-		pRec->hits = rs.GetUINTFieldValue(startIdx++);
-		pRec->firstTime = rs.GetSYSTEMTIMEFieldValue(startIdx++);
-		pRec->lastTime = rs.GetSYSTEMTIMEFieldValue(startIdx++);
-		col.push_back(FullHistArtistRecordSP(pRec));
+		GetHistArtistRecordFields(rec->artist, rs, startIdx);
+		rec->hits = rs.GetUINTFieldValue(startIdx++);
+		rec->firstTime = rs.GetSYSTEMTIMEFieldValue(startIdx++);
+		rec->lastTime = rs.GetSYSTEMTIMEFieldValue(startIdx++);
+		col.push_back(rec);
 		countResults++;
 		if (countResults == limitResults)
 			return TRUE;
@@ -4157,19 +2780,16 @@ BOOL SQLManager::GetFullHistArtistRecordCollection(FullHistArtistRecordCollectio
 
 BOOL SQLManager::GetHistTrackRankCollection(std::vector<Rank>& col)
 {
-	std::tstring SQL(_T("SELECT hits, count(hits) ")
-		_T("FROM (SELECT count(*) as Hits FROM HistLog WHERE actID = 1 GROUP BY TrackID) ")
-		_T("GROUP BY hits ORDER by hits DESC"));
-	ADORecordset rs(m_pDB);
-	if (!rs.Open(SQL.c_str()))
+	SQLiteStmt rs(m_pDB);
+	if (!rs.Open(_T("SELECT Hits, count(Hits) ")
+		_T("FROM (SELECT count(*) AS Hits FROM HistLog WHERE actID = 1 GROUP BY trackID) ")
+		_T("GROUP BY Hits ORDER BY Hits DESC")))
 		return FALSE;
-	INT countResults = 0;
 	while (!rs.IsEOF())
 	{
-		short startIdx = 0;
 		Rank r;
-		r.Hits = rs.GetUINTFieldValue(startIdx++);
-		r.HitsCount = rs.GetUINTFieldValue(startIdx++);
+		r.Hits = rs.GetUINTFieldValue(0);
+		r.HitsCount = rs.GetUINTFieldValue(1);
 		col.push_back(r);
 		rs.MoveNext();
 	}
@@ -4178,117 +2798,23 @@ BOOL SQLManager::GetHistTrackRankCollection(std::vector<Rank>& col)
 
 BOOL SQLManager::GetHistArtistRankCollection(std::vector<Rank>& col)
 {
-	std::tstring SQL(_T("SELECT hits, count(hits) ")
-		_T("FROM (SELECT count(*) as Hits FROM HistLog INNER JOIN HistTracks ON histLog.trackID=HistTracks.ID WHERE HistLog.actID = 1 GROUP BY HistTracks.artID) ")
-		_T("GROUP BY hits ORDER by hits DESC"));
-	ADORecordset rs(m_pDB);
-	if (!rs.Open(SQL.c_str()))
+	SQLiteStmt rs(m_pDB);
+	if (!rs.Open(_T("SELECT Hits, count(Hits) ")
+		_T("FROM (SELECT count(*) AS Hits FROM HistLog INNER JOIN HistTracks ON HistLog.trackID=HistTracks.ID ")
+		_T("WHERE HistLog.actID = 1 GROUP BY HistTracks.artID) ")
+		_T("GROUP BY Hits ORDER BY Hits DESC")))
 		return FALSE;
-	INT countResults = 0;
 	while (!rs.IsEOF())
 	{
-		short startIdx = 0;
 		Rank r;
-		r.Hits = rs.GetUINTFieldValue(startIdx++);
-		r.HitsCount = rs.GetUINTFieldValue(startIdx++);
+		r.Hits = rs.GetUINTFieldValue(0);
+		r.HitsCount = rs.GetUINTFieldValue(1);
 		col.push_back(r);
 		rs.MoveNext();
 	}
 	return TRUE;
 }
 
-//BOOL SQLManager::GetRandomTrackIDList(std::vector<UINT>& idList, 
-//		UINT numItems, RandomTrackModeEnum rtm, UINT rtmHelperID, UINT avoidID, UINT minRating)
-//{
-//	ASSERT(rtm >= RTM_All && rtm < RTM_Last);
-//	ASSERT((rtm==RTM_All && rtmHelperID==0) || (rtm!=RTM_All && rtmHelperID!=0));
-//	TCHAR sql[1000];
-//	if (rtm != RTM_Newest)
-//	{
-//		LPCTSTR fieldName = _T("0");
-//		switch (rtm)
-//		{
-//		case RTM_Artist:
-//			fieldName = _T("artID");
-//			break;
-//		case RTM_Album:
-//			fieldName = _T("albID");
-//			break;
-//		case RTM_Genre:
-//			fieldName = _T("genreID");
-//			break;
-//		case RTM_Year:
-//			fieldName = _T("year");
-//			break;
-//		case RTM_Collection:
-//			fieldName = _T("collectionID");
-//			break;
-//		case RTM_All:
-//			break;
-//		default:
-//			ASSERT(0);
-//		}
-//		_sntprintf(sql, 1000, _T("SELECT Tracks.ID From Tracks INNER JOIN Collections ON Tracks.collectionID = Collections.ID ")
-//			_T("WHERE Tracks.ID<>%d AND Tracks.Rating >= %d AND (Collections.type=1 OR Collections.type=3) AND %s=%d"), avoidID, minRating, fieldName, rtmHelperID);
-//	}
-//	else
-//	{
-//		_sntprintf(sql, 1000, _T("SELECT TOP %d Tracks.ID From Tracks INNER JOIN Collections ON Tracks.collectionID = Collections.ID ")
-//			_T("WHERE Tracks.ID<>%d AND Tracks.Rating >= %d AND (Collections.type=1 OR Collections.type=3) ORDER BY Tracks.DateAdded DESC"), rtmHelperID, avoidID, minRating);
-//	}
-//
-//
-//	ADORecordset rs(m_pDB);
-//	if (rs.Open(sql) && !rs.IsEOF())
-//	{
-//		UINT numTracks = 0;
-//		ULONG ID = 0;
-//		UINT count = rs.GetRecordCount();
-//		BOOL bAlreadyInResults = FALSE;
-//		ULONG pos = 0;
-//		ULONG startPos = 0;
-//		while(numTracks < numItems)
-//		{
-//			if (!bAlreadyInResults)
-//			{
-//				pos = (rand() * count) / RAND_MAX + 1;
-//			}
-//			else
-//			{
-//				if (pos == startPos)
-//					break;//There are no more results (we ve done the circle)
-//				if (startPos == 0)
-//					startPos = pos;
-//				pos++;
-//				if (pos == count + 1)
-//					pos = 1;
-//			}
-//			//rs.SetAbsolutePosition(pos);
-//			//rs->GetFieldValue(0, ID);
-//			//std::vector<ULONG>::const_iterator it = IDs.begin();
-//			//bAlreadyInResults = FALSE;
-//			//for (; it!= IDs.end(); it++)
-//			//{
-//			//	if (*it == ID)
-//			//	{
-//			//		bAlreadyInResults = TRUE;
-//			//		break;
-//			//	}
-//			//}
-//			//if (!bAlreadyInResults)
-//			//{
-//			//	startPos = 0;//Reset the flag
-//			//	IDs.push_back(ID);
-//			//	numTracks++;
-//			//}
-//		}
-//		return count;
-//	}
-//	return 0;
-//
-//}
-//
-//
 
 BOOL SQLManager::EvaluateTrackInfo(InfoItemTypeEnum iit)
 {
@@ -4325,50 +2851,8 @@ BOOL SQLManager::EvaluateArtistInfo(InfoItemTypeEnum iit)
 }
 
 //-----------------------------------------
-//-----------GetInfoID
-//-----------------------------------------
-
-//UINT SQLManager::GetInfoID(LPCTSTR tblName, LPCTSTR fldName, UINT ID, InfoItemTypeEnum iit)
-//{
-//	ASSERT(tblName != NULL && ID != NULL);
-//	TCHAR bf[1000];
-//	_sntprintf(bf, 1000, 
-//		_T("SELECT infoID FROM %s WHERE %s=%d AND type=%d"), tblName, fldName, ID, iit);
-//	ADORecordset rs(m_pDB);
-//	if (!rs.Open(bf))
-//		return 0;
-//	INT countResults = 0;
-//	if (!rs.IsEOF())
-//		return rs.GetUINTFieldValue(0);
-//	return 0;
-//}
-//
-//UINT SQLManager::GetTrackInfoID(UINT trackID, InfoItemTypeEnum iit)
-//{
-//	ASSERT(trackID != 0);
-//	if (!EvaluateTrackInfo(iit))
-//		return 0;
-//	return GetInfoID(_T("tracksinfo"), _T("trackID"), trackID, iit);
-//}
-//
-//UINT SQLManager::GetAlbumInfoID(UINT albID, InfoItemTypeEnum iit)
-//{
-//	ASSERT(albID != 0);
-//	if (!EvaluateAlbumInfo(iit))
-//		return 0;
-//	return GetInfoID(_T("albumsinfo"), _T("albID"), albID, iit);
-//}
-//
-//UINT SQLManager::GetArtistInfoID(UINT artID, InfoItemTypeEnum iit)
-//{
-//	ASSERT(artID != 0);
-//	if (!EvaluateArtistInfo(iit))
-//		return 0;
-//	return GetInfoID(_T("artistsinfo"), _T("artID"), artID, iit);
-//}
-
-//-----------------------------------------
-//-----------AddNewInfo
+//-----------Info (TracksInfo / AlbumsInfo / ArtistsInfo)
+//tblName and fldName are compile-time constants (never user input).
 //-----------------------------------------
 
 BOOL SQLManager::AddNewInfo(LPCTSTR tblName, LPCTSTR fldName, UINT ID, InfoItemTypeEnum iit, LPCTSTR info)
@@ -4376,144 +2860,127 @@ BOOL SQLManager::AddNewInfo(LPCTSTR tblName, LPCTSTR fldName, UINT ID, InfoItemT
 	ASSERT(tblName != NULL && fldName != NULL && ID > 0 && info != NULL);
 	if (info[0] == 0)
 		return FALSE;
-	ADORecordset rs(m_pDB);
-	if (rs.Open(tblName, adOpenKeyset, adLockOptimistic, adCmdTable))
+	CString sql;
+	sql.Format(_T("INSERT INTO %s (%s, Type, Name, DateAdded) VALUES (?,?,?,?)"), tblName, fldName);
+	SYSTEMTIME st;
+	GetLocalTime(&st);
+	SQLiteStmt stmt(m_pDB);
+	if (stmt.Prepare(sql) && stmt.BindUInt(1, ID) && stmt.BindInt(2, iit) &&
+		stmt.BindText(3, info) && stmt.BindDate(4, st) && stmt.Exec() > 0)
 	{
-		rs.AddNew();
-		rs.SetVariantFieldValue(fldName, ID);
-		rs.SetVariantFieldValue(_T("type"), iit);
-		rs.SetVariantFieldValue(_T("name"), info);
-		SYSTEMTIME st;
-		GetLocalTime(&st);
-		rs.SetSystemTimeFieldValue(_T("dateAdded"), st);
-		return rs.Update();
+		m_changes.info.additions++;
+		return TRUE;
 	}
 	return FALSE;
 }
+
+BOOL SQLManager::UpdateInfo(LPCTSTR tblName, LPCTSTR fldName, UINT ID, InfoItemTypeEnum iit, LPCTSTR info)
+{
+	CString sql;
+	sql.Format(_T("UPDATE %s SET Name=? WHERE %s=? AND Type=?"), tblName, fldName);
+	SQLiteStmt stmt(m_pDB);
+	if (stmt.Prepare(sql) && stmt.BindText(1, info) && stmt.BindUInt(2, ID) &&
+		stmt.BindInt(3, iit) && stmt.Exec() > 0)
+	{
+		m_changes.info.updates++;
+		return TRUE;
+	}
+	return FALSE;
+}
+
+BOOL SQLManager::DeleteInfo(LPCTSTR tblName, LPCTSTR fldName, UINT ID, InfoItemTypeEnum iit)
+{
+	CString sql;
+	sql.Format(_T("DELETE FROM %s WHERE %s=%u AND Type=%d"), tblName, fldName, ID, iit);
+	return m_pDB->Execute(sql) != -1;
+}
+
+BOOL SQLManager::GetInfoRecord(LPCTSTR tblName, LPCTSTR fldName, UINT ID, InfoItemTypeEnum iit, InfoRecord& ir)
+{
+	CString sql;
+	sql.Format(_T("SELECT ID, Name, DateAdded FROM %s WHERE %s=%u AND Type=%d"), tblName, fldName, ID, iit);
+	SQLiteStmt rs(m_pDB);
+	if (rs.Open(sql) && !rs.IsEOF())
+	{
+		ir.ID = rs.GetUINTFieldValue(0);
+		rs.GetStringFieldValue(1, ir.name);
+		ir.dateAdded = rs.GetSYSTEMTIMEFieldValue(2);
+		return TRUE;
+	}
+	return FALSE;
+}
+
 BOOL SQLManager::AddNewTrackInfo(UINT trackID, InfoItemTypeEnum iit, LPCTSTR info)
 {
-	ASSERT(trackID != 0);
-	ASSERT(info != NULL);
+	ASSERT(trackID != 0 && info != NULL);
 	if (!EvaluateTrackInfo(iit))
 		return FALSE;
-	return AddNewInfo(_T("tracksinfo"), _T("trackid"), trackID, iit, info);
+	return AddNewInfo(_T("TracksInfo"), _T("trackID"), trackID, iit, info);
 }
 BOOL SQLManager::AddNewAlbumInfo(UINT albID, InfoItemTypeEnum iit, LPCTSTR info)
 {
-	ASSERT(albID != 0);
-	ASSERT(info != NULL);
+	ASSERT(albID != 0 && info != NULL);
 	if (!EvaluateAlbumInfo(iit))
 		return FALSE;
-	return AddNewInfo(_T("albumsinfo"), _T("albid"), albID, iit, info);
+	return AddNewInfo(_T("AlbumsInfo"), _T("albID"), albID, iit, info);
 }
 BOOL SQLManager::AddNewArtistInfo(UINT artID, InfoItemTypeEnum iit, LPCTSTR info)
 {
-	ASSERT(artID != 0);
-	ASSERT(info != NULL);
+	ASSERT(artID != 0 && info != NULL);
 	if (!EvaluateArtistInfo(iit))
 		return FALSE;
-	return AddNewInfo(_T("artistsinfo"), _T("artid"), artID, iit, info);
+	return AddNewInfo(_T("ArtistsInfo"), _T("artID"), artID, iit, info);
 }
 
-//-----------------------------------------
-//-----------UpdateInfo
-//-----------------------------------------
 BOOL SQLManager::UpdateTrackInfo(UINT trackID, InfoItemTypeEnum iit, LPCTSTR info)
 {
-	ASSERT(trackID != 0);
-	ASSERT(info != NULL);
+	ASSERT(trackID != 0 && info != NULL);
 	if (!EvaluateTrackInfo(iit))
 		return FALSE;
-	ADORecordset rs(m_pDB);
-	TCHAR sql[200];
-	_sntprintf(sql, 200, _T("SELECT * FROM tracksinfo WHERE trackID=%d AND type=%d"), trackID, iit);
-	if (rs.Open(sql, adOpenDynamic, adLockPessimistic, adCmdText) && !rs.IsEOF())
-	{
-		rs.Edit();
-		INT ret = rs.SetVariantFieldValue(_T("name"), info) ? 1 : 0;
-		ASSERT(ret == 1);
-		m_changes.info.updates++;
-		return rs.Update();
-	}
-	return FALSE;
+	return UpdateInfo(_T("TracksInfo"), _T("trackID"), trackID, iit, info);
 }
 BOOL SQLManager::UpdateAlbumInfo(UINT albID, InfoItemTypeEnum iit, LPCTSTR info)
 {
-	ASSERT(albID != 0);
-	ASSERT(info != NULL);
+	ASSERT(albID != 0 && info != NULL);
 	if (!EvaluateAlbumInfo(iit))
 		return FALSE;
-	ADORecordset rs(m_pDB);
-	TCHAR sql[200];
-	_sntprintf(sql, 200, _T("SELECT * FROM albumsinfo WHERE albID=%d AND type=%d"), albID, iit);
-	if (rs.Open(sql, adOpenDynamic, adLockPessimistic, adCmdText) && !rs.IsEOF())
-	{
-		rs.Edit();
-		INT ret = rs.SetVariantFieldValue(_T("name"), info) ? 1 : 0;
-		ASSERT(ret == 1);
-		m_changes.info.updates++;
-		return rs.Update();
-	}
-	return FALSE;
+	return UpdateInfo(_T("AlbumsInfo"), _T("albID"), albID, iit, info);
 }
 BOOL SQLManager::UpdateArtistInfo(UINT artID, InfoItemTypeEnum iit, LPCTSTR info)
 {
-	ASSERT(artID != 0);
-	ASSERT(info != NULL);
+	ASSERT(artID != 0 && info != NULL);
 	if (!EvaluateArtistInfo(iit))
 		return FALSE;
-	ADORecordset rs(m_pDB);
-	TCHAR sql[200];
-	_sntprintf(sql, 200, _T("SELECT * FROM artistsinfo WHERE artID=%d AND type=%d"), artID, iit);
-	if (rs.Open(sql, adOpenDynamic, adLockPessimistic, adCmdText) && !rs.IsEOF())
-	{
-		rs.Edit();
-		INT ret = rs.SetVariantFieldValue(_T("name"), info) ? 1 : 0;
-		ASSERT(ret == 1);
-		m_changes.info.updates++;
-		return rs.Update();
-	}
-	return FALSE;
+	return UpdateInfo(_T("ArtistsInfo"), _T("artID"), artID, iit, info);
 }
 
-//-----------------------------------------
-//-----------DeleteInfo
-//-----------------------------------------
 BOOL SQLManager::DeleteTrackInfo(UINT trackID, InfoItemTypeEnum iit)
 {
 	ASSERT(trackID != 0);
 	if (!EvaluateTrackInfo(iit))
 		return FALSE;
-	TCHAR sql[500];
-	_sntprintf(sql, 500, _T("DELETE FROM tracksinfo WHERE trackID=%d AND type=%d"), trackID, iit);
-	return m_pDB->Execute(sql) != -1;
+	return DeleteInfo(_T("TracksInfo"), _T("trackID"), trackID, iit);
 }
-
 BOOL SQLManager::DeleteAlbumInfo(UINT albID, InfoItemTypeEnum iit)
 {
 	ASSERT(albID != 0);
 	if (!EvaluateAlbumInfo(iit))
 		return FALSE;
-	TCHAR sql[500];
-	_sntprintf(sql, 500, _T("DELETE FROM albumsinfo WHERE albID=%d AND type=%d"), albID, iit);
-	return m_pDB->Execute(sql) != -1;
+	return DeleteInfo(_T("AlbumsInfo"), _T("albID"), albID, iit);
 }
 BOOL SQLManager::DeleteArtistInfo(UINT artID, InfoItemTypeEnum iit)
 {
 	ASSERT(artID != 0);
 	if (!EvaluateArtistInfo(iit))
 		return FALSE;
-	TCHAR sql[500];
-	_sntprintf(sql, 500, _T("DELETE FROM artistsinfo WHERE artID=%d AND type=%d"), artID, iit);
-	return m_pDB->Execute(sql) != -1;
+	return DeleteInfo(_T("ArtistsInfo"), _T("artID"), artID, iit);
 }
 
 BOOL SQLManager::DeleteAllTrackInfo(UINT trackID)
 {
-	return DeleteTrackInfo(trackID, IIT_TrackComment) &&
-		DeleteTrackInfo(trackID, IIT_TrackLyrics) &&
-		DeleteTrackInfo(trackID, IIT_TrackPersonal) &&
-		DeleteTrackInfo(trackID, IIT_TrackTablatures);
+	CString sql;
+	sql.Format(_T("DELETE FROM TracksInfo WHERE trackID=%u"), trackID);
+	return m_pDB->Execute(sql) != -1;
 }
 BOOL SQLManager::DeleteAllAlbumInfo(UINT albID)
 {
@@ -4526,45 +2993,50 @@ BOOL SQLManager::DeleteAllArtistInfo(UINT artID)
 
 BOOL SQLManager::AdjustTrackInfo(UINT trackID, InfoItemTypeEnum iit, LPCTSTR info)
 {
-	ASSERT(trackID != 0);
-	ASSERT(info != NULL);
+	ASSERT(trackID != 0 && info != NULL);
 	if (!EvaluateTrackInfo(iit))
 		return FALSE;
 	InfoRecord ir;
 	if (GetTrackInfoRecord(trackID, iit, ir))
 	{
-		if (info[0] == NULL)
+		if (info[0] == 0)
 			return DeleteTrackInfo(trackID, iit);
 		return UpdateTrackInfo(trackID, iit, info);
 	}
+	if (info[0] == 0)
+		return TRUE;//Nothing to add, nothing to delete
 	return AddNewTrackInfo(trackID, iit, info);
 }
 BOOL SQLManager::AdjustAlbumInfo(UINT albID, InfoItemTypeEnum iit, LPCTSTR info)
 {
-	ASSERT(albID != 0);
+	ASSERT(albID != 0 && info != NULL);
 	if (!EvaluateAlbumInfo(iit))
 		return FALSE;
 	InfoRecord ir;
 	if (GetAlbumInfoRecord(albID, iit, ir))
 	{
-		if (info[0] == NULL)
+		if (info[0] == 0)
 			return DeleteAlbumInfo(albID, iit);
 		return UpdateAlbumInfo(albID, iit, info);
 	}
+	if (info[0] == 0)
+		return TRUE;
 	return AddNewAlbumInfo(albID, iit, info);
 }
 BOOL SQLManager::AdjustArtistInfo(UINT artID, InfoItemTypeEnum iit, LPCTSTR info)
 {
-	ASSERT(artID != 0);
+	ASSERT(artID != 0 && info != NULL);
 	if (!EvaluateArtistInfo(iit))
 		return FALSE;
 	InfoRecord ir;
 	if (GetArtistInfoRecord(artID, iit, ir))
 	{
-		if (info[0] == NULL)
+		if (info[0] == 0)
 			return DeleteArtistInfo(artID, iit);
 		return UpdateArtistInfo(artID, iit, info);
 	}
+	if (info[0] == 0)
+		return TRUE;
 	return AddNewArtistInfo(artID, iit, info);
 }
 
@@ -4573,60 +3045,30 @@ BOOL SQLManager::GetTrackInfoRecord(UINT trackID, InfoItemTypeEnum iit, InfoReco
 	ASSERT(trackID != 0);
 	if (!EvaluateTrackInfo(iit))
 		return FALSE;
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("SELECT ID, name, dateadded FROM TracksInfo WHERE trackID=%d AND Type=%d"), trackID, iit);
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-	{
-		ir.ID = rs.GetUINTFieldValue(0);
-		rs.GetStringFieldValue(1, ir.name);
-		ir.dateAdded = rs.GetSYSTEMTIMEFieldValue(2);
-		return TRUE;
-	}
-	return FALSE;
+	return GetInfoRecord(_T("TracksInfo"), _T("trackID"), trackID, iit, ir);
 }
 BOOL SQLManager::GetAlbumInfoRecord(UINT albID, InfoItemTypeEnum iit, InfoRecord& ir)
 {
 	ASSERT(albID != 0);
 	if (!EvaluateAlbumInfo(iit))
 		return FALSE;
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("SELECT ID, name, dateadded FROM AlbumsInfo WHERE albID=%d AND Type=%d"), albID, iit);
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-	{
-		ir.ID = rs.GetUINTFieldValue(0);
-		rs.GetStringFieldValue(1, ir.name);
-		ir.dateAdded = rs.GetSYSTEMTIMEFieldValue(2);
-		return TRUE;
-	}
-	return FALSE;
+	return GetInfoRecord(_T("AlbumsInfo"), _T("albID"), albID, iit, ir);
 }
 BOOL SQLManager::GetArtistInfoRecord(UINT artID, InfoItemTypeEnum iit, InfoRecord& ir)
 {
 	ASSERT(artID != 0);
 	if (!EvaluateArtistInfo(iit))
 		return FALSE;
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, _T("SELECT ID, name, dateadded FROM artistsInfo WHERE artID=%d AND Type=%d"), artID, iit);
-	ADORecordset rs(m_pDB);
-	if (rs.Open(sql, adOpenForwardOnly, adLockReadOnly, adCmdText) && !rs.IsEOF())
-	{
-		ir.ID = rs.GetUINTFieldValue(0);
-		rs.GetStringFieldValue(1, ir.name);
-		ir.dateAdded = rs.GetSYSTEMTIMEFieldValue(2);
-		return TRUE;
-	}
-	return FALSE;
+	return GetInfoRecord(_T("ArtistsInfo"), _T("artID"), artID, iit, ir);
 }
 
 UINT SQLManager::GetTrackInfoFlags(UINT trackID)
 {
-	TCHAR bf[1000];
-	_sntprintf(bf, 200, _T("SELECT type FROM tracksinfo WHERE trackID=%d"), trackID);
+	CString sql;
+	sql.Format(_T("SELECT Type FROM TracksInfo WHERE trackID=%u"), trackID);
 	UINT flags = TRF_NoFlags;
-	ADORecordset rs(m_pDB);
-	if (!rs.Open(bf))
+	SQLiteStmt rs(m_pDB);
+	if (!rs.Open(sql))
 		return flags;
 	while (!rs.IsEOF())
 	{
@@ -4648,11 +3090,10 @@ UINT SQLManager::GetTrackInfoFlags(UINT trackID)
 		rs.MoveNext();
 	}
 	return flags;
-
 }
 
 
-bool UDgreater(SQLManager::ValuedID& elem1, SQLManager::ValuedID& elem2)
+static bool UDgreater(const SQLManager::ValuedID& elem1, const SQLManager::ValuedID& elem2)
 {
 	return elem1.value > elem2.value;
 }
@@ -4660,22 +3101,18 @@ bool UDgreater(SQLManager::ValuedID& elem1, SQLManager::ValuedID& elem2)
 BOOL SQLManager::GetSimilarArtists(std::vector<ValuedID>& col, UINT artistID, INT maxTagsToExamine, INT maxArtistsPerGenreToExamine)
 {
 	ASSERT(artistID != 0);
-	ADORecordset rs(m_pDB);
-	TCHAR sql[1000];
-	_sntprintf(sql, 1000, 
-		_T("SELECT genreID,count(*) ") 
-		_T("FROM tracks ")
-		_T("WHERE tracks.artID=%d AND tracks.genreID>1 ")
-		_T("GROUP BY tracks.genreID ")
-		_T("ORDER BY count(*) DESC"),
-		artistID
-		);
-
-	if (!rs.Open(sql))
+	SQLiteStmt rs(m_pDB);
+	if (!rs.Prepare(_T("SELECT genreID,count(*) FROM Tracks ")
+			_T("WHERE artID=? AND genreID>1 GROUP BY genreID ORDER BY count(*) DESC")) ||
+		!rs.BindUInt(1, artistID) || !rs.Step())
+		return FALSE;
+	SQLiteStmt rsArt(m_pDB);
+	SQLiteStmt rsArtTrackCount(m_pDB);
+	if (!rsArt.Prepare(_T("SELECT artID,count(*) FROM Tracks ")
+			_T("WHERE genreID=? AND artID<>? GROUP BY artID ORDER BY count(*) DESC")) ||
+		!rsArtTrackCount.Prepare(_T("SELECT count(*) FROM Tracks WHERE artID=?")))
 		return FALSE;
 	INT tagSearch = 0;
-	ADORecordset rsArt(m_pDB);
-	ADORecordset rsArtTrackCount(m_pDB);
 	while (!rs.IsEOF())
 	{
 		tagSearch++;
@@ -4683,42 +3120,28 @@ BOOL SQLManager::GetSimilarArtists(std::vector<ValuedID>& col, UINT artistID, IN
 			break;
 		UINT genID = rs.GetUINTFieldValue(0);
 		UINT traCount = rs.GetUINTFieldValue(1);
-		_sntprintf(sql, 1000, 
-			_T("SELECT artID,count(*) ") 
-			_T("FROM tracks ")
-			_T("WHERE genreID=%d AND artID<>%d ")
-			_T("GROUP BY artID ")
-			_T("ORDER BY count(*) DESC"),
-			genID,
-			artistID
-			);
-		if (rsArt.Open(sql))
+		rsArt.Reset();
+		if (rsArt.BindUInt(1, genID) && rsArt.BindUInt(2, artistID) && rsArt.Step())
 		{
 			INT artSearch = 0;
-			const INT maxArtSearch = 5;
 			while (!rsArt.IsEOF())
 			{
 				artSearch++;
-				if (artSearch > maxArtistsPerGenreToExamine)//===LIMIT THE TAG SEARCHING
+				if (artSearch > maxArtistsPerGenreToExamine)//===LIMIT THE ARTIST SEARCHING
 					break;
 				UINT artID = rsArt.GetUINTFieldValue(0);
 				UINT count = rsArt.GetUINTFieldValue(1);
-				std::vector<ValuedID>::iterator it = col.begin();
-				BOOL bFound = FALSE;
 
-				_sntprintf(sql, 1000, 
-					_T("SELECT count(*) FROM tracks WHERE artID=%d"),
-					artID
-					);
 				INT artistTrackCount = count;
-				if (rsArtTrackCount.Open(sql) && !rsArtTrackCount.IsEOF())
+				rsArtTrackCount.Reset();
+				if (rsArtTrackCount.BindUInt(1, artID) && rsArtTrackCount.Step() && !rsArtTrackCount.IsEOF())
 					artistTrackCount = rsArtTrackCount.GetUINTFieldValue(0);
-
-
-
+				if (artistTrackCount == 0)
+					artistTrackCount = 1;
 
 				DOUBLE value = (traCount * count) / (DOUBLE)artistTrackCount;
-				for (; it != col.end(); it++)
+				BOOL bFound = FALSE;
+				for (std::vector<ValuedID>::iterator it = col.begin(); it != col.end(); it++)
 				{
 					if (it->ID == artID)
 					{
@@ -4739,11 +3162,3 @@ BOOL SQLManager::GetSimilarArtists(std::vector<ValuedID>& col, UINT artistID, IN
 	std::sort(col.begin(), col.end(), UDgreater);
 	return TRUE;
 }
-
-
-
-
-
-
-
-

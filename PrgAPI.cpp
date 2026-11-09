@@ -2086,7 +2086,7 @@ SQLManager* PrgAPI::GetSQLManager()
 		TRACEST(_T("PrgAPI::GetSQLManager [CREATION]"));
 		m_pSQLManager = new SQLManager;
 		std::tstring path(GetPath(PATH_DatabaseRoot));
-		path += _T("music.mdb");
+		path += _T("music.db");	//An existing music.mdb next to it is imported on first run
 		if (!m_pSQLManager->Init(path.c_str()))
 		{
 			delete m_pSQLManager;

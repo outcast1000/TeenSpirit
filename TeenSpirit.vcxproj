@@ -47,7 +47,6 @@
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpp14</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <Optimization>Disabled</Optimization>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
@@ -77,7 +76,6 @@
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpp14</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -111,9 +109,6 @@
     <ClCompile Include="CollectionsDlg.cpp" />
     <ClCompile Include="CollectionsList.cpp" />
     <ClCompile Include="CollectionUpdateJob.cpp" />
-    <ClCompile Include="CommonSources\Ado\AdoWrap.cpp">
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
-    </ClCompile>
     <ClCompile Include="CommonSources\ALog\ALog.cpp" />
     <ClCompile Include="CommonSources\ALog\cputicker.cpp" />
     <ClCompile Include="CommonSources\ApplicationMonitor.cpp" />
@@ -504,9 +499,11 @@
     <ClCompile Include="Database\DataRecords.cpp" />
     <ClCompile Include="Database\DataRecordsXmlSerializer.cpp" />
     <ClCompile Include="Database\RecordCollectionSorter.cpp" />
-    <ClCompile Include="Database\SQLManager.cpp">
+    <ClCompile Include="CommonSources\SQLite\SQLiteDB.cpp" />
+    <ClCompile Include="Database\JetImporter.cpp">
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
+    <ClCompile Include="Database\SQLManager.cpp" />
     <ClCompile Include="DetailedSearchCHdlg.cpp" />
     <ClCompile Include="DriveDlg.cpp" />
     <ClCompile Include="EnhTrackListWnd.cpp" />
@@ -666,7 +663,6 @@
     <ClInclude Include="CollectionsDlg.h" />
     <ClInclude Include="CollectionsList.h" />
     <ClInclude Include="CollectionUpdateJob.h" />
-    <ClInclude Include="CommonSources\Ado\AdoWrap.h" />
     <ClInclude Include="CommonSources\ALog\ALog.h" />
     <ClInclude Include="CommonSources\ALog\cputicker.h" />
     <ClInclude Include="CommonSources\ApplicationMonitor.h" />
@@ -856,6 +852,8 @@
     <ClInclude Include="Database\DataRecords.h" />
     <ClInclude Include="Database\DataRecordsXmlSerializer.h" />
     <ClInclude Include="Database\RecordCollectionSorter.h" />
+    <ClInclude Include="CommonSources\SQLite\SQLiteDB.h" />
+    <ClInclude Include="Database\JetImporter.h" />
     <ClInclude Include="Database\SQLManager.h" />
     <ClInclude Include="DetailedSearchCHdlg.h" />
     <ClInclude Include="DockedWindow.h" />
@@ -1134,7 +1132,6 @@
     <Image Include="res\window16.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\SDKs\BassSDK\bass.chm" />
     <None Include="changelog.txt" />
     <None Include="CommonSources\ShellFileOp\CShellFileOp_docs.html" />
     <None Include="res\AddFiles.bmp" />

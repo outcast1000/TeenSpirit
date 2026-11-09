@@ -5,7 +5,7 @@
     <JaangleRoot>$(MSBuildThisFileDirectory)</JaangleRoot>
     <OutDir>$(JaangleRoot)build\out\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(JaangleRoot)build\obj\$(MSBuildProjectName)\$(Platform)\$(Configuration)\</IntDir>
-    <!-- 32-bit ADO/JRO type libraries used by CommonSources\Ado\AdoWrap.h (#import). -->
+    <!-- 32-bit ADO type library, #imported by Database\JetImporter.cpp (legacy .mdb import). -->
     <JaangleAdoDir>$([System.Environment]::GetFolderPath(SpecialFolder.CommonProgramFilesX86))\System\ado</JaangleAdoDir>
   </PropertyGroup>
 </Project>

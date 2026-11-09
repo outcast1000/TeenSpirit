@@ -243,8 +243,6 @@ PrgAPI::~PrgAPI()
 		InternetCloseHandle(m_hInternet);
 		m_hInternet = NULL;
 	}
-	delete m_pSkinManager;
-	m_pSkinManager = NULL;
 	delete m_pHotKeyManager;
 	m_pHotKeyManager = NULL;
 	DestroyTrayToolTipDlg();
@@ -290,7 +288,12 @@ PrgAPI::~PrgAPI()
 	//TRACE(_T("@2*delete* m_pMenuManager\r\n"));
 	delete m_pMenuManager;
 	m_pMenuManager = NULL;
-	//TRACE(_T("@2*delete* m_pLanguageManager\r\n"));
+	//=== The skin and translation managers go after everything that registers
+	//=== with them (the dialogs above, MenuManager). The main dialog normally
+	//=== destroys those dialogs earlier; if one is still alive here, it must
+	//=== unregister from a live manager.
+	delete m_pSkinManager;
+	m_pSkinManager = NULL;
 	delete m_pTranslationManager;
 	m_pTranslationManager = NULL;
 	//=== Deleted after the services above: they may send state messages or

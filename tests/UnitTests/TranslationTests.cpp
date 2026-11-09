@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include "TestFramework.h"
 #include "TranslationManager.h"
+#include "TSTranslatable.h"
 #include "resource.h"
 #include <vector>
 
@@ -307,6 +308,33 @@ namespace
 		tm.UnRegisterTranslatable(a);
 	}
 
+	class TranslatableWidget: public TSTranslatable
+	{
+	public:
+		explicit TranslatableWidget(ITranslationManager& tm): TSTranslatable(tm), m_count(0)	{}
+		virtual void ApplyTranslation(ITranslation&)	{m_count++;}
+		INT m_count;
+	};
+
+	void TestTranslatableMixin()
+	{
+		TranslationManager tm;
+		{
+			TranslatableWidget w(tm);
+			tm.UpdateTranslatables(tm);
+			CHECK(w.m_count == 1);
+			{
+				TranslatableWidget copy(w);	//a copy registers too
+				tm.UpdateTranslatables(tm);
+				CHECK(w.m_count == 2 && copy.m_count == 2);
+			}
+			tm.UpdateTranslatables(tm);
+			CHECK(w.m_count == 3);
+		}
+		tm.UpdateTranslatables(tm);		//must not touch the destroyed widgets
+		//~TranslationManager asserts that nothing is still registered.
+	}
+
 	//Every translation shipped in Langs\ (copied next to UnitTests.exe by the build) parses.
 	void TestShippedTranslations(HMODULE hApp)
 	{
@@ -338,6 +366,7 @@ void RunTranslationTests()
 	wprintf(L"Translation tests\n");
 	TestParser();
 	TestLangFileNames();
+	TestTranslatableMixin();
 	HMODULE hApp = LoadAppModule();
 	CHECK(hApp != NULL);
 	if (hApp == NULL)

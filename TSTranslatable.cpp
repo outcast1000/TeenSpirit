@@ -2,12 +2,8 @@
 #include "TSTranslatable.h"
 #include "PrgAPI.h"
 
-TSTranslatable::TSTranslatable()
+TSTranslatable::TSTranslatable():
+m_pTranslationManager(PRGAPI()->GetTranslationManager())
 {
-	PRGAPI()->GetTranslationManager()->RegisterTranslatable(*this);
+	m_pTranslationManager->RegisterTranslatable(*this);
 }
-TSTranslatable::~TSTranslatable()
-{
-	PRGAPI()->GetTranslationManager()->UnRegisterTranslatable(*this);
-}
-

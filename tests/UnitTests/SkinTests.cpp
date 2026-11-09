@@ -3,7 +3,9 @@
 #include "stdafx.h"
 #include "TestFramework.h"
 #include "SkinManager.h"
+#include "TSSkinnable.h"
 #include <vector>
+#include <set>
 
 namespace
 {
@@ -244,6 +246,55 @@ namespace
 		sm.UnRegisterSkinnable(a);
 	}
 
+	//Records registrations.
+	class FakeSkinManager: public ISkinManager
+	{
+	public:
+		virtual void RegisterSkinnable(ISkinnable& s)		{m_registered.insert(&s); m_registers++;}
+		virtual void UnRegisterSkinnable(ISkinnable& s)		{m_registered.erase(&s); m_unregisters++;}
+		virtual void UpdateSkinnables(ISkin&)				{}
+		FakeSkinManager(): m_registers(0), m_unregisters(0)	{}
+		std::set<ISkinnable*> m_registered;
+		INT m_registers;
+		INT m_unregisters;
+	};
+
+	class SkinnableWidget: public TSSkinnable
+	{
+	public:
+		explicit SkinnableWidget(ISkinManager& sm): TSSkinnable(sm), m_count(0)	{}
+		virtual void ApplySkin(ISkin&)	{m_count++;}
+		INT m_count;
+	};
+
+	void TestSkinnableMixin()
+	{
+		FakeSkinManager sm, other;
+		{
+			SkinnableWidget w(sm);
+			CHECK(sm.m_registered.count(&w) == 1);
+			{
+				SkinnableWidget copy(w);		//a copy registers too (it didn't, but unregistered)
+				CHECK(sm.m_registered.count(&copy) == 1 && sm.m_registered.size() == 2);
+				SkinnableWidget elsewhere(other);
+				elsewhere = w;					//assignment keeps each one where it is
+				CHECK(other.m_registered.count(&elsewhere) == 1 && sm.m_registered.size() == 2);
+			}
+			CHECK(sm.m_registered.size() == 1 && other.m_registered.empty());
+		}
+		CHECK(sm.m_registered.empty() && sm.m_registers == 2 && sm.m_unregisters == 2);
+
+		//With the real manager: skinned on update, gone after destruction.
+		SkinManager real;
+		TSSkin& skin = real.GetSkin();
+		{
+			SkinnableWidget w(real);
+			real.UpdateSkinnables(skin);
+			CHECK(w.m_count == 1);
+		}
+		real.UpdateSkinnables(skin);	//must not touch the destroyed widget
+	}
+
 	//Every skin shipped in Skins\ (copied next to UnitTests.exe by the build) loads.
 	void TestShippedSkins()
 	{
@@ -310,5 +361,6 @@ void RunSkinTests()
 	TestSkinFolderName();
 	TestPartialSkin();
 	TestSkinManager();
+	TestSkinnableMixin();
 	TestShippedSkins();
 }

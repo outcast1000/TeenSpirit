@@ -15,6 +15,7 @@ SkinManager::SkinManager()
 
 SkinManager::~SkinManager()
 {
+	ASSERT(m_skinables.empty());	//=== A skinnable outlives its manager
 }
 
 

@@ -1,16 +1,9 @@
-
-
 #include "stdafx.h"
 #include "TSSkinnable.h"
 #include "PrgAPI.h"
 
-TSSkinnable::TSSkinnable()
+TSSkinnable::TSSkinnable():
+m_pSkinManager(PRGAPI()->GetSkinManager())
 {
-	PRGAPI()->GetSkinManager()->RegisterSkinnable(*this);
+	m_pSkinManager->RegisterSkinnable(*this);
 }
-
-TSSkinnable::~TSSkinnable()
-{
-	PRGAPI()->GetSkinManager()->UnRegisterSkinnable(*this);
-}
-

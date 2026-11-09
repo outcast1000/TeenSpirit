@@ -20,5 +20,6 @@ void RunJobQueueTests();
 void RunLastFMTests();
 void RunWebServicesTests();
 void RunOnlineProvidersTests();
+void RunTaggerTests();
 
 #endif

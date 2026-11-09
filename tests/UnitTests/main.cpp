@@ -40,6 +40,7 @@ int wmain()
 	RunLastFMTests();
 	RunWebServicesTests();
 	RunOnlineProvidersTests();
+	RunTaggerTests();
 
 	wprintf(L"\n%d checks, %d failures\n", gChecks, gFailures);
 	CoUninitialize();

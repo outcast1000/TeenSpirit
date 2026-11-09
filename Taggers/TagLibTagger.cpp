@@ -24,38 +24,158 @@
 #include "TagLibTagger.h"
 #include <fileref.h>
 #include <tag.h>
-#include <sstream>
 #include <tfile.h>
+#include <tpropertymap.h>
+#include <mpegfile.h>
+#include <wavfile.h>
+#include <aifffile.h>
+#include <trueaudiofile.h>
+#include <id3v2tag.h>
+#include <id3v2frame.h>
+#include <popularimeterframe.h>
+#include <textidentificationframe.h>
+#include <unsynchronizedlyricsframe.h>
 
-//#define USE_PICTURES
+//	Album artist, composer, lyrics and rating are not part of TagLib::Tag.
+//	ID3v2 (MP3, WAV, AIFF, TTA): TPE2, TCOM, USLT (the one without a description
+//	first) and POPM, as Jaangle has always written them. Other formats: the
+//	ALBUMARTIST, COMPOSER and LYRICS properties; no rating.
 
-void TagLibString2String(std::tstring& dest, TagLib::String& src)
+namespace
 {
-	if (src.isAscii())
+	//Tags written by old Windows programs often hold text in the local ANSI code page
+	//declared as Latin-1. When every character is below 256, decode the bytes with the
+	//ANSI code page instead (identity for ASCII).
+	void TagLibString2String(std::tstring& dest, const TagLib::String& src)
 	{
 		dest = src.toWString();
+		BOOL bNonAscii = FALSE;
+		for (size_t i = 0; i < dest.size(); i++)
+		{
+			if (dest[i] >= 256)
+				return;
+			if (dest[i] >= 128)
+				bNonAscii = TRUE;
+		}
+		if (!bNonAscii)
+			return;
+		std::string bytes(dest.size(), '\0');
+		for (size_t i = 0; i < dest.size(); i++)
+			bytes[i] = (char)dest[i];
+		INT len = MultiByteToWideChar(CP_ACP, 0, bytes.data(), (INT)bytes.size(), NULL, 0);
+		std::wstring decoded(len, L'\0');
+		MultiByteToWideChar(CP_ACP, 0, bytes.data(), (INT)bytes.size(), &decoded[0], len);
+		dest = decoded;
 	}
-	else if (src.isLatin1())
+	void GetTag(std::tstring& dest, const TagLib::String& src, INT tagFlag, INT& appendFlag)
 	{
-		std::string latin1 = src.to8Bit(false);
-		UINT bfLen = MultiByteToWideChar(CP_ACP, 0, latin1.c_str(), latin1.size(), 0, 0);
-		dest.resize(bfLen + 1);
-		MultiByteToWideChar(CP_ACP, 0, latin1.c_str(), latin1.size(), (LPWSTR)dest.data(), bfLen);
+		if (!src.isEmpty())
+		{
+			appendFlag |= tagFlag;
+			TagLibString2String(dest, src);
+		}
 	}
-	else
-	{
-		dest = src.toWString();
-	}
-}
-void GetTag(std::tstring& dest, TagLib::String& src, INT tagFlag, INT& appendFlag)
-{
-	if (src.isEmpty() == false)
-	{
-		appendFlag |= tagFlag;
-		TagLibString2String(dest, src);
-	}
-}
 
+	TagLib::ID3v2::Tag* GetID3v2Tag(TagLib::File* file, bool create)
+	{
+		if (TagLib::MPEG::File* f = dynamic_cast<TagLib::MPEG::File*>(file))
+			return f->ID3v2Tag(create);
+		if (TagLib::RIFF::WAV::File* f = dynamic_cast<TagLib::RIFF::WAV::File*>(file))
+			return f->ID3v2Tag();
+		if (TagLib::RIFF::AIFF::File* f = dynamic_cast<TagLib::RIFF::AIFF::File*>(file))
+			return f->tag();
+		if (TagLib::TrueAudio::File* f = dynamic_cast<TagLib::TrueAudio::File*>(file))
+			return f->ID3v2Tag(create);
+		return NULL;
+	}
+
+	//=== ID3v2
+	TagLib::String TextFrame(const TagLib::ID3v2::Tag& tag, const char* id)
+	{
+		const TagLib::ID3v2::FrameList frames = tag.frameList(id);
+		return frames.isEmpty() ? TagLib::String() : frames.front()->toString();
+	}
+	void SetTextFrame(TagLib::ID3v2::Tag& tag, const char* id, const TagLib::String& value)
+	{
+		tag.removeFrames(id);
+		if (!value.isEmpty())
+		{
+			TagLib::ID3v2::TextIdentificationFrame* f = new TagLib::ID3v2::TextIdentificationFrame(id, TagLib::String::Latin1);
+			f->setText(value);	//Latin-1 is upgraded to Unicode on save when the text needs it
+			tag.addFrame(f);
+		}
+	}
+	TagLib::String Lyrics(const TagLib::ID3v2::Tag& tag)
+	{
+		const TagLib::ID3v2::FrameList frames = tag.frameList("USLT");
+		if (frames.isEmpty())
+			return TagLib::String();
+		for (TagLib::ID3v2::FrameList::ConstIterator it = frames.begin(); it != frames.end(); ++it)
+		{
+			TagLib::ID3v2::UnsynchronizedLyricsFrame* f = dynamic_cast<TagLib::ID3v2::UnsynchronizedLyricsFrame*>(*it);
+			if (f != NULL && f->description().isEmpty())
+				return f->text();
+		}
+		return frames.front()->toString();
+	}
+	void SetLyrics(TagLib::ID3v2::Tag& tag, const TagLib::String& value)
+	{
+		if (value.isEmpty())
+		{
+			tag.removeFrames("USLT");
+			return;
+		}
+		const TagLib::ID3v2::FrameList frames = tag.frameList("USLT");
+		TagLib::ID3v2::UnsynchronizedLyricsFrame* f = frames.isEmpty() ? NULL :
+			dynamic_cast<TagLib::ID3v2::UnsynchronizedLyricsFrame*>(frames.front());
+		if (f == NULL)
+		{
+			f = new TagLib::ID3v2::UnsynchronizedLyricsFrame(TagLib::String::Latin1);
+			tag.addFrame(f);
+		}
+		f->setText(value);
+	}
+	UINT Rating(const TagLib::ID3v2::Tag& tag)
+	{
+		const TagLib::ID3v2::FrameList frames = tag.frameList("POPM");
+		TagLib::ID3v2::PopularimeterFrame* f = frames.isEmpty() ? NULL :
+			dynamic_cast<TagLib::ID3v2::PopularimeterFrame*>(frames.front());
+		return f != NULL ? (UINT)f->rating() : 0;
+	}
+	void SetRating(TagLib::ID3v2::Tag& tag, INT rating)
+	{
+		if (rating <= 0)
+		{
+			tag.removeFrames("POPM");
+			return;
+		}
+		if (rating > 255)
+			rating = 255;
+		const TagLib::ID3v2::FrameList frames = tag.frameList("POPM");
+		TagLib::ID3v2::PopularimeterFrame* f = frames.isEmpty() ? NULL :
+			dynamic_cast<TagLib::ID3v2::PopularimeterFrame*>(frames.front());
+		if (f == NULL)
+		{
+			f = new TagLib::ID3v2::PopularimeterFrame();
+			tag.addFrame(f);
+		}
+		f->setRating(rating);
+	}
+
+	//=== Other formats
+	TagLib::String Property(const TagLib::PropertyMap& props, const char* key)
+	{
+		TagLib::PropertyMap::ConstIterator it = props.find(key);
+		return (it == props.end() || it->second.isEmpty()) ? TagLib::String() : it->second.front();
+	}
+	void SetProperty(TagLib::PropertyMap& props, const char* key, const TagLib::String& value)
+	{
+		if (value.isEmpty())
+			props.erase(key);
+		else
+			props.replace(key, TagLib::StringList(value));
+	}
+}
 
 
 UINT TagLibTagger::Read(LPCTSTR fileName, TagInfo& info)
@@ -78,22 +198,29 @@ UINT TagLibTagger::Read(LPCTSTR fileName, TagInfo& info)
 			return TagInfo_None;
 		}
 
-		TagLib::String s = tag->title();
-		GetTag(info.Title, s, TagInfo_Title, ret);
-		s = tag->artist();
-		GetTag(info.Artist, s, TagInfo_Artist, ret);
-		s = tag->albumArtist_AL();
-		GetTag(info.AlbumArtist, s, TagInfo_AlbumArtist, ret);
-		s = tag->composer_AL();
-		GetTag(info.Composer, s, TagInfo_Composer, ret);
-		s = tag->album();
-		GetTag(info.Album, s, TagInfo_Album, ret);
-		s = tag->comment();
-		GetTag(info.Comment, s, TagInfo_Comment, ret);
-		s = tag->genre();
-		GetTag(info.Genre, s, TagInfo_Genre, ret);
-		s = tag->lyrics_AL();
-		GetTag(info.Lyrics, s, TagInfo_Lyrics, ret);
+		GetTag(info.Title, tag->title(), TagInfo_Title, ret);
+		GetTag(info.Artist, tag->artist(), TagInfo_Artist, ret);
+		GetTag(info.Album, tag->album(), TagInfo_Album, ret);
+		GetTag(info.Comment, tag->comment(), TagInfo_Comment, ret);
+		GetTag(info.Genre, tag->genre(), TagInfo_Genre, ret);
+
+		//create: an empty tag in memory only (Read never saves)
+		TagLib::ID3v2::Tag* id3 = GetID3v2Tag(f.file(), true);
+		if (id3 != NULL)
+		{
+			GetTag(info.AlbumArtist, TextFrame(*id3, "TPE2"), TagInfo_AlbumArtist, ret);
+			GetTag(info.Composer, TextFrame(*id3, "TCOM"), TagInfo_Composer, ret);
+			GetTag(info.Lyrics, Lyrics(*id3), TagInfo_Lyrics, ret);
+			info.Rating = Rating(*id3);
+		}
+		else
+		{
+			const TagLib::PropertyMap props = f.file()->properties();
+			GetTag(info.AlbumArtist, Property(props, "ALBUMARTIST"), TagInfo_AlbumArtist, ret);
+			GetTag(info.Composer, Property(props, "COMPOSER"), TagInfo_Composer, ret);
+			GetTag(info.Lyrics, Property(props, "LYRICS"), TagInfo_Lyrics, ret);
+		}
+
 		info.Year = tag->year();
 		if (info.Year > 0 && info.Year < 2100)
 			ret |= TagInfo_Year;
@@ -104,50 +231,21 @@ UINT TagLibTagger::Read(LPCTSTR fileName, TagInfo& info)
 			ret|=TagInfo_TrackNo;
 		else
 			info.TrackNo = 0;
-		info.Rating = tag->rating_AL();
 		if (info.Rating > 0 && info.Rating <= 255)
 			ret|=TagInfo_Rating;
 		else
 			info.Rating = 0;
 
-#ifdef USE_PICTURES
-		TagLib::String mime;
-		TagLib::ByteVector data;
-		if (tag->picture_AL(mime, data, s))
-		{
-			if (mime == "png")
-				info.Picture.type = TPT_Png;
-			else
-				info.Picture.type = TPT_Jpeg;
-			info.Picture.data.assign(data.begin(), data.end());
-			std::tstring fName = fileName;
-			fName += _T(".jpg");
-			CFile f;
-			if (f.Open(fName.c_str(), CFile::modeCreate | CFile::modeWrite))
-			{
-				f.Write(&info.Picture.data[0], info.Picture.data.size());
-				f.Close();
-				ShellExecute(0, 0, fName.c_str(), 0, 0, 0);
-			}
-		}
-#endif
 		TagLib::AudioProperties *properties = f.audioProperties();
 		if (properties)
 		{
-			info.Length = properties->length();
-			if (info.Length != 0)			
+			info.Length = properties->lengthInSeconds();
+			if (info.Length != 0)
 				ret |= TagInfo_Length;
 			info.Bitrate = properties->bitrate();
 			if (info.Bitrate != 0)
 				ret |= TagInfo_Bitrate;
-			//if (properties->sampleRate() != 0)
-			//{
-			//	TCHAR bf[200];
-			//	_sntprintf(bf, 200, _T("%d[%d]"), properties->sampleRate(), properties->channels());
-			//	info.FormatInfo = bf;
-			//	ret |= TagInfo_FormatInfo;
-			//}
-		}	
+		}
 	}
 	catch (...)
 	{
@@ -183,63 +281,33 @@ UINT TagLibTagger::Write(LPCTSTR fileName, TagInfo& info)
 			return TagInfo_None;
 		}
 
-		BOOL bUnicode = TRUE;//=== Set it to FALSE for the non-unicode version
-		if (bUnicode)
-		{
-			//=== Writes everything in unicode (utf8).
-			//=== Advantages
-			//=== 1. No problems with different languages
-			//=== Disadvantages
-			//=== 1. Not 100% compatible with all tag readers
-			//=== 2. Id3v1 is not properly written (Text tags are empty)
-			if (info.IsValid(TagInfo_Title))	tag->setTitle(info.Title);
-			if (info.IsValid(TagInfo_Album))	tag->setAlbum(info.Album);
-			if (info.IsValid(TagInfo_Artist))	tag->setArtist(info.Artist);
-			if (info.IsValid(TagInfo_Comment))	tag->setComment(info.Comment);
-			if (info.IsValid(TagInfo_Genre))	tag->setGenre(info.Genre);
-			if (info.IsValid(TagInfo_Lyrics))	tag->setLyrics_AL(info.Lyrics);
-			if (info.IsValid(TagInfo_AlbumArtist))	tag->setAlbumArtist_AL(info.AlbumArtist);
-			if (info.IsValid(TagInfo_Composer))	tag->setComposer_AL(info.Composer);
-		}
-		else
-		{
-			INT convertionCP = CP_ACP;//=== otherwise 1252
-			const INT cBfLen = 60000;
-			CHAR bf[cBfLen + 1];
-			INT len = WideCharToMultiByte(convertionCP, 0, info.Title.c_str(), -1, bf, cBfLen, 0, 0);
-			bf[len] = 0;
-			if (info.IsValid(TagInfo_Title))	tag->setTitle(bf);
-			len = WideCharToMultiByte(convertionCP, 0, info.Album.c_str(), -1, bf, cBfLen, 0, 0);
-			bf[len] = 0;
-			if (info.IsValid(TagInfo_Album))	tag->setAlbum(bf);
-			len = WideCharToMultiByte(convertionCP, 0, info.Artist.c_str(), -1, bf, cBfLen, 0, 0);
-			bf[len] = 0;
-			if (info.IsValid(TagInfo_Artist))	tag->setArtist(bf);
-			len = WideCharToMultiByte(convertionCP, 0, info.Comment.c_str(), -1, bf, cBfLen, 0, 0);
-			bf[len] = 0;
-			if (info.IsValid(TagInfo_Comment))	tag->setComment(bf);
-			len = WideCharToMultiByte(convertionCP, 0, info.Genre.c_str(), -1, bf, cBfLen, 0, 0);
-			bf[len] = 0;
-			if (info.IsValid(TagInfo_Genre))	tag->setGenre(bf);
-			len = WideCharToMultiByte(convertionCP, 0, info.Lyrics.c_str(), -1, bf, cBfLen, 0, 0);
-			bf[len] = 0;
-			if (info.IsValid(TagInfo_Lyrics))	tag->setLyrics_AL(bf);
-
-		}
+		//=== Text is written as Unicode where the format needs it (ID3v1 can't hold it).
+		if (info.IsValid(TagInfo_Title))	tag->setTitle(info.Title);
+		if (info.IsValid(TagInfo_Album))	tag->setAlbum(info.Album);
+		if (info.IsValid(TagInfo_Artist))	tag->setArtist(info.Artist);
+		if (info.IsValid(TagInfo_Comment))	tag->setComment(info.Comment);
+		if (info.IsValid(TagInfo_Genre))	tag->setGenre(info.Genre);
 		if (info.IsValid(TagInfo_Year))		tag->setYear(info.Year);
 		if (info.IsValid(TagInfo_TrackNo))	tag->setTrack(info.TrackNo);
-		if (info.IsValid(TagInfo_Rating))	tag->setRating_AL(info.Rating);
 
-		//{
-		//	UINT len = WideCharToMultiByte(CP_UTF8, 0, info.Lyrics.c_str(),-1,0,0,0,0);
-		//	CHAR* utf8 = new CHAR[len + 1];
-		//	utf8[len] = 0;
-		//	WideCharToMultiByte(CP_UTF8, 0, info.Lyrics.c_str(),-1,utf8,len,0,0);
-		//	TagLib::String lyrics(utf8, TagLib::String::UTF8);
-		//	tag->setLyrics_AL(lyrics);
-		//	delete utf8;
-		//}
-		if (!f.save())	
+		TagLib::ID3v2::Tag* id3 = GetID3v2Tag(f.file(), true);
+		if (id3 != NULL)
+		{
+			if (info.IsValid(TagInfo_Lyrics))		SetLyrics(*id3, info.Lyrics);
+			if (info.IsValid(TagInfo_AlbumArtist))	SetTextFrame(*id3, "TPE2", info.AlbumArtist);
+			if (info.IsValid(TagInfo_Composer))		SetTextFrame(*id3, "TCOM", info.Composer);
+			if (info.IsValid(TagInfo_Rating))		SetRating(*id3, info.Rating);
+		}
+		else if (info.validFields & (TagInfo_Lyrics | TagInfo_AlbumArtist | TagInfo_Composer))
+		{
+			TagLib::PropertyMap props = f.file()->properties();
+			if (info.IsValid(TagInfo_Lyrics))		SetProperty(props, "LYRICS", info.Lyrics);
+			if (info.IsValid(TagInfo_AlbumArtist))	SetProperty(props, "ALBUMARTIST", info.AlbumArtist);
+			if (info.IsValid(TagInfo_Composer))		SetProperty(props, "COMPOSER", info.Composer);
+			f.file()->setProperties(props);
+		}
+
+		if (!f.save())
 		{
 			TRACE(_T("@1 TagLibTagger::Write. Save tag failed\r\n"));
 			return TagInfo_None;
@@ -258,4 +326,3 @@ BOOL TagLibTagger::ClearTags(LPCTSTR fileName)
 {
 	return FALSE;
 }
-

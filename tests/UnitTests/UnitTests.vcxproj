@@ -84,8 +84,16 @@
     <ClCompile Include="..\..\CommonSources\ALog\ALog.cpp" />
     <ClCompile Include="..\..\CommonSources\ALog\cputicker.cpp" />
     <ClCompile Include="..\..\CommonSources\PerfTimer.cpp" />
+    <ClCompile Include="TaggerTests.cpp" />
+    <ClCompile Include="..\..\Taggers\TagLibTagger.cpp" />
     <ClInclude Include="TestFramework.h" />
   </ItemGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <!-- TagLib from vcpkg; its headers are included without the taglib/ prefix -->
+      <AdditionalIncludeDirectories>$(VcpkgInstalledDir)$(VcpkgTriplet)\include\taglib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="..\..\build\vcpkg.targets" />
 </Project>

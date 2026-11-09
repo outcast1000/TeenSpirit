@@ -9,7 +9,7 @@
   - **vcpkg package manager** (bundled component), or a vcpkg clone pointed to by `VCPKG_ROOT`
 - Git (vcpkg uses it to fetch the registry baseline)
 
-Third-party C++ dependencies (SQLite, zlib, nlohmann-json) are declared in `vcpkg.json` and
+Third-party C++ dependencies (SQLite, TagLib 2, zlib, nlohmann-json) are declared in `vcpkg.json` and
 are restored automatically on the first build into `vcpkg_installed\`.
 
 ## Build
@@ -37,6 +37,8 @@ the remaining x64 blockers are the x86-only BASS import libraries and the code i
   no CPU use while idle, and shutdown never terminating threads.
 - **Last.fm worker**: started on demand and joined on destruction.
 - **Web search templates**: `WebServices\*.wsxml` load and expand to encoded URLs.
+- **Tagger**: tags written and read back on generated MP3, WAV and FLAC files, including
+  the ID3v2 frames (album artist, composer, lyrics, rating) other players read.
 - **Online info providers**: API response parsing (offline). Set `JAANGLE_LIVE_TESTS=1`
   to also query the real services (and `JAANGLE_LASTFM_API_KEY` for Last.fm).
 
@@ -127,4 +129,3 @@ Last.fm), or compiled in: see `ApiKeys.h` (real keys go in the gitignored
 
 - C++14, `/permissive` (conformance mode off) and warning C4996 disabled, to keep the
   legacy code compiling unchanged.
-- TagLib is the vendored ~1.6 copy in `CommonSources\TagLib`, not the vcpkg port.

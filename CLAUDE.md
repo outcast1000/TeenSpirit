@@ -20,7 +20,7 @@ MSBuild lives in the VS 2026 Build Tools on F: (not on PATH by default):
   `CrashReport\XCrashReport.vcxproj`, `tests\UnitTests\UnitTests.vcxproj`.
 - Output: `build\out\Win32\<Config>\` (`jaangle.exe` / `jaangledbg.exe`, `UnitTests.exe`);
   intermediates in `build\obj\` (set by `Directory.Build.props`).
-- vcpkg dependencies (sqlite3, zlib, nlohmann-json) in `vcpkg.json` restore on first build.
+- vcpkg dependencies (sqlite3, taglib, zlib, nlohmann-json) in `vcpkg.json` restore on first build.
 - One-time: `powershell -ExecutionPolicy Bypass -File tools\fetch-bass.ps1` downloads BASS DLLs to
   `build\deps\bass\` (not in repo — licensing). The build copies them plus `Skins\`, `Langs\`,
   `WebServices\` next to the exe, so the exe runs from the output dir. Settings (`jaangle.ini`) and
@@ -60,7 +60,9 @@ test needs the 32-bit Jet 4.0 OLE DB provider.
   (`BassEngine`, `FadeBassEngine` for crossfade), `DShowEngine` for video, `MultiEngine` choosing by
   file type. `MediaTransportControls` (owned by `TeenSpiritDlg`) mirrors the current track and
   play state into the Windows media controls; their buttons arrive as `WM_HOTKEY`
-  (`VK_MEDIA_*`). Tag reading in `Taggers\` (vendored TagLib ~1.6 in `CommonSources\TagLib`, not vcpkg).
+  (`VK_MEDIA_*`). Tag reading/writing in `Taggers\TagLibTagger.cpp` (TagLib 2 from vcpkg; album artist,
+  composer, lyrics and rating are ID3v2 frames for MP3/WAV/AIFF/TTA, properties elsewhere;
+  covered by `tests\UnitTests\TaggerTests.cpp`).
 - **Online info** (`InformationProviders\`): `IInfoProvider` implementations created by
   `InfoProviderFactory`; `OnlineInfoProvider.cpp` holds the current web-API providers (Cover Art
   Archive/MusicBrainz, LRCLIB, Deezer, Last.fm API 2.0). `InfoDownloadManager` queues requests.

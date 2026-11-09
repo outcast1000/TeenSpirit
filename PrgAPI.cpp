@@ -131,7 +131,7 @@ const OptInfo Option2Info[] =
 	{OPT_TAG_WV, _T("wv"), cTagManager, 3},		//OPT_TAG_WV,
 	{OPT_TAG_SPX, _T("spx"), cTagManager, 3},		//OPT_TAG_SPX,
 	{OPT_TAG_TTA, _T("tta"), cTagManager, 3},		//OPT_TAG_TTA,
-	{OPT_TAG_M4A, _T("m4a"), cTagManager, 0},		//OPT_TAG_M4A,
+	{OPT_TAG_M4A, _T("m4a"), cTagManager, 1},		//OPT_TAG_M4A, read only (TagLib 1.6 crashed on some files; TagLib 2 reads them)
 	{OPT_TAG_WMA, _T("wma"), cTagManager, 1},		//OPT_TAG_WMA,
 	{OPT_TAG_AIF, _T("aif"), cTagManager, 3},		//OPT_TAG_AIF,
 	{OPT_TAG_WAV, _T("wav"), cTagManager, 3},		//OPT_TAG_WAV,

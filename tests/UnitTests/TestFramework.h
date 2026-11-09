@@ -22,5 +22,6 @@ void RunWebServicesTests();
 void RunOnlineProvidersTests();
 void RunTaggerTests();
 void RunAppServicesTests();
+void RunSkinTests();
 
 #endif

@@ -52,7 +52,13 @@ public:	//=== Skins Folder Management
 
 	void UpdateSkinnables();
 
+	//skinPath: a full path or a folder name inside the skins folder.
 	BOOL LoadSkin(LPCTSTR skinPath);
+
+	//Startup: sets the skins folder and loads skinName (a path or folder name),
+	//falling back to the "Default" skin when it is empty or fails to load.
+	//FALSE when no skin could be loaded (the built-in defaults stay in use).
+	BOOL Init(LPCTSTR skinsFolder, LPCTSTR skinName, INT fontQuality, INT relativeFontSize);
 
 private:
 	void InitDefaultSkin();

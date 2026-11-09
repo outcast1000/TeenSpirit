@@ -518,28 +518,25 @@ void TSSkin::GetSkinPreviewPath(LPCTSTR skinPath, LPTSTR bf, UINT bfLen)
 
 void TSSkin::GetSkinFolderName(LPCTSTR skinPath, LPTSTR bf, UINT bfLen)
 {
+	//The last path component, without a trailing backslash ("C:\Skins\Blue\" -> "Blue").
 	ASSERT(skinPath != NULL);
-	ASSERT(bf != NULL);
-	if (skinPath[_tcslen(skinPath) - 1] == '\\')
-	{
-		LPCTSTR slashPos = &skinPath[_tcslen(skinPath) - 2];
-		while (slashPos > skinPath)
-		{
-			if (*slashPos == '\\')
-			{
-				INT copyLen = _tcslen(skinPath) - (slashPos - skinPath);
-				_tcsncpy(bf, &slashPos[1], copyLen);	
-				bf[copyLen] = 0;
-			}
-		}
-
-	}
-	else
-	{
-		LPCTSTR slashPos = _tcsrchr(skinPath, '\\'); 
-		if (slashPos != NULL)
-			_tcsncpy(bf, &slashPos[1], bfLen);
-	}
+	ASSERT(bf != NULL && bfLen > 0);
+	if (bf == NULL || bfLen == 0)
+		return;
+	bf[0] = 0;
+	if (skinPath == NULL)
+		return;
+	size_t end = _tcslen(skinPath);
+	while (end > 0 && skinPath[end - 1] == '\\')
+		end--;
+	size_t start = end;
+	while (start > 0 && skinPath[start - 1] != '\\')
+		start--;
+	size_t len = end - start;
+	if (len >= bfLen)
+		len = bfLen - 1;
+	_tcsncpy(bf, &skinPath[start], len);
+	bf[len] = 0;
 }
 
 BOOL TSSkin::LoadSkin(LPCTSTR skinDir)
@@ -568,9 +565,11 @@ BOOL TSSkin::LoadSkinInfo(TSSkinInfo& skin, LPCTSTR skinDir)
 	IniAppSettings appSettings;
 	if (!appSettings.Load(iniFile))
 		return FALSE;
+	skin = TSSkinInfo();	//=== Don't keep the previous skin's details
 
 	TCHAR bf[MAX_PATH];
 	GetSkinFolderName(skinDir, bf, MAX_PATH);
+	skin.SetSkinInfo(SI_DirName, bf);
 	skin.SetSkinInfo(SI_Name, bf);
 
 
@@ -880,15 +879,26 @@ BOOL TSSkin::SaveSkin(LPCTSTR skinFolderName)
 		cColorsIni
 		);
 	HANDLE f = CreateFile(colorsIniPath, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0);
-	BOOL bRet = FALSE;
-	if (f != NULL)
+	if (f != INVALID_HANDLE_VALUE)
 	{
+		//=== A UTF-16LE BOM makes the profile API write Unicode (it writes ANSI to an empty file)
+		const WCHAR bom = 0xFEFF;
+		DWORD written = 0;
+		WriteFile(f, &bom, sizeof(bom), &written, NULL);
 		CloseHandle(f);
 		IniAppSettings appSettings;
 		if (appSettings.Load(colorsIniPath))
 		{
-			//=== Write Info
-			appSettings.Write(cInfoSection, _T("Name"), GetSkinInfo(SI_Name));
+			//=== Write Info. SI_Name is the display name, "Name (folder)" when the two
+			//=== differ; write back the name alone or it grows on every save.
+			std::tstring name(GetSkinInfo(SI_Name));
+			std::tstring suffix(_T(" ("));
+			suffix += GetSkinInfo(SI_DirName);
+			suffix += _T(")");
+			if (GetSkinInfo(SI_DirName)[0] != 0 && name.size() > suffix.size()
+				&& name.compare(name.size() - suffix.size(), suffix.size(), suffix) == 0)
+				name.erase(name.size() - suffix.size());
+			appSettings.Write(cInfoSection, _T("Name"), name.c_str());
 			appSettings.Write(cInfoSection, _T("Author"), GetSkinInfo(SI_Author));
 			appSettings.Write(cInfoSection, _T("Version"), GetSkinInfo(SI_Version));
 			appSettings.Write(cInfoSection, _T("Email"), GetSkinInfo(SI_Email));
@@ -951,10 +961,15 @@ BOOL TSSkin::String2LogFont(LOGFONT& lf, LPCTSTR str)
 		switch (tokNum)
 		{
 		case 0://=== lfFaceName
-			if (endPos == NULL)
-				return FALSE;
-			_tcsncpy(lf.lfFaceName, startPos, endPos - startPos);
-			lf.lfFaceName[endPos - startPos] = 0;
+			{
+				if (endPos == NULL)
+					return FALSE;
+				size_t len = endPos - startPos;
+				if (len >= LF_FACESIZE)
+					len = LF_FACESIZE - 1;
+				_tcsncpy(lf.lfFaceName, startPos, len);
+				lf.lfFaceName[len] = 0;
+			}
 			break;
 		case 1://=== lfHeight
 			lf.lfHeight = _ttol(startPos);

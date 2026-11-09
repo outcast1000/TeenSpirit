@@ -966,20 +966,11 @@ SkinManager* PrgAPI::GetSkinManager()
 	{
 		TRACEST(_T("PrgAPI::GetSkinManager [CREATION]"));
 		m_pSkinManager = new SkinManager;
-		m_pSkinManager->SetSkinsFolder(GetPath(PATH_SkinRoot));
-		std::tstring SkinName;
-		GetAppSettings()->Read(cGeneral, cOptionSkin, SkinName, _T(""));
-		if (!SkinName.empty())
-		{
-			if (m_pSkinManager->LoadSkin(SkinName.c_str()) == FALSE)
-			{
-				TRACE(_T("PrgAPI::GetSkinManager Skin not loaded\r\n"));
-			}
-		}
-		if (m_pSkinManager->GetSkin().GetSkinPath()[0] == 0)
-			m_pSkinManager->LoadSkin(_T("Default"));
-		m_pSkinManager->GetSkin().SetFontQuality(GetOption(OPT_GEN_ForceClearTypeFonts) == 1 ? CLEARTYPE_QUALITY : DEFAULT_QUALITY);
-		m_pSkinManager->GetSkin().SetRelativeFontSize(GetOption(OPT_GEN_RelativeFontSize));
+		std::tstring skinName;
+		GetAppSettings()->Read(cGeneral, cOptionSkin, skinName, _T(""));
+		m_pSkinManager->Init(GetPath(PATH_SkinRoot), skinName.c_str(),
+			GetOption(OPT_GEN_ForceClearTypeFonts) == 1 ? CLEARTYPE_QUALITY : DEFAULT_QUALITY,
+			GetOption(OPT_GEN_RelativeFontSize));
 	}
 	return m_pSkinManager;
 }

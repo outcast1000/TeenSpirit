@@ -89,6 +89,10 @@
     <ClCompile Include="..\..\AppOptions.cpp" />
     <ClCompile Include="..\..\AppStrings.cpp" />
     <ClCompile Include="..\..\AppResources.cpp" />
+    <ClCompile Include="SkinTests.cpp" />
+    <ClCompile Include="..\..\TSSkin.cpp" />
+    <ClCompile Include="..\..\SkinManager.cpp" />
+    <ClCompile Include="..\..\CommonSources\hdcUtils.cpp" />
     <ClCompile Include="..\..\CommonSources\AppSettings\IniAppSettings.cpp" />
     <ClCompile Include="..\..\Taggers\TagLibTagger.cpp" />
     <ClInclude Include="TestFramework.h" />

@@ -33,9 +33,14 @@ void SkinManager::UnRegisterSkinnable(ISkinnable& skinable)
 }
 void SkinManager::UpdateSkinnables(ISkin& skin)
 {
-	std::set<ISkinnable*>::iterator it = m_skinables.begin();
-	for (;it != m_skinables.end(); it++)
-		(*it)->ApplySkin(skin);
+	//=== ApplySkin may register or unregister skinnables (panes being created or
+	//=== destroyed), so iterate over a copy and skip the ones that went away.
+	std::vector<ISkinnable*> skinnables(m_skinables.begin(), m_skinables.end());
+	for (size_t i = 0; i < skinnables.size(); i++)
+	{
+		if (m_skinables.find(skinnables[i]) != m_skinables.end())
+			skinnables[i]->ApplySkin(skin);
+	}
 }
 
 
@@ -58,7 +63,7 @@ TSSkin& SkinManager::GetSkin()
 
 LPCTSTR SkinManager::GetSkinInfo(INT idx, ISkin::SkinInfoEnum infoType)
 {
-	if (idx >= (INT)m_skinsInfo.size())
+	if (idx < 0 || idx >= (INT)m_skinsInfo.size())
 	{
 		ASSERT(0);
 		return NULL;
@@ -70,7 +75,7 @@ LPCTSTR SkinManager::GetSkinInfo(INT idx, ISkin::SkinInfoEnum infoType)
 
 LPCTSTR SkinManager::GetSkinPath(INT idx)
 {
-	if (idx >= (INT)m_skinsInfo.size())
+	if (idx < 0 || idx >= (INT)m_skinsInfo.size())
 	{
 		ASSERT(0);
 		return NULL;
@@ -97,7 +102,7 @@ void SkinManager::RefreshSkinsFolder()
 		if (ff.IsDirectory() && !ff.IsDots())
 		{
 			TCHAR colorsPath[MAX_PATH];
-			_sntprintf(colorsPath, MAX_PATH, _T("%s\\%s"), ff.GetFilePath(), sColorsIni);
+			_sntprintf(colorsPath, MAX_PATH, _T("%s\\%s"), (LPCTSTR)ff.GetFilePath(), sColorsIni);
 			if (PathFileExists(colorsPath))
 			{
 				FullSkinInfo item;
@@ -183,6 +188,24 @@ BOOL SkinManager::LoadSkin(LPCTSTR skinPath)
 	std::tstring path(m_skinFolder);
 	path += skinPath;
 	return GetSkin().LoadSkin(path.c_str());
+}
+
+BOOL SkinManager::Init(LPCTSTR skinsFolder, LPCTSTR skinName, INT fontQuality, INT relativeFontSize)
+{
+	ASSERT(skinsFolder != NULL);
+	SetSkinsFolder(skinsFolder);
+	BOOL bLoaded = FALSE;
+	if (skinName != NULL && skinName[0] != 0)
+	{
+		bLoaded = LoadSkin(skinName);
+		if (!bLoaded)
+			TRACE(_T("@1 SkinManager::Init Skin not loaded: '%s'\r\n"), skinName);
+	}
+	if (!bLoaded)
+		bLoaded = LoadSkin(_T("Default"));
+	m_skin.SetFontQuality(fontQuality);
+	m_skin.SetRelativeFontSize(relativeFontSize);
+	return bLoaded;
 }
 
 

@@ -5,6 +5,7 @@
 # UTF-16LE (with BOM) files: kept as UTF-16LE in the working tree, stored as
 # UTF-8 in the repository so diffs, blame and grep work.
 *.lng                                                    working-tree-encoding=UTF-16LE-BOM
+/Skins/**/Colors.ini                                     working-tree-encoding=UTF-16LE-BOM
 /changelog.txt                                           working-tree-encoding=UTF-16LE-BOM
 /CommonSources/cStringUtils.cpp                          working-tree-encoding=UTF-16LE-BOM
 /CommonSources/HTMLLite/PPHtmlDrawer.cpp                 working-tree-encoding=UTF-16LE-BOM

@@ -244,6 +244,7 @@
     <ClCompile Include="HistTracksListCtrl.cpp"><Filter>GUIFiles\HistoryDlg</Filter></ClCompile>
     <ClCompile Include="HotKeyCtrlAPI.cpp"><Filter>Common</Filter></ClCompile>
     <ClCompile Include="HotKeyManager.cpp"><Filter>Managers</Filter></ClCompile>
+    <ClCompile Include="MediaTransportControls.cpp"><Filter>Managers</Filter></ClCompile>
     <ClCompile Include="InfoCtrl.cpp"><Filter>GUIFiles\TeenSpiritDlg\Panes\InfoPane</Filter></ClCompile>
     <ClCompile Include="InfoDownloadManager.cpp"><Filter>Managers</Filter></ClCompile>
     <ClCompile Include="InfoPage.cpp"><Filter>GUIFiles\Properties</Filter></ClCompile>
@@ -567,6 +568,7 @@
     <ClInclude Include="HistTracksListCtrl.h"><Filter>GUIFiles\HistoryDlg</Filter></ClInclude>
     <ClInclude Include="HotKeyCtrlAPI.h"><Filter>Common</Filter></ClInclude>
     <ClInclude Include="HotKeyManager.h"><Filter>Managers</Filter></ClInclude>
+    <ClInclude Include="MediaTransportControls.h"><Filter>Managers</Filter></ClInclude>
     <ClInclude Include="ICtrlColors.h"><Filter>GUIFiles\TeenSpiritDlg</Filter></ClInclude>
     <ClInclude Include="InfoCtrl.h"><Filter>GUIFiles\TeenSpiritDlg\Panes\InfoPane</Filter></ClInclude>
     <ClInclude Include="InfoDownloadManager.h"><Filter>Managers</Filter></ClInclude>

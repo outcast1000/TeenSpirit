@@ -58,7 +58,9 @@ test needs the 32-bit Jet 4.0 OLE DB provider.
   uses ADO). Background jobs (e.g. `CollectionUpdateJob`) use their own `SQLManager` connection.
 - **Playback** (`MediaPlayers\`): `MediaPlayer` drives a `MediaPlayerEngine` — BASS engines
   (`BassEngine`, `FadeBassEngine` for crossfade), `DShowEngine` for video, `MultiEngine` choosing by
-  file type. Tag reading in `Taggers\` (vendored TagLib ~1.6 in `CommonSources\TagLib`, not vcpkg).
+  file type. `MediaTransportControls` (owned by `TeenSpiritDlg`) mirrors the current track and
+  play state into the Windows media controls; their buttons arrive as `WM_HOTKEY`
+  (`VK_MEDIA_*`). Tag reading in `Taggers\` (vendored TagLib ~1.6 in `CommonSources\TagLib`, not vcpkg).
 - **Online info** (`InformationProviders\`): `IInfoProvider` implementations created by
   `InfoProviderFactory`; `OnlineInfoProvider.cpp` holds the current web-API providers (Cover Art
   Archive/MusicBrainz, LRCLIB, Deezer, Last.fm API 2.0). `InfoDownloadManager` queues requests.

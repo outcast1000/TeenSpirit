@@ -24,6 +24,7 @@
 #include "HotKeyManager.h"
 #include "PrgAPI.h"
 #include "AppSettings/AppSettings.h"
+#include "MediaTransportControls.h"
 
 HotKeyManager::HotKeyManager():
 m_hWnd(NULL),
@@ -85,7 +86,9 @@ void HotKeyManager::EnableMultimediaHotKeys(BOOL bEnable)
 	if (m_bMultimediaHotKeysEnabled != bEnable)// && m_hWnd != NULL)
 	{
 		m_bMultimediaHotKeysEnabled = bEnable;
-		if (bEnable)
+		//With the Windows media controls (Windows 10+), Windows delivers the media keys to the
+		//program through them; a global hotkey would take the keys from every other player.
+		if (bEnable && !MediaTransportControls::IsSupported())
 		{
 			RegisterHK(VK_MEDIA_NEXT_TRACK, NULL, VK_MEDIA_NEXT_TRACK);
 			RegisterHK(VK_MEDIA_PREV_TRACK, NULL, VK_MEDIA_PREV_TRACK);

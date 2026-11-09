@@ -11,6 +11,7 @@
 #include "StatusBarWnd.h"
 
 #include "SystemTray.h"
+#include "MediaTransportControls.h"
 
 #define WM_THREADED_NOTIFICATION WM_APP + 100
 #define ID_TRAY_SHOWMAINWINDOW 300
@@ -80,6 +81,9 @@ private:
 	HICON m_hSmallIcon;
 	
 	CSystemTray m_TrayIcon;
+	MediaTransportControls m_mediaControls;
+	std::tstring m_mediaControlsTrack;	//what the media controls show now
+	void UpdateMediaControlsTrack();
 	static LPCTSTR SettingsCategory;
 
 	INT m_lastUpdateActionsPerformed;

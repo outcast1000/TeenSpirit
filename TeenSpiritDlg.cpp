@@ -17,6 +17,7 @@
 #include "MenuManager.h"
 #include "InfoCtrl.h"
 #include "SQLManager.h"
+#include "LocalPictureManager.h"
 //#include "HotKeyManager.h"
 #include "Trackers/ITracker.h"
 #include "SystemTimeFunctions.h"
@@ -186,6 +187,9 @@ BOOL CTeenSpiritDlg::OnInitDialog()
 	pAPI->SetNotificationTarget(&m_statusBar);
 
 	m_PaneController.Init(this);
+
+	//Windows media controls; their buttons arrive as WM_HOTKEY (see CTeenSpiritApp::PreTranslateMessage)
+	m_mediaControls.Init(m_hWnd);
 
 	//HotKeyManager* pHKM = pAPI->GetHotKeyManager();
 	//pHKM->Init();//m_hWnd);
@@ -371,6 +375,7 @@ void CTeenSpiritDlg::OnDestroy()
 	//pAPI->UnRegisterReceiver(m_playerBar);
 	//pAPI->UnRegisterReceiver(*this);
 	pAPI->SetNotificationTarget(NULL);//Disable Notifications
+	m_mediaControls.Close();
 	m_TrayIcon.RemoveIcon();
 	pAPI->DestroyMiniPlayerDlg();
 	pAPI->DestroyQuickSearchDlg();
@@ -523,6 +528,12 @@ void CTeenSpiritDlg::OnTimer(UINT nIDEvent)
 				pAPI->GetStateManager()->SendMessage(SM_PlayListChanged);
 			if (changes.tickMediaChanged >= m_monitorPlayerTick && m_monitorPlayerTick > 0)
 				pAPI->GetStateManager()->SendMessage(SM_MediaChanged);
+			if (changes.tickPlayState >= m_monitorPlayerTick)
+			{
+				//Also the track: playing the track already loaded at startup sends no SM_MediaChanged.
+				UpdateMediaControlsTrack();
+				m_mediaControls.SetPlayState(pAPI->GetMediaPlayer()->GetPlayState());
+			}
 			m_monitorPlayerTick = GetTickCount();
 		}
 		break;
@@ -873,8 +884,56 @@ void CTeenSpiritDlg::OnEndSession(BOOL bEnding)
 	__super::OnEndSession(bEnding);
 }
 
+//Shows the current track in the Windows media controls (overlay, lock screen).
+void CTeenSpiritDlg::UpdateMediaControlsTrack()
+{
+	if (!m_mediaControls.IsActive())
+		return;
+	PrgAPI* pAPI = PRGAPI();
+	MediaPlayer* pMP = pAPI->GetMediaPlayer();
+	MediaPlayListItem mpli;
+	INT nPos = pMP->GetPlayListPos();
+	if (nPos == -1 || !pMP->GetPlayListItem(mpli, nPos) || !mpli.IsValid())
+	{
+		m_mediaControlsTrack.clear();
+		m_mediaControls.ClearTrack();
+		return;
+	}
+	std::tstring title(mpli.title != NULL ? mpli.title : _T(""));
+	std::tstring artist(mpli.artist != NULL ? mpli.artist : _T(""));
+	std::tstring album;
+	std::tstring picture;
+	FullTrackRecordSP rec;
+	if (pAPI->GetSQLManager()->GetFullTrackRecordByLocation(rec, mpli.url))
+	{
+		title = rec->track.name;
+		artist = rec->artist.name;
+		album = rec->album.name;
+		LocalPictureManager* pLPM = pAPI->GetLocalPictureManager();
+		FullAlbumRecord albumRec;
+		albumRec.album = rec->album;
+		albumRec.artist = rec->artist;
+		LPCTSTR path = pLPM->GetMainAlbumPicture(albumRec);
+		if (path == NULL)
+			path = pLPM->GetMainArtistPicture(rec->artist);
+		TCHAR fullPath[MAX_PATH];
+		if (path != NULL && GetFullPathName(path, MAX_PATH, fullPath, NULL) > 0)
+			picture = fullPath;
+	}
+	if (title.empty())
+		title = PathFindFileName(mpli.url);
+	//SM_PictureChanged and SM_TrackUpdated also come for other tracks: only update on a real change.
+	std::tstring key = std::tstring(mpli.url) + _T('\n') + title + _T('\n') + artist + _T('\n') + album + _T('\n') + picture;
+	if (key == m_mediaControlsTrack)
+		return;
+	m_mediaControlsTrack = key;
+	m_mediaControls.SetTrack(title.c_str(), artist.c_str(), album.c_str(), picture.c_str());
+}
+
 BOOL CTeenSpiritDlg::OnStateChanged(UINT stateMessage)
 {
+	if (stateMessage == SM_MediaChanged || stateMessage == SM_TrackUpdated || stateMessage == SM_PictureChanged)
+		UpdateMediaControlsTrack();
 	if (stateMessage == SM_MediaChanged)
 	{
 		MediaPlayListItem mpli;

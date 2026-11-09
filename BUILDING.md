@@ -89,6 +89,17 @@ libraries in `Bass\`.
 The program keeps its settings (`jaangle.ini`) and database (`music.db`) next to the
 executable.
 
+## Windows integration
+
+- **Media controls** (Windows 10+, `MediaTransportControls.cpp`): the current track,
+  its cover and the play state appear in the Windows media overlay and lock screen, and
+  their buttons control the player. Windows then delivers the keyboard media keys too, so
+  the program no longer registers them as global hotkeys (it still does on Windows 7/8).
+  WinRT is called through WRL and its DLLs are delay-loaded, so the program still starts
+  on Windows 7.
+- **High DPI**: the program is DPI-unaware (the UI is laid out in pixels) and Windows
+  scales it; the manifest enables GDI scaling so text stays sharp. Images are stretched.
+
 ## Threads
 
 Background work runs on `MultiThreadJobQueue` workers (COM initialized as STA on

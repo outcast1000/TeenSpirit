@@ -47,6 +47,17 @@ build\out\Win32\Release\UnitTests.exe
 The import test creates a Jet database, so it needs the Jet 4.0 OLE DB provider
 (it ships with Windows, as a 32-bit component only).
 
+## Continuous integration
+
+`.github/workflows/ci.yml` builds Debug and Release (Win32) on the `windows-2025-vs2026`
+GitHub runner (the only image with the v145 toolset) and runs `UnitTests.exe` on every
+push to `main` and on pull requests. vcpkg binaries are cached between runs. The Release
+executables and PDBs are uploaded as a build artifact (without the BASS DLLs).
+
+The live online-API tests run weekly (Monday 06:00 UTC) and on a manual run with the
+**live** option ("Run workflow" in the Actions tab). The Last.fm part uses the
+`JAANGLE_LASTFM_API_KEY` repository secret and is skipped when it isn't set.
+
 ## Database
 
 The library is stored in `music.db` (SQLite, WAL mode) next to the program data.

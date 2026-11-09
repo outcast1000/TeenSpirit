@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      live:
+        description: Also run the live online-API tests
+        type: boolean
+        default: false
+  schedule:
+    # Weekly, so breakage in the online APIs (Cover Art Archive, LRCLIB, Deezer, Last.fm) shows up.
+    - cron: '0 6 * * 1'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and test (${{ matrix.configuration }})
+    # The projects use the VS 2026 toolset (v145), which only this image has.
+    runs-on: windows-2025-vs2026
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [Debug, Release]
+    env:
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\build\vcpkg-cache
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: microsoft/setup-msbuild@v2
+
+      - name: Prepare the vcpkg binary cache
+        shell: pwsh
+        run: New-Item -ItemType Directory -Force $env:VCPKG_DEFAULT_BINARY_CACHE | Out-Null
+
+      - uses: actions/cache@v4
+        with:
+          path: build\vcpkg-cache
+          key: vcpkg-x86-windows-static-${{ hashFiles('vcpkg.json', 'build/vcpkg.props') }}
+          restore-keys: vcpkg-x86-windows-static-
+
+      # The BASS DLLs are not needed: the import libraries are tracked in Bass\, and the
+      # tests don't load the player engines. The build only warns that they are missing.
+      - name: Build
+        run: msbuild Jaangle.sln -p:Configuration=${{ matrix.configuration }} -p:Platform=Win32 -m -nologo -v:minimal
+
+      - name: Unit tests
+        shell: pwsh
+        working-directory: build\out\Win32\${{ matrix.configuration }}
+        env:
+          JAANGLE_LIVE_TESTS: ${{ (github.event_name == 'schedule' || inputs.live) && '1' || '' }}
+          JAANGLE_LASTFM_API_KEY: ${{ secrets.JAANGLE_LASTFM_API_KEY }}
+        run: |
+          .\UnitTests.exe
+          if ($LASTEXITCODE -ne 0) { Write-Error "$LASTEXITCODE test check(s) failed"; exit 1 }
+
+      - name: Upload binaries
+        if: matrix.configuration == 'Release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: jaangle-win32-release
+          path: |
+            build\out\Win32\Release\*.exe
+            build\out\Win32\Release\*.pdb
+          retention-days: 14

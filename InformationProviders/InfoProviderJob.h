@@ -2,6 +2,7 @@
 #define _InformationProviderJob_h_
 
 #include "MultiThreadJobQueue.h"
+#include <atomic>
 #include "InformationProviders/InfoProvider.h"
 
 class InfoProviderContainer;
@@ -19,7 +20,6 @@ public:
 	{
 		if (m_pIP != NULL)
 		{
-			m_bAbort = FALSE;
 			m_state = ST_Running;
 			m_bLastResult = m_pIP->GetNextResult(m_result);
 			m_state = m_bAbort ? ST_Aborted : ST_Finished;
@@ -63,7 +63,7 @@ public:
 	}
 
 private:
-	InfoProviderJob():m_pIP(NULL),m_bAbort(FALSE),m_bLastResult(FALSE)		{}
+	InfoProviderJob():m_pIP(NULL),m_state(ST_Idle),m_bAbort(FALSE),m_ID(0),m_bLastResult(FALSE)		{}
 	void SetInfoProvider(IInfoProvider* pIP)		
 	{
 		delete m_pIP;//Deletes the old IP
@@ -71,8 +71,8 @@ private:
 	}
 
 	IInfoProvider* m_pIP;
-	State m_state;
-	BOOL m_bAbort;
+	std::atomic<State> m_state;
+	std::atomic<BOOL> m_bAbort;
 	UINT m_ID;
 	IInfoProvider::Result m_result;
 	BOOL m_bLastResult;

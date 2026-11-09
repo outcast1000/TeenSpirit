@@ -34,7 +34,6 @@ __int64 sReadTime = 0;
 
 void CollectionUpdateJob::Execute()
 {
-	m_bAbort = FALSE;
 	m_state = ST_Running;
 	m_progress = Progress();
 	if (m_instructions.bAllowRemove)

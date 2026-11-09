@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TeenSpirit", "TeenSpirit.vc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XCrashReport", "CrashReport\XCrashReport.vcxproj", "{D8CCE60E-FC21-42CF-9104-A8E6F3A90F79}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DatabaseTests", "tests\DatabaseTests\DatabaseTests.vcxproj", "{6B1F2E0A-3C4D-4E5F-9A8B-7C6D5E4F3A21}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTests", "tests\UnitTests\UnitTests.vcxproj", "{6B1F2E0A-3C4D-4E5F-9A8B-7C6D5E4F3A21}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

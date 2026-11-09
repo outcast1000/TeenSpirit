@@ -45,9 +45,16 @@ m_lastHandShakeTickCount(0)
 LastFMServices::~LastFMServices(void)
 {
 	m_bExitThread = TRUE;
+	m_wakeEvent.SetEvent();
 	if (m_pThread != NULL)
 	{
-		LeaveThread(m_pThread->m_hThread, 500);
+		//The thread is never terminated. Network calls in progress return as soon as
+		//the shared internet handle is closed (PrgAPI does that before deleting us).
+		if (WaitForSingleObject(m_pThread->m_hThread, 30000) == WAIT_OBJECT_0)
+			delete m_pThread;
+		else
+			TRACE(_T("@0 LastFMServices::~LastFMServices. Worker thread did not exit\r\n"));
+		m_pThread = NULL;
 	}
 }
 
@@ -108,11 +115,20 @@ void LastFMServices::Submit(LastFMSubmitTrack& track)
 			else
 				track.unixTimeStamp -= 240;
 		}
-		CSingleLock lock(&m_cs);
+		CSingleLock lock(&m_cs, TRUE);
 		if (sMaxTracksOnQueue > m_jobs.size())
 			m_jobs.push_back(track);
-		if (m_pThread == NULL)
-			m_pThread = AfxBeginThread(LastFMServices::WorkingThreadST, this, THREAD_PRIORITY_BELOW_NORMAL);
+		if (m_pThread == NULL && !m_bExitThread)
+		{
+			m_pThread = AfxBeginThread(LastFMServices::WorkingThreadST, this,
+				THREAD_PRIORITY_BELOW_NORMAL, 0, CREATE_SUSPENDED);
+			if (m_pThread != NULL)
+			{
+				m_pThread->m_bAutoDelete = FALSE;	//We wait for it and delete it
+				m_pThread->ResumeThread();
+			}
+		}
+		m_wakeEvent.SetEvent();
 
 	}
 
@@ -123,7 +139,7 @@ void LastFMServices::Submit(LastFMSubmitTrack& track)
 
 BOOL LastFMServices::IsTrackAvailable()
 {
-	CSingleLock lock(&m_cs);
+	CSingleLock lock(&m_cs, TRUE);
 	return m_jobs.size() > 0;
 }
 //BOOL LastFM::GetTrack(LastFMSubmitTrack& track)
@@ -165,41 +181,40 @@ UINT LastFMServices::WorkingThread()
 	std::basic_string<TCHAR> nowPlayingURL;
 	std::basic_string<TCHAR> submissionURL;
 	INT failCounter = 0;
-	UINT lastTickCheck = 0;
-	while (m_bExitThread == FALSE)
+	while (!m_bExitThread)
 	{
-		if (GetTickCount() - lastTickCheck > 1000)
+		//Wake up when a track is queued, on exit, or every second to retry.
+		WaitForSingleObject(m_wakeEvent.m_hObject, 1000);
+		if (m_bExitThread)
+			break;
+		if (!IsTrackAvailable())
+			continue;
+		if (sessionID.empty())
 		{
-			if (IsTrackAvailable())
+			if (GetTickCount() - m_lastHandShakeTickCount > 30000)
 			{
-				if (sessionID.empty())
-				{
-					if (GetTickCount() - m_lastHandShakeTickCount > 30000)
-					{
-						HandShake(sessionID, nowPlayingURL, submissionURL);
-						m_lastHandShakeTickCount = GetTickCount();
-					}
-				}
-				if (!sessionID.empty())
-				{
-					if (SubmitTracks(sessionID.c_str(), submissionURL.c_str()))
-					{
-						failCounter = 0;
-						CSingleLock lock(&m_cs);
-						m_jobs.clear();
-					}
-					else
-					{
-						failCounter++;
-						if (failCounter == 3)
-							sessionID.clear();
-					}
-
-				}
+				HandShake(sessionID, nowPlayingURL, submissionURL);
+				m_lastHandShakeTickCount = GetTickCount();
 			}
-			lastTickCheck = GetTickCount();
 		}
-		Sleep(10);
+		if (!sessionID.empty())
+		{
+			size_t submitted = 0;
+			if (SubmitTracks(sessionID.c_str(), submissionURL.c_str(), submitted))
+			{
+				failCounter = 0;
+				//Remove only what was sent: tracks may have been queued meanwhile.
+				CSingleLock lock(&m_cs, TRUE);
+				for (size_t i = 0; i < submitted && !m_jobs.empty(); i++)
+					m_jobs.pop_front();
+			}
+			else
+			{
+				failCounter++;
+				if (failCounter == 3)
+					sessionID.clear();
+			}
+		}
 	}
 	TRACE(_T("LastFM::WorkingThread. Exit\r\n"));
 	return 0;
@@ -315,8 +330,9 @@ BOOL LastFMServices::ConvertString(LPCTSTR src, LPSTR bf, UINT bfLen)
 
 
 
-BOOL LastFMServices::SubmitTracks(LPCTSTR sessionID, LPCTSTR submissionURL)
+BOOL LastFMServices::SubmitTracks(LPCTSTR sessionID, LPCTSTR submissionURL, size_t& submittedCount)
 {
+	submittedCount = 0;
 	ASSERT(sessionID != NULL && submissionURL != NULL);
 	if (!(sessionID != NULL && submissionURL != NULL))
 		return FALSE;
@@ -334,7 +350,8 @@ BOOL LastFMServices::SubmitTracks(LPCTSTR sessionID, LPCTSTR submissionURL)
 	_snprintf(bf, bfSize, "s=%s&", (LPCSTR)CT2CA(sessionID));
 	postData = bf;
 	{
-		CSingleLock lock(&m_cs);
+		CSingleLock lock(&m_cs, TRUE);
+		submittedCount = m_jobs.size();
 		std::list<LastFMSubmitTrack>::const_iterator it = m_jobs.begin();
 		UINT i = 0;
 		for (;it != m_jobs.end(); it++)
@@ -430,26 +447,5 @@ BOOL LastFMServices::SubmitTracks(LPCTSTR sessionID, LPCTSTR submissionURL)
 	return TRUE;
 }
 
-BOOL LastFMServices::LeaveThread(HANDLE hThread, UINT timeOut)
-{
-	BOOL ret = TRUE;
-	DWORD exitCode = 0;
-	GetExitCodeThread(hThread, &exitCode);
-	SetThreadPriority(hThread, THREAD_PRIORITY_NORMAL);
-	DWORD tickCount = GetTickCount();
-	while (exitCode == STILL_ACTIVE)
-	{
-		Sleep(0);
-		if (GetTickCount() - tickCount > timeOut)
-		{
-			TRACE(_T("@0 LeaveThread: Terminating Thread: %d\r\n"), (INT)hThread);
-			TerminateThread(hThread, -1);
-			return FALSE;
-		}
-		if (!GetExitCodeThread(hThread, &exitCode))
-			return FALSE;
-	}
-	return TRUE;
-}
 
 

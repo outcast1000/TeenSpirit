@@ -136,8 +136,13 @@ void WinampVisualization::UnInit()
 		}
 		TRACE(_T("@2 WinampVisualization::UnInit. Abort Loop took: %d (%d) ms\r\n"), 
 			GetTickCount() - timeLimit, timeLimitMax);
-		ASSERT(exitCode != STILL_ACTIVE);
-		delete m_pThread;
+		if (exitCode == STILL_ACTIVE)
+		{
+			//Deleting the CWinThread of a running thread would crash it: leak it instead.
+			TRACE(_T("@0 WinampVisualization::UnInit. Thread did not exit, leaving it\r\n"));
+		}
+		else
+			delete m_pThread;
 		m_pThread = 0;
 	}
 }

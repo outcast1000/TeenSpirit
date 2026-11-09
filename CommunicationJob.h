@@ -2,6 +2,7 @@
 #define _CommunicationJobJob_h_
 
 #include "MultiThreadJobQueue.h"
+#include <atomic>
 #include <WinInet.h>
 
 class CommunicationJob: public Job
@@ -23,11 +24,11 @@ public:
 	}
 
 private:
-	CommunicationJob(LPCTSTR url, LPCSTR data):m_url(url),m_data(data),m_hNet(NULL)
+	CommunicationJob(LPCTSTR url, LPCSTR data):m_url(url),m_data(data),m_state(ST_Idle),m_hNet(NULL)
 	{}
 	std::basic_string<TCHAR> m_url;
 	std::basic_string<CHAR> m_data;
-	State m_state;
+	std::atomic<State> m_state;
 	HINTERNET m_hNet;
 
 

@@ -22,6 +22,8 @@
 //	*/ 
 #pragma once
 
+#include <atomic>
+#include <afxmt.h>
 #include <string>
 #include <list>
 #include <Wininet.h>
@@ -98,10 +100,10 @@ private:
 	BOOL HandShake(std::basic_string<TCHAR>& sessionID, 
 		std::basic_string<TCHAR>& nowPlayingURL, 
 		std::basic_string<TCHAR>& submissionURL);
-	BOOL SubmitTracks(LPCTSTR sessionID, LPCTSTR submissionURL);
+	//Submits the queued tracks; submittedCount receives how many were sent.
+	BOOL SubmitTracks(LPCTSTR sessionID, LPCTSTR submissionURL, size_t& submittedCount);
 	BOOL IsTrackAvailable();
 	void SetFailure(Error err);
-	static BOOL LeaveThread(HANDLE hThread, UINT timeOut);
 	static BOOL ConvertString(LPCTSTR src, LPSTR bf, UINT bfLen);
 
 private:
@@ -111,7 +113,8 @@ private:
 	Error m_error;
 	HINTERNET m_hNet;
 	CWinThread* m_pThread;
-	BOOL volatile m_bExitThread;
+	std::atomic<BOOL> m_bExitThread;
+	CEvent m_wakeEvent;			//Auto-reset: a track was queued / exit requested
 	std::string m_errorString;
 	std::list<LastFMSubmitTrack> m_jobs;
 	CCriticalSection m_cs;

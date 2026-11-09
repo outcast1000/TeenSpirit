@@ -21,7 +21,7 @@ msbuild Jaangle.sln -p:Configuration=Release -p:Platform=Win32 -m
 ```
 
 Output goes to `build\out\Win32\<Configuration>\` (`jaangle.exe` / `jaangledbg.exe`,
-`XCrashReport.exe`, `DatabaseTests.exe`). Intermediate files go to `build\obj\`.
+`XCrashReport.exe`, `UnitTests.exe`). Intermediate files go to `build\obj\`.
 
 Only **Win32** is configured for now. The database no longer needs 32-bit components;
 the remaining x64 blockers are the x86-only BASS import libraries and the code itself
@@ -29,12 +29,16 @@ the remaining x64 blockers are the x86-only BASS import libraries and the code i
 
 ## Tests
 
-`DatabaseTests.exe` exercises the database layer end to end (records, every query,
-case-insensitive matching, two connections in parallel, and importing a real Jet
-`music.mdb`). It prints the failures and returns their count:
+`UnitTests.exe` (project `tests\UnitTests`) prints the failures and returns their count:
+
+- **Database**: records, every query, case-insensitive matching, two connections in
+  parallel, and importing a real Jet `music.mdb`.
+- **Job queue**: concurrency limit, COM on workers, pause/resume, abort, start delay,
+  no CPU use while idle, and shutdown never terminating threads.
+- **Last.fm worker**: started on demand and joined on destruction.
 
 ```
-build\out\Win32\Release\DatabaseTests.exe
+build\out\Win32\Release\UnitTests.exe
 ```
 
 The import test creates a Jet database, so it needs the Jet 4.0 OLE DB provider
@@ -57,6 +61,13 @@ collation registered (`CommonSources\SQLite\SQLiteDB.cpp`).
 The executable needs `bass.dll` and `bass_fx.dll` (x86) next to it. They are not in
 the repository; download BASS and BASS_FX from <https://www.un4seen.com/> (check
 their license for redistribution).
+
+## Threads
+
+Background work runs on `MultiThreadJobQueue` workers (COM initialized as STA on
+each) and on the Last.fm worker. Threads are never terminated: on shutdown they are
+asked to stop and waited for. Network calls in progress are cancelled by closing the
+shared WinInet handle, which `PrgAPI` does before destroying the services.
 
 ## Online-service credentials
 

@@ -18,9 +18,17 @@ m_pJobSQLManager(NULL)
 }
 CollectionManager::~CollectionManager()
 {
-	delete m_pMTQueue;	//Stops the job thread before its database connection is closed
-	delete m_pFileTagger;
-	delete m_pJobSQLManager;
+	//The running scan job uses m_pFileTagger and m_pJobSQLManager: free them
+	//only once its thread has really exited.
+	BOOL bStopped = m_pMTQueue->Shutdown(MultiThreadJobQueue::cDefaultShutdownTimeout);
+	delete m_pMTQueue;
+	if (bStopped)
+	{
+		delete m_pFileTagger;
+		delete m_pJobSQLManager;
+	}
+	else
+		TRACE(_T("@0 CollectionManager::~CollectionManager. Scan job still running; leaving its objects alive\r\n"));
 }
 
 SQLManager* CollectionManager::GetJobSQLManager()

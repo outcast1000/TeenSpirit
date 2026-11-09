@@ -2,6 +2,7 @@
 #define _CollectionUpdateJob_h_
 
 #include "MultiThreadJobQueue.h"
+#include <atomic>
 #include "DataRecords.h"
 
 class SQLManager;
@@ -89,8 +90,8 @@ private:
 	m_fileTagger(fileTagger),
 	m_progress(progress)
 	{}
-	State m_state;
-	BOOL m_bAbort;
+	std::atomic<State> m_state;
+	std::atomic<BOOL> m_bAbort;
 	//INT m_currentProgress, m_totalProgress;
 	//INT m_partCurrentProgress, m_partTotalProgress;
 	Statistics m_statistics;

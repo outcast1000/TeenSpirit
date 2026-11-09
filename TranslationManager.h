@@ -7,6 +7,7 @@
 #include "ITranslation/FallbackTranslation.h"
 #include "ITranslation/ITranslationUtilities.h"
 #include <set>
+#include <vector>
 
 
 class TranslationManager: public ITranslationManager, public ITranslation
@@ -42,10 +43,24 @@ public:	//=== Translation Folder Management
 	LPCTSTR GetTranslationComparisonLog(INT idx);
 
 	ITranslation& GetDefaultTranslation();
+	//The module holding the built-in (English) strings. NULL (default): the exe.
+	void SetResourceModule(HINSTANCE hInstance)	{m_resourceTranslation.SetResourceInstance(hInstance);}
+
+	//FALSE when the file can't be read; the built-in strings are used then.
 	BOOL LoadTranslation(LPCTSTR translationPath);
 	BOOL LoadTranslation(INT idx);
+	//Loads the translation file for a Windows language from the translations folder.
+	//FALSE (no such file): the built-in strings are used.
 	BOOL LoadTranslationByLANGID(LANGID langID);
 	void UnloadTranslation();
+
+	//Startup. saved is the stored GetTranslationPath(): empty (never chosen) loads
+	//the system language, "@..." keeps the built-in strings, a path loads that file
+	//or, when it no longer exists there, the file of that name in the translations folder.
+	BOOL LoadSavedTranslation(LPCTSTR saved, LANGID systemLangID);
+
+	//The candidate file names (without ".lng") for a Windows language, best first.
+	static void GetLangFileNames(LANGID langID, std::vector<LPCTSTR>& names);
 
 
 
@@ -60,6 +75,7 @@ private:
 	std::tstring m_loadedTranslationPath;
 
 	static LPCTSTR GetLangNameByLangID(LANGID id);
+	BOOL IsValidIndex(INT idx) const	{return idx >= 0 && idx < (INT)m_translations.size();}
 
 	struct FullTranslationInfo
 	{

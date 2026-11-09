@@ -23,6 +23,7 @@
 #include "stdafx.h"
 #include "ITranslationUtilities.h"
 #include <memory>
+#include <shlwapi.h>
 
 BOOL ITranslationUtilities::CompareTranslations(ITranslation& first, ITranslation& second, TranslationComparison& stats, std::basic_string<TCHAR>& log)
 {
@@ -91,7 +92,7 @@ LPCTSTR const LNG_AutoUpdateURL = _T("AUTOUPDATEURL");
 BOOL ITranslationUtilities::ImportTranslationFile(LPCTSTR pathName, EditableTranslation& destTranslation, BOOL bInfoOnly/* = FALSE*/)
 {
 	ASSERT(pathName != NULL);
-	if (_taccess(pathName, 2) == 0)
+	if (_taccess(pathName, 4) == 0)
 	{
 		std::unique_ptr<TCHAR[]> dta(GetTranslationFile(pathName));	//allocated with new TCHAR[]
 		if (dta.get() != NULL)
@@ -102,11 +103,11 @@ BOOL ITranslationUtilities::ImportTranslationFile(LPCTSTR pathName, EditableTran
 				if (!GetTranslationStrings(dta.get(), destTranslation))
 					return FALSE;
 			}
+			//=== The default name is the file name without its extension
 			TCHAR fileTitle[MAX_PATH];
-			GetFileTitle(pathName, fileTitle, MAX_PATH);
-			TCHAR* dot = _tcsrchr(fileTitle, '.');
-			if (dot != NULL)
-				*dot = 0;
+			_tcsncpy(fileTitle, PathFindFileName(pathName), MAX_PATH - 1);
+			fileTitle[MAX_PATH - 1] = 0;
+			PathRemoveExtension(fileTitle);
 			destTranslation.SetTranslationInfo(ITranslation::TI_Name, fileTitle);
 			//li.Path = pathName;
 			return GetTranslationInfo(dta.get(), destTranslation);
@@ -202,34 +203,41 @@ BOOL ITranslationUtilities::ExportTranslationFile(LPCTSTR pathName, ITranslation
 
 LPTSTR ITranslationUtilities::GetTranslationFile(LPCTSTR pathName)
 {
+	//=== Returns the whole file as a null-terminated string (delete[] it), or NULL.
+	//=== UTF-16LE and UTF-8 files are recognized by their BOM; anything else is ANSI.
 	ASSERT(pathName != NULL);
 	CFile f;
-	if (!f.Open(pathName, CFile::modeRead))
-		return FALSE;
-	UINT fLen = (UINT) f.GetLength();
-	if (fLen < 5)
-	{
-		f.Close();
-		return FALSE;
-	}
-	BYTE* fileData = new BYTE[fLen + sizeof(TCHAR)];
-	f.Read(fileData, fLen);
-	fileData[fLen] = 0;
+	if (!f.Open(pathName, CFile::modeRead | CFile::shareDenyWrite))
+		return NULL;
+	ULONGLONG len64 = f.GetLength();
+	if (len64 < 2 || len64 > 16 * 1024 * 1024)
+		return NULL;
+	UINT fLen = (UINT) len64;
+	std::unique_ptr<BYTE[]> fileData(new BYTE[fLen]);
+	if (f.Read(fileData.get(), fLen) != fLen)
+		return NULL;
 	f.Close();
-	memset(&fileData[fLen], 0, sizeof(TCHAR));//Make it null terminated
-	LPTSTR ret = new TCHAR[fLen - 2];
-#ifdef _UNICODE
-	if (fileData[0] == 0xff && fileData[1] == 0xfe)//The file is in UNICODE
-		_tcsncpy(ret, (LPCTSTR)CW2CT((LPCTSTR)&fileData[2]), fLen - 2);
-	else//The file is in ANSI
-		_tcsncpy(ret, (LPCTSTR)CA2CT((LPCSTR)fileData), fLen - 2);
-#else
-	//if (fileData[0] == 0xff && fileData[1] == 0xfe)//The file is in UNICODE
-	//	stringData = CT2A(&fileData[2]);
-	//else//The file is in ANSI
-	//	stringData = fileData;
-#endif
-	delete [] fileData;
+	const BYTE* data = fileData.get();
+	if (fLen >= 2 && data[0] == 0xff && data[1] == 0xfe)
+	{
+		UINT chars = (fLen - 2) / sizeof(WCHAR);
+		LPTSTR ret = new TCHAR[chars + 1];
+		memcpy(ret, &data[2], chars * sizeof(WCHAR));
+		ret[chars] = 0;
+		return ret;
+	}
+	UINT codePage = CP_ACP;
+	if (fLen >= 3 && data[0] == 0xef && data[1] == 0xbb && data[2] == 0xbf)
+	{
+		codePage = CP_UTF8;
+		data += 3;
+		fLen -= 3;
+	}
+	INT chars = fLen > 0 ? MultiByteToWideChar(codePage, 0, (LPCSTR)data, fLen, NULL, 0) : 0;
+	LPTSTR ret = new TCHAR[chars + 1];
+	if (chars > 0)
+		MultiByteToWideChar(codePage, 0, (LPCSTR)data, fLen, ret, chars);
+	ret[chars] = 0;
 	return ret;
 }
 
@@ -245,58 +253,54 @@ void ITranslationUtilities::SaveHeader(CFile& f, LPCTSTR header, LPCTSTR info)
 	f.Write(_T("\r\n"), 2 * sizeof(TCHAR));
 }
 
+namespace
+{
+	//=== Splits the file into lines (CR, LF or CRLF endings) and calls
+	//=== fn(lineStart, lineLength) for each non-empty one.
+	template <class Fn>
+	void ForEachLine(LPCTSTR data, Fn fn)
+	{
+		LPCTSTR pos = data;
+		while (*pos != 0)
+		{
+			LPCTSTR end = pos;
+			while (*end != 0 && *end != '\r' && *end != '\n')
+				end++;
+			if (end > pos)
+				fn(pos, (size_t)(end - pos));
+			pos = end;
+			while (*pos == '\r' || *pos == '\n')
+				pos++;
+		}
+	}
+}
+
 BOOL ITranslationUtilities::GetTranslationStrings(LPCTSTR translationFileData, EditableTranslation& destLanguage)
 {
-	LPCTSTR startPos = translationFileData;
-	std::tstring strBuffer;
-	while (TRUE)
+	//=== String lines are "<id>=<text>" (id: 1 to 5 characters, > 0). '#' and '@' lines are skipped.
+	ForEachLine(translationFileData, [&destLanguage](LPCTSTR line, size_t len)
 	{
-		if (*startPos != '@' && *startPos != '#')
+		if (line[0] == '#' || line[0] == '@')
+			return;
+		LPCTSTR eqPos = wmemchr(line, '=', len);
+		if (eqPos == NULL || eqPos == line || eqPos - line > 5)
 		{
-			LPCTSTR eqPos = _tcschr(startPos, '=');
-			if (eqPos == 0)	
-				break;						//EOF FOUND
-			if (eqPos - startPos <= 5)					//Starting number cant'be larger than this. Usually '234='
-			{
-				TCHAR bf[20];
-				_tcsncpy(bf, startPos, eqPos - startPos);
-				bf[eqPos - startPos] = 0;
-				int resNum = _ttoi(startPos);
-				if (resNum > 0)							//Invalid ID before equality
-				{
-					LPCTSTR lineEndPos = _tcschr(eqPos, 13);
-					strBuffer.clear();
-					if (lineEndPos != 0)				//EOF
-						strBuffer.insert(0, &eqPos[1], lineEndPos - eqPos - 1);
-					else
-						strBuffer.insert(0, &eqPos[1]);
-					FixString(strBuffer);
-					destLanguage.SetString(resNum, strBuffer.c_str());
-					startPos = lineEndPos;
-				}
-				else
-				{
-					TRACE(_T("@1ILanguageUtilities::GetLanguageStrings. LngFile error. Near:'%.20s'\r"), startPos);
-					startPos = _tcschr(eqPos, 13);
-				}
-			}
-			else
-			{
-				TRACE(_T("@1ILanguageUtilities::GetLanguageStrings. LngFile error. (eqPos - startPos) Near:'%.20s'\r"), startPos);
-				startPos = _tcschr(eqPos, 13);
-			}
+			TRACE(_T("@1 ITranslationUtilities::GetTranslationStrings. LngFile error. Near:'%.20s'\r\n"), line);
+			return;
 		}
-		else
+		TCHAR num[6];
+		_tcsncpy(num, line, eqPos - line);
+		num[eqPos - line] = 0;
+		INT resNum = _ttoi(num);
+		if (resNum <= 0)
 		{
-			startPos = _tcschr(startPos, 13);
+			TRACE(_T("@1 ITranslationUtilities::GetTranslationStrings. Invalid ID. Near:'%.20s'\r\n"), line);
+			return;
 		}
-		if (startPos == NULL)
-			break;
-		while (*startPos == 13 || *startPos == 10)
-			startPos++;
-		if (*startPos == 0)
-			break;
-	}
+		std::tstring text(eqPos + 1, line + len);
+		FixString(text);
+		destLanguage.SetString(resNum, text.c_str());
+	});
 	return TRUE;
 }
 void ITranslationUtilities::FixString(std::tstring& str)
@@ -308,73 +312,56 @@ void ITranslationUtilities::FixString(std::tstring& str)
 
 void ITranslationUtilities::Replace(std::tstring& str, LPCTSTR oldString, LPCTSTR newString)
 {
-	int pos = str.find(oldString);
-	while (pos != -1)
+	size_t oldLen = _tcslen(oldString);
+	size_t newLen = _tcslen(newString);
+	size_t pos = str.find(oldString);
+	while (pos != std::tstring::npos)
 	{
-		str.replace(pos, _tcslen(oldString), newString);
-		pos = str.find(oldString);
+		str.replace(pos, oldLen, newString);
+		pos = str.find(oldString, pos + newLen);
 	}
 }
 
 BOOL ITranslationUtilities::GetTranslationInfo(LPCTSTR translationFileData, EditableTranslation& translation)
 {
-	LPCTSTR startPos = translationFileData;
-	while (TRUE)
+	//=== Info lines are "@<KEY>=<value>"; unknown keys are ignored.
+	ForEachLine(translationFileData, [&translation](LPCTSTR line, size_t len)
 	{
-		if (*startPos == '@')
+		if (line[0] != '@')
+			return;
+		LPCTSTR eqPos = wmemchr(line, '=', len);
+		if (eqPos == NULL || eqPos - line - 1 >= 20 || eqPos == line + 1)
 		{
-			LPCTSTR eqPos = _tcschr(startPos, '=');
-			LPCTSTR lineEndPos = _tcschr(startPos, 13);
-			if (eqPos > 0 && (eqPos < lineEndPos || lineEndPos == 0))
-			{
-				if (startPos[1] == 0 || eqPos[1] == 0)
-					TRACE(_T("@1 ITranslationUtilities::GetTranslationInfo War: (Unknown info field). Near:'%.20s'\r"), startPos);
-				else
-				{
-					TCHAR key[20];
-					if (eqPos - startPos - 1 < 20)
-					{
-						_tcsncpy(key, &startPos[1],eqPos - startPos - 1);
-						key[eqPos - startPos - 1] = 0;
-						ITranslation::TranslationInfoEnum ti = ITranslation::TI_Last;// refString = NULL;
-						if (_tcscmp(key, LNG_Name) == 0)
-							ti = ITranslation::TI_Name;
-						else if (_tcscmp(key, LNG_LocalizedName) == 0)
-							ti = ITranslation::TI_LocalizedName;
-						else if (_tcscmp(key, LNG_AuthorName) == 0)
-							ti = ITranslation::TI_Author;
-						else if (_tcscmp(key, LNG_Email) == 0)
-							ti = ITranslation::TI_Email;
-						else if (_tcscmp(key, LNG_Description) == 0)
-							ti = ITranslation::TI_Description;
-						else if (_tcscmp(key, LNG_WebSite) == 0)
-							ti = ITranslation::TI_WebSite;
-						else if (_tcscmp(key, LNG_Version) == 0)
-							ti = ITranslation::TI_Version;
-						else if (_tcscmp(key, LNG_AutoUpdateURL) == 0)
-							ti = ITranslation::TI_AutoUpdateURL;
-						else if (_tcscmp(key, LNG_AppVersion) == 0)
-							ti = ITranslation::TI_AppVersion;
-
-						if (ti != ITranslation::TI_Last)
-							translation.SetTranslationInfo(ti, &eqPos[1], lineEndPos - eqPos - 1);
-						else
-							TRACE(_T("@2 ITranslationUtilities::GetTranslationInfo. Unknown Key: '%s'\r\n"), key);
-					}
-				}
-				startPos = lineEndPos;
-			}
+			TRACE(_T("@1 ITranslationUtilities::GetTranslationInfo (Unknown info field). Near:'%.20s'\r\n"), line);
+			return;
 		}
-		else
-			startPos = _tcschr(startPos, 13);
-		if (startPos == NULL)
-			break;
-		while (*startPos == 13 || *startPos == 10)
-			startPos++;
-		if (*startPos == 0)
-			break;
-	}
+		TCHAR key[20];
+		_tcsncpy(key, &line[1], eqPos - line - 1);
+		key[eqPos - line - 1] = 0;
+		ITranslation::TranslationInfoEnum ti = ITranslation::TI_Last;
+		if (_tcscmp(key, LNG_Name) == 0)
+			ti = ITranslation::TI_Name;
+		else if (_tcscmp(key, LNG_LocalizedName) == 0)
+			ti = ITranslation::TI_LocalizedName;
+		else if (_tcscmp(key, LNG_AuthorName) == 0)
+			ti = ITranslation::TI_Author;
+		else if (_tcscmp(key, LNG_Email) == 0)
+			ti = ITranslation::TI_Email;
+		else if (_tcscmp(key, LNG_Description) == 0)
+			ti = ITranslation::TI_Description;
+		else if (_tcscmp(key, LNG_WebSite) == 0)
+			ti = ITranslation::TI_WebSite;
+		else if (_tcscmp(key, LNG_Version) == 0)
+			ti = ITranslation::TI_Version;
+		else if (_tcscmp(key, LNG_AutoUpdateURL) == 0)
+			ti = ITranslation::TI_AutoUpdateURL;
+		else if (_tcscmp(key, LNG_AppVersion) == 0)
+			ti = ITranslation::TI_AppVersion;
+		size_t valueLen = line + len - eqPos - 1;
+		if (ti == ITranslation::TI_Last)
+			TRACE(_T("@2 ITranslationUtilities::GetTranslationInfo. Unknown Key: '%s'\r\n"), key);
+		else if (valueLen > 0)		//=== An empty value keeps the default (e.g. the file name)
+			translation.SetTranslationInfo(ti, eqPos + 1, (UINT)valueLen);
+	});
 	return TRUE;
 }
-
-

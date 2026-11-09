@@ -23,5 +23,6 @@ void RunOnlineProvidersTests();
 void RunTaggerTests();
 void RunAppServicesTests();
 void RunSkinTests();
+void RunTranslationTests();
 
 #endif

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "TranslationManager.h"
+#include <shlwapi.h>
 
 TranslationManager::TranslationManager()
 {
@@ -25,9 +26,14 @@ void TranslationManager::UnRegisterTranslatable(ITranslatable& translatable)
 }
 void TranslationManager::UpdateTranslatables(ITranslation& translation)
 {
-	std::set<ITranslatable*>::iterator it = m_translatables.begin();
-	for (;it != m_translatables.end(); it++)
-		(*it)->ApplyTranslation(translation);
+	//=== ApplyTranslation may register or unregister translatables (windows being
+	//=== created or destroyed), so iterate over a copy and skip the ones that went away.
+	std::vector<ITranslatable*> translatables(m_translatables.begin(), m_translatables.end());
+	for (size_t i = 0; i < translatables.size(); i++)
+	{
+		if (m_translatables.find(translatables[i]) != m_translatables.end())
+			translatables[i]->ApplyTranslation(translation);
+	}
 }
 
 //=== ITranslation
@@ -46,6 +52,8 @@ void TranslationManager::SetTranslationsFolder(LPCTSTR translationPath)
 {
 	ASSERT(translationPath != NULL);
 	m_translationFolder = translationPath;
+	if (!m_translationFolder.empty() && m_translationFolder[m_translationFolder.size() - 1] != '\\')
+		m_translationFolder += _T("\\");
 }
 
 LPCTSTR TranslationManager::GetTranslationsFolder()
@@ -78,7 +86,7 @@ UINT TranslationManager::GetTranslationsCount()
 //=== Info retrieval
 LPCTSTR TranslationManager::GetTranslationInfo(INT idx, TranslationInfoEnum infoType)
 {
-	if (idx >= (INT)m_translations.size())
+	if (!IsValidIndex(idx))
 	{
 		ASSERT(0);
 		return NULL;
@@ -90,7 +98,7 @@ LPCTSTR TranslationManager::GetTranslationInfo(INT idx, TranslationInfoEnum info
 
 LPCTSTR TranslationManager::GetTranslationPath(INT idx)
 {
-	if (idx >= (INT)m_translations.size())
+	if (!IsValidIndex(idx))
 	{
 		ASSERT(0);
 		return NULL;
@@ -99,7 +107,7 @@ LPCTSTR TranslationManager::GetTranslationPath(INT idx)
 }
 const TranslationComparison* TranslationManager::GetTranslationComparison(INT idx)
 {
-	if (idx >= (INT)m_translations.size())
+	if (!IsValidIndex(idx))
 	{
 		ASSERT(0);
 		return NULL;
@@ -110,7 +118,7 @@ const TranslationComparison* TranslationManager::GetTranslationComparison(INT id
 }
 LPCTSTR TranslationManager::GetTranslationComparisonLog(INT idx)
 {
-	if (idx >= (INT)m_translations.size())
+	if (!IsValidIndex(idx))
 	{
 		ASSERT(0);
 		return NULL;
@@ -133,12 +141,11 @@ BOOL TranslationManager::ReadTranslationInfo(FullTranslationInfo& info)
 		}
 		if (info.info[TI_Name].empty())
 		{
-			LPCTSTR pos = _tcsrchr(info.path.c_str(), '\\');
-			if (pos != NULL)
-			{
-				pos++;
-				info.info[TI_Name].insert(0, pos, info.path.size() - (pos - info.path.c_str()) - 4);
-			}
+			TCHAR name[MAX_PATH];
+			_tcsncpy(name, PathFindFileName(info.path.c_str()), MAX_PATH - 1);
+			name[MAX_PATH - 1] = 0;
+			PathRemoveExtension(name);
+			info.info[TI_Name] = name;
 		}
 		return TRUE;
 	}
@@ -182,24 +189,24 @@ BOOL TranslationManager::LoadTranslation(LPCTSTR langPath)
 	if (m_loadedTranslationPath != langPath)
 	{
 		UnloadTranslation();
-		m_loadedTranslationPath = langPath;
 		if (ITranslationUtilities::ImportTranslationFile(langPath, m_fileTranslation, FALSE))
 		{
+			m_loadedTranslationPath = langPath;
 			m_fallBackTranslation.SetTranslation(&m_fileTranslation);
 			return TRUE;
 		}
-		else
-		{
-			TRACE(_T("@1 TranslationManager::LoadTranslation Import failed\r\n"));
-			return FALSE;
-		}
+		//=== Stay on the built-in strings. (The path used to be kept: GetTranslationPath
+		//=== reported the failed file and loading it again returned TRUE.)
+		m_fileTranslation.ClearStrings();
+		TRACE(_T("@1 TranslationManager::LoadTranslation Import failed: '%s'\r\n"), langPath);
+		return FALSE;
 	}
 	return TRUE;
 }
 
 BOOL TranslationManager::LoadTranslation(INT idx)
 {
-	if (idx >= (INT)m_translations.size())
+	if (!IsValidIndex(idx))
 	{
 		ASSERT(0);
 		return FALSE;
@@ -207,15 +214,74 @@ BOOL TranslationManager::LoadTranslation(INT idx)
 	return LoadTranslation(m_translations[idx].path.c_str());
 }
 
-BOOL TranslationManager::LoadTranslationByLANGID(LANGID langID)
+void TranslationManager::GetLangFileNames(LANGID langID, std::vector<LPCTSTR>& names)
 {
+	names.clear();
+	//=== Shipped files whose names differ from the language name, or that are
+	//=== specific to a sublanguage
+	WORD primary = PRIMARYLANGID(langID);
+	WORD sub = SUBLANGID(langID);
+	switch (primary)
+	{
+	case LANG_CHINESE:
+		if (sub == SUBLANG_CHINESE_TRADITIONAL || sub == SUBLANG_CHINESE_HONGKONG || sub == SUBLANG_CHINESE_MACAU)
+			names.push_back(_T("TraChinese"));
+		break;
+	case LANG_PORTUGUESE:
+		if (sub == SUBLANG_PORTUGUESE_BRAZILIAN)
+			names.push_back(_T("Brazilian Portuguese"));
+		break;
+	case LANG_SERBIAN:	//=== Also Croatian and Bosnian (same primary language)
+		if (sub == SUBLANG_SERBIAN_CYRILLIC || sub == SUBLANG_SERBIAN_SERBIA_CYRILLIC
+			|| sub == SUBLANG_SERBIAN_MONTENEGRO_CYRILLIC || sub == SUBLANG_SERBIAN_BOSNIA_HERZEGOVINA_CYRILLIC)
+			names.push_back(_T("serbian_cir"));
+		break;
+	case LANG_FINNISH:
+		names.push_back(_T("Suomi"));
+		break;
+	case LANG_INDONESIAN:
+		names.push_back(_T("Indonesia"));
+		break;
+	}
 	LPCTSTR langName = GetLangNameByLangID(langID);
 	if (langName != NULL)
+		names.push_back(langName);
+}
+
+BOOL TranslationManager::LoadTranslationByLANGID(LANGID langID)
+{
+	std::vector<LPCTSTR> names;
+	GetLangFileNames(langID, names);
+	for (size_t i = 0; i < names.size(); i++)
 	{
 		TCHAR path[MAX_PATH];
-		_sntprintf(path, MAX_PATH, _T("%s%s.lng"), GetTranslationsFolder(), langName);
-		return LoadTranslation(path);
+		_sntprintf(path, MAX_PATH, _T("%s%s.lng"), GetTranslationsFolder(), names[i]);
+		path[MAX_PATH - 1] = 0;
+		if (PathFileExists(path) && LoadTranslation(path))
+			return TRUE;
 	}
+	UnloadTranslation();
+	return FALSE;
+}
+
+BOOL TranslationManager::LoadSavedTranslation(LPCTSTR saved, LANGID systemLangID)
+{
+	if (saved == NULL || saved[0] == 0)
+		return LoadTranslationByLANGID(systemLangID);	//=== Never chosen: the system language
+	if (saved[0] == '@')
+	{
+		UnloadTranslation();						//=== The built-in strings were chosen
+		return TRUE;
+	}
+	if (PathFileExists(saved))
+		return LoadTranslation(saved);
+	//=== The application folder moved: look for the file in the translations folder
+	std::tstring path(m_translationFolder);
+	path += PathFindFileName(saved);
+	if (PathFileExists(path.c_str()))
+		return LoadTranslation(path.c_str());
+	TRACE(_T("@1 TranslationManager::LoadSavedTranslation Not found: '%s'\r\n"), saved);
+	UnloadTranslation();
 	return FALSE;
 }
 
@@ -270,7 +336,7 @@ LPCTSTR TranslationManager::GetLangNameByLangID(LANGID id)
 		_T("Estonian"),
 		_T("Latvian"),
 		_T("Lithuanian"),
-		_T("Tajic"),//0x28
+		_T("Tajik"),//0x28
 		_T("Persian"),
 		_T("Vietnamese"),
 		_T("Armenian"),
@@ -278,8 +344,9 @@ LPCTSTR TranslationManager::GetLangNameByLangID(LANGID id)
 		_T("Basque")//0x2d
 
 	};
-	BYTE index = LOBYTE(id);
-	if (index<=0x2d)
+	static_assert(sizeof(cLangName) / sizeof(cLangName[0]) == 0x2e, "cLangName covers 0x00 - 0x2d");
+	WORD index = PRIMARYLANGID(id);
+	if (index <= 0x2d)
 		return cLangName[index];
 	return NULL;
 }

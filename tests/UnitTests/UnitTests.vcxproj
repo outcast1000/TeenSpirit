@@ -90,6 +90,9 @@
     <ClCompile Include="..\..\AppStrings.cpp" />
     <ClCompile Include="..\..\AppResources.cpp" />
     <ClCompile Include="SkinTests.cpp" />
+    <ClCompile Include="TranslationTests.cpp" />
+    <ClCompile Include="..\..\TranslationManager.cpp" />
+    <ClCompile Include="..\..\CommonSources\ITranslation\ITranslationUtilities.cpp" />
     <ClCompile Include="..\..\TSSkin.cpp" />
     <ClCompile Include="..\..\SkinManager.cpp" />
     <ClCompile Include="..\..\CommonSources\hdcUtils.cpp" />

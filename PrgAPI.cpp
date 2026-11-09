@@ -447,22 +447,7 @@ BOOL PrgAPI::Init()
 
 	std::tstring value;
 	GetAppSettings()->Read(cGeneral, cOptionLanguage, value, _T(""));
-	BOOL bLoaded = FALSE;
-	TranslationManager* pLM = GetTranslationManager();
-	if (value.empty())
-	{
-		//=== This value does not exist. Load lang ny langID
-		pLM->LoadTranslationByLANGID(GetSystemDefaultLangID());
-	}
-	else if (value[0] == '@')
-	{
-		//=== Default Language. Do not load anything
-	}
-	else
-	{
-		//=== Load the selected translation
-		pLM->LoadTranslation(value.c_str());
-	}
+	GetTranslationManager()->LoadSavedTranslation(value.c_str(), GetUserDefaultUILanguage());
 
 
 	FileVersion fv;

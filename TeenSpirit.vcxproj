@@ -312,6 +312,7 @@
     <ClCompile Include="SkinsPP.cpp" />
     <ClCompile Include="SliderDlg.cpp" />
     <ClCompile Include="StateManager.cpp" />
+    <ClCompile Include="TSStateChangeListener.cpp" />
     <ClCompile Include="StatusBarWnd.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -1,5 +1,5 @@
 //*********************************************************************
-// SkinManager
+// StateManager
 //*********************************************************************
 #ifndef _STATEMANAGER_H
 #define _STATEMANAGER_H
@@ -10,7 +10,9 @@
 #include "TracksFilter.h"
 #include "DataRecords.h"
 #include "RecordCollectionSorter.h"
+#include <functional>
 class AppSettings;
+class SQLManager;
 
 
 enum StateMessageEnum
@@ -38,12 +40,28 @@ enum StateMessageEnum
 	SM_SetQuickSearch
 };
 
-//=== The Interface implementation that must inherit all the controls that listen to state changes
+//=== The Interface implementation that must inherit all the controls that listen to state changes.
+//=== Registers for its lifetime with a state manager: the default constructor uses the
+//=== application's, new code should pass it. The manager must outlive the listener.
 class TSStateChangeListener: public IStateChangeListener
 {
 public:
 	TSStateChangeListener();
-	virtual ~TSStateChangeListener();
+	explicit TSStateChangeListener(IStateManager& stateManager): m_pStateManager(&stateManager)
+	{
+		m_pStateManager->RegisterStateChangeListener(*this);
+	}
+	TSStateChangeListener(const TSStateChangeListener& other): IStateChangeListener(other), m_pStateManager(other.m_pStateManager)
+	{
+		m_pStateManager->RegisterStateChangeListener(*this);
+	}
+	TSStateChangeListener& operator=(const TSStateChangeListener&)	{return *this;}	//stays registered where it was
+	virtual ~TSStateChangeListener()
+	{
+		m_pStateManager->UnRegisterStateChangeListener(*this);
+	}
+private:
+	IStateManager* m_pStateManager;
 };
 
 class TSState
@@ -89,20 +107,26 @@ public:
 	UINT trackListTrackID;
 	BOOL bIsTrackListDirty;
 
+	//The tracks matching activeTracksFilter (queried again when bIsTrackListDirty).
 	FullTrackRecordCollection& GetTrackList();
 
 	std::basic_string<TCHAR> quickSearchString;
 	UINT locateTrackID;
+
+	void SetSQLManagerProvider(std::function<SQLManager*()> getSQLManager)	{m_getSQLManager = getSQLManager;}
 private:
 	FullTrackRecordCollection m_trackList;
+	std::function<SQLManager*()> m_getSQLManager;
 
 };
 
-class StateManager
+class StateManager: public IStateManager
 {
 public:
-	StateManager();
-	virtual ~StateManager()														{}
+	//getSQLManager: the database the track list is read from (asked when first needed).
+	//The thread creating the StateManager is the main (UI) thread.
+	explicit StateManager(std::function<SQLManager*()> getSQLManager);
+	virtual ~StateManager()														{ASSERT(m_pListeners.empty());}	//=== A listener outlives its manager
 
 public:
 	virtual void RegisterStateChangeListener(IStateChangeListener& listener);

@@ -3,7 +3,6 @@
 ////*********************************************************************
 #include "StdAfx.h"
 #include "StateManager.h"
-#include "PrgAPI.h"
 #include "SQLManager.h"
 #include "AppSettings/AppSettings.h"
 #include <vector>
@@ -32,14 +31,6 @@ LPCTSTR SM2Str(UINT stateMessage)
 }
 
 
-TSStateChangeListener::TSStateChangeListener()
-{
-	PRGAPI()->GetStateManager()->RegisterStateChangeListener(*this);
-}
-TSStateChangeListener::~TSStateChangeListener()
-{
-	PRGAPI()->GetStateManager()->UnRegisterStateChangeListener(*this);
-}
 
 //========================================================================
 //===TSState
@@ -55,8 +46,10 @@ FullTrackRecordCollection& TSState::GetTrackList()
 		m_trackList.clear();
 		if (activeTracksFilter.IsEmpty() == FALSE)
 		{
-			SQLManager* pSM = PRGAPI()->GetSQLManager();
-			pSM->GetFullTrackRecordCollectionByTracksFilter(m_trackList, activeTracksFilter);
+			SQLManager* pSM = m_getSQLManager ? m_getSQLManager() : NULL;
+			ASSERT(pSM != NULL);
+			if (pSM != NULL)
+				pSM->GetFullTrackRecordCollectionByTracksFilter(m_trackList, activeTracksFilter);
 		}
 		//pSM->GetFullTrackRecordCollectionBySimpleSearch(m_trackList, quickSearchString.c_str());
 		bIsTrackListDirty = FALSE;
@@ -69,9 +62,10 @@ FullTrackRecordCollection& TSState::GetTrackList()
 //===StateManager
 //========================================================================
 
-StateManager::StateManager()//:m_messageInQueue(SM_None)
+StateManager::StateManager(std::function<SQLManager*()> getSQLManager)
 {
 	m_MainThread = GetCurrentThreadId();
+	m_state.SetSQLManagerProvider(getSQLManager);
 }
 
 void StateManager::RegisterStateChangeListener(IStateChangeListener& listener)
@@ -80,11 +74,9 @@ void StateManager::RegisterStateChangeListener(IStateChangeListener& listener)
 }
 void StateManager::UnRegisterStateChangeListener(IStateChangeListener& listener)
 {
-	std::set<IStateChangeListener*>::iterator it = m_pListeners.find(&listener);
-	if (it != m_pListeners.end())
-		m_pListeners.erase(it);
-	else
-		ASSERT(0);
+	//=== Unregistering a listener that isn't registered is allowed: the panes
+	//=== register while shown, and unregister on hide and again on destruction.
+	m_pListeners.erase(&listener);
 }
 
 void StateManager::SendMessage(UINT stateMessage)

@@ -27,5 +27,6 @@ void RunTranslationTests();
 void RunTrackerTests();
 void RunManagerTests();
 void RunDownloadTests();
+void RunStateTests();
 
 #endif

@@ -28,6 +28,7 @@ InfoPane::InfoPane():
 InfoPane::~InfoPane()
 {
 	PrgAPI* pAPI = PRGAPI();
+	pAPI->GetStateManager()->UnRegisterStateChangeListener(*this);
 	//pAPI->SetOption(OPT_VIEWER_SyncWithPlayer, m_bSyncWithPlayer);
 	if (m_infoCtrl.m_hWnd != NULL)
 		m_infoCtrl.DestroyWindow();
@@ -58,12 +59,12 @@ BOOL InfoPane::Init(HWND hwndParent)
 
 void InfoPane::UnInit()
 {
+	PRGAPI()->GetStateManager()->UnRegisterStateChangeListener(*this);	//=== also when the window is already gone
 	if (m_infoCtrl.GetSafeHwnd())
 	{
 		HWND hwnd = m_infoCtrl.GetWindowForFocus();
 		if (hwnd != NULL)
-			PRGAPI()->GetShortcutManager()->UnRegisterShortcutForFocus(hwnd);		
-		PRGAPI()->GetStateManager()->UnRegisterStateChangeListener(*this);
+			PRGAPI()->GetShortcutManager()->UnRegisterShortcutForFocus(hwnd);
 		m_infoCtrl.DestroyWindow();
 	}
 }

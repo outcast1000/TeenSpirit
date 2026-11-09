@@ -20,6 +20,7 @@ m_poptionsMenu(NULL)
 
 TrackListPane::~TrackListPane()
 {
+	PRGAPI()->GetStateManager()->UnRegisterStateChangeListener(*this);
 	delete m_poptionsMenu;
 }
 
@@ -38,6 +39,7 @@ BOOL TrackListPane::Init(HWND hwndParent)
 
 void TrackListPane::UnInit()
 {
+	PRGAPI()->GetStateManager()->UnRegisterStateChangeListener(*this);	//=== also when the window is already gone
 	if (m_enhTrackList.GetSafeHwnd() == 0)
 		return;
 

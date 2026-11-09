@@ -94,6 +94,8 @@
     <ClCompile Include="TrackerTests.cpp" />
     <ClCompile Include="ManagerTests.cpp" />
     <ClCompile Include="DownloadTests.cpp" />
+    <ClCompile Include="StateTests.cpp" />
+    <ClCompile Include="..\..\StateManager.cpp" />
     <ClCompile Include="..\..\InfoDownloadManager.cpp" />
     <ClCompile Include="..\..\CollectionManager.cpp" />
     <ClCompile Include="..\..\CollectionUpdateJob.cpp" />

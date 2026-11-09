@@ -26,6 +26,7 @@ SectionsPane::SectionsPane()
 
 SectionsPane::~SectionsPane()
 {
+	PRGAPI()->GetStateManager()->UnRegisterStateChangeListener(*this);
 	ResetAllMenus();
 	for (int i = 0; i < MNU_Last; i++)
 	{
@@ -82,14 +83,15 @@ BOOL SectionsPane::Show()
 }
 void SectionsPane::Hide()
 {
+	//=== Always: the tree also reads as not visible when the main window is hidden
+	//=== (e.g. by the mini player), and the pane was then freed while still registered.
+	PRGAPI()->GetStateManager()->UnRegisterStateChangeListener(*this);
 	if (m_treeControl.GetSafeHwnd() == NULL)
 		return;
 	if (m_treeControl.IsWindowVisible() == TRUE)
 	{
 		m_treeControl.ShowWindow(SW_HIDE);
-		PrgAPI* pAPI = PRGAPI();
-		pAPI->GetShortcutManager()->UnRegisterShortcutForFocus(m_treeControl.m_hWnd);
-		pAPI->GetStateManager()->UnRegisterStateChangeListener(*this);
+		PRGAPI()->GetShortcutManager()->UnRegisterShortcutForFocus(m_treeControl.m_hWnd);
 	}
 }
 

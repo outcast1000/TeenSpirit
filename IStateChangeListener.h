@@ -34,4 +34,17 @@ public:
 
 };
 
+//=== The application's event bus (StateManager)
+class IStateManager
+{
+public:
+	virtual ~IStateManager()											{}
+	virtual void RegisterStateChangeListener(IStateChangeListener& listener)	= 0;
+	virtual void UnRegisterStateChangeListener(IStateChangeListener& listener)	= 0;
+	//Broadcasts now on the main thread; from another thread it is posted.
+	virtual void SendMessage(UINT stateMessage)							= 0;
+	//Broadcast on the main thread's next HeartBeat (duplicates are merged).
+	virtual void PostMessage(UINT stateMessage)							= 0;
+};
+
 #endif

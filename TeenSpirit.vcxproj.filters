@@ -245,6 +245,7 @@
     <ClCompile Include="SkinsPP.cpp"><Filter>GUIFiles\Options</Filter></ClCompile>
     <ClCompile Include="SliderDlg.cpp"><Filter>GUIFiles\Other Dialogs</Filter></ClCompile>
     <ClCompile Include="StateManager.cpp"><Filter>Managers</Filter></ClCompile>
+    <ClCompile Include="TSStateChangeListener.cpp"><Filter>Managers</Filter></ClCompile>
     <ClCompile Include="StatusBarWnd.cpp"><Filter>GUIFiles\TeenSpiritDlg</Filter></ClCompile>
     <ClCompile Include="stdafx.cpp"><Filter>MainApplication</Filter></ClCompile>
     <ClCompile Include="Taggers\BassTagger.cpp"><Filter>Taggers</Filter></ClCompile>

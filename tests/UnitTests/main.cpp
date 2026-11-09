@@ -47,6 +47,7 @@ int wmain()
 	RunTrackerTests();
 	RunManagerTests();
 	RunDownloadTests();
+	RunStateTests();
 
 	wprintf(L"\n%d checks, %d failures\n", gChecks, gFailures);
 	CoUninitialize();

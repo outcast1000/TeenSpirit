@@ -1384,7 +1384,7 @@ StateManager* PrgAPI::GetStateManager()
 	if (m_pStateManager == NULL)
 	{
 		TRACEST(_T("PrgAPI::GetStateManager [CREATION]"));
-		m_pStateManager = new StateManager;
+		m_pStateManager = new StateManager([this]() {return GetSQLManager();});
 	}
 	return m_pStateManager;
 }

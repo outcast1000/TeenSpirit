@@ -44,6 +44,7 @@
 #include "AppOptions.h"
 #include "AppStrings.h"
 #include "AppResources.h"
+#include "InfoQueryDlg.h"
 
 
 
@@ -860,12 +861,63 @@ LocalPictureManager* PrgAPI::GetLocalPictureManager()
 
 
 
+namespace
+{
+	//The application side of InfoDownloadManager.
+	class InfoDownloadManagerHost: public InfoDownloadManager::Host
+	{
+	public:
+		explicit InfoDownloadManagerHost(PrgAPI& api): m_api(api)	{}
+		virtual void SendStateMessage(UINT stateMessage)		{m_api.GetStateManager()->SendMessage(stateMessage);}
+		virtual void NotifyUser(LPCTSTR msg, SEVERITY sev)		{m_api.NotifyUser(msg, NULL, sev);}
+		virtual BOOL AddArtistPicture(const ArtistRecord& rec, LPCTSTR path)
+		{
+			return m_api.GetLocalPictureManager()->AddArtistPicture(rec, path);
+		}
+		virtual BOOL AddAlbumPicture(const FullAlbumRecord& rec, LPCTSTR path)
+		{
+			return m_api.GetLocalPictureManager()->AddAlbumPicture(rec, path);
+		}
+		virtual void TagTrack(LPCTSTR path, TagInfo& ti)		{m_api.GetActionManager()->TagTrack(path, ti);}
+		virtual Answer ConfirmTrackInfo(InfoItemTypeEnum iit, LPCTSTR typeName, LPCTSTR details,
+			LPCTSTR provider, std::tstring& text)
+		{
+			CInfoQueryDlg dlgQuery;
+			if (iit == IIT_TrackTablatures)
+				dlgQuery.EnableFixedFont(TRUE);
+			//=== Closes an open context menu. Works when the tree/list has the focus,
+			//=== not for the menu of the 'TS' button.
+			SendNotifyMessage(::GetFocus(), WM_CANCELMODE, 0, 0);
+			dlgQuery.SetExtraInfo(typeName, details, provider);
+			dlgQuery.SetMainText(text);
+			switch (dlgQuery.DoModal())
+			{
+			case CInfoQueryDlg::RES_AcceptAll:
+				text = dlgQuery.GetMainText();
+				return ANS_AcceptAll;
+			case CInfoQueryDlg::RES_Accept:
+				text = dlgQuery.GetMainText();
+				return ANS_Accept;
+			case CInfoQueryDlg::RES_Retry:
+				return ANS_Retry;
+			case CInfoQueryDlg::RES_CancelAll:
+				return ANS_CancelAll;
+			}
+			return ANS_Cancel;
+		}
+	private:
+		PrgAPI& m_api;
+	};
+}
+
 InfoDownloadManager* PrgAPI::GetInfoDownloadManager()
 {
 	if (m_pInfoDownloadManager == NULL)
 	{
 		TRACEST(_T("PrgAPI::GetInfoDownloadManager [CREATION]"));
-		m_pInfoDownloadManager = new InfoDownloadManager(*GetInfoProviderFactory());
+		m_pInfoDownloadManager = new InfoDownloadManager(*GetInfoProviderFactory(), *GetSQLManager(),
+			GetAppOptions(), *GetTranslationManager(),
+			std::unique_ptr<InfoDownloadManager::Host>(new InfoDownloadManagerHost(*this)));
 	}
 	return m_pInfoDownloadManager;
 

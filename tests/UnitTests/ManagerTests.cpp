@@ -281,6 +281,16 @@ namespace
 		{
 			LocalPictureManager lpm(sm, providers, std::unique_ptr<LocalPictureManager::Host>(new FakePictureHost(artistRequests, albumRequests)));
 			CHECK(lpm.Init(storage.c_str()));
+			//Downloads by service must go to an online provider, not to the local image providers
+			for (INT srv = IInfoProvider::SRV_ArtistImage; srv <= IInfoProvider::SRV_AlbumImage; srv++)
+			{
+				if (srv != IInfoProvider::SRV_ArtistImage && srv != IInfoProvider::SRV_AlbumImage)
+					continue;
+				IInfoProvider* pIP = providers.CreateInfoProviderByService((IInfoProvider::ServiceEnum)srv);
+				LPCTSTR id = pIP != NULL ? pIP->GetModuleInfo(IInfoProvider::IPI_UniqueID) : L"(none)";
+				CHECK(pIP != NULL && (wcscmp(id, L"DEEZ") == 0 || wcscmp(id, L"CAAR") == 0));
+				delete pIP;
+			}
 
 			//No pictures yet
 			CHECK(lpm.GetMainArtistPicture(artist) == NULL);

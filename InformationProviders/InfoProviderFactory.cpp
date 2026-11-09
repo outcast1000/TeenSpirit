@@ -67,7 +67,8 @@ IInfoProvider* InfoProviderFactory::CreateInfoProviderByService(IInfoProvider::S
 	IInfoProvider* pIP = NULL;
 	while ((pIP = GetItemByIndex(idx)) != NULL)
 	{
-		if (pIP->CanHandle(service))
+		//=== Only providers meant for downloads (not the local image providers)
+		if (ForPublicUse(idx) && pIP->CanHandle(service))
 			return CreateInfoProviderByUniqueID(pIP->GetModuleInfo(IInfoProvider::IPI_UniqueID));
 		idx++;
 	}
@@ -167,6 +168,7 @@ BOOL InfoProviderFactory::RegisterInfoProvider(IInfoProvider* pIP, BOOL bPublicU
 		TRACE(_T("@1 InfoProviderFactory::RegisterInfoProvider pIP = NULL\r\n"));
 		return FALSE;
 	}
+	RegisterBuiltIns();
 	IPInfoVector::iterator it = m_IPPrototypes.begin();
 	LPCTSTR newUniqID = pIP->GetModuleInfo(IInfoProvider::IPI_UniqueID);
 	while (it != m_IPPrototypes.end())
@@ -219,27 +221,33 @@ BOOL InfoProviderFactory::RegisterInfoProvider(IInfoProvider* pIP, BOOL bPublicU
 	return TRUE;
 }
 
+void InfoProviderFactory::RegisterBuiltIns()
+{
+	//=== Also called by RegisterInfoProvider: the app's local image providers
+	//=== (LocalPictureManager) used to be registered first, so lookups by service
+	//=== found them before the online providers.
+	if (m_bInitialized)
+		return;
+	m_bInitialized = TRUE;
+	IInfoProvider* builtIn[] =
+	{
+		new CoverArtArchiveProvider,
+		new LrclibProvider,
+		new LastFmApiProvider,
+		new DeezerProvider,
+	};
+	for (size_t i = 0; i < sizeof(builtIn) / sizeof(builtIn[0]); i++)
+	{
+		builtIn[i]->SetInternetHandle(m_hNet);
+		if (!RegisterInfoProvider(builtIn[i], TRUE))
+			delete builtIn[i];
+	}
+}
+
 IInfoProvider* InfoProviderFactory::GetItemByIndex(INT idx)
 {
 	ASSERT(idx >= 0);// && idx < (INT) m_IPPrototypes.size());
-
-	if (!m_bInitialized)
-	{
-		IInfoProvider* builtIn[] =
-		{
-			new CoverArtArchiveProvider,
-			new LrclibProvider,
-			new LastFmApiProvider,
-			new DeezerProvider,
-		};
-		for (size_t i = 0; i < sizeof(builtIn) / sizeof(builtIn[0]); i++)
-		{
-			builtIn[i]->SetInternetHandle(m_hNet);
-			if (!RegisterInfoProvider(builtIn[i], TRUE))
-				delete builtIn[i];
-		}
-		m_bInitialized = TRUE;
-	}
+	RegisterBuiltIns();
 	if (idx >= 0 && idx < (INT)m_IPPrototypes.size())
 		return m_IPPrototypes[idx].pIP;
 	return NULL;

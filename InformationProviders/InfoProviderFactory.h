@@ -75,6 +75,8 @@ private:
 	typedef std::vector<IPInfo> IPInfoVector;
 	IPInfoVector m_IPPrototypes;
 	BOOL m_bInitialized;
+	//Registers the built-in online providers (once), ahead of any other provider.
+	void RegisterBuiltIns();
 	HINTERNET m_hNet;
 	AppSettings* m_pAppSettings;
 private:

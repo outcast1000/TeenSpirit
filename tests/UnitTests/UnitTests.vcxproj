@@ -93,6 +93,8 @@
     <ClCompile Include="TranslationTests.cpp" />
     <ClCompile Include="TrackerTests.cpp" />
     <ClCompile Include="ManagerTests.cpp" />
+    <ClCompile Include="DownloadTests.cpp" />
+    <ClCompile Include="..\..\InfoDownloadManager.cpp" />
     <ClCompile Include="..\..\CollectionManager.cpp" />
     <ClCompile Include="..\..\CollectionUpdateJob.cpp" />
     <ClCompile Include="..\..\LocalPictureManager.cpp" />

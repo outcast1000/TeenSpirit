@@ -26,5 +26,6 @@ void RunSkinTests();
 void RunTranslationTests();
 void RunTrackerTests();
 void RunManagerTests();
+void RunDownloadTests();
 
 #endif

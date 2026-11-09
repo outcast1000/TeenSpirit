@@ -1,16 +1,13 @@
 #include "StdAfx.h"
 #include "InfoDownloadManager.h"
-#include "PrgAPI.h"
 
 #include "InformationProviders/InfoProviderFactory.h"
 #include "InformationProviders/InfoProviderJob.h"
 
-#include "ActionManager.h"
 #include "SQLManager.h"
-#include "LocalPictureManager.h"
+#include "AppStrings.h"
 
 #include "resource.h"
-#include "InfoQueryDlg.h"
 
 #include "TagInfo.h"
 #include "ReEntryLock.h"
@@ -22,11 +19,16 @@
 
 #define TABLES_NAME_MAX_LEN 100
  
-InfoDownloadManager::InfoDownloadManager(InfoProviderFactory& ipf):
+InfoDownloadManager::InfoDownloadManager(InfoProviderFactory& ipf, SQLManager& sqlManager, AppOptions& options,
+		ITranslation& translation, std::unique_ptr<Host> host):
+m_IPFactory(ipf),
+m_sqlManager(sqlManager),
+m_options(options),
+m_translation(translation),
+m_host(std::move(host)),
 m_pMTQueue(NULL),
 m_bWorkStopped(FALSE),
 m_bWorkerStillRunning(FALSE),
-m_IPFactory(ipf),
 m_bAcceptAll(FALSE),
 m_bCancelAll(FALSE),
 m_bReEntranceProtection(FALSE),
@@ -37,8 +39,49 @@ m_bOldInfoRequestsRead(FALSE)
 InfoDownloadManager::~InfoDownloadManager()
 {
 	TRACEST(_T("InfoDownloadManager::~InfoDownloadManager"));
-	StopBackgroundWork();
-	delete m_pMTQueue;
+	if (StopBackgroundWork())
+		delete m_pMTQueue;
+	else
+	{
+		//=== A download thread still runs and posts to the queue: leave it (and the host) alive
+		TRACE(_T("@0 InfoDownloadManager::~InfoDownloadManager. A download is still running\r\n"));
+		m_host.release();
+	}
+}
+
+MultiThreadJobQueue& InfoDownloadManager::GetQueue()
+{
+	if (m_pMTQueue == NULL)
+	{
+		m_pMTQueue = new MultiThreadJobQueue;
+		m_pMTQueue->SetMaxThreads(3);
+		m_pMTQueue->SetAssignJobDelay(1000);
+	}
+	return *m_pMTQueue;
+}
+
+LPCTSTR InfoDownloadManager::Str(INT resID)
+{
+	return AppStrings::Get(m_translation, resID);
+}
+
+LPCTSTR InfoDownloadManager::GetDefaultProvider(IInfoProvider::ServiceEnum service)
+{
+	//=== The built-in providers (InfoProviderFactory). These used to name the
+	//=== retired services (LAFM, AMZN, GOLY), so every request fell back to a lookup.
+	switch (service)
+	{
+	case IInfoProvider::SRV_ArtistBio:
+	case IInfoProvider::SRV_AlbumReview:
+		return _T("LFMA");		//Last.fm
+	case IInfoProvider::SRV_ArtistImage:
+		return _T("DEEZ");		//Deezer
+	case IInfoProvider::SRV_AlbumImage:
+		return _T("CAAR");		//Cover Art Archive
+	case IInfoProvider::SRV_TrackLyrics:
+		return _T("LRCL");		//LRCLIB
+	}
+	return NULL;
 }
 BOOL InfoDownloadManager::StopBackgroundWork()
 {
@@ -238,14 +281,14 @@ BOOL InfoDownloadManager::IsFirstRequest(const IInfoProvider::Request& request)
 	{
 		TRACEST(_T("InfoDownloadManager::IsFirstRequest Getting old requests"));
 		m_bOldInfoRequestsRead = TRUE;
-		SQLManager* pSM = PRGAPI()->GetSQLManager();
+		SQLManager* pSM = &m_sqlManager;
 		UINT reqLimit = GetCurrentUnixTimeStamp() - 10 * 24 * 3600;
 		pSM->DeleteInfoRequestsOlderThan(reqLimit);
 		pSM->GetInfoRequests(m_RequestHashes);
 	}
 	if (m_RequestHashes.find(hash) != m_RequestHashes.end())
 		return FALSE;
-	PRGAPI()->GetSQLManager()->AddInfoRequest(GetCurrentUnixTimeStamp(), hash);
+	m_sqlManager.AddInfoRequest(GetCurrentUnixTimeStamp(), hash);
 	m_RequestHashes.insert(hash);
 	return TRUE;
 }
@@ -259,25 +302,21 @@ BOOL InfoDownloadManager::RequestInfo(IInfoProvider::Request& request,
 	if (!bForce)
 	{
 		//=== Check if the user has select not to download pictures/info
-		PrgAPI* pAPI = PRGAPI();
-		if (optionToCheck > 0 && !pAPI->GetOption(optionToCheck))
+		if (optionToCheck > 0 && !m_options.Get(optionToCheck))
 			return FALSE;	//No Need
 		//=== Check if we have already tried this request in this session
 		if (!IsFirstRequest(request))
 		{
-			//TRACE(_T("@3 InfoDownloadManager::RequestInfo. Already Tried this request in this session. '%s'\r\n"), pAPI->GetStringForInfoItemType(IIT_ArtistPicture));
 			return FALSE;
 		}
 		//=== Check if we have previously tried this request and we have failed (Database)
 		//if (!IsFirstRequestInTheLastSessions())
 		//InfoRecordRequest irr(helpID, iit);
-		//SQLManager* pSM = pAPI->GetSQLManager();
 		//if (pSM->GetInfoRecordRequestRecord(irr))
 		//{
 		//	UINT curTime = GetCurrentUnixTimeStamp();
 		//	if (curTime - irr.requestTimeStamp < 10 * 24 * 3600)
 		//	{
-		//		//TRACE(_T("@3 InfoDownloadManager::RequestInfo. Already Tried this request in the last 10 days. '%s'\r\n"), pAPI->GetStringForInfoItemType(IIT_ArtistPicture));
 		//		return FALSE;//=== We have checked for such info less than 10 days before and it failed
 		//	}
 		//}
@@ -371,26 +410,7 @@ BOOL InfoDownloadManager::RequestInfo(IInfoProvider::Request& request,
 
 
 	if (providerName == NULL)
-	{
-		switch (request.service)
-		{
-		case IInfoProvider::SRV_ArtistBio:
-		case IInfoProvider::SRV_ArtistImage:
-			providerName = _T("LAFM");
-			break;
-		case IInfoProvider::SRV_AlbumReview:
-		case IInfoProvider::SRV_AlbumImage:
-			providerName = _T("AMZN");
-			break;
-		case IInfoProvider::SRV_TrackLyrics:
-		case IInfoProvider::SRV_TrackTablatures:
-			providerName = _T("GOLY");
-			break;
-		default:
-			TRACE(_T("@1 InfoDownloadManager::RequestInfo. No Default provider for %d\r\n"), request.service);
-			return FALSE;
-		}
-	}
+		providerName = GetDefaultProvider(request.service);
 
 	IInfoProvider* pIP = NULL;
 	if (providerName != NULL)
@@ -405,18 +425,13 @@ BOOL InfoDownloadManager::RequestInfo(IInfoProvider::Request& request,
 			if (job.get())
 			{
 				if (bSync)
-					job->Execute();
-				else
 				{
-					if (m_pMTQueue == NULL)
-					{
-						m_pMTQueue = new MultiThreadJobQueue;
-						m_pMTQueue->SetMaxThreads(3);
-						m_pMTQueue->SetAssignJobDelay(1000);
-					}
-					return m_pMTQueue->AddJob(job);
+					//=== Run it here; the next ConsumeResult handles it (the result used to be dropped)
+					job->Execute();
+					m_syncFinished.push_back(job);
+					return TRUE;
 				}
-				return TRUE;
+				return GetQueue().AddJob(job);
 			}
 		}
 		delete pIP;
@@ -430,15 +445,15 @@ void InfoDownloadManager::NotifyUserForSuccess(LPCTSTR infoType, LPCTSTR reqInfo
 	ASSERT(infoType != NULL && reqInfo != NULL && addInfo != NULL);
 	if (infoType != NULL && reqInfo != NULL && addInfo != NULL)
 	{
-		PrgAPI* pAPI = PRGAPI();
 		TCHAR msg[1000];
-		_sntprintf(msg, 1000, 
+		_sntprintf(msg, 1000,
 			_T("%s | %s: %s | %s | %s: %s"),
-			pAPI->GetString(IDS_SUCCESS),
-			pAPI->GetString(IDS_TYPE), infoType,
-			reqInfo, 
-			pAPI->GetString(IDS_PROVIDER), addInfo);
-		pAPI->NotifyUser(msg, 0, SEV_InfoL1);
+			Str(IDS_SUCCESS),
+			Str(IDS_TYPE), infoType,
+			reqInfo,
+			Str(IDS_PROVIDER), addInfo);
+		msg[999] = 0;
+		m_host->NotifyUser(msg, SEV_InfoL1);
 	}
 }
 
@@ -447,15 +462,13 @@ BOOL InfoDownloadManager::HandleArtistInfo(UINT artID, const IInfoProvider::Resu
 {
 	//TRACEST(_T("InfoDownloadManager::HandleArtistInfo"));
 	ASSERT(artID != 0 && result.IsValid());
-	IInfoProvider::Result res;
-	PrgAPI* pAPI = PRGAPI();
-	SQLManager* pSM = pAPI->GetSQLManager();
+	SQLManager* pSM = &m_sqlManager;
 	ArtistRecord ar;
 	if (pSM->GetArtistRecord(artID, ar))
 	{
 		pSM->AdjustArtistInfo(artID, IIT_ArtistBio, result.main);
-		pAPI->SendMessage(SM_InfoChanged);
-		NotifyUserForSuccess(pAPI->GetString(IDS_ARTISTBIO), 
+		m_host->SendStateMessage(SM_InfoChanged);
+		NotifyUserForSuccess(Str(IDS_ARTISTBIO),  
 			ar.name.c_str(), 
 			result.additionalInfo);
 	}
@@ -465,19 +478,16 @@ BOOL InfoDownloadManager::HandleArtistPic(UINT artID, const IInfoProvider::Resul
 {
 	//TRACEST(_T("InfoDownloadManager::HandleArtistPic"));
 	ASSERT(artID != 0 && result.IsValid());
-	PrgAPI* pAPI = PRGAPI();
-	SQLManager* pSM = pAPI->GetSQLManager();
-	LocalPictureManager* pLPM = pAPI->GetLocalPictureManager();
 	ArtistRecord ar;
-	if (pSM->GetArtistRecord(artID, ar))
+	if (m_sqlManager.GetArtistRecord(artID, ar))
 	{
-		if (!pLPM->AddArtistPicture(ar, result.main))
+		if (!m_host->AddArtistPicture(ar, result.main))
 		{
 			//It happens when the same picture exists
 			return TRUE;//Request more results
 		}
-		PRGAPI()->SendMessage(SM_PictureChanged);
-		NotifyUserForSuccess(pAPI->GetString(IDS_ARTISTPICTURE), 
+		m_host->SendStateMessage(SM_PictureChanged);
+		NotifyUserForSuccess(Str(IDS_ARTISTPICTURE),  
 			ar.name.c_str(), 
 			result.additionalInfo);
 	}
@@ -487,16 +497,15 @@ BOOL InfoDownloadManager::HandleAlbumInfo(UINT albID, const IInfoProvider::Resul
 {
 	//TRACEST(_T("InfoDownloadManager::HandleAlbumInfo"));
 	ASSERT(albID != 0 && result.IsValid());
-	PrgAPI* pAPI = PRGAPI();
-	SQLManager* pSM = pAPI->GetSQLManager();
+	SQLManager* pSM = &m_sqlManager;
 	FullAlbumRecordSP rec;
 	if (pSM->GetFullAlbumRecordByID(rec, albID))
 	{
 		pSM->AdjustAlbumInfo(albID, IIT_AlbumReview, result.main);
-		pAPI->SendMessage(SM_InfoChanged);
+		m_host->SendStateMessage(SM_InfoChanged);
 		TCHAR msg[500];
 		_sntprintf(msg, 500, _T("%s: %s"), rec->artist.name.c_str(), rec->album.name.c_str());
-		NotifyUserForSuccess(pAPI->GetString(IDS_ALBUMREVIEW), 
+		NotifyUserForSuccess(Str(IDS_ALBUMREVIEW),  
 			msg, 
 			result.additionalInfo);
 	}
@@ -506,21 +515,18 @@ BOOL InfoDownloadManager::HandleAlbumPic(UINT albID, const IInfoProvider::Result
 {
 	//TRACEST(_T("InfoDownloadManager::HandleAlbumPic"));
 	ASSERT(albID != 0 && result.IsValid());
-	PrgAPI* pAPI = PRGAPI();
-	SQLManager* pSM = pAPI->GetSQLManager();
-	LocalPictureManager* pLPM = pAPI->GetLocalPictureManager();
 	FullAlbumRecordSP rec;
-	if (pSM->GetFullAlbumRecordByID(rec, albID))
+	if (m_sqlManager.GetFullAlbumRecordByID(rec, albID))
 	{
-		if (!pLPM->AddAlbumPicture(*rec, result.main))
+		if (!m_host->AddAlbumPicture(*rec, result.main))
 		{
 			//It happens when the same picture exists
 			return TRUE;//Request more results
 		}
-		pAPI->SendMessage(SM_PictureChanged);
+		m_host->SendStateMessage(SM_PictureChanged);
 		TCHAR msg[500];
 		_sntprintf(msg, 500, _T("%s: %s"), rec->artist.name.c_str(), rec->album.name.c_str());
-		NotifyUserForSuccess(pAPI->GetString(IDS_ALBUMPICTURE), 
+		NotifyUserForSuccess(Str(IDS_ALBUMPICTURE),  
 			msg, 
 			result.additionalInfo);
 	}
@@ -532,65 +538,41 @@ BOOL InfoDownloadManager::HandleTrackInfo(UINT traID, const IInfoProvider::Resul
 	ASSERT(traID != 0 && result.IsValid());
 	if (m_bCancelAll)
 		return FALSE;
-	PrgAPI* pAPI = PRGAPI();
-	SQLManager* pSM = pAPI->GetSQLManager();
+	SQLManager* pSM = &m_sqlManager;
 	FullTrackRecordSP tr;
 	if (pSM->GetFullTrackRecordByID(tr, traID))
 	{
+		if (iit != IIT_TrackLyrics && iit != IIT_TrackTablatures)
+		{
+			ASSERT(0);
+			return FALSE;
+		}
 		BOOL bRefuse = FALSE;
 		std::tstring info = result.main;
 		if (!m_bAcceptAll)
 		{
-			ActionManager* pAM = pAPI->GetActionManager();
-			CInfoQueryDlg dlgQuery;//(AfxGetMainWnd());
 			TCHAR msg[1000];
-			_sntprintf(msg, 1000, 
+			_sntprintf(msg, 1000,
 				_T("%s: %s - %s\r\n%s: %s"),
-				pAPI->GetString(IDS_TITLE), tr->track.name.c_str(), tr->artist.name.c_str(),
-				pAPI->GetString(IDS_PROVIDER), result.additionalInfo);
+				Str(IDS_TITLE), tr->track.name.c_str(), tr->artist.name.c_str(),
+				Str(IDS_PROVIDER), result.additionalInfo);
 			msg[999] = 0;
-			int resID = IDS_LYRICS;
-			switch (iit)
+			switch (m_host->ConfirmTrackInfo(iit, Str(iit == IIT_TrackLyrics ? IDS_LYRICS : IDS_TABLATURES),
+				msg, result.additionalInfo, info))
 			{
-			case IIT_TrackLyrics:
-				resID = IDS_LYRICS;
-				break;
-			case IIT_TrackTablatures:
-				resID = IDS_TABLATURES;
-				dlgQuery.EnableFixedFont(TRUE);
-				break;
-			default:
-				ASSERT(0);
-				return FALSE;
-				break;
-			}
-			//Clears the context menu
-			//It does not work 100%.
-			//	WORKS: if the user has focused on tree/list and have a context
-			//	DONT WORK if the user have clicked the 'TS' button and the menu appears 
-			HWND hwndFous = ::GetFocus();
-			//TRACEHWND(_T("Focused Window"), hwndFous);
-			SendNotifyMessage(hwndFous, WM_CANCELMODE, 0, 0);
-
-			dlgQuery.SetExtraInfo(pAPI->GetString(resID), msg, result.additionalInfo);
-			dlgQuery.SetMainText(result.main);
-
-			switch (dlgQuery.DoModal())
-			{
-			case CInfoQueryDlg::RES_AcceptAll:
+			case Host::ANS_AcceptAll:
 				m_bAcceptAll = TRUE;
-				info = dlgQuery.GetMainText();
 				break;
-			case CInfoQueryDlg::RES_Accept:
-				info = dlgQuery.GetMainText();
+			case Host::ANS_Accept:
 				break;
-			case CInfoQueryDlg::RES_Retry:
+			case Host::ANS_Retry:
 				return TRUE;
-			case CInfoQueryDlg::RES_Cancel:
+			case Host::ANS_Cancel:
 				bRefuse = TRUE;
 				break;
-			case CInfoQueryDlg::RES_CancelAll:
-				m_pMTQueue->AbortJobs();
+			case Host::ANS_CancelAll:
+				if (m_pMTQueue != NULL)
+					m_pMTQueue->AbortJobs();
 				m_bCancelAll = TRUE;
 				bRefuse = TRUE;
 				break;
@@ -605,12 +587,13 @@ BOOL InfoDownloadManager::HandleTrackInfo(UINT traID, const IInfoProvider::Resul
 				TagInfo ti;
 				ti.Lyrics = info;
 				ti.validFields = TagInfo_Lyrics;
-				pAPI->GetActionManager()->TagTrack(tr->track.location.c_str(), ti);
+				m_host->TagTrack(tr->track.location.c_str(), ti);
 			}
-			pAPI->SendMessage(SM_InfoChanged);
+			m_host->SendStateMessage(SM_InfoChanged);
 			TCHAR msg[500];
 			_sntprintf(msg, 500, _T("%s: %s"), tr->artist.name.c_str(), tr->track.name.c_str());
-			NotifyUserForSuccess(pAPI->GetStringForInfoItemType(iit), 
+			msg[499] = 0;
+			NotifyUserForSuccess(AppStrings::ForInfoItemType(m_translation, iit),  
 				msg, 
 				result.additionalInfo);
 		}
@@ -619,9 +602,20 @@ BOOL InfoDownloadManager::HandleTrackInfo(UINT traID, const IInfoProvider::Resul
 }
 
 
+BOOL InfoDownloadManager::NextFinishedJob(JobSP& job)
+{
+	if (!m_syncFinished.empty())
+	{
+		job = m_syncFinished.front();
+		m_syncFinished.pop_front();
+		return TRUE;
+	}
+	return m_pMTQueue != NULL && m_pMTQueue->RetrieveFinishedJob(job);
+}
+
 void InfoDownloadManager::ConsumeResult()
 {
-	if (m_pMTQueue == NULL)
+	if (m_pMTQueue == NULL && m_syncFinished.empty())
 		return;
 	ReEntryLock lock(m_bReEntranceProtection);
 	if (lock.WasAlreadyLocked())
@@ -629,10 +623,8 @@ void InfoDownloadManager::ConsumeResult()
 		TRACE(_T("@2InfoDownloadManager::ConsumeResult. Re-entrance protection\r\n"));
 		return;
 	}
-	PrgAPI* pAPI = PRGAPI();
-	SQLManager* pSM = pAPI->GetSQLManager();
 	JobSP job;
-	while (m_pMTQueue->RetrieveFinishedJob(job))
+	while (NextFinishedJob(job))
 	{
 		InfoProviderJob* pInfoJob = dynamic_cast<InfoProviderJob*>(job.get());
 		ASSERT(pInfoJob != NULL);
@@ -678,7 +670,7 @@ void InfoDownloadManager::ConsumeResult()
 				ASSERT(0);//None handle it
 			}
 			if (bContinueGettingResults)
-				m_pMTQueue->AddJob(job);
+				GetQueue().AddJob(job);
 			//else
 			//	pSM->DeleteInfoRecordResult(pInfoJob->GetItemID(), iit);
 		}
@@ -740,14 +732,24 @@ void InfoDownloadManager::ConsumeResult()
 				//pSM->AddOrUpdateInfoRecordRequestRecord(irr);
 
 				TCHAR bf[1000];
-				_sntprintf(bf, 1000, _T("%s | %s: %s | %s"),	
-					pAPI->GetString(IDS_FAILURE), 
-					pAPI->GetString(IDS_TYPE), pAPI->GetStringForInfoItemType(iit),
+				_sntprintf(bf, 1000, _T("%s | %s: %s | %s"),
+					Str(IDS_FAILURE),
+					Str(IDS_TYPE), AppStrings::ForInfoItemType(m_translation, iit),
 					msg);
 				bf[999] = 0;
-				pAPI->NotifyUser(bf, 0, SEV_Warning);
+				m_host->NotifyUser(bf, SEV_Warning);
 			}
 		}
+	}
+	//=== "Accept all" lasts for the current batch of lyrics/tablatures: until no
+	//=== job is waiting, running or finished but not handled yet (one snapshot)
+	if (m_syncFinished.empty())
+	{
+		MultiThreadJobQueue::JobStatisics stats;
+		if (m_pMTQueue != NULL)
+			stats = m_pMTQueue->GetStatistics();
+		if (stats.waiting + stats.working + stats.finished == 0)
+			m_bAcceptAll = FALSE;
 	}
 }
 

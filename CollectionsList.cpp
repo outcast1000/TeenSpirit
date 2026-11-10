@@ -159,7 +159,8 @@ void CCollectionsList::UpdateControl()
 {
 	SQLManager* pSM = PRGAPI()->GetSQLManager();
 	m_CRC.clear();
-	pSM->GetCollectionRecordCollectionByTracksFilter(m_CRC, TracksFilter(), TRUE);
+	TracksFilter tf;
+	pSM->GetCollectionRecordCollectionByTracksFilter(m_CRC, tf, TRUE);
 	if (GetItemCount() != m_CRC.size())
 		SetItemCount(m_CRC.size());
 	Refresh();

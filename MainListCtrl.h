@@ -22,7 +22,7 @@ public:
 	CMainListCtrl();
 	virtual ~CMainListCtrl();
 
-	BOOL Create(DWORD style, CRect& rc, CWnd* pParent, UINT nID);
+	BOOL Create(DWORD style, const CRect& rc, CWnd* pParent, UINT nID);
 
 	void Update();
 	void InvalidateInfoIcons();

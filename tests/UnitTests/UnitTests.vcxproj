@@ -32,8 +32,8 @@
       <AdditionalIncludeDirectories>$(JaangleRoot);$(JaangleRoot)CommonSources;$(JaangleRoot)Database;$(JaangleRoot)Taggers;$(JaangleAdoDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
-      <ConformanceMode>false</ConformanceMode>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <!-- #import (ADO type libraries) is incompatible with /MP -->
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <ObjectFileName>$(IntDir)%(Filename).obj</ObjectFileName>

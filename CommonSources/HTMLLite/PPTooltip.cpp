@@ -1845,14 +1845,14 @@ void CPPToolTip::AddTool(CWnd * pWnd, LPCTSTR lpszString, HICON hIcon, LPCRECT l
 	AddTool(pWnd, str, lpRectBounds, dwIDTool);
 }
 
-void CPPToolTip::AddTool(CWnd * pWnd, DWORD dwIdString, DWORD dwIdIcon, CSize & szIcon /* = CSize(0, 0) */, LPCRECT lpRectBounds /*= NULL*/, DWORD dwIDTool /*= 0*/)
+void CPPToolTip::AddTool(CWnd * pWnd, DWORD dwIdString, DWORD dwIdIcon, const CSize & szIcon /* = CSize(0, 0) */, LPCRECT lpRectBounds /*= NULL*/, DWORD dwIDTool /*= 0*/)
 {
 	CString str;
 	str.LoadString(dwIdString);
 	AddTool(pWnd, (LPCTSTR)str, dwIdIcon, szIcon, lpRectBounds, dwIDTool);
 }
 
-void CPPToolTip::AddTool(CWnd * pWnd, LPCTSTR lpszString, DWORD dwIdIcon, CSize & szIcon /* = CSize(0, 0) */, LPCRECT lpRectBounds /*= NULL*/, DWORD dwIDTool /*= 0*/)
+void CPPToolTip::AddTool(CWnd * pWnd, LPCTSTR lpszString, DWORD dwIdIcon, const CSize & szIcon /* = CSize(0, 0) */, LPCRECT lpRectBounds /*= NULL*/, DWORD dwIDTool /*= 0*/)
 {
 	CString str;
 	str.Format(_T("<table><tr><td><icon idres=%d width=%d height=%d></td><td>%s</td></tr></table>"), 
@@ -1860,7 +1860,7 @@ void CPPToolTip::AddTool(CWnd * pWnd, LPCTSTR lpszString, DWORD dwIdIcon, CSize 
 	AddTool(pWnd, str, lpRectBounds, dwIDTool);
 }
 
-void CPPToolTip::AddTool(CWnd * pWnd, LPCTSTR lpszString, DWORD dwIdBitmap, COLORREF crMask, CSize & szBitmap /*= CSize(0, 0)*/, LPCRECT lpRectBounds /*= NULL*/, DWORD dwIDTool /*= 0*/)
+void CPPToolTip::AddTool(CWnd * pWnd, LPCTSTR lpszString, DWORD dwIdBitmap, COLORREF crMask, const CSize & szBitmap /*= CSize(0, 0)*/, LPCRECT lpRectBounds /*= NULL*/, DWORD dwIDTool /*= 0*/)
 {
 	CString str;
 	str.Format(_T("<table><tr><td><bmp idres=%d mask=0x%X width=%d height=%d></td><td>%s</td></tr></table>"), 
@@ -2606,7 +2606,7 @@ void CPPToolTip::ShowHelpTooltip(LPPOINT pt, DWORD dwIdText, HICON hIcon /* = NU
 	ShowHelpTooltip(pt, (LPCTSTR)str, hIcon);
 } //End ShowHelpTooltip
 
-void CPPToolTip::ShowHelpTooltip(LPPOINT pt, DWORD dwIdText, DWORD dwIdIcon, CSize & szIcon /* = CSize(0, 0) */)
+void CPPToolTip::ShowHelpTooltip(LPPOINT pt, DWORD dwIdText, DWORD dwIdIcon, const CSize & szIcon /* = CSize(0, 0) */)
 {
 	CString str;
 	str.LoadString(dwIdText);
@@ -2630,7 +2630,7 @@ void CPPToolTip::ShowHelpTooltip(LPPOINT pt, LPCTSTR lpszString, HICON hIcon /* 
 	ShowHelpTooltip(pt, ti);
 } //End ShowHelpTooltip
 
-void CPPToolTip::ShowHelpTooltip(LPPOINT pt, LPCTSTR lpszString, DWORD dwIdIcon, CSize & szIcon /* = CSize(0, 0) */)
+void CPPToolTip::ShowHelpTooltip(LPPOINT pt, LPCTSTR lpszString, DWORD dwIdIcon, const CSize & szIcon /* = CSize(0, 0) */)
 {
 	CString str;
 	str.Format(_T("<table><tr><td><icon idres=%d width=%d height=%d></td><td>%s</td></tr></table>"), 

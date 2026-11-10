@@ -479,7 +479,10 @@ void CInfoCtrl::OnSize(UINT nType, int cx, int cy)
 	}
 	//Fade code end
 	if (m_hWnd && cx > 0 && cy > 0)
-		DrawStuff(m_memDC, CRect(0,0,cx,cy), FALSE);
+	{
+		CRect rc(0, 0, cx, cy);
+		DrawStuff(m_memDC, rc, FALSE);
+	}
 	CWnd::OnSize(nType, cx, cy);
 	//m_ScrollHelper.OnSize(nType, cx, cy);
 	// TODO: Add your message handler code here

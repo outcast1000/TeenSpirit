@@ -89,7 +89,8 @@ void CAnimationWnd::DrawAnimation(CDC& dc, CRect& rc)
 		INT curColumn = m_curFrame % imgPerLine;
 		INT srcX = curColumn * m_cx;
 		INT srcY = curLine * m_cy;
-		m_picDrawer.Draw(dc, rc, &CRect(srcX, srcY, srcX + m_cx, srcY + m_cy));
+		CRect srcRC(srcX, srcY, srcX + m_cx, srcY + m_cy);
+		m_picDrawer.Draw(dc, rc, &srcRC);
 	}
 	else
 		m_picDrawer.Draw(dc, rc);

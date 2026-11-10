@@ -127,5 +127,5 @@ Last.fm), or compiled in: see `ApiKeys.h` (real keys go in the gitignored
 
 ## Known build compromises (to be removed)
 
-- C++14, `/permissive` (conformance mode off) and warning C4996 disabled, to keep the
-  legacy code compiling unchanged.
+- Warning C4996 disabled, so the legacy unsafe CRT string calls (`_tcscpy`, `sprintf`, ...)
+  compile unchanged. (The code is C++17 with `/permissive-`.)

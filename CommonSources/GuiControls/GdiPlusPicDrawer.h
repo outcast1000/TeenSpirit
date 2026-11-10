@@ -90,11 +90,11 @@ public:
 
 	void Destroy();
 
-	BOOL Draw(HDC hdc, CRect& trgRC, CRect* pSrcRC = NULL);
-	BOOL Draw(Graphics& g, Rect& trgRC, Rect* pSrcRC = NULL, OUT Rect* pActualImageRC = NULL);
+	BOOL Draw(HDC hdc, const CRect& trgRC, const CRect* pSrcRC = NULL);
+	BOOL Draw(Graphics& g, const Rect& trgRC, const Rect* pSrcRC = NULL, OUT Rect* pActualImageRC = NULL);
 
 	BOOL HasImage()						{return m_pImage != NULL;}
-	DOUBLE GetZoomForLockMode(Rect& trgRC, ZoomLockMode zlm);
+	DOUBLE GetZoomForLockMode(const Rect& trgRC, ZoomLockMode zlm);
 
 	Graphics* GetInternalGraphics();
 	Bitmap* GetInternalBitmap()				{return m_pImage;}

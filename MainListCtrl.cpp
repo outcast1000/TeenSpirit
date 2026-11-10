@@ -1384,7 +1384,7 @@ BOOL CMainListCtrl::OnCommand(WPARAM wParam, LPARAM lParam)
 	return handled;
 }
 
-BOOL CMainListCtrl::Create(DWORD style, CRect& rc, CWnd* pParent, UINT nID)
+BOOL CMainListCtrl::Create(DWORD style, const CRect& rc, CWnd* pParent, UINT nID)
 {
 	if (CListCtrl::Create(style | WS_CHILD | LVS_REPORT | LVS_OWNERDATA | LVS_SHOWSELALWAYS , rc, pParent, nID))
 	{

@@ -84,8 +84,9 @@ test needs the 32-bit Jet 4.0 OLE DB provider.
 
 ## Conventions and gotchas
 
-- Build compromises kept deliberately for the legacy code: C++14, `/permissive` (ConformanceMode
-  off), C4996 disabled, Unicode, static MFC, `WINVER` = Windows 7.
+- C++17 with `/permissive-` (ConformanceMode on) in all three projects; the build is warning-free,
+  keep it that way. Still deliberate for the legacy code: C4996 disabled (unsafe CRT string calls),
+  Unicode, static MFC, `WINVER` = Windows 7.
 - `.gitattributes` sets `* -text` (no line-ending conversion — preserve each file's existing
   endings). Some files are **UTF-16LE with BOM** in the working tree (all `*.lng`, `changelog.txt`,
   and a few `.cpp` files listed in `.gitattributes`); edit them in a way that keeps that encoding.

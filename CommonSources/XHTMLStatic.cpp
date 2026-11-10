@@ -1115,7 +1115,7 @@ int CXHTMLStatic::FormatText(HDC hdc,
 		return 0;
 
 	// set initial size
-	TCHAR * szTest = _T("abcdefgABCDEFG");
+	LPCTSTR szTest = _T("abcdefgABCDEFG");
 	GetTextExtentPoint32(hdc, szTest, (int)_tcslen(szTest), &size);
 
 	// prepare for next line - clear out the error term

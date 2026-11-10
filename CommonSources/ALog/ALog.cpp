@@ -460,7 +460,7 @@ void ALog::LogHWND(LPCTSTR description, HWND hwnd)
 		ttlName[0] = 0;
 	}
 	bf[0] = 0;
-	_sntprintf(bf, 1000, _T("%s\r\n\tCLS:'%s'\r\n\tTXT:'%s'\r\n\thwnd:%d\r\n"), 
+	_sntprintf(bf, 1000, _T("%s\r\n\tCLS:'%s'\r\n\tTXT:'%s'\r\n\thwnd:%p\r\n"),
 		description, clsName, ttlName, hwnd);
 	bf[999] = 0;
 	LogUnsafe(bf);

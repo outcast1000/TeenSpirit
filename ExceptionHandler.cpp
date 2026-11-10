@@ -141,7 +141,7 @@ static const CHAR *GetExceptionDescription(DWORD ExceptionCode)
 	struct ExceptionNames
 	{
 		DWORD	ExceptionCode;
-		CHAR*	ExceptionName;
+		const CHAR*	ExceptionName;
 	};
 	ExceptionNames ExceptionMap[] =
 	{
@@ -288,10 +288,11 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS pExceptPtrs,
 
 		PROCESS_INFORMATION pi;
 		ZeroMemory(&pi, sizeof(pi));
+		TCHAR cmdLine[] = _T("start");
 
 		if (CreateProcess(
 			reportExe,				// name of executable module
-			_T("start"),			// command line string
+			cmdLine,						// command line string
 			NULL,					// process attributes
 			NULL,					// thread attributes
 			FALSE,					// handle inheritance option

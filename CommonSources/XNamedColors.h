@@ -82,7 +82,7 @@ private:
 	struct COLORNAMES
 	{
 		COLORREF	color;
-		TCHAR*		pszName;
+		LPCTSTR		pszName;
 	};
 	static const COLORNAMES m_aColorNames[];
 	static const int m_nNamedColors;

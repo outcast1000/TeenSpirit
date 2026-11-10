@@ -665,13 +665,13 @@ void CQuizRunningDlg::OnSize(UINT nType, int cx, int cy)
 
 
 	INT cury = 0; 
-	m_title.MoveWindow(&CRect(0, cury, cx, cury + cMainHeight));
+	m_title.MoveWindow(CRect(0, cury, cx, cury + cMainHeight));
 	cury += cMainHeight; 
-	m_subTitle.MoveWindow(&CRect(0, cury, cx, cury + cMainHeight / 2));
+	m_subTitle.MoveWindow(CRect(0, cury, cx, cury + cMainHeight / 2));
 	cury += cMainHeight / 2;
 	cury += cMargin;
-	m_info.MoveWindow(&CRect(0, cury, cx / 2, cury + 2 * cMainHeight));
-	m_result.MoveWindow(&CRect(cx / 2, cury, cx, cury + 2 * cMainHeight));
+	m_info.MoveWindow(CRect(0, cury, cx / 2, cury + 2 * cMainHeight));
+	m_result.MoveWindow(CRect(cx / 2, cury, cx, cury + 2 * cMainHeight));
 	//CRect rcMediaPlayer(mpDividerPos + cMargin, cury, cx - cMargin, cury + 4 * cMainHeight);
 	cury += 2 * cMainHeight + 2 * cMargin;
 

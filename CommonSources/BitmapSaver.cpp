@@ -59,7 +59,7 @@ BOOL BitmapSaver::IsPictureInClipboard()
 	if (OpenClipboard(NULL))
 	{
 		//Get the clipboard data
-		bRet = (HBITMAP)GetClipboardData(CF_BITMAP) > 0;
+		bRet = (HBITMAP)GetClipboardData(CF_BITMAP) != NULL;
 		CloseClipboard();
 	}
 	return bRet;

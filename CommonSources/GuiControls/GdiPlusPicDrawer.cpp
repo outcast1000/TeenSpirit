@@ -37,16 +37,19 @@ GdiPlusPicDrawer::~GdiPlusPicDrawer()
 	Destroy();
 }
 
-BOOL GdiPlusPicDrawer::Draw(HDC hdc, CRect& trgRC, CRect* pSrcRC/* = NULL*/)
+BOOL GdiPlusPicDrawer::Draw(HDC hdc, const CRect& trgRC, const CRect* pSrcRC/* = NULL*/)
 {
 	Graphics g(hdc);
-	return Draw(g, 
-		Rect(trgRC.left, trgRC.top, trgRC.Width(), trgRC.Height()), 
-		(pSrcRC == NULL ? NULL : &Rect(pSrcRC->left, pSrcRC->top, pSrcRC->Width(), pSrcRC->Height()))
+	Rect srcRC;
+	if (pSrcRC != NULL)
+		srcRC = Rect(pSrcRC->left, pSrcRC->top, pSrcRC->Width(), pSrcRC->Height());
+	return Draw(g,
+		Rect(trgRC.left, trgRC.top, trgRC.Width(), trgRC.Height()),
+		(pSrcRC == NULL ? NULL : &srcRC)
 		);
 }
 
-BOOL GdiPlusPicDrawer::Draw(Graphics& g, Rect& trgRC, Rect* pSrcRC/* = NULL*/, OUT Rect* pActualImageRC/* = NULL*/)
+BOOL GdiPlusPicDrawer::Draw(Graphics& g, const Rect& trgRC, const Rect* pSrcRC/* = NULL*/, OUT Rect* pActualImageRC/* = NULL*/)
 {
 	if (m_drawParams.bTransparent == FALSE)
 		g.FillRectangle(&m_bkBrush, trgRC.X, trgRC.Y, trgRC.Width, trgRC.Height);
@@ -140,7 +143,7 @@ BOOL GdiPlusPicDrawer::Draw(Graphics& g, Rect& trgRC, Rect* pSrcRC/* = NULL*/, O
 	return FALSE;
 }
 
-DOUBLE GdiPlusPicDrawer::GetZoomForLockMode(Rect& trgRC, ZoomLockMode zlm)
+DOUBLE GdiPlusPicDrawer::GetZoomForLockMode(const Rect& trgRC, ZoomLockMode zlm)
 {
 	if (m_pImage != NULL && m_pImage->GetWidth() && m_pImage->GetHeight())
 	{

@@ -41,7 +41,7 @@ public:
 
 	T* Get(DWORD id)
 	{
-		std::map<DWORD, CacheItem>::iterator it = m_storage.find(id);
+		typename std::map<DWORD, CacheItem>::iterator it = m_storage.find(id);
 		if (it == m_storage.end())
 			return NULL;
 		CacheItem& cit = it->second;
@@ -50,7 +50,7 @@ public:
 	}
 	void Set(DWORD id, T* item)
 	{
-		std::map<DWORD, CacheItem>::iterator it = m_storage.find(id);
+		typename std::map<DWORD, CacheItem>::iterator it = m_storage.find(id);
 		if (it != m_storage.end())
 		{
 			CacheItem& cit = it->second;
@@ -73,7 +73,7 @@ public:
 private:
 	void CleanUp()
 	{
-		std::map<DWORD, CacheItem>::iterator it = m_storage.begin();
+		typename std::map<DWORD, CacheItem>::iterator it = m_storage.begin();
 		UINT smallestTick = 0xffffffff;
 		CacheItem* smallestCI = NULL;
 		for (;it != m_storage.end(); it++)
@@ -86,9 +86,9 @@ private:
 
 	void RemoveItem()
 	{
-		std::map<DWORD, CacheItem>::iterator it = m_storage.begin();
+		typename std::map<DWORD, CacheItem>::iterator it = m_storage.begin();
 		UINT smallestTick = 0xffffffff;
-		std::map<DWORD, CacheItem>::iterator foundItem = it;
+		typename std::map<DWORD, CacheItem>::iterator foundItem = it;
 		for (;it != m_storage.end(); it++)
 		{
 			CacheItem& ci = it->second;

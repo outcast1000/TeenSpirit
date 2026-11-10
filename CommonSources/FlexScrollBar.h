@@ -46,7 +46,7 @@ public:
 
 	//void GetClientRect(RECT* rc);
 
-	void SetScrollerRect(Gdiplus::Rect& rc);
+	void SetScrollerRect(const Gdiplus::Rect& rc);
 	const Gdiplus::Rect& GetScrollerRect()	{return m_scrollerRect;}
 	
 	//===Events

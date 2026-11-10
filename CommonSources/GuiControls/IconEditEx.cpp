@@ -209,7 +209,8 @@ void CIconEditEx::ReSize(int cx, int cy )
 	{
 		right -= (cMargin + m_cx);
 	}
-	SetRect(&CRect(left, top, right, cy - top));
+	CRect rcEdit(left, top, right, cy - top);
+	SetRect(&rcEdit);
 }
 
 HBRUSH CIconEditEx::CtlColor(CDC* pDC, UINT nCtlColor)

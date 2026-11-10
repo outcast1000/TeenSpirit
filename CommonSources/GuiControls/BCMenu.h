@@ -201,8 +201,8 @@ public:
 		BCMenu::xp_select_disabled=mode;
 	};
 
-	static int BCMenu::GetMenuDrawMode(void);
-	static BOOL BCMenu::GetSelectDisableMode(void);
+	static int GetMenuDrawMode(void);
+	static BOOL GetSelectDisableMode(void);
 
 	// how the bitmaps are drawn in XP Luna mode
 	static void SetXPBitmap3D(BOOL val){
@@ -231,7 +231,7 @@ protected:
 	static BOOL IsWinXPLuna(void);
 	static BOOL IsLunaMenuStyle(void);
 	static BOOL IsWindowsClassicTheme(void);
-	BCMenuData *BCMenu::FindMenuItem(UINT nID);
+	BCMenuData *FindMenuItem(UINT nID);
 	BCMenu *FindMenuOption(int nId,int& nLoc);
 	BCMenu *FindAnotherMenuOption(int nId,int& nLoc,CArray<BCMenu*,BCMenu*>&bcsubs,
 								  CArray<int,int&>&bclocs);
@@ -241,9 +241,9 @@ protected:
 	void DrawRadioDot(CDC *pDC,int x,int y,COLORREF color);
 	BCMenuData *NewODMenu(UINT pos,UINT nFlags,UINT nID,CString string);
 	void SynchronizeMenu(void);
-	void BCMenu::InitializeMenuList(int value);
-	void BCMenu::DeleteMenuList(void);
-	BCMenuData *BCMenu::FindMenuList(UINT nID);
+	void InitializeMenuList(int value);
+	void DeleteMenuList(void);
+	BCMenuData *FindMenuList(UINT nID);
 	void DrawItem_Win9xNT2000 (LPDRAWITEMSTRUCT lpDIS);
 	void DrawItem_WinXP (LPDRAWITEMSTRUCT lpDIS);
 	BOOL Draw3DCheckmark(CDC *dc, const CRect& rc,BOOL bSelected,HBITMAP hbmCheck);

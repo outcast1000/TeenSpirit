@@ -582,7 +582,8 @@ void DShowEngine::SetVideoPosition(int x, int y, int cx, int cy)
 	::MoveWindow(hwndVideo, x, y, cx, cy, FALSE);
 	if (m_pWindowlessControl != NULL)
 	{
-		m_pWindowlessControl->SetVideoPosition(0, &CRect(0,0,cx,cy));
+		CRect rcVideo(0, 0, cx, cy);
+		m_pWindowlessControl->SetVideoPosition(0, &rcVideo);
 	}
 	else if (m_pVideoWindow != NULL)
 	{

@@ -329,7 +329,7 @@ BOOL ILanguageUtilities::GetLanguageInfo(LPCTSTR langFileData, LanguageInfo& lan
 		{
 			LPCTSTR eqPos = _tcschr(startPos, '=');
 			LPCTSTR lineEndPos = _tcschr(startPos, 13);
-			if (eqPos > 0 && (eqPos < lineEndPos || lineEndPos == 0))
+			if (eqPos != NULL && (eqPos < lineEndPos || lineEndPos == 0))
 			{
 				if (startPos[1] == 0 || eqPos[1] == 0)
 					TRACE(_T("@1CLanguage::LoadLanguageFile War: (Unknown info field). Near:'%.20s'\r"), startPos);

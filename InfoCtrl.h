@@ -39,7 +39,7 @@ public:
 
 	BOOL SetActiveItem(FullTrackRecordSP& track);//, ItemTypeEnum desiredItemType, UINT delay = 0);
 	//BOOL GetActiveItem(FullTrackRecordSP& track);
-	const FullTrackRecordSP& CInfoCtrl::GetActiveItem();
+	const FullTrackRecordSP& GetActiveItem();
 
 	//FullTrackRecordSP& GetActiveItem();
 	void SetStyle(ItemTypeEnum itStyle);

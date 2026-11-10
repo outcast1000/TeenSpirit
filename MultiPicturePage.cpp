@@ -315,7 +315,7 @@ BOOL CMultiPicturePage::OnCommand(WPARAM wParam, LPARAM lParam)
 			fd.m_ofn.Flags |= OFN_EXPLORER;
 			if (fd.DoModal() == IDOK)
 			{
-				PicInfoStore pic = {fd.GetPathName(), PS_AddedByFile, FALSE};
+				PicInfoStore pic = {(LPCTSTR)fd.GetPathName(), PS_AddedByFile, FALSE};
 				m_pics.push_back(pic);
 				m_curPic = m_pics.size() - 1;
 				m_bSomethingChanged = TRUE;

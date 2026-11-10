@@ -85,7 +85,7 @@ private:
 	BOOL RemoveSystemButton(INT nID);
 
 	void SetButton(FlexButton& btn, LPCTSTR text, HICON hIcon, UINT cxIcon, UINT cyIcon);;
-	FlexButton* TSPaneContainer::FindButton(INT nID, ButtonCollection& btnCollection);
+	FlexButton* FindButton(INT nID, ButtonCollection& btnCollection);
 
 	void RemoveButtons(BOOL bLeft);
 	void DrawPaneCaption(CDC& dc);

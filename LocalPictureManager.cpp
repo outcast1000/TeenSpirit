@@ -478,7 +478,9 @@ DWORD LocalPictureManager::CalculateCacheUID(InfoItemTypeEnum iit, UINT itemID)
 
 BOOL LocalPictureManager::DrawDefaultThumbnail(InfoItemTypeEnum iit, HDC hdc, RECT& rcDest)
 {
-	return DrawDefaultThumbnail(iit, Gdiplus::Graphics(hdc), Gdiplus::Rect(rcDest.left, rcDest.top, rcDest.right - rcDest.left, rcDest.bottom - rcDest.top));
+	Gdiplus::Graphics g(hdc);
+	Gdiplus::Rect rc(rcDest.left, rcDest.top, rcDest.right - rcDest.left, rcDest.bottom - rcDest.top);
+	return DrawDefaultThumbnail(iit, g, rc);
 }
 
 BOOL LocalPictureManager::DrawDefaultThumbnail(InfoItemTypeEnum iit, Gdiplus::Graphics& g, Gdiplus::Rect& rcDest)
@@ -488,7 +490,9 @@ BOOL LocalPictureManager::DrawDefaultThumbnail(InfoItemTypeEnum iit, Gdiplus::Gr
 
 BOOL LocalPictureManager::DrawThumbnail(InfoItemTypeEnum iit, UINT itemID, HDC hdc, RECT& rcDest)
 {
-	return DrawThumbnail(iit, itemID, Gdiplus::Graphics(hdc), Gdiplus::Rect(rcDest.left, rcDest.top, rcDest.right - rcDest.left, rcDest.bottom - rcDest.top));
+	Gdiplus::Graphics g(hdc);
+	Gdiplus::Rect rc(rcDest.left, rcDest.top, rcDest.right - rcDest.left, rcDest.bottom - rcDest.top);
+	return DrawThumbnail(iit, itemID, g, rc);
 }
 
 

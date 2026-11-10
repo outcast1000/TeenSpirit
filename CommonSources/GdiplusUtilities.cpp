@@ -39,7 +39,8 @@ Gdiplus::Bitmap* GdiplusUtilities::FromHICON32(HICON hIcon)
 	{
 		ret = new Gdiplus::Bitmap(bitmapData.bmWidth, bitmapData.bmHeight, PixelFormat32bppARGB);
 		Gdiplus::BitmapData bmpData;
-		ret->LockBits(&Gdiplus::Rect(0,0,bitmapData.bmWidth, bitmapData.bmHeight), Gdiplus::ImageLockModeWrite, PixelFormat32bppARGB, &bmpData);
+		Gdiplus::Rect lockRect(0, 0, bitmapData.bmWidth, bitmapData.bmHeight);
+		ret->LockBits(&lockRect, Gdiplus::ImageLockModeWrite, PixelFormat32bppARGB, &bmpData);
 #ifndef GetDIBitsVERSION
 		//===Version GetBitmapBits
 		// THIS FUNCTION IS UNDER TESTING. WHAT IF THE bitmap stride is different? Where will the new data go?

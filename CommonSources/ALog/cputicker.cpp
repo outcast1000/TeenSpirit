@@ -282,8 +282,8 @@ __int64 CCPUTicker::Measure()
 #pragma optimize("",off)
 BOOL CCPUTicker::GetCPUFrequency(double& frequency, double& target_ave_dev, unsigned long interval, unsigned int max_loops)
 {
-	register LARGE_INTEGER goal,period,current;
-	register unsigned int ctr=0;
+	LARGE_INTEGER goal,period,current;
+	unsigned int ctr=0;
 	double curr_freq,ave_freq;	// In Hz.
 	double ave_dev,tmp=0;
 	CCPUTicker s,f;
@@ -373,7 +373,7 @@ void CCPUTicker::Dump(CDumpContext& dc) const
 	dc<<_T("\nCurrent value of counter is:");
 
   TCHAR sNum[20];
-  _stprintf(sNum, _T("%I64lu"), m_TickCount);
+  _stprintf(sNum, _T("%I64d"), m_TickCount);
   dc << sNum <<_T('\n');
 }
 #endif //_DEBUG

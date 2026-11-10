@@ -440,7 +440,7 @@ LPWSTR HTMLText2Unicode(LPCSTR html, UINT size/* = -1*/)
 	{
 		startPos += 9;
 		const CHAR* endPos = strchr(startPos, '"');
-		if (endPos > 0 && endPos - startPos < 30)
+		if (endPos != NULL && endPos - startPos < 30)
 		{
 			CHAR bf[30];
 			strncpy(bf, startPos, endPos - startPos);

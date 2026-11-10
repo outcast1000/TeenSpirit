@@ -64,7 +64,7 @@ public:
 		HBRUSH bkBrush = bIsExpandable ? expandableBrush : notExpandableBrush;
 		if (nfo.bSelected)
 			bkBrush = selectedBrush;
-		::FillRect(hdc, &CRect(nfo.fullRC.X, nfo.fullRC.Y, nfo.fullRC.GetRight(), nfo.fullRC.GetBottom()), bkBrush);
+		::FillRect(hdc, CRect(nfo.fullRC.X, nfo.fullRC.Y, nfo.fullRC.GetRight(), nfo.fullRC.GetBottom()), bkBrush);
 		
 		HFONT oldFont = NULL;
 		INT X = nfo.itemRC.X + cMargin;
@@ -131,7 +131,7 @@ public:
 			::SetTextColor(hdc, textColor);
 			oldFont = (HFONT)::SelectObject(hdc, pTitleFont->m_hObject);
 			DrawText(hdc, firstPart, -1, 
-				&CRect(xStart, 
+				CRect(xStart, 
 				yStart, 
 				nfo.itemRC.GetRight(), 
 				yStart + lineHeight), 
@@ -144,7 +144,7 @@ public:
 				DrawText(hdc, 
 					secondPart, 
 					-1, 
-					&CRect(X, 
+					CRect(X, 
 					yStart, 
 					nfo.itemRC.GetRight(), 
 					nfo.itemRC.GetBottom()), 

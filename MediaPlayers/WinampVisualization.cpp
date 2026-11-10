@@ -400,7 +400,7 @@ DWORD WINAPI WinampVisualization::VisThread()
 	UnregisterClass(cWinampClassName, AfxGetInstanceHandle());
 	if (m_hwndContainer)
 		::InvalidateRect(m_hwndContainer, NULL, TRUE);
-	if (pluginInstance > 0)
+	if (pluginInstance != NULL)
 	{
 		FreeLibrary(pluginInstance);
 		pluginInstance = 0;

@@ -223,7 +223,10 @@ void CFlexListCtrl::OnPaint()
 			for (; it!=m_invalidatedItemsSet.end(); it++)
 			{
 				if ((INT)(*it)< nItemCount && IsItemVisible(*it, FALSE))
-					DrawItem(dblg, *it, GetItemRect(*it));
+				{
+					Gdiplus::Rect itemRC = GetItemRect(*it);
+					DrawItem(dblg, *it, itemRC);
+				}
 			}
 			Rect lastItemRC = GetItemRect(nItemCount - 1);
 			INT freeSpaceY = lastItemRC.Y + lastItemRC.Height;

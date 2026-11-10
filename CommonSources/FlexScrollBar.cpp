@@ -378,7 +378,7 @@ void FlexScrollbar::SetMouseDownSBB(SBButtons btn)
 	}
 }
 
-void FlexScrollbar::SetScrollerRect(Gdiplus::Rect& rc)	
+void FlexScrollbar::SetScrollerRect(const Gdiplus::Rect& rc)	
 {
 	if (rc.Width != m_scrollerRect.Width)
 		ClearBrushes();

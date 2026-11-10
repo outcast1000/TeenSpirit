@@ -65,7 +65,8 @@ char* cMD5::CalcMD5FromFile(LPCTSTR path)
 		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
 	if (h_File == INVALID_HANDLE_VALUE)
-		return "";
+		ms8_MD5[0] = 0;
+		return ms8_MD5;
 
 	int s32_Size = GetFileSize(h_File, 0);
 
@@ -75,7 +76,8 @@ char* cMD5::CalcMD5FromFile(LPCTSTR path)
 		if (!ReadFile(h_File, mp_s8ReadBuffer, _ReadBufSize, &u32_Read, 0))
 		{
 			CloseHandle(h_File);
-			return "";
+			ms8_MD5[0] = 0;
+			return ms8_MD5;
 		}
 
 		MD5Update((unsigned char*)mp_s8ReadBuffer, u32_Read);
@@ -274,7 +276,7 @@ void cMD5::MD5Final(unsigned char digest[16])
 */
 void cMD5::MD5Transform(unsigned long buf[4], unsigned long in[16])
 {
-	register unsigned long a, b, c, d;
+	unsigned long a, b, c, d;
 
 	a = buf[0];
 	b = buf[1];

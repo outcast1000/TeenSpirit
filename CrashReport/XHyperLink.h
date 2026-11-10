@@ -77,7 +77,7 @@ public:
 	}
 
     void SetLinkCursor(HCURSOR hCursor);
-	HCURSOR CXHyperLink::GetLinkCursor() const
+	HCURSOR GetLinkCursor() const
 	{
 		return m_hLinkCursor;
 	}

@@ -70,9 +70,9 @@ void CCountDownCtrl::OnPaint()
 	CFont* oldFont = dc.SelectObject(GetFont());
 	TCHAR bf[100];
 	if (m_unit == UN_ms)
-		_sntprintf(bf, 100, _T("%d.%0.3d ms"), INT(pos / 1000), pos % 1000);
+		_sntprintf_s(bf, _TRUNCATE, _T("%d.%0.3d ms"), INT(pos / 1000), pos % 1000);
 	else
-		_sntprintf(bf, 100, _T("%d"), pos);
+		_sntprintf_s(bf, _TRUNCATE, _T("%d"), pos);
 	bf[99] = 0;
 	dc.SetBkMode(TRANSPARENT);
 	dc.SetTextColor(m_colors[COL_Text]);

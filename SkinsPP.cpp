@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "cStringUtils.h"
 #include "TeenSpirit.h"
 #include "SkinsPP.h"
 #include "SkinManager.h"
@@ -79,12 +80,11 @@ void CSkinsPP::GetNameFromComboSelection(LPTSTR lngName, UINT bfLen)
 		int copyChars = (fnd - lngCode) - 1;
 		if (copyChars > 0 && copyChars < (int)bfLen)
 		{
-			_tcsncpy(lngName, lngCode, copyChars);
-			lngName[(fnd - lngCode) - 1] = 0;
+			StrCopyN(lngName, bfLen, (LPCTSTR)lngCode, copyChars);
 		}
 	}
 	else
-		_tcsncpy(lngName, lngCode, bfLen);
+		_tcsncpy_s(lngName, bfLen, lngCode, _TRUNCATE);
 
 }
 
@@ -253,7 +253,7 @@ void CSkinsPP::OnBnClickedUpdateSkin()
 	if (sPath == NULL)
 		return;
 	TCHAR skinPath[MAX_PATH];
-	_tcsncpy(skinPath, sPath, MAX_PATH);
+	_tcsncpy_s(skinPath, sPath, _TRUNCATE);
 
 	TCHAR skinInfoPath[MAX_PATH];
 	TSSkin::GetSkinInfoPath(skinPath, skinInfoPath, MAX_PATH);

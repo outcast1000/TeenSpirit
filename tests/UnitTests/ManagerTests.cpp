@@ -52,8 +52,7 @@ namespace
 		virtual UINT Read(LPCTSTR fileName, TagInfo& ti)
 		{
 			TCHAR title[MAX_PATH];
-			_tcsncpy(title, PathFindFileName(fileName), MAX_PATH - 1);
-			title[MAX_PATH - 1] = 0;
+			_tcsncpy_s(title, PathFindFileName(fileName), _TRUNCATE);
 			PathRemoveExtension(title);
 			ti.Title = title;
 			ti.Artist = L"Scan Artist";

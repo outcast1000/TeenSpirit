@@ -275,9 +275,9 @@ BOOL CToolbarWnd::OnCommand(WPARAM wParam, LPARAM lParam)
 
 				m_aboutMenu.SetFont(pAPI->GetFont(FONT_Dialogs));
 				TCHAR bf[300];
-				_sntprintf(bf, 300, _T("%s..."), pAPI->GetString(IDS_WEBSITE));
+				_sntprintf_s(bf, _TRUNCATE, _T("%s..."), pAPI->GetString(IDS_WEBSITE));
 				m_aboutMenu.AppendMenu(MF_STRING, ACMD_GotoWebSite, bf, pAPI->GetIcon(ICO_Internet16));
-				_sntprintf(bf, 300, _T("%s..."), pAPI->GetString(IDS_FORUM));
+				_sntprintf_s(bf, _TRUNCATE, _T("%s..."), pAPI->GetString(IDS_FORUM));
 				m_aboutMenu.AppendMenu(MF_STRING, ACMD_GotoForum, bf, pAPI->GetIcon(ICO_Internet16));
 			}
 			m_About.DisplayPopupMenu(&m_aboutMenu);
@@ -316,7 +316,7 @@ BOOL CToolbarWnd::OnCommand(WPARAM wParam, LPARAM lParam)
 				for (INT i = maxRelative; i >= -minRelative; i--)
 				{
 					TCHAR bf[20];
-					_sntprintf(bf, 20, _T("%s%d"), i > 0 ? _T("+") : _T(""), i);
+					_sntprintf_s(bf, _TRUNCATE, _T("%s%d"), i > 0 ? _T("+") : _T(""), i);
 					m_fontSizeMenu.AppendMenu(MF_STRING, ID_RELATIVE + i + minRelative, bf);
 					if (i == 0 || i == 1)
 						m_fontSizeMenu.AppendMenu(MF_SEPARATOR, 0, 0);

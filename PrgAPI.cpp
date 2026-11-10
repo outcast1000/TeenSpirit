@@ -390,7 +390,7 @@ BOOL PrgAPI::Init()
 	//===Check for Crash
 	LPCTSTR files[] = CRASHREPORT_FILES;
 	TCHAR crashLogPath[MAX_PATH];
-	_sntprintf(crashLogPath, MAX_PATH, _T("%s%s"), GetPath(PATH_AppRoot), files[0]);
+	_sntprintf_s(crashLogPath, _TRUNCATE, _T("%s%s"), GetPath(PATH_AppRoot), files[0]);
 	BOOL bCrashLogExists = FALSE;
 	if (_taccess(crashLogPath, 0) == 0)
 	{
@@ -433,7 +433,7 @@ BOOL PrgAPI::Init()
 	if (GetOption(OPT_GEN_Debugging) == 1)
 	{
 		TCHAR debugLogPath[MAX_PATH];
-		_sntprintf(debugLogPath, MAX_PATH, _T("%sdebug.log"), GetPath(PATH_AppRoot));
+		_sntprintf_s(debugLogPath, _TRUNCATE, _T("%sdebug.log"), GetPath(PATH_AppRoot));
 		ALog* pLog = ALog::Inst();
 		pLog->AddViewer(new PrunnedFileViewer(debugLogPath, 15));
 		pLog->SetOption(ALog::LO_MaxAllowedDepth, 5);
@@ -563,7 +563,11 @@ void PrgAPI::GetStringForSectionMode(SectionModesEnum sm, LPTSTR bf, UINT bfLen)
 		//TRACE(_T("bf: %u(%s)\r\n"), (INT)&bf[0], bf);
 		//TRACE(_T("bfLen:%u (%d)\r\n"), (INT)&bfLen, (INT) bfLen);
 		//TRACE(_T("curLen:%u(%d)\r\n"), (INT)&curLen, (INT)curLen);
-		INT len = _sntprintf(&bf[curLen], bfLen - curLen, _T("%s%s"), prefix, GetStringForSectionType(st));
+		if (curLen + 1 >= (INT)bfLen)
+			break;
+		INT len = _sntprintf_s(&bf[curLen], bfLen - curLen, _TRUNCATE, _T("%s%s"), prefix, GetStringForSectionType(st));
+		if (len < 0)
+			break;
 		curLen += len;
 		st = CMainTreeCtrl::GetChildForSectionType(sm, st);
 	}
@@ -657,7 +661,7 @@ void PrgAPI::WriteOptions()
 				if (m_pMediaPlayer->EngineSupports(MediaEngineConfigOption(i)))
 				{
 					TCHAR bf[20];
-					_sntprintf(bf, 20, _T("EQ%d"), i - MECO_EqualizerBandStart);
+					_sntprintf_s(bf, _TRUNCATE, _T("EQ%d"), i - MECO_EqualizerBandStart);
 					pAppSettings->Write(cPlayerSettings, bf, m_pMediaPlayer->GetEngineConfig(MediaEngineConfigOption(i)));
 				}
 
@@ -676,9 +680,9 @@ void PrgAPI::FormatDuration(LPTSTR bf, UINT bfLen, INT duration)
 	duration = duration - h * 3600;
 	INT m = duration / 60;
 	if (h == 0)
-		_sntprintf(bf, bfLen, _T("%d:%02d"), m, duration - m * 60);
+		_sntprintf_s(bf, bfLen, _TRUNCATE, _T("%d:%02d"), m, duration - m * 60);
 	else
-		_sntprintf(bf, bfLen, _T("%d:%02d:%02d"), h, m, duration - m * 60);
+		_sntprintf_s(bf, bfLen, _TRUNCATE, _T("%d:%02d:%02d"), h, m, duration - m * 60);
 	bf[bfLen - 1] = 0;
 }
 
@@ -772,7 +776,7 @@ MediaPlayer* PrgAPI::GetMediaPlayer()
 		for (INT i = MECO_EqualizerBandStart; i < MECO_EqualizerBandEnd; i++)
 		{
 			TCHAR bf[20];
-			_sntprintf(bf, 20, _T("EQ%d"), i - MECO_EqualizerBandStart);
+			_sntprintf_s(bf, _TRUNCATE, _T("EQ%d"), i - MECO_EqualizerBandStart);
 			INT val = 50;
 			GetAppSettings()->Read(cPlayerSettings, bf, val, 50);
 			eng->SetConfig(MediaEngineConfigOption(i), val);
@@ -933,7 +937,7 @@ HINTERNET PrgAPI::GetInternetHandle()
 		FileVersion fv;
 		GetFileVersion(fv);
 		TCHAR defAgent[200];
-		_sntprintf(defAgent, 200, _T("Jaangle/%d.%d.%d (+https://github.com/outcast1000/TeenSpirit)"), fv.Major, fv.Minor, fv.Build);
+		_sntprintf_s(defAgent, _TRUNCATE, _T("Jaangle/%d.%d.%d (+https://github.com/outcast1000/TeenSpirit)"), fv.Major, fv.Minor, fv.Build);
 		defAgent[199] = 0;
 		std::tstring agent = defAgent;
 		if (i != 0)
@@ -1046,7 +1050,7 @@ LPCTSTR PrgAPI::GetPath(PathsEnum pathType, LPTSTR buffer/* = NULL*/)
 	case PATH_SkinRoot:
 		{
 			TCHAR appRoot[MAX_PATH];
-			_sntprintf(buffer, MAX_PATH, _T("%sSkins\\"), GetPath(PATH_AppRoot, appRoot));
+			_sntprintf_s(buffer, MAX_PATH, _TRUNCATE, _T("%sSkins\\"), GetPath(PATH_AppRoot, appRoot));
 			if (!PathFileExists(buffer))
 				CreateDirectory(buffer, NULL);
 		}
@@ -1054,14 +1058,14 @@ LPCTSTR PrgAPI::GetPath(PathsEnum pathType, LPTSTR buffer/* = NULL*/)
 	case PATH_TranslationsRoot:
 		{
 			TCHAR appRoot[MAX_PATH];
-			_sntprintf(buffer, MAX_PATH, _T("%sLangs\\"), GetPath(PATH_AppRoot, appRoot));
+			_sntprintf_s(buffer, MAX_PATH, _TRUNCATE, _T("%sLangs\\"), GetPath(PATH_AppRoot, appRoot));
 			if (!PathFileExists(buffer))
 				CreateDirectory(buffer, NULL);
 		}
 		break;
 	case PATH_WebServicesRoot:
 		TCHAR appRoot[MAX_PATH];
-		_sntprintf(buffer, MAX_PATH, _T("%sWebServices\\"), GetPath(PATH_AppRoot, appRoot));
+		_sntprintf_s(buffer, MAX_PATH, _TRUNCATE, _T("%sWebServices\\"), GetPath(PATH_AppRoot, appRoot));
 		if (!PathFileExists(buffer))
 			CreateDirectory(buffer, NULL);
 		break;
@@ -1101,7 +1105,7 @@ LPCTSTR PrgAPI::GetPath(PathsEnum pathType, LPTSTR buffer/* = NULL*/)
 					TRACE(_T("@0 PrgAPI::GetPath. Configured path too long; using the default\r\n"));
 				else
 				{
-					_tcscpy(buffer, path.c_str());
+					_tcsncpy_s(buffer, MAX_PATH, path.c_str(), _TRUNCATE);
 					if (CreateDirectory(path.c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
 						bUseDefaultPath = FALSE;
 				}
@@ -1110,7 +1114,7 @@ LPCTSTR PrgAPI::GetPath(PathsEnum pathType, LPTSTR buffer/* = NULL*/)
 			{
 				//=== Default Path
 				TCHAR appRoot[MAX_PATH];
-				_sntprintf(buffer, MAX_PATH, _T("%s%s"), GetPath(PATH_AppRoot, appRoot), defFolder);
+				_sntprintf_s(buffer, MAX_PATH, _TRUNCATE, _T("%s%s"), GetPath(PATH_AppRoot, appRoot), defFolder);
 				if (!PathFileExists(buffer))
 					CreateDirectory(buffer, NULL);
 			}
@@ -1119,19 +1123,19 @@ LPCTSTR PrgAPI::GetPath(PathsEnum pathType, LPTSTR buffer/* = NULL*/)
 	case PATH_LastM3UFile:
 		{
 			TCHAR userRoot[MAX_PATH];
-			_sntprintf(buffer, MAX_PATH, _T("%slasttracks.m3u"), GetPath(PATH_UserRoot, userRoot));
+			_sntprintf_s(buffer, MAX_PATH, _TRUNCATE, _T("%slasttracks.m3u"), GetPath(PATH_UserRoot, userRoot));
 		}
 		break;
 	case PATH_ServicesXMLFile:
 		{
 			TCHAR appRoot[MAX_PATH];
-			_sntprintf(buffer, MAX_PATH, _T("%sservices.xml"), GetPath(PATH_AppRoot, appRoot));
+			_sntprintf_s(buffer, MAX_PATH, _TRUNCATE, _T("%sservices.xml"), GetPath(PATH_AppRoot, appRoot));
 		}
 		break;
 	case PATH_ServicesUserXMLFile:
 		{
 			TCHAR appRoot[MAX_PATH];
-			_sntprintf(buffer, MAX_PATH, _T("%sservices.xml"), GetPath(PATH_UserRoot, appRoot));
+			_sntprintf_s(buffer, MAX_PATH, _TRUNCATE, _T("%sservices.xml"), GetPath(PATH_UserRoot, appRoot));
 		}
 		break;
 	default:
@@ -1180,8 +1184,7 @@ BOOL PrgAPI::GetSiteURL(LPTSTR url, UINT urlLen, SiteActionEnum actID, LPCTSTR p
 	default:
 		return FALSE;
 	}
-	_tcsncpy(url, target, urlLen);
-	url[urlLen - 1] = 0;
+	_tcsncpy_s(url, urlLen, target, _TRUNCATE);
 	return TRUE;
 }
 

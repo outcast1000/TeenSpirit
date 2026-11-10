@@ -61,7 +61,7 @@ BOOL CInfoPage::OnInitDialog()
 	PrgAPI* pLang = PRGAPI();
 	if (!m_bReadOnly)
 	{
-		_sntprintf(txt, 500, _T("· <a href=\"app:WM_APP_IMPORTDATAFROMFILE\"><u><font color=\"#0000FF\">%s</font></u></a>.<br>· %s."), 
+		_sntprintf_s(txt, _TRUNCATE, _T("· <a href=\"app:WM_APP_IMPORTDATAFROMFILE\"><u><font color=\"#0000FF\">%s</font></u></a>.<br>· %s."), 
 			pLang->GetString(IDS_IMPORTDATADROMFILE),
 			pLang->GetString(IDS_WRITEORPASTETEXT));
 		m_Static.SetWindowText(txt);

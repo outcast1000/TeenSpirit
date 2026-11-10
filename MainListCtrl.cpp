@@ -131,7 +131,7 @@ void CMainListCtrl::ResetColumnInfo()
 void CMainListCtrl::ApplyTranslation(ITranslation& translation)
 {
 	PrgAPI* pAPI = PRGAPI();
-	_tcsncpy(cUnknown, pAPI->GetString(IDS_UNKNOWN), 100);
+	_tcsncpy_s(cUnknown, pAPI->GetString(IDS_UNKNOWN), _TRUNCATE);
 
 	//UpdateColumns();
 
@@ -560,16 +560,16 @@ void CMainListCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
 						{
 						case CL_Album:
 							dtFlags |= DT_LEFT | DT_END_ELLIPSIS;
-							_tcsncpy(bf, FixName(it->album.name.c_str()), bfLen);
+							_tcsncpy_s(bf, FixName(it->album.name.c_str()), _TRUNCATE);
 							break;
 						case CL_Artist:
 							dtFlags |= DT_LEFT | DT_END_ELLIPSIS;
-							_tcsncpy(bf, FixName(it->artist.name.c_str()), bfLen);
+							_tcsncpy_s(bf, FixName(it->artist.name.c_str()), _TRUNCATE);
 							break;
 						case CL_TrackNo:
 							dtFlags |= DT_CENTER;
 							if (it->track.trackNo > 0)
-								_sntprintf(bf, bfLen, _T("%02d"), it->track.trackNo);
+								_sntprintf_s(bf, _TRUNCATE, _T("%02d"), it->track.trackNo);
 							break;
 						case CL_Path:
 							dtFlags |= DT_LEFT | DT_END_ELLIPSIS;
@@ -578,7 +578,7 @@ void CMainListCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
 						case CL_Size:
 							dtFlags |= DT_RIGHT;
 							if (it->track.size > 0)
-								_sntprintf(bf, bfLen, _T("%3.2f MB"), it->track.size / 1024.0);
+								_sntprintf_s(bf, _TRUNCATE, _T("%3.2f MB"), it->track.size / 1024.0);
 							break;
 						case CL_Duration:
 							dtFlags |= DT_RIGHT;
@@ -588,16 +588,16 @@ void CMainListCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
 						case CL_Bitrate:
 							dtFlags |= DT_RIGHT;
 							if (it->track.bitrate)
-								_sntprintf(bf, bfLen, _T("%d kbps"), it->track.bitrate);
+								_sntprintf_s(bf, _TRUNCATE, _T("%d kbps"), it->track.bitrate);
 							break;
 						case CL_Year:
 							dtFlags |= DT_RIGHT;
 							if (it->track.year > 1500)
-								_itot(it->track.year, bf, 10);
+								_itot_s(it->track.year, bf, 10);
 							break;
 						case CL_Genre:
 							dtFlags |= DT_LEFT | DT_END_ELLIPSIS;
-							_tcsncpy(bf, FixName(it->genre.name.c_str()), bfLen);
+							_tcsncpy_s(bf, FixName(it->genre.name.c_str()), _TRUNCATE);
 							break;
 						case CL_DateAdded:
 							dtFlags |= DT_LEFT | DT_END_ELLIPSIS;
@@ -964,11 +964,11 @@ void CMainListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 				m_AdvancedMenu.SetFont(pAPI->GetFont(FONT_Dialogs));
 				m_AdvancedMenu.SetIconSize(16,16);
 				TCHAR bf[1000];
-				_sntprintf(bf, 300, _T("%s (%s)"), 
+				_sntprintf_s(bf, _TRUNCATE, _T("%s (%s)"), 
 					(LPTSTR)pAPI->GetString(IDS_PLAY), (LPTSTR)pAPI->GetString(IDS_EXTERNALPLAYER));
 				m_AdvancedMenu.AppendMenu(MF_STRING, ACMD_PlayExternal, 
 					bf, pAPI->GetIcon(ICO_Play16));
-				_sntprintf(bf, 300, _T("%s (%s)"), 
+				_sntprintf_s(bf, _TRUNCATE, _T("%s (%s)"), 
 					(LPTSTR)pAPI->GetString(IDS_ENQUEUE), (LPTSTR)pAPI->GetString(IDS_EXTERNALPLAYER));
 				m_AdvancedMenu.AppendMenu(MF_STRING, ACMD_EnqueueExternal, 
 					bf, pAPI->GetIcon(ICO_Add16));
@@ -996,9 +996,9 @@ void CMainListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 				m_MainMenu.SetFont(pAPI->GetFont(FONT_Dialogs));
 				m_MainMenu.SetIconSize(16,16);
 				
-				_sntprintf(bf, 1000, _T("%s\t%s"), pAPI->GetString(IDS_PLAY), pAPI->GetString(IDS_KEYENTER));
+				_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s"), pAPI->GetString(IDS_PLAY), pAPI->GetString(IDS_KEYENTER));
 				m_MainMenu.AppendMenu(MF_STRING, ACMD_Play, bf, pAPI->GetIcon(ICO_Play16));
-				_sntprintf(bf, 1000, _T("%s\t%s + %s"), pAPI->GetString(IDS_ENQUEUE), pAPI->GetString(IDS_KEYSHIFT), pAPI->GetString(IDS_KEYENTER));
+				_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s + %s"), pAPI->GetString(IDS_ENQUEUE), pAPI->GetString(IDS_KEYSHIFT), pAPI->GetString(IDS_KEYENTER));
 				m_MainMenu.AppendMenu(MF_STRING, ACMD_Enqueue, bf, pAPI->GetIcon(ICO_Add16));
 				m_MainMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
 				m_MainMenu.AppendMenu(MF_STRING, ACMD_LocateAlbum, 
@@ -1031,7 +1031,7 @@ void CMainListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 					(LPTSTR)pAPI->GetString(IDS_RATING), pAPI->GetIcon(ICO_StarGold16));
 
 
-				_sntprintf(bf, 1000, _T("%s\t%s"), pAPI->GetString(IDS_PROPERTIES), pAPI->GetString(IDS_KEYHOME));
+				_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s"), pAPI->GetString(IDS_PROPERTIES), pAPI->GetString(IDS_KEYHOME));
 				m_MainMenu.AppendMenu(MF_STRING, ACMD_Properties, bf, pAPI->GetIcon(ICO_Properties16));
 				m_MainMenu.SetDefaultItem(ACMD_Play, FALSE);
 			}
@@ -1049,7 +1049,7 @@ void CMainListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 			{
 				TCHAR copyto[200];
 				UINT len = _tcslen(targFolder);
-				_sntprintf(copyto, 200, 
+				_sntprintf_s(copyto, _TRUNCATE, 
 					_T("%s '%s'"), 
 					PRGAPI()->GetString(IDS_FOLDER),
 					(len > 15) ? &targFolder[len - 12] : targFolder
@@ -1431,7 +1431,7 @@ void CMainListCtrl::OnLvnBegindrag(NMHDR *pNMHDR, LRESULT *pResult)
 	{
 		INT nItem = GetNextSelectedItem(pos);
 		INT len = m_tracks[nItem]->track.location.size();
-		_tcsncpy(pszBuff, m_tracks[nItem]->track.location.c_str(), len);
+		memcpy(pszBuff, m_tracks[nItem]->track.location.c_str(), len * sizeof(TCHAR));
 		pszBuff[len] = 0;
 		pszBuff = &pszBuff[len + 1];
 	}
@@ -1772,7 +1772,7 @@ void CMainListCtrl::AppendInfoProviderMenuItem(BCMenu& mnu, const IInfoProvider&
 	PrgAPI* pAPI = PRGAPI();
 	m_ProviderRequests.push_back(ProviderRequest(IP.GetModuleInfo(IInfoProvider::IPI_UniqueID), iit));
 	TCHAR bf[500];
-	_sntprintf(bf, 500, _T("\"%s\" - %s"), IP.GetModuleInfo(IInfoProvider::IPI_Name), pAPI->GetStringForInfoItemType(iit));
+	_sntprintf_s(bf, _TRUNCATE, _T("\"%s\" - %s"), IP.GetModuleInfo(IInfoProvider::IPI_Name), pAPI->GetStringForInfoItemType(iit));
 	mnu.AppendMenu(MF_STRING, ID_PROVIDERS + m_ProviderRequests.size() - 1, bf
 		,pAPI->GetIconForInfoItemType(iit));
 }

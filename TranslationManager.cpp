@@ -64,7 +64,7 @@ void TranslationManager::RefreshTranslationsFolder()
 {
 	m_translations.clear();
 	TCHAR searchPath[MAX_PATH];
-	_sntprintf(searchPath, MAX_PATH, _T("%s*.lng"), m_translationFolder.c_str());
+	_sntprintf_s(searchPath, _TRUNCATE, _T("%s*.lng"), m_translationFolder.c_str());
 	CFileFind ff;
 	BOOL bCont = ff.FindFile(searchPath);
 	while (bCont)
@@ -142,8 +142,7 @@ BOOL TranslationManager::ReadTranslationInfo(FullTranslationInfo& info)
 		if (info.info[TI_Name].empty())
 		{
 			TCHAR name[MAX_PATH];
-			_tcsncpy(name, PathFindFileName(info.path.c_str()), MAX_PATH - 1);
-			name[MAX_PATH - 1] = 0;
+			_tcsncpy_s(name, PathFindFileName(info.path.c_str()), _TRUNCATE);
 			PathRemoveExtension(name);
 			info.info[TI_Name] = name;
 		}
@@ -255,7 +254,7 @@ BOOL TranslationManager::LoadTranslationByLANGID(LANGID langID)
 	for (size_t i = 0; i < names.size(); i++)
 	{
 		TCHAR path[MAX_PATH];
-		_sntprintf(path, MAX_PATH, _T("%s%s.lng"), GetTranslationsFolder(), names[i]);
+		_sntprintf_s(path, _TRUNCATE, _T("%s%s.lng"), GetTranslationsFolder(), names[i]);
 		path[MAX_PATH - 1] = 0;
 		if (PathFileExists(path) && LoadTranslation(path))
 			return TRUE;

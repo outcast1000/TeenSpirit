@@ -85,7 +85,7 @@ LPCTSTR TrackListPane::GetTitle(UINT captionIndex)
 	case 0:
 		return pAPI->GetString(IDS_TRACKLIST);
 	case 1:
-		_sntprintf(m_stringBuffer, 500, _T("%s: [F2]"), pAPI->GetString(IDS_FOCUS));
+		_sntprintf_s(m_stringBuffer, _TRUNCATE, _T("%s: [F2]"), pAPI->GetString(IDS_FOCUS));
 		return m_stringBuffer;
 	}
 	return NULL;
@@ -225,13 +225,13 @@ BOOL TrackListPane::LoadState(IPaneState& paneState)
 	CMainListCtrl::SColumnInfo* colInfo = list.GetColumnInfo();
 	for (INT i = CMainListCtrl::CL_First; i < CMainListCtrl::CL_Last; i++)
 	{
-		_sntprintf(bf, 500, _T("%s_%02d_vis"), cTrackListPane_ColumnInfo, i);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s_%02d_vis"), cTrackListPane_ColumnInfo, i);
 		colInfo[i].bVisible = paneState.GetIntSetting(bf) > 0;
-		_sntprintf(bf, 500, _T("%s_%02d_order"), cTrackListPane_ColumnInfo, i);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s_%02d_order"), cTrackListPane_ColumnInfo, i);
 		value = paneState.GetIntSetting(bf);
 		if (value >= 0 && value < 100)
 			colInfo[i].iOrder = value;
-		_sntprintf(bf, 500, _T("%s_%02d_cx"), cTrackListPane_ColumnInfo, i);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s_%02d_cx"), cTrackListPane_ColumnInfo, i);
 		value = paneState.GetIntSetting(bf);
 		if (value >= 0 && value < 10000)
 			colInfo[i].cx = value;
@@ -248,12 +248,12 @@ BOOL TrackListPane::LoadState(IPaneState& paneState)
 	{
 		SortOption so(RSO_None, TRUE);
 		INT sortOption = 0;
-		_sntprintf(bf, 500, _T("%s_%02d_option"), cTrackListPane_Sorting, i);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s_%02d_option"), cTrackListPane_Sorting, i);
 		value = paneState.GetIntSetting(bf);
 		if (value >= RSO_None && value < RSO_Last)
 			so.option = RecordSortOptionsEnum(value);
 
-		_sntprintf(bf, 500, _T("%s_%02d_asc"), cTrackListPane_Sorting, i);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s_%02d_asc"), cTrackListPane_Sorting, i);
 		so.ascending = paneState.GetIntSetting(bf) != 0;
 
 		soc.ApplySortOption(so);
@@ -275,11 +275,11 @@ BOOL TrackListPane::SaveState(IPaneState& paneState)
 	CMainListCtrl::SColumnInfo* colInfo = list.GetColumnInfo();
 	for (int i = 0; i < CMainListCtrl::CL_Last; i++)
 	{
-		_sntprintf(bf, 500, _T("%s_%02d_vis"), cTrackListPane_ColumnInfo, i);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s_%02d_vis"), cTrackListPane_ColumnInfo, i);
 		paneState.SetIntSetting(bf, colInfo[i].bVisible);
-		_sntprintf(bf, 500, _T("%s_%02d_order"), cTrackListPane_ColumnInfo, i);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s_%02d_order"), cTrackListPane_ColumnInfo, i);
 		paneState.SetIntSetting(bf, colInfo[i].iOrder);
-		_sntprintf(bf, 500, _T("%s_%02d_cx"), cTrackListPane_ColumnInfo, i);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s_%02d_cx"), cTrackListPane_ColumnInfo, i);
 		paneState.SetIntSetting(bf, colInfo[i].cx);
 	}
 
@@ -289,9 +289,9 @@ BOOL TrackListPane::SaveState(IPaneState& paneState)
 	for (UINT i =0; i< soc.GetSortOptionsCount(); i++)
 	{
 		SortOption so = soc.GetSortOption(i);
-		_sntprintf(bf, 500, _T("%s_%02d_option"), cTrackListPane_Sorting, i);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s_%02d_option"), cTrackListPane_Sorting, i);
 		paneState.SetIntSetting(bf, so.option);
-		_sntprintf(bf, 500, _T("%s_%02d_asc"), cTrackListPane_Sorting, i);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s_%02d_asc"), cTrackListPane_Sorting, i);
 		paneState.SetIntSetting(bf, so.ascending);
 	}
 	return TRUE;

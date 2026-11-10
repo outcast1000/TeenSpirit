@@ -22,6 +22,7 @@
 //	*/ 
 
 #include "stdafx.h"
+#include "cStringUtils.h"
 #include "XHTMLStatic.h"
 #include "atlconv.h"		// for Unicode conversion
 
@@ -730,7 +731,7 @@ void CXHTMLStatic::Draw(HDC hDC)
 							if (index2 != -1)
 							{
 								memset(lf.lfFaceName, 0, sizeof(lf.lfFaceName));
-								_tcsncpy(lf.lfFaceName, strAttributes, index2);
+								StrCopyN(lf.lfFaceName, (LPCTSTR)strAttributes, index2);
 
 								m -= index2 + 1;
 								if (m > 0)
@@ -806,7 +807,7 @@ void CXHTMLStatic::Draw(HDC hDC)
 			index = strText.Find(_T('>'));
 			if (index != -1)
 				strText = strText.Mid(index+1);
-			_tcscpy(lf.lfFaceName, _T("Courier New"));
+			_tcsncpy_s(lf.lfFaceName, _T("Courier New"), _TRUNCATE);
 			continue;
 		}
 		///////////////////////////////////////////////////////////////////////
@@ -1380,7 +1381,7 @@ BOOL CXHTMLStatic::GotoURL(LPCTSTR url, int showcmd)
 
 			if (GetRegKey(HKEY_CLASSES_ROOT, _T(".htm"), key) == ERROR_SUCCESS) 
 			{
-				_tcscat(key, _T("\\shell\\open\\command"));
+				_tcsncat_s(key, _T("\\shell\\open\\command"), _TRUNCATE);
 
 				if (GetRegKey(HKEY_CLASSES_ROOT,key,key) == ERROR_SUCCESS) 
 				{
@@ -1396,8 +1397,8 @@ BOOL CXHTMLStatic::GotoURL(LPCTSTR url, int showcmd)
 					else
 						*pos = _T('\0');				   // Remove the parameter
 
-					_tcscat(pos, _T(" "));
-					_tcscat(pos, url);
+					_tcsncat_s(pos, _countof(key) - (pos - key), _T(" "), _TRUNCATE);
+					_tcsncat_s(pos, _countof(key) - (pos - key), url, _TRUNCATE);
 					USES_CONVERSION;
 					result = (HINSTANCE) (UINT_PTR) WinExec(T2A(key),showcmd);
 				}
@@ -1464,7 +1465,7 @@ LONG CXHTMLStatic::GetRegKey(HKEY key, LPCTSTR subkey, LPTSTR retdata)
 		retval = RegQueryValue(hkey, NULL, data, &datasize);
 		if (retval == ERROR_SUCCESS) 
 		{
-			lstrcpy(retdata, data);
+			_tcsncpy_s(retdata, MAX_PATH * 2, data, _TRUNCATE);	//callers pass key[MAX_PATH * 2]
 			RegCloseKey(hkey);
 		}
 	}

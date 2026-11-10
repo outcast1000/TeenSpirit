@@ -366,13 +366,13 @@ void CSearchDlg::RefreshMainList()
 	//m_Sheet.GetPage(it)->GetWindowText(bf, 100);
 	m_StatusBar.SetPaneText(0, bf);
 
-	_sntprintf(bf, 100, _T("%s: %d"), pAPI->GetString(IDS_TRACKS), itemCount);
+	_sntprintf_s(bf, _TRUNCATE, _T("%s: %d"), pAPI->GetString(IDS_TRACKS), itemCount);
 	//::LoadString(AfxGetResourceHandle(), m_StatusBar.GetItemID(1), bf, 2000);
 	//size_t curLen = _tcslen(bf);
 	//_sntprintf(&bf[curLen], 2000 - curLen, _T("%d"), itemCount);
 	m_StatusBar.SetPaneText(1, bf);
 
-	_sntprintf(bf, 100, _T("%s: %d ms"), pAPI->GetString(IDS_PROCESSTIME), GetTickCount() - tick);
+	_sntprintf_s(bf, _TRUNCATE, _T("%s: %d ms"), pAPI->GetString(IDS_PROCESSTIME), GetTickCount() - tick);
 
 	//::LoadString(AfxGetResourceHandle(), m_StatusBar.GetItemID(2), bf, 2000);
 	//curLen = _tcslen(bf);
@@ -573,14 +573,14 @@ BOOL CSearchDlg::LoadState(AppSettings* pAppSettings)
 	CMainListCtrl::SColumnInfo* colInfo = list.GetColumnInfo();
 	for (INT i = CMainListCtrl::CL_First; i < CMainListCtrl::CL_Last; i++)
 	{
-		_sntprintf(bf, 500, _T("ColInfo_%02d_vis"), i);
+		_sntprintf_s(bf, _TRUNCATE, _T("ColInfo_%02d_vis"), i);
 		pAppSettings->Read(cSearchDlgSection, bf, value, 1);
 		colInfo[i].bVisible =  value;//GetIntSetting(bf) > 0;
-		_sntprintf(bf, 500, _T("ColInfo_%02d_order"), i);
+		_sntprintf_s(bf, _TRUNCATE, _T("ColInfo_%02d_order"), i);
 		pAppSettings->Read(cSearchDlgSection, bf, value, i);
 		if (value >= 0 && value < 100)
 			colInfo[i].iOrder = value;
-		_sntprintf(bf, 500, _T("ColInfo_%02d_cx"), i);
+		_sntprintf_s(bf, _TRUNCATE, _T("ColInfo_%02d_cx"), i);
 		pAppSettings->Read(cSearchDlgSection, bf, value, 0);
 		if (value >= 0 && value < 10000)
 			colInfo[i].cx = value;
@@ -598,12 +598,12 @@ BOOL CSearchDlg::LoadState(AppSettings* pAppSettings)
 	{
 		SortOption so(RSO_None, TRUE);
 		INT sortOption = 0;
-		_sntprintf(bf, 500, _T("Sorting_%02d_option"), i);
+		_sntprintf_s(bf, _TRUNCATE, _T("Sorting_%02d_option"), i);
 		pAppSettings->Read(cSearchDlgSection, bf, value, RSO_None);
 		if (value >= RSO_None && value < RSO_Last)
 			so.option = RecordSortOptionsEnum(value);
 
-		_sntprintf(bf, 500, _T("Sorting_%02d_asc"), i);
+		_sntprintf_s(bf, _TRUNCATE, _T("Sorting_%02d_asc"), i);
 		pAppSettings->Read(cSearchDlgSection, bf, value, 0);
 		so.ascending = value != 0;
 
@@ -622,11 +622,11 @@ BOOL CSearchDlg::SaveState(AppSettings* pAppSettings)
 	CMainListCtrl::SColumnInfo* colInfo = list.GetColumnInfo();
 	for (int i = 0; i < CMainListCtrl::CL_Last; i++)
 	{
-		_sntprintf(bf, 500, _T("ColInfo_%02d_vis"), i);
+		_sntprintf_s(bf, _TRUNCATE, _T("ColInfo_%02d_vis"), i);
 		pAppSettings->Write(cSearchDlgSection, bf, (INT)colInfo[i].bVisible);
-		_sntprintf(bf, 500, _T("ColInfo_%02d_order"), i);
+		_sntprintf_s(bf, _TRUNCATE, _T("ColInfo_%02d_order"), i);
 		pAppSettings->Write(cSearchDlgSection, bf, (INT)colInfo[i].iOrder);
-		_sntprintf(bf, 500, _T("ColInfo_%02d_cx"), i);
+		_sntprintf_s(bf, _TRUNCATE, _T("ColInfo_%02d_cx"), i);
 		pAppSettings->Write(cSearchDlgSection, bf, (INT)colInfo[i].cx);
 	}
 
@@ -636,9 +636,9 @@ BOOL CSearchDlg::SaveState(AppSettings* pAppSettings)
 	for (UINT i =0; i< soc.GetSortOptionsCount(); i++)
 	{
 		SortOption so = soc.GetSortOption(i);
-		_sntprintf(bf, 500, _T("Sorting_%02d_option"), i);
+		_sntprintf_s(bf, _TRUNCATE, _T("Sorting_%02d_option"), i);
 		pAppSettings->Write(cSearchDlgSection, bf, so.option);
-		_sntprintf(bf, 500, _T("Sorting_%02d_asc"), i);
+		_sntprintf_s(bf, _TRUNCATE, _T("Sorting_%02d_asc"), i);
 		pAppSettings->Write(cSearchDlgSection, bf, so.ascending);
 	}
 	return TRUE;

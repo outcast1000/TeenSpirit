@@ -701,8 +701,7 @@ BOOL SimpleBrowser::GetElementText(LPCTSTR elementName, LPTSTR bf, UINT bfLen)
 		{
 			if (innerText.Length() > 0)
 			{
-				_tcsncpy(bf, innerText, bfLen);
-				bf[bfLen - 1] = 0;
+				_tcsncpy_s(bf, bfLen, innerText, _TRUNCATE);
 			}
 			else
 				bf[0] = 0;

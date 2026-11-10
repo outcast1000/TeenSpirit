@@ -217,7 +217,7 @@ static void TestQueries()
 			t.validFields |= TagInfo_Lyrics | TagInfo_Comment;
 		}
 		WCHAR path[64];
-		_snwprintf(path, 64, L"d:\\q\\%s.mp3", songs[i].title);
+		_snwprintf_s(path, _TRUNCATE, L"d:\\q\\%s.mp3", songs[i].title);
 		path[63] = 0;
 		ids.push_back(sm.AddNewTrackFromTagInfo(col.ID, path, t));
 		CHECK(ids.back() != 0);
@@ -491,9 +491,9 @@ static unsigned __stdcall WriterThread(void* p)
 	for (INT i = 0; i < 300; i++)
 	{
 		WCHAR title[32], path[64], artist[32];
-		_snwprintf(title, 32, L"t%d", i);
-		_snwprintf(path, 64, L"d:\\threads\\%d.mp3", i);
-		_snwprintf(artist, 32, L"artist %d", i % 7);
+		_snwprintf_s(title, _TRUNCATE, L"t%d", i);
+		_snwprintf_s(path, _TRUNCATE, L"d:\\threads\\%d.mp3", i);
+		_snwprintf_s(artist, _TRUNCATE, L"artist %d", i % 7);
 		title[31] = path[63] = artist[31] = 0;
 		TagInfo t = MakeTag(title, artist, L"album", L"genre", 2000);
 		if (sm.AddNewTrackFromTagInfo(col.ID, path, t) != 0)
@@ -586,7 +586,7 @@ static BOOL CreateLegacyDatabase(const std::wstring& mdb, INT dbVersion, std::ws
 {
 	DeleteFileW(mdb.c_str());
 	WCHAR cs[600];
-	_snwprintf(cs, 600, cLegacyConnection, mdb.c_str());
+	_snwprintf_s(cs, _TRUNCATE, cLegacyConnection, mdb.c_str());
 	cs[599] = 0;
 	try
 	{
@@ -621,7 +621,7 @@ static BOOL CreateLegacyDatabase(const std::wstring& mdb, INT dbVersion, std::ws
 			con->Execute(_bstr_t(ddl[i]), NULL, ADODB::adCmdText | ADODB::adExecuteNoRecords);
 
 		WCHAR bf[200];
-		_snwprintf(bf, 200, L"INSERT INTO DBInfo VALUES (%d)", dbVersion);
+		_snwprintf_s(bf, _TRUNCATE, L"INSERT INTO DBInfo VALUES (%d)", dbVersion);
 		LPCWSTR rows[] =
 		{
 			bf,
@@ -677,8 +677,8 @@ static BOOL CreateLegacyDatabase(const std::wstring& mdb, INT dbVersion, std::ws
 static std::string ReadFileBytes(const std::wstring& path)
 {
 	std::string data;
-	FILE* f = _wfopen(path.c_str(), L"rb");
-	if (f != NULL)
+	FILE* f = NULL;
+	if (_wfopen_s(&f, path.c_str(), L"rb") == 0 && f != NULL)
 	{
 		char bf[65536];
 		size_t n;

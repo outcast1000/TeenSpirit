@@ -22,6 +22,7 @@
 //	*/ 
 #include "StdAfx.h"
 #include "WinVersionHelper.h"
+#include "OSVersion.h"
 
 BOOL GetWindowsVersion(WindowsVersion& verInfo)
 {
@@ -29,20 +30,9 @@ BOOL GetWindowsVersion(WindowsVersion& verInfo)
 	TCHAR szPack[4] = _T("-1");
 
 
-	// Try calling GetVersionEx using the OSVERSIONINFOEX structure.
-	// If that fails, try using the OSVERSIONINFO structure.
-
-	ZeroMemory(&osvi,sizeof(OSVERSIONINFOEX));
-	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-
-	BOOL bResult = GetVersionEx((OSVERSIONINFO*)&osvi);
-	if(!bResult)
-	{
-		// If OSVERSIONINFOEX doesn't work, try OSVERSIONINFO.
-		osvi.dwOSVersionInfoSize = sizeof (OSVERSIONINFO);
-		if (!GetVersionEx ( (OSVERSIONINFO *) &osvi) ) 
-			return FALSE;
-	}
+	if (!GetOSVersion(osvi))
+		return FALSE;
+	const BOOL bResult = TRUE;	//the OSVERSIONINFOEX fields (product type, suite) are filled
 
 	// The system Type (2=Win95, 3=Win98/ME, 
 	//    4=Win/ME, 5=Win/NT  6=Win/2000)
@@ -57,7 +47,7 @@ BOOL GetWindowsVersion(WindowsVersion& verInfo)
 	// Major version number
 	verInfo.major=osvi.dwMajorVersion;
 	if(verInfo.major == 5) verInfo.osCode=VST_Win2000;
-	if(verInfo.major == 6) verInfo.osCode=VST_Vista;
+	if(verInfo.major >= 6) verInfo.osCode=VST_Vista;	//Vista and later
 
 	// Minor version number
 	verInfo.minor=osvi.dwMinorVersion;
@@ -188,10 +178,10 @@ void FormatWindowsVersion(WindowsVersion& verInfo, LPTSTR bf, UINT bfLen)
 
 	TCHAR sp[20];
 	if (verInfo.pack > 0)
-		_sntprintf(sp, 20, _T(" SP%d"), verInfo.pack);
+		_sntprintf_s(sp, _TRUNCATE, _T(" SP%d"), verInfo.pack);
 	else
 		sp[0] = 0;
-	_sntprintf(bf, bfLen, _T("%s (%d.%d.%d)%s"), 
+	_sntprintf_s(bf, bfLen, _TRUNCATE, _T("%s (%d.%d.%d)%s"), 
 		osName, 
 		verInfo.major, verInfo.minor, verInfo.build, 
 		sp);

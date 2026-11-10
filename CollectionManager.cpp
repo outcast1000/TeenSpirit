@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "cStringUtils.h"
 #include "CollectionManager.h"
 #include "MultiThreadJobQueue.h"
 #include "SQLManager.h"
@@ -319,8 +320,7 @@ DWORD CollectionManager::GetVolumeSerial(LPCTSTR path)
 {
 	ASSERT(path != NULL);
 	TCHAR rootPath[4];
-	_tcsncpy(rootPath, path, 3);
-	rootPath[3] = 0;
+	StrCopyN(rootPath, path, 3);
 	DWORD serNum = 0;
 	SetErrorMode(SEM_FAILCRITICALERRORS);
 	BOOL ret = GetVolumeInformation(rootPath, NULL, 0, &serNum, NULL, NULL, NULL, NULL);
@@ -331,8 +331,7 @@ BOOL CollectionManager::GetVolumeLabel(LPCTSTR path, LPTSTR bfMaxPath)
 {
 	ASSERT(path != NULL && bfMaxPath != NULL);
 	TCHAR rootPath[4];
-	_tcsncpy(rootPath, path, 3);
-	rootPath[3] = 0;
+	StrCopyN(rootPath, path, 3);
 	SetErrorMode(SEM_FAILCRITICALERRORS);
 	BOOL ret = GetVolumeInformation(rootPath, bfMaxPath, MAX_PATH, NULL, NULL, NULL, NULL, NULL);
 	SetErrorMode(0);
@@ -350,8 +349,7 @@ CollectionTypesEnum CollectionManager::GetCollectionType(LPCTSTR pathName)
 	else if (pathName[1] == ':' && pathName [2] == '\\')
 	{
 		TCHAR RootPathName[4];
-		_tcsncpy(RootPathName, pathName, 3);
-		RootPathName[3] = 0;
+		StrCopyN(RootPathName, pathName, 3);
 		switch (GetDriveType(RootPathName))
 		{
 		case DRIVE_FIXED:		//The drive is a type that cannot be removed, for example, a fixed hard drive.
@@ -412,7 +410,7 @@ BOOL CollectionManager::ImportAudioCDCollection(CollectionRecordSP col)
 		else
 			info.Title = cdInfo.tracks[i].title;
 		TCHAR bf[20];
-		_sntprintf(bf, 10, _T("cda://%d"), i + 1);
+		_sntprintf_s(bf, _TRUNCATE, _T("cda://%d"), i + 1);
 		info.Length = cdInfo.tracks[i].length.toSec();
 		info.Size = info.Length * info.Bitrate / 8;
 		info.TrackNo = i + 1;

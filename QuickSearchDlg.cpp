@@ -139,7 +139,7 @@ void QuickSearchDlg::ApplyTranslation(ITranslation& translation)
 	Resize(rc.Width(), rc.Height());
 	PrgAPI* pAPI = PRGAPI();
 	TCHAR txt[300];
-	_sntprintf(txt, 300, _T("%s"), pAPI->GetString(IDS_SEARCH));
+	_sntprintf_s(txt, _TRUNCATE, _T("%s"), pAPI->GetString(IDS_SEARCH));
 	m_searchEdit.SetEmptyMessage(txt);
 }
 

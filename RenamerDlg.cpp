@@ -71,11 +71,11 @@ BOOL CRenamerDlg::RenameTrack(FullTrackRecordSP& rec, LPCTSTR pat)
 	TCHAR artist[100];
 	TCHAR album[100];
 	TCHAR title[100];
-	_tcsncpy(artist, rec->artist.name.c_str(), 100);
+	_tcsncpy_s(artist, rec->artist.name.c_str(), _TRUNCATE);
 	artist[99] = 0;
-	_tcsncpy(album, rec->album.name.c_str(), 100);
+	_tcsncpy_s(album, rec->album.name.c_str(), _TRUNCATE);
 	album[99] = 0;
-	_tcsncpy(title, rec->track.name.c_str(), 100);
+	_tcsncpy_s(title, rec->track.name.c_str(), _TRUNCATE);
 	title[99] = 0;
 	INT curSel = m_cmbCasing.GetCurSel();
 	switch (curSel)
@@ -86,14 +86,14 @@ BOOL CRenamerDlg::RenameTrack(FullTrackRecordSP& rec, LPCTSTR pat)
 		_tcsproper(title);
 		break;
 	case 2:
-		_tcsupr(artist);
-		_tcsupr(album);
-		_tcsupr(title);
+		_tcsupr_s(artist);
+		_tcsupr_s(album);
+		_tcsupr_s(title);
 		break;
 	case 3:
-		_tcslwr(artist);
-		_tcslwr(album);
-		_tcslwr(title);
+		_tcslwr_s(artist);
+		_tcslwr_s(album);
+		_tcslwr_s(title);
 		break;
 	}
 	FileNameTagger fnTagger;
@@ -136,7 +136,7 @@ void CRenamerDlg::OnBnClickedAll()
 		if (!RenameTrack(rec, pat))
 		{
 			TCHAR bf[1000];
-			_sntprintf(bf, 1000, _T("%s: %s: '%s'"),
+			_sntprintf_s(bf, _TRUNCATE, _T("%s: %s: '%s'"),
 				pAPI->GetString(IDS_OPERATIONFAILED),
 				pAPI->GetString(IDS_RENAME),
 				rec->track.location.c_str());
@@ -193,7 +193,7 @@ BOOL CRenamerDlg::OnInitDialog()
 	SetDlgItemText(IDC_RENAME, pAPI->GetString(IDS_RENAME));
 	SetDlgItemText(IDC_SKIP, pAPI->GetString(IDS_SKIP));
 	TCHAR bf[500];
-	_sntprintf(bf, 500, _T("%s (%s)"), pAPI->GetString(IDS_RENAME), pAPI->GetString(IDS_ALL));
+	_sntprintf_s(bf, _TRUNCATE, _T("%s (%s)"), pAPI->GetString(IDS_RENAME), pAPI->GetString(IDS_ALL));
 	SetDlgItemText(IDC_ALL, bf);
 	SetDlgItemText(IDC_CANCEL, pAPI->GetString(IDS_EXIT));
 	SetWindowText(pAPI->GetString(IDS_RENAMER));
@@ -221,15 +221,15 @@ BOOL CRenamerDlg::PrepareNextTrack()
 	TCHAR bf[300];
 	InsertItem(0, _T("$a"), IDS_ARTIST, rec->artist.name.c_str());
 	InsertItem(1, _T("$l"), IDS_ALBUM, rec->album.name.c_str());
-	_sntprintf(bf, 300, _T("%02d"), rec->track.trackNo);
+	_sntprintf_s(bf, _TRUNCATE, _T("%02d"), rec->track.trackNo);
 	InsertItem(2, _T("$n"), IDS_TRACKNO, bf);
 	InsertItem(3, _T("$t"), IDS_TITLE, rec->track.name.c_str());
-	_sntprintf(bf, 300, _T("%d"), rec->track.year);
+	_sntprintf_s(bf, _TRUNCATE, _T("%d"), rec->track.year);
 	InsertItem(4, _T("$y"), IDS_YEAR, bf);
 
 	UpdatePreview();
 	if (m_col.size() > 1)
-		_sntprintf(bf, 300, _T("%d %s"), m_col.size(), PRGAPI()->GetString(IDS_TRACKS));
+		_sntprintf_s(bf, _TRUNCATE, _T("%d %s"), m_col.size(), PRGAPI()->GetString(IDS_TRACKS));
 	else
 		bf[0] = 0;
 	SetDlgItemText(IDC_ST_TRACKS, bf);
@@ -265,11 +265,11 @@ BOOL CRenamerDlg::GetNewFileName(LPTSTR bf, UINT bfLen)
 	TCHAR artist[100];
 	TCHAR album[100];
 	TCHAR title[100];
-	_tcsncpy(artist, rec->artist.name.c_str(), 100);
+	_tcsncpy_s(artist, rec->artist.name.c_str(), _TRUNCATE);
 	artist[99] = 0;
-	_tcsncpy(album, rec->album.name.c_str(), 100);
+	_tcsncpy_s(album, rec->album.name.c_str(), _TRUNCATE);
 	album[99] = 0;
-	_tcsncpy(title, rec->track.name.c_str(), 100);
+	_tcsncpy_s(title, rec->track.name.c_str(), _TRUNCATE);
 	title[99] = 0;
 	INT curSel = m_cmbCasing.GetCurSel();
 	switch (curSel)
@@ -280,14 +280,14 @@ BOOL CRenamerDlg::GetNewFileName(LPTSTR bf, UINT bfLen)
 		_tcsproper(title);
 		break;
 	case 2:
-		_tcsupr(artist);
-		_tcsupr(album);
-		_tcsupr(title);
+		_tcsupr_s(artist);
+		_tcsupr_s(album);
+		_tcsupr_s(title);
 		break;
 	case 3:
-		_tcslwr(artist);
-		_tcslwr(album);
-		_tcslwr(title);
+		_tcslwr_s(artist);
+		_tcslwr_s(album);
+		_tcslwr_s(title);
 		break;
 	}
 

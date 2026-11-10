@@ -687,7 +687,7 @@ CString  cstr;
         {
         cstr = list.GetNext ( pos );
 
-        _tcscpy ( pCurrPos, (LPCTSTR) cstr );
+        _tcsncpy_s(pCurrPos, cstr.GetLength() + 1, (LPCTSTR) cstr, _TRUNCATE);	//sized by GetRequiredBufferSize
 
         pCurrPos = _tcsinc ( _tcschr ( pCurrPos, '\0' ) );
         }

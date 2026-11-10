@@ -42,7 +42,7 @@ m_pMainMenu(NULL)
 	HDC hdc = ::GetDC(0);
 	//	::GetObject(::GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), &lf);
 	memset(&lf, 0, sizeof(LOGFONT));
-	_tcscpy(lf.lfFaceName, _T("Tahoma"));
+	_tcsncpy_s(lf.lfFaceName, _T("Tahoma"), _TRUNCATE);
 	lf.lfWeight = 400;
 	lf.lfHeight = 13;
 	m_pMainTextFont = new Gdiplus::Font(hdc, &lf);
@@ -94,7 +94,7 @@ void CCollectionsList::InitMenus()
 
 	m_pMainMenu->AppendMenu(ITSMenu::MIT_String, ID_COL_ADDFOLDER, (LPTSTR) pAPI->GetString(IDS_ADDCOLLECTION));
 	TCHAR bf[500];
-	_sntprintf(bf, 500, _T("%s (%s)"), pAPI->GetString(IDS_UPDATE), pAPI->GetString(IDS_QUICK));
+	_sntprintf_s(bf, _TRUNCATE, _T("%s (%s)"), pAPI->GetString(IDS_UPDATE), pAPI->GetString(IDS_QUICK));
 	m_pMainMenu->AppendMenu(ITSMenu::MIT_String, ID_COL_UPDATEL1, bf);
 	m_pMainMenu->AppendMenu(ITSMenu::MIT_String, ID_COL_UPDATEL2, (LPTSTR) pAPI->GetString(IDS_UPDATE));
 	m_pMainMenu->AppendMenu(ITSMenu::MIT_String, ID_COL_RENAME, (LPTSTR) pAPI->GetString(IDS_RENAME));
@@ -201,9 +201,9 @@ void CCollectionsList::DrawItem(Gdiplus::Graphics& g, INT nItem, Gdiplus::Rect& 
 	if (bWorking)
 		pTextBrush = m_pTextWorkingBrush;
 	TCHAR sWorking[100];
-	_sntprintf(sWorking, 100, _T("[%s] - "), pAPI->GetString(IDS_WORKING));
+	_sntprintf_s(sWorking, _TRUNCATE, _T("[%s] - "), pAPI->GetString(IDS_WORKING));
 	TCHAR msg[1000];
-	INT strLen = _sntprintf(msg, 1000, 
+	INT strLen = _sntprintf_s(msg, _TRUNCATE, 
 		_T("%s%s (%s) | %s: '%s' [0x%0.8X])"),
 		bWorking ? sWorking : _T(""),
 		rec.name.c_str(), 
@@ -232,7 +232,7 @@ void CCollectionsList::DrawItem(Gdiplus::Graphics& g, INT nItem, Gdiplus::Rect& 
 	PrgAPI::FormatDate(dateAddedStr, 100, rec.dateAdded, FALSE);
 	TCHAR dateUpdatedStr[100];
 	PrgAPI::FormatDate(dateUpdatedStr, 100, rec.dateUpdated, FALSE);
-	strLen = _sntprintf(msg, 1000, 
+	strLen = _sntprintf_s(msg, _TRUNCATE, 
 		_T("%s: %s | %s: %s"),
 		pAPI->GetString(IDS_DATEADDED), dateAddedStr,
 		pAPI->GetString(IDS_DATEUPDATED), dateUpdatedStr);
@@ -247,7 +247,7 @@ void CCollectionsList::DrawItem(Gdiplus::Graphics& g, INT nItem, Gdiplus::Rect& 
 		m_pMainStringFormat, 
 		pTextBrush);
 
-	strLen = _sntprintf(msg, 1000, 
+	strLen = _sntprintf_s(msg, _TRUNCATE, 
 		_T("%s: %d | %s: %2.1f MB | %s: %2.1f h"),
 		pAPI->GetString(IDS_TRACKS), rec.trackCount,
 		pAPI->GetString(IDS_SIZE), rec.sumSize / 1024.0,

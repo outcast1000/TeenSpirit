@@ -247,11 +247,11 @@ public:
 			{
 				INT curLen = 0;
 				if (m_rec->genre.ID	!= 1)
-					curLen = _sntprintf(bf, cMaxLen, _T("%s | %d"),
+					curLen = _sntprintf_s(bf, _TRUNCATE, _T("%s | %d"),
 					m_rec->genre.name.c_str(),
 					m_rec->artist.trackCount);
 				else
-					curLen = _sntprintf(bf, cMaxLen, _T("%d"),
+					curLen = _sntprintf_s(bf, _TRUNCATE, _T("%d"),
 					m_rec->artist.trackCount);
 				secondPart = bf;
 			}
@@ -259,13 +259,13 @@ public:
 			{
 				INT curLen = 0;
 				if (m_rec->genre.ID	!= 1)
-					curLen = _sntprintf(bf, 300, _T("%s: %s | %s: %d"), 
+					curLen = _sntprintf_s(bf, _TRUNCATE, _T("%s: %s | %s: %d"), 
 					pAPI->GetString(IDS_GENRE),
 					m_rec->genre.name.c_str(),
 					pAPI->GetString(IDS_TRACKS),
 					m_rec->artist.trackCount);
 				else
-					curLen = _sntprintf(bf, 300, _T("%s: %d"), 
+					curLen = _sntprintf_s(bf, _TRUNCATE, _T("%s: %d"), 
 					pAPI->GetString(IDS_TRACKS),
 					m_rec->artist.trackCount);
 				secondPart = bf;
@@ -340,11 +340,11 @@ public:
 			{
 				INT curLen = 0;
 				if (m_rec->album.year > 1800)
-					curLen = _sntprintf(bf, 300, _T("%d | %d"),
+					curLen = _sntprintf_s(bf, _TRUNCATE, _T("%d | %d"),
 					m_rec->album.year,
 					m_rec->album.trackCount);
 				else
-					curLen = _sntprintf(bf, 300, _T("%d"),
+					curLen = _sntprintf_s(bf, _TRUNCATE, _T("%d"),
 					m_rec->album.trackCount);
 				secondPart = bf;
 			}
@@ -352,13 +352,13 @@ public:
 			{
 				INT curLen = 0;
 				if (m_rec->album.year > 1800)
-					curLen = _sntprintf(bf, 300, _T("%s: %d | %s: %d"), 
+					curLen = _sntprintf_s(bf, _TRUNCATE, _T("%s: %d | %s: %d"), 
 					PRGAPI()->GetString(IDS_YEAR),
 					m_rec->album.year,
 					PRGAPI()->GetString(IDS_TRACKS),
 					m_rec->album.trackCount);
 				else
-					curLen = _sntprintf(bf, 300, _T("%s: %d"), 
+					curLen = _sntprintf_s(bf, _TRUNCATE, _T("%s: %d"), 
 					PRGAPI()->GetString(IDS_TRACKS),
 					m_rec->album.trackCount);
 				secondPart = bf;
@@ -447,9 +447,9 @@ public:
 			INT curLen = 0;
 			secondPart = bf;
 			if (res.nLines == 1)
-				curLen = _sntprintf(bf, 300, _T("%d"), m_rec->trackCount);
+				curLen = _sntprintf_s(bf, _TRUNCATE, _T("%d"), m_rec->trackCount);
 			else if (res.nLines == 2)
-				curLen = _sntprintf(bf, 300, _T("%s: %d"), pAPI->GetString(IDS_TRACKS),	m_rec->trackCount);
+				curLen = _sntprintf_s(bf, _TRUNCATE, _T("%s: %d"), pAPI->GetString(IDS_TRACKS),	m_rec->trackCount);
 			else
 				ASSERT(0);
 		}
@@ -519,9 +519,9 @@ public:
 			INT curLen = 0;
 			secondPart = bf;
 			if (res.nLines == 1)
-				curLen = _sntprintf(bf, 300, _T("%d"), m_rec->trackCount);
+				curLen = _sntprintf_s(bf, _TRUNCATE, _T("%d"), m_rec->trackCount);
 			else if (res.nLines == 2)
-				curLen = _sntprintf(bf, 300, _T("%s: %s (0x%X) | %s: %d"),
+				curLen = _sntprintf_s(bf, _TRUNCATE, _T("%s: %s (0x%X) | %s: %d"),
 					pAPI->GetString(IDS_LOCATION),
 					m_rec->location.c_str(),
 					m_rec->serial,
@@ -583,7 +583,7 @@ public:
 			return;
 		}
 		TCHAR firstPart[100];
-		_sntprintf(firstPart, 300, _T("%d"), m_rec->year);
+		_sntprintf_s(firstPart, _TRUNCATE, _T("%d"), m_rec->year);
 
 		LPCTSTR secondPart = NULL;
 		const INT cMaxLen = 300;
@@ -593,9 +593,9 @@ public:
 			INT curLen = 0;
 			secondPart = bf;
 			if (res.nLines == 1)
-				curLen = _sntprintf(bf, 300, _T("%d"), m_rec->trackCount);
+				curLen = _sntprintf_s(bf, _TRUNCATE, _T("%d"), m_rec->trackCount);
 			else if (res.nLines == 2)
-				curLen = _sntprintf(bf, 300, _T("%s: %d"), pAPI->GetString(IDS_TRACKS),	m_rec->trackCount);
+				curLen = _sntprintf_s(bf, _TRUNCATE, _T("%s: %d"), pAPI->GetString(IDS_TRACKS),	m_rec->trackCount);
 			else
 				ASSERT(0);
 		}
@@ -605,10 +605,10 @@ public:
 	{
 		ASSERT(rec.get() != NULL && rec->IsValid());
 		if (rec->year > 0)
-			_itot(rec->year, year, 10);
+			_itot_s(rec->year, year, 10);
 		else
 		{
-			_tcsncpy(year, PRGAPI()->GetString(IDS_UNKNOWN), 30);
+			_tcsncpy_s(year, PRGAPI()->GetString(IDS_UNKNOWN), _TRUNCATE);
 			year[29] = 0;
 		}
 		m_rec = rec;
@@ -664,7 +664,7 @@ public:
 		if (res.bShowImages)
 			bmp = res.pBitmap;
 		TCHAR firstPart[100];
-		_sntprintf(firstPart, 300, _T("%d %d"), 
+		_sntprintf_s(firstPart, _TRUNCATE, _T("%d %d"), 
 			GetYear(),
 			GetMonth());
 
@@ -676,9 +676,9 @@ public:
 			INT curLen = 0;
 			secondPart = bf;
 			if (res.nLines == 1)
-				curLen = _sntprintf(bf, 300, _T("%d"), m_rec->trackCount);
+				curLen = _sntprintf_s(bf, _TRUNCATE, _T("%d"), m_rec->trackCount);
 			else if (res.nLines == 2)
-				curLen = _sntprintf(bf, 300, _T("%s: %d"), pAPI->GetString(IDS_TRACKS),	m_rec->trackCount);
+				curLen = _sntprintf_s(bf, _TRUNCATE, _T("%s: %d"), pAPI->GetString(IDS_TRACKS),	m_rec->trackCount);
 			else
 				ASSERT(0);
 		}
@@ -688,7 +688,7 @@ public:
 	{
 		ASSERT(rec.get() != NULL && rec->IsValid());
 		m_rec = rec;
-		_sntprintf(month, 30, _T("%d %d"), GetYear(), GetMonth());
+		_sntprintf_s(month, _TRUNCATE, _T("%d %d"), GetYear(), GetMonth());
 	}
 	const MonthAddedRecordSP& GetMonthAddedRecord() const			{return m_rec;}
 private:
@@ -1802,7 +1802,7 @@ void CMainTreeCtrl::AppendInfoProviderMenuItem(BCMenu& mnu, const IInfoProvider&
 	PrgAPI* pAPI = PRGAPI();
 	m_ProviderRequests.push_back(ProviderRequest(IP.GetModuleInfo(IInfoProvider::IPI_UniqueID), iit));
 	TCHAR bf[500];
-	_sntprintf(bf, 500, _T("\"%s\" - %s"), IP.GetModuleInfo(IInfoProvider::IPI_Name), pAPI->GetStringForInfoItemType(iit));
+	_sntprintf_s(bf, _TRUNCATE, _T("\"%s\" - %s"), IP.GetModuleInfo(IInfoProvider::IPI_Name), pAPI->GetStringForInfoItemType(iit));
 	mnu.AppendMenu(MF_STRING, ID_PROVIDERS + m_ProviderRequests.size() - 1, bf, pAPI->GetIconForInfoItemType(iit));
 }
 
@@ -2302,12 +2302,12 @@ void CMainTreeCtrl::OnRButtonUp(UINT nFlags, CPoint point)
 			m_ArtistMenu.SetFont(pAPI->GetFont(FONT_Dialogs));
 			m_ArtistMenu.SetIconSize(16,16);
 			TCHAR bf[1000];
-			_sntprintf(bf, 1000, _T("%s\t%s"), pAPI->GetString(IDS_PLAY), pAPI->GetString(IDS_KEYENTER));
+			_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s"), pAPI->GetString(IDS_PLAY), pAPI->GetString(IDS_KEYENTER));
 			m_ArtistMenu.AppendMenu(MF_STRING, ACMD_Play, bf, pAPI->GetIcon(ICO_Play16));
-			_sntprintf(bf, 1000, _T("%s\t%s + %s"), pAPI->GetString(IDS_ENQUEUE), pAPI->GetString(IDS_KEYSHIFT), pAPI->GetString(IDS_KEYENTER));
+			_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s + %s"), pAPI->GetString(IDS_ENQUEUE), pAPI->GetString(IDS_KEYSHIFT), pAPI->GetString(IDS_KEYENTER));
 			m_ArtistMenu.AppendMenu(MF_STRING, ACMD_Enqueue, bf, pAPI->GetIcon(ICO_Add16));
 			m_ArtistMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
-			_sntprintf(bf, 1000, _T("%s\t%s"), pAPI->GetString(IDS_INSERTRANDOMTRACKS), pAPI->GetString(IDS_KEYINSERT));
+			_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s"), pAPI->GetString(IDS_INSERTRANDOMTRACKS), pAPI->GetString(IDS_KEYINSERT));
 			m_ArtistMenu.AppendMenu(MF_POPUP, ACMD_InsertRandomTracks, bf);
 			m_ArtistMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
 			m_ArtistMenu.AppendMenu(MF_POPUP, (UINT) mnuArtistServicesMenu.GetInternalHandler(), 
@@ -2334,7 +2334,7 @@ void CMainTreeCtrl::OnRButtonUp(UINT nFlags, CPoint point)
 				m_ArtistMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
 			}
 			m_ArtistMenu.AppendMenu(MF_POPUP, (UINT) mnuRatings.GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_RATING), pAPI->GetIcon(ICO_StarGold16));
-			_sntprintf(bf, 1000, _T("%s\t%s"), pAPI->GetString(IDS_PROPERTIES), pAPI->GetString(IDS_KEYHOME));
+			_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s"), pAPI->GetString(IDS_PROPERTIES), pAPI->GetString(IDS_KEYHOME));
 			m_ArtistMenu.AppendMenu(MF_STRING, ACMD_Properties, bf, pAPI->GetIcon(ICO_Properties16));
 		}
 		pAPI->GetMenuManager()->PrepareMenu(MenuManager::MNU_ArtistServices);
@@ -2348,12 +2348,12 @@ void CMainTreeCtrl::OnRButtonUp(UINT nFlags, CPoint point)
 			m_AlbumMenu.CreatePopupMenu();
 			m_AlbumMenu.SetFont(pAPI->GetFont(FONT_Dialogs));
 			m_AlbumMenu.SetIconSize(16,16);
-			_sntprintf(bf, 1000, _T("%s\t%s"), pAPI->GetString(IDS_PLAY), pAPI->GetString(IDS_KEYENTER));
+			_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s"), pAPI->GetString(IDS_PLAY), pAPI->GetString(IDS_KEYENTER));
 			m_AlbumMenu.AppendMenu(MF_STRING, ACMD_Play, bf, pAPI->GetIcon(ICO_Play16));
-			_sntprintf(bf, 1000, _T("%s\t%s + %s"), pAPI->GetString(IDS_ENQUEUE), pAPI->GetString(IDS_KEYSHIFT), pAPI->GetString(IDS_KEYENTER));
+			_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s + %s"), pAPI->GetString(IDS_ENQUEUE), pAPI->GetString(IDS_KEYSHIFT), pAPI->GetString(IDS_KEYENTER));
 			m_AlbumMenu.AppendMenu(MF_STRING, ACMD_Enqueue, bf, pAPI->GetIcon(ICO_Add16));
 			m_AlbumMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
-			_sntprintf(bf, 1000, _T("%s\t%s"), pAPI->GetString(IDS_INSERTRANDOMTRACKS), pAPI->GetString(IDS_KEYINSERT));
+			_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s"), pAPI->GetString(IDS_INSERTRANDOMTRACKS), pAPI->GetString(IDS_KEYINSERT));
 			m_AlbumMenu.AppendMenu(MF_POPUP, ACMD_InsertRandomTracks, bf);
 			m_AlbumMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
 			m_AlbumMenu.AppendMenu(MF_POPUP, (UINT) mnuAlbumServicesMenu.GetInternalHandler(), 
@@ -2380,7 +2380,7 @@ void CMainTreeCtrl::OnRButtonUp(UINT nFlags, CPoint point)
 			}
 			m_AlbumMenu.AppendMenu(MF_POPUP, (UINT) mnuRatings.GetInternalHandler(), 
 				(LPTSTR)pAPI->GetString(IDS_RATING), pAPI->GetIcon(ICO_StarGold16));
-			_sntprintf(bf, 1000, _T("%s\t%s"), pAPI->GetString(IDS_PROPERTIES), pAPI->GetString(IDS_KEYHOME));
+			_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s"), pAPI->GetString(IDS_PROPERTIES), pAPI->GetString(IDS_KEYHOME));
 			m_AlbumMenu.AppendMenu(MF_STRING, ACMD_Properties, bf, pAPI->GetIcon(ICO_Properties16));
 			//m_AlbumMenu.LoadToolbar(IDR_MAINLISTNORMAL);
 		}
@@ -2394,12 +2394,12 @@ void CMainTreeCtrl::OnRButtonUp(UINT nFlags, CPoint point)
 			m_GenericMenu.SetFont(pAPI->GetFont(FONT_Dialogs));
 			m_GenericMenu.SetIconSize(16,16);
 			TCHAR bf[1000];
-			_sntprintf(bf, 1000, _T("%s\t%s"), pAPI->GetString(IDS_PLAY), pAPI->GetString(IDS_KEYENTER));
+			_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s"), pAPI->GetString(IDS_PLAY), pAPI->GetString(IDS_KEYENTER));
 			m_GenericMenu.AppendMenu(MF_STRING, ACMD_Play, bf, pAPI->GetIcon(ICO_Play16));
-			_sntprintf(bf, 1000, _T("%s\t%s + %s"), pAPI->GetString(IDS_ENQUEUE), pAPI->GetString(IDS_KEYSHIFT), pAPI->GetString(IDS_KEYENTER));
+			_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s + %s"), pAPI->GetString(IDS_ENQUEUE), pAPI->GetString(IDS_KEYSHIFT), pAPI->GetString(IDS_KEYENTER));
 			m_GenericMenu.AppendMenu(MF_STRING, ACMD_Enqueue, bf, pAPI->GetIcon(ICO_Add16));
 			m_GenericMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
-			_sntprintf(bf, 1000, _T("%s\t%s"), pAPI->GetString(IDS_INSERTRANDOMTRACKS), pAPI->GetString(IDS_KEYINSERT));
+			_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s"), pAPI->GetString(IDS_INSERTRANDOMTRACKS), pAPI->GetString(IDS_KEYINSERT));
 			m_GenericMenu.AppendMenu(MF_POPUP, ACMD_InsertRandomTracks, bf);
 		}
 		m_GenericMenu.TrackPopupMenu(NULL, point.x, point.y, this);

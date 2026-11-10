@@ -209,13 +209,13 @@ LPCTSTR PlayListPane::GetTitle(UINT idx)
 			if (mpm == MPNM_AutoContinue)
 			{
 				//INT mode = pAPI->GetOption(OPT_PL_AutoContinueMode);
-				_sntprintf(m_stringBuffer, 500, _T("%s: %s [%s]"),
+				_sntprintf_s(m_stringBuffer, _TRUNCATE, _T("%s: %s [%s]"),
 					pAPI->GetString(IDS_MODE),
 					pAPI->GetStringForPlayListMode(mpm), 
 					pAPI->GetStringForRandomMode(RandomTrackModeEnum(ACmode)));
 			}
 			else
-				_sntprintf(m_stringBuffer, 500, _T("%s: %s"), 
+				_sntprintf_s(m_stringBuffer, _TRUNCATE, _T("%s: %s"), 
 					pAPI->GetString(IDS_MODE), 
 					pAPI->GetStringForPlayListMode(MediaPlayerNextMode(mpm)));
 		} 
@@ -224,7 +224,7 @@ LPCTSTR PlayListPane::GetTitle(UINT idx)
 		{
 			MediaPlayer* pl = pAPI->GetMediaPlayer();
 			INT totalTracks = pl->GetPlayListCount();
-			_sntprintf(m_stringBuffer, 500, _T("%s: %d"), pAPI->GetString(IDS_TRACKS), totalTracks);
+			_sntprintf_s(m_stringBuffer, _TRUNCATE, _T("%s: %d"), pAPI->GetString(IDS_TRACKS), totalTracks);
 		} 
 		break;
 	case 3:
@@ -245,15 +245,15 @@ LPCTSTR PlayListPane::GetTitle(UINT idx)
 			}
 			TCHAR time[40];
 			if (totalSeconds >= 3600)
-				_sntprintf(time, 40, _T("%d:%02d:%02d"), INT (totalSeconds / 3600), INT((totalSeconds % 3600)/60), INT(totalSeconds) % 60);
+				_sntprintf_s(time, _TRUNCATE, _T("%d:%02d:%02d"), INT (totalSeconds / 3600), INT((totalSeconds % 3600)/60), INT(totalSeconds) % 60);
 			else
-				_sntprintf(time, 40, _T("%d:%02d"), INT (totalSeconds / 60), INT(totalSeconds) % 60);
+				_sntprintf_s(time, _TRUNCATE, _T("%d:%02d"), INT (totalSeconds / 60), INT(totalSeconds) % 60);
 
-			_sntprintf(m_stringBuffer, 500, _T("%s: %s%s"), pAPI->GetString(IDS_DURATION),  time, bHasZeroLength ? _T(" +") : _T(""));
+			_sntprintf_s(m_stringBuffer, _TRUNCATE, _T("%s: %s%s"), pAPI->GetString(IDS_DURATION),  time, bHasZeroLength ? _T(" +") : _T(""));
 		} 
 		break;
 	case 4:
-		_sntprintf(m_stringBuffer, 500, _T("%s: [F4]"), pAPI->GetString(IDS_FOCUS));
+		_sntprintf_s(m_stringBuffer, _TRUNCATE, _T("%s: [F4]"), pAPI->GetString(IDS_FOCUS));
 		break;
 	default:
 		ASSERT(0);

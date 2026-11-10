@@ -58,7 +58,7 @@ void CGlobalHotkeysPP::ApplyTranslation(ITranslation& translation)
 		SetDlgItemText(IDC_ST_NEXT, pAPI->GetString(IDS_NEXT));
 		SetDlgItemText(IDC_ST_STOP, pAPI->GetString(IDS_STOP));
 		TCHAR bf[1000];
-		_sntprintf(bf, 1000, _T("%s (%s)"), pAPI->GetString(IDS_MINIPLAYER), pAPI->GetString(IDS_TOGGLE));
+		_sntprintf_s(bf, _TRUNCATE, _T("%s (%s)"), pAPI->GetString(IDS_MINIPLAYER), pAPI->GetString(IDS_TOGGLE));
 		SetDlgItemText(IDC_ST_MINIPLAYER, bf);
 		SetDlgItemText(IDC_ST_TOOLTIP, pAPI->GetString(IDS_TRAYTOOLTIP));
 		SetDlgItemText(IDC_ST_QUICKSEARCH, pAPI->GetString(IDS_SEARCH));

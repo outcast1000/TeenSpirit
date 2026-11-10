@@ -53,11 +53,11 @@ void CTaggingPP::ApplyTranslation(ITranslation& translation)
 		
 		SetDlgItemText(IDC_GR_TAGREADER, pAPI->GetString(IDS_TAGREADER));
 		TCHAR bf[500];
-		_sntprintf(bf, 500, _T("%s (%s)"), 
+		_sntprintf_s(bf, _TRUNCATE, _T("%s (%s)"), 
 			pAPI->GetString(IDS_READDEPTH),
 			pAPI->GetString(IDS_AUTO));
 		SetDlgItemText(IDC_ST_RD_AUTO, bf);
-		_sntprintf(bf, 500, _T("%s (%s)"), 
+		_sntprintf_s(bf, _TRUNCATE, _T("%s (%s)"), 
 			pAPI->GetString(IDS_READDEPTH),
 			pAPI->GetString(IDS_MANUALLY));
 		SetDlgItemText(IDC_ST_RD_MANUAL, bf);
@@ -196,9 +196,9 @@ void CTaggingPP::SaveTagManagerOptions()
 void CTaggingPP::UpdateScrollers()
 {
 	TCHAR bf[20];
-	_itot(m_rdAuto.GetPos() * 5, bf, 10);
+	_itot_s(m_rdAuto.GetPos() * 5, bf, 10);
 	SetDlgItemText(IDC_EDT_RD_AUTO, bf);
-	_itot(m_rdManual.GetPos() * 5, bf, 10);
+	_itot_s(m_rdManual.GetPos() * 5, bf, 10);
 	SetDlgItemText(IDC_EDT_RD_MANUAL, bf);
 	OnChange();
 }

@@ -200,7 +200,7 @@ BOOL BassInstance::InitBass()
 #ifdef DYN_LINK_BASS
 		TCHAR bf[MAX_PATH];
 		GetCurrentDirectory(MAX_PATH, bf);
-		_tcscat(bf, _T("\\bass.dll"));
+		_tcsncat_s(bf, _T("\\bass.dll"), _TRUNCATE);
 		hBass = LoadLibrary(bf);
 		if (hBass == 0) 
 		{
@@ -372,9 +372,8 @@ BOOL BassInstance::IsFileSupported(LPCTSTR str)
 	{
 		LPCTSTR filePath = &str[len - 4];
 		TCHAR ext[5];
-		_tcsncpy(ext, filePath, 4);
-		ext[4] = 0;
-		_tcslwr(ext);
+		_tcsncpy_s(ext, filePath, _TRUNCATE);
+		_tcslwr_s(ext);
 		return _tcsistr(m_sFormats.c_str(), ext) != NULL;
 	}
 	return FALSE;

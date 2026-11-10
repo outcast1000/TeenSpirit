@@ -27,7 +27,7 @@ CMiniVersion::CMiniVersion(LPCTSTR lpszPath)
 
 	if (lpszPath && lpszPath[0] != 0)
 	{
-		lstrcpyn(m_szPath, lpszPath, sizeof(m_szPath)-1);
+		_tcsncpy_s(m_szPath, lpszPath, _TRUNCATE);
 	}
 	else
 	{
@@ -176,7 +176,7 @@ BOOL CMiniVersion::GetCompanyName(LPTSTR lpszCompanyName, int nSize)
 	if (!lpszCompanyName)
 		return FALSE;
 	ZeroMemory(lpszCompanyName, nSize);
-	lstrcpyn(lpszCompanyName, m_szCompanyName, nSize-1);
+	_tcsncpy_s(lpszCompanyName, nSize, m_szCompanyName, _TRUNCATE);
 	return TRUE;
 }
 
@@ -187,7 +187,7 @@ BOOL CMiniVersion::GetFileDescription(LPTSTR lpszFileDescription, int nSize)
 	if (!lpszFileDescription)
 		return FALSE;
 	ZeroMemory(lpszFileDescription, nSize);
-	lstrcpyn(lpszFileDescription, m_szFileDescription, nSize-1);
+	_tcsncpy_s(lpszFileDescription, nSize, m_szFileDescription, _TRUNCATE);
 	return TRUE;
 }
 
@@ -198,7 +198,7 @@ BOOL CMiniVersion::GetProductName(LPTSTR lpszProductName, int nSize)
 	if (!lpszProductName)
 		return FALSE;
 	ZeroMemory(lpszProductName, nSize);
-	lstrcpyn(lpszProductName, m_szProductName, nSize-1);
+	_tcsncpy_s(lpszProductName, nSize, m_szProductName, _TRUNCATE);
 	return TRUE;
 }
 
@@ -261,7 +261,7 @@ BOOL CMiniVersion::GetStringInfo(LPCTSTR lpszKey, LPTSTR lpszReturnValue)
 		return FALSE;
 
 	TCHAR szKey[2000];
-	wsprintf(szKey, _T("\\StringFileInfo\\%04x%04x\\%s"),
+	_sntprintf_s(szKey, _TRUNCATE, _T("\\StringFileInfo\\%04x%04x\\%s"),
 				 LOWORD (*pdwTranslation), HIWORD (*pdwTranslation),
 				 lpszKey);
 
@@ -270,7 +270,7 @@ BOOL CMiniVersion::GetStringInfo(LPCTSTR lpszKey, LPTSTR lpszReturnValue)
 	if (!rc)
 		return FALSE;
 		
-	lstrcpy(lpszReturnValue, lpszValue);
+	_tcsncpy_s(lpszReturnValue, MAX_PATH * 2, lpszValue, _TRUNCATE);	//the m_sz* members
 
 	return TRUE;
 }

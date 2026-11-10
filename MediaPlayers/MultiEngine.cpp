@@ -296,7 +296,7 @@ BOOL MultiEngine::GetSoundData(MediaEngineSoundData mesd, void* buffer, UINT buf
 const TCHAR* MultiEngine::GetEngineDescription()
 {
 	if (m_pActiveEngine != NULL)
-		_sntprintf(m_engDesc, 100, _T("MultiEngine [%s]"), m_pActiveEngine->GetEngineDescription());
+		_sntprintf_s(m_engDesc, _TRUNCATE, _T("MultiEngine [%s]"), m_pActiveEngine->GetEngineDescription());
 	else
 		return _T("MultiEngine [NULL]");
 	m_engDesc[99] = 0;

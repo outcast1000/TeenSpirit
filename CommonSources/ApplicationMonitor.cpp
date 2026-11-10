@@ -129,7 +129,7 @@ BOOL ApplicationMonitor::WriteUINT(LPCTSTR keyName, UINT val)
 	if (m_hKey == 0)
 		return FALSE;
 	TCHAR bf[50];
-	_itot(val, bf, 10);
+	_itot_s(val, bf, 10);
 	if (RegSetValueEx(m_hKey, keyName, 0, REG_SZ, (LPBYTE)bf, _tcslen(bf) * sizeof(TCHAR)) == ERROR_SUCCESS)
 		return TRUE;
 	TRACE(_T("@1 ApplicationMonitor::WriteUINT Failure '%s'\r\n"), keyName);
@@ -201,7 +201,7 @@ void ApplicationMonitor::SaveState()
 BOOL ApplicationMonitor::InitByName(LPCTSTR applicationName)
 {
 	TCHAR regKey[500];
-	_sntprintf(regKey, 500, _T("Software\\%s\\AppMonDebug"), applicationName);
+	_sntprintf_s(regKey, _TRUNCATE, _T("Software\\%s\\AppMonDebug"), applicationName);
 	return Init(regKey, HKEY_CURRENT_USER);
 }
 

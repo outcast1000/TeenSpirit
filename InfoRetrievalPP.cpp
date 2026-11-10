@@ -112,7 +112,7 @@ void CInfoRetrievalPP::LoadInfoMgrOptions()
 {
 	PrgAPI* pAPI = PRGAPI();
 	TCHAR bf[20];
-	_itot(pAPI->GetOption(OPT_IM_AutoDlActivationDelay), bf, 10);
+	_itot_s(pAPI->GetOption(OPT_IM_AutoDlActivationDelay), bf, 10);
 	SetDlgItemText(IDC_EDT_DELAY, bf);
 	CheckDlgButton(IDC_CHK_DLARTBIO, pAPI->GetOption(OPT_IM_AutoDlArtistBio));
 	CheckDlgButton(IDC_CHK_DLARTPIC, pAPI->GetOption(OPT_IM_AutoDlArtistPicture));

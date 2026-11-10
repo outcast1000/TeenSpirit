@@ -130,7 +130,7 @@ static void LogWrite(HANDLE LogFile, LPCSTR Format, ...)
 	CHAR bf[bfLen];
 	va_list arglist;
 	va_start( arglist, Format);
-	_vsnprintf(bf, bfLen, Format, arglist);
+	_vsnprintf_s(bf, bfLen, _TRUNCATE, Format, arglist);
 	va_end(arglist);
 	DWORD bytesWritten;
 	WriteFile(LogFile, bf, strlen(bf), &bytesWritten, 0);
@@ -203,7 +203,7 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS pExceptPtrs,
 	*pszSlash = 0;
 
 	TCHAR logPath[_MAX_PATH];
-	_sntprintf(logPath, _MAX_PATH, _T("%s%s"), appPath, files[0]);
+	_sntprintf_s(logPath, _TRUNCATE, _T("%s%s"), appPath, files[0]);
 
 
 	HANDLE hLogFile = CreateFile(logPath, GENERIC_WRITE, 0, 0,
@@ -276,7 +276,7 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS pExceptPtrs,
 
 		// Replace the filename with our crash report exe file name
 		TCHAR reportExe[_MAX_PATH];
-		_sntprintf(reportExe, _MAX_PATH, _T("%s%s"), appPath, CRASHREPORT_EXENAME);
+		_sntprintf_s(reportExe, _TRUNCATE, _T("%s%s"), appPath, CRASHREPORT_EXENAME);
 		//TCHAR szCommandLine[MAX_PATH];
 		//lstrcpy(szCommandLine, reportExe);
 

@@ -104,17 +104,17 @@ void CHistTracksListCtrl::GetDispInfo(LV_ITEM* pItem)
 				else
 					pItem->iImage = ICO_TopRest16;
 			}
-			_itot(rank, pItem->pszText, 10);
+			_itot_s(rank, pItem->pszText, pItem->cchTextMax, 10);
 		}
 		break;
 	case COL_Hits:
-		_itot(rec.hits, pItem->pszText, 10);
+		_itot_s(rec.hits, pItem->pszText, pItem->cchTextMax, 10);
 		break;
 	case COL_TrackName:
-		_tcsncpy(pItem->pszText, rec.track.name.c_str(),  pItem->cchTextMax);
+		_tcsncpy_s(pItem->pszText, pItem->cchTextMax, rec.track.name.c_str(), _TRUNCATE);
 		break;
 	case COL_ArtistName:
-		_tcsncpy(pItem->pszText, rec.artist.name.c_str(),  pItem->cchTextMax);
+		_tcsncpy_s(pItem->pszText, pItem->cchTextMax, rec.artist.name.c_str(), _TRUNCATE);
 		break;
 	case COL_FirstDate:
 		PrgAPI::FormatDate(pItem->pszText, pItem->cchTextMax, rec.firstTime);

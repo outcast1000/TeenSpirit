@@ -186,7 +186,7 @@ void CPlayListListCtrl::DrawItem(Gdiplus::Graphics& g, INT nItem, Gdiplus::Rect&
 		{
 			curx += cMargin;
 			TCHAR num[50];
-			UINT len = _sntprintf(num, 50, _T("%02d"), nItem + 1);
+			UINT len = _sntprintf_s(num, _TRUNCATE, _T("%02d"), nItem + 1);
 			CRect rcTest(rcSubItem);
 			rcTest.left = curx;
 			pDC->DrawText(num, len, &rcTest, DT_CALCRECT | DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
@@ -209,7 +209,7 @@ void CPlayListListCtrl::DrawItem(Gdiplus::Graphics& g, INT nItem, Gdiplus::Rect&
 
 		//=== Draw the Time
 		TCHAR time[50];
-		UINT len = _sntprintf(time, 50, _T("%d:%02d"), INT (mpli.length / 60), INT(mpli.length) % 60);
+		UINT len = _sntprintf_s(time, _TRUNCATE, _T("%d:%02d"), INT (mpli.length / 60), INT(mpli.length) % 60);
 		CRect rcTest(rcSubItem);
 		pDC->DrawText(time, len, &rcTest, DT_CALCRECT | DT_RIGHT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
 		CRect rcTime(rcSubItem);
@@ -752,7 +752,7 @@ void CPlayListListCtrl::RecurseDirectories(LPCTSTR startPath, INT& playListPos)
 	UINT NumTracks = 0;
 	WIN32_FIND_DATA wfd;
 
-	_sntprintf(wildCard, MAX_PATH, _T("%s\\*.*"), startPath);
+	_sntprintf_s(wildCard, _TRUNCATE, _T("%s\\*.*"), startPath);
 	HANDLE hFF = ::FindFirstFile(wildCard, &wfd);
 	BOOL bContinueSearch = TRUE;
 	while (bContinueSearch && (hFF != INVALID_HANDLE_VALUE))
@@ -767,7 +767,7 @@ void CPlayListListCtrl::RecurseDirectories(LPCTSTR startPath, INT& playListPos)
 			}
 			if (!IsDots)
 			{
-				_sntprintf(wildCard, MAX_PATH, _T("%s\\%s"), startPath, wfd.cFileName);
+				_sntprintf_s(wildCard, _TRUNCATE, _T("%s\\%s"), startPath, wfd.cFileName);
 				RecurseDirectories(wildCard, playListPos);
 			}
 		}
@@ -775,7 +775,7 @@ void CPlayListListCtrl::RecurseDirectories(LPCTSTR startPath, INT& playListPos)
 		{
 			if (m_pPlayer->CanPlay(wfd.cFileName))
 			{
-				_sntprintf(wildCard, MAX_PATH, _T("%s\\%s"), startPath, wfd.cFileName);
+				_sntprintf_s(wildCard, _TRUNCATE, _T("%s\\%s"), startPath, wfd.cFileName);
 				AddPlayListItem(wildCard, playListPos);
 				playListPos++;
 			}

@@ -213,9 +213,8 @@ static TrackTypesEnum GetTrackType(LPCTSTR fileName)
 		if (len <= 4)// "a.mp3" //
 			return TTYPE_Unsupported;//Don't accept so small files
 		TCHAR ext[5];
-		_tcsncpy(ext, &fileName[len - 4], 4);
-		ext[4] = 0;
-		_tcslwr(ext);
+		_tcsncpy_s(ext, &fileName[len - 4], _TRUNCATE);
+		_tcslwr_s(ext);
 		const TCHAR* const audioFileTypes = _T(".mp3.mp2.wma.cda.ogg.mp1aiff.xm .it .s3m.mod.mtm.umx.mo3.mpcflac.midmidi.ac3.mp4.aac.ape.m4a.wav.oga.wv .spx.tta.m4b.m4p.3g2.aif");
 		const TCHAR* const videoFileTypes = _T(".mpgmpeg.avi.wmv.ogm");
 		LPCTSTR f = _tcsstr(audioFileTypes, ext);

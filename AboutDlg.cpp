@@ -111,7 +111,7 @@ BOOL CAboutDlg::OnInitDialog()
 	if (!GetFileVersion(fv))
 		return TRUE;
 	TCHAR bf[1000];
-	_sntprintf(bf, 1000, _T("<b>%s v%d.%d build %d.%d</b>")
+	_sntprintf_s(bf, _TRUNCATE, _T("<b>%s v%d.%d build %d.%d</b>")
 		_T("<br> - Source code and news on <font color=\"#0000ff\"><u><a href=\"app:WM_APP_WEBSITE\">GitHub</a></u></font>.")
 		_T("<br> - Report a problem or ask a question in the <font color=\"#0000ff\"><u><a href=\"app:WM_APP_FORUM\">issue tracker</a></u></font>.")
 		,

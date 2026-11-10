@@ -309,7 +309,7 @@ void CXNamedColors::GetColorNameByIndex(int index,
 	if ((index >= 0) && (index < m_nNamedColors))
 	{
 		memset(lpszBuf, 0, nBufSize*sizeof(TCHAR));
-		_tcsncpy(lpszBuf, m_aColorNames[index].pszName, nBufSize-1);
+		_tcsncpy_s(lpszBuf, nBufSize, m_aColorNames[index].pszName, _TRUNCATE);
 	}
 }
 
@@ -327,7 +327,7 @@ void CXNamedColors::GetHex(LPTSTR lpszBuf, DWORD nBufSize)	// nBufSize in TCHARs
 	BYTE g = GetGValue(GetRGB());
 	BYTE b = GetBValue(GetRGB());
 
-	_sntprintf(lpszBuf, nBufSize-1, _T("#%02X%02X%02X"), r, g, b);
+	_sntprintf_s(lpszBuf, nBufSize-1, _TRUNCATE, _T("#%02X%02X%02X"), r, g, b);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -353,7 +353,7 @@ void CXNamedColors::GetName(LPTSTR lpszBuf, DWORD nBufSize)	// nBufSize in TCHAR
 	{
 		if (m_Color == m_aColorNames[i].color)
 		{
-			_tcsncpy(lpszBuf, m_aColorNames[i].pszName, nBufSize-1);
+			_tcsncpy_s(lpszBuf, nBufSize, m_aColorNames[i].pszName, _TRUNCATE);
 			break;
 		}
 	}
@@ -369,7 +369,7 @@ void CXNamedColors::GetRGBString(LPTSTR lpszBuf, DWORD nBufSize) // nBufSize in 
 
 	memset(lpszBuf, 0, nBufSize*sizeof(TCHAR));
 
-	_sntprintf(lpszBuf, nBufSize-1, _T("%u,%u,%u"), GetR(), GetG(), GetB());
+	_sntprintf_s(lpszBuf, nBufSize-1, _TRUNCATE, _T("%u,%u,%u"), GetR(), GetG(), GetB());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

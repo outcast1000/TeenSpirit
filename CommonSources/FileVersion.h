@@ -28,7 +28,7 @@ struct FileVersion
 	//bfLen should be at least 24
 	void toString(LPTSTR bf, UINT bfLen) const
 	{
-		_sntprintf(bf, bfLen, _T("%d.%d.%d.%d"), Major, Minor, Build, SubBuild);
+		_sntprintf_s(bf, bfLen, _TRUNCATE, _T("%d.%d.%d.%d"), Major, Minor, Build, SubBuild);
 		if (bfLen > 0)
 			bf[bfLen - 1] = 0;
 	}

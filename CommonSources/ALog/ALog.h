@@ -305,7 +305,7 @@ public:
 	ALogBench(LPCTSTR funcName, BOOL bAutoStart)
 	{
 		bStopped = FALSE;
-		_tcsncpy(m_funcName, funcName, maxLen);
+		_tcsncpy_s(m_funcName, funcName, _TRUNCATE);
 		m_funcName[maxLen - 1] = 0;
 		if (bAutoStart)
 			m_timer.Stop();
@@ -343,21 +343,21 @@ class ALogStackTracer
 public:
 	ALogStackTracer(LPCTSTR funcName, LPCTSTR param)
 	{
-		_sntprintf(bf, maxLen, _T("%s p:'%s'"), funcName, param);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s p:'%s'"), funcName, param);
 		bf[maxLen - 1] = 0;
 		TRACE(_T("[IN] %s\r\n"), bf);
 		m_timer.Start(TRUE);
 	}
 	ALogStackTracer(LPCTSTR funcName, INT param)
 	{
-		_sntprintf(bf, maxLen, _T("%s p: %d"), funcName, param);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s p: %d"), funcName, param);
 		bf[maxLen - 1] = 0;
 		TRACE(_T("[IN] %s\r\n"), bf);
 		m_timer.Start(TRUE);
 	}
 	ALogStackTracer(LPCTSTR funcName)
 	{
-		_tcsncpy(bf, funcName, maxLen);
+		_tcsncpy_s(bf, funcName, _TRUNCATE);
 		bf[maxLen - 1] = 0;
 		TRACE(_T("[IN] %s\r\n"), bf);
 		m_timer.Start(TRUE);

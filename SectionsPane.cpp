@@ -115,7 +115,7 @@ const LPCTSTR cSectionsPane_Depth = _T("Depth");
 void SectionsPane::ReadSortOption(IPaneState& paneState, SectionTypeEnum st)
 {
 	TCHAR bf[500];
-	_sntprintf(bf, 500, _T("%s_%d"), cSectionsPane_Sorting, st);
+	_sntprintf_s(bf, _TRUNCATE, _T("%s_%d"), cSectionsPane_Sorting, st);
 	INT rso = paneState.GetIntSetting(bf);
 	if (rso > -RSO_Last && rso < RSO_Last)
 		m_treeControl.SetSort(st, SortOption((RecordSortOptionsEnum)(rso > 0 ? rso : - rso), rso > 0));
@@ -124,7 +124,7 @@ void SectionsPane::ReadSortOption(IPaneState& paneState, SectionTypeEnum st)
 void SectionsPane::WriteSortOption(IPaneState& paneState, SectionTypeEnum st)
 {
 	TCHAR bf[500];
-	_sntprintf(bf, 500, _T("%s_%d"), cSectionsPane_Sorting, st);
+	_sntprintf_s(bf, _TRUNCATE, _T("%s_%d"), cSectionsPane_Sorting, st);
 	SortOption so = m_treeControl.GetSort(st);
 	paneState.SetIntSetting(bf, INT(so.option) * (so.ascending ? 1 : -1));
 }
@@ -172,7 +172,7 @@ BOOL SectionsPane::LoadState(IPaneState& paneState)
 		for (INT i = 0; i < nDepth; i++)
 		{
 			TCHAR bf[500];
-			_sntprintf(bf, 500, _T("%s_%d"), cSectionsPane_Depth, i);
+			_sntprintf_s(bf, _TRUNCATE, _T("%s_%d"), cSectionsPane_Depth, i);
 			rso = paneState.GetIntSetting(bf);
 			TreeNode* pChildNode = pParentNode->GetChild(rso);
 			if (pChildNode != NULL)
@@ -231,7 +231,7 @@ BOOL SectionsPane::SaveState(IPaneState& paneState)
 	for (INT i = 0; i < (INT)selIndex.size(); i++)
 	{
 		TCHAR bf[500];
-		_sntprintf(bf, 500, _T("%s_%d"), cSectionsPane_Depth, i);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s_%d"), cSectionsPane_Depth, i);
 		paneState.SetIntSetting(bf, (INT) selIndex[selIndex.size() - i - 1]);
 	}
 	return TRUE;
@@ -245,18 +245,18 @@ LPCTSTR SectionsPane::GetTitle(UINT idx)
 	case 0:
 		return pAPI->GetString(IDS_MUSICBROWSER);
 	case 1:
-		_sntprintf(m_stringBuffer, 500, _T("%s: %s"), 
+		_sntprintf_s(m_stringBuffer, _TRUNCATE, _T("%s: %s"), 
 			pAPI->GetString(IDS_FILTER),
 			pAPI->GetStringForSectionFilter(m_treeControl.GetFilter()));
 		break;
 	case 2:
 		{
-			INT curLen = _sntprintf(m_stringBuffer, 500, _T("%s: "), pAPI->GetString(IDS_MODE));
+			INT curLen = _sntprintf_s(m_stringBuffer, _TRUNCATE, _T("%s: "), pAPI->GetString(IDS_MODE));
 			pAPI->GetStringForSectionMode(m_treeControl.GetMode(), &m_stringBuffer[curLen], 500 - curLen - 1);
 		}
 		break;
 	case 3:
-		_sntprintf(m_stringBuffer, 500, _T("%s: [F1]"), pAPI->GetString(IDS_FOCUS));
+		_sntprintf_s(m_stringBuffer, _TRUNCATE, _T("%s: [F1]"), pAPI->GetString(IDS_FOCUS));
 		break;
 	default:
 		ASSERT(0);
@@ -701,7 +701,7 @@ ITSMenu& SectionsPane::GetInternalMenu(MENUS mnu)
 		for (int i = SSTYL_First + 1 ; i < SSTYL_Last; i++)
 		{
 			TCHAR bf[100];
-			_sntprintf(bf, 100, _T("%s: %d"), pAPI->GetString(IDS_STYLE), i);
+			_sntprintf_s(bf, _TRUNCATE, _T("%s: %d"), pAPI->GetString(IDS_STYLE), i);
 			curMenu.AppendMenu(ITSMenu::MIT_String, i + MENU_SectionStylesHolder, bf);
 		}
 		break;
@@ -710,8 +710,7 @@ ITSMenu& SectionsPane::GetInternalMenu(MENUS mnu)
 		curMenu.AppendMenu(ITSMenu::MIT_Separator, NULL, NULL);
 		for (int i = 1; i<=10; i++)
 		{
-			TCHAR bf[20];
-			curMenu.AppendMenu(ITSMenu::MIT_String, i + MENU_SectionGroupingHolder, _itot(i, bf, 10));
+			curMenu.AppendMenu(ITSMenu::MIT_String, i + MENU_SectionGroupingHolder, std::to_wstring(i).c_str());
 		}
 		break;
 	default:

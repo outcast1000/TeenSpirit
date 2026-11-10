@@ -39,7 +39,7 @@
 
 LPCTSTR DataRecordsXmlSerializer::SystemTime2String(LPTSTR buffer, SYSTEMTIME& st)
 {
-	_sntprintf(buffer, 100, _T("%d-%d-%d-%d-%d-%d"),
+	_sntprintf_s(buffer, 100, _TRUNCATE, _T("%d-%d-%d-%d-%d-%d"),
 		st.wYear, st.wMonth, st.wDay, 
 		st.wHour, st.wMinute, st.wSecond);
 	return buffer;
@@ -51,30 +51,30 @@ void DataRecordsXmlSerializer::AppendXMLElement(IXmlWriter& xmlWriter, TrackReco
 	TCHAR bf[100];
 	xmlWriter.WriteElementString(NULL, _T("trackdateadded"), NULL, SystemTime2String(bf, rec.dateAdded));
 	xmlWriter.WriteElementString(NULL, _T("tracklocation"), NULL, rec.location.c_str());
-	_itot(rec.bitrate, bf, 10);
+	_itot_s(rec.bitrate, bf, 10);
 	xmlWriter.WriteElementString(NULL, _T("trackbitrate"), NULL, bf);
-	_itot(rec.duration, bf, 10);
+	_itot_s(rec.duration, bf, 10);
 	xmlWriter.WriteElementString(NULL, _T("trackduration"), NULL, bf);
-	_itot(rec.size, bf, 10);
+	_itot_s(rec.size, bf, 10);
 	xmlWriter.WriteElementString(NULL, _T("tracksize"), NULL, bf);
-	_itot(rec.trackNo, bf, 10);
+	_itot_s(rec.trackNo, bf, 10);
 	xmlWriter.WriteElementString(NULL, _T("tracktrackNo"), NULL, bf);
-	_itot(rec.year, bf, 10);
+	_itot_s(rec.year, bf, 10);
 	xmlWriter.WriteElementString(NULL, _T("trackyear"), NULL, bf);
-	_itot(rec.rating, bf, 10);
+	_itot_s(rec.rating, bf, 10);
 	xmlWriter.WriteElementString(NULL, _T("trackrating"), NULL, bf);
 }
 void DataRecordsXmlSerializer::AppendXMLElement(IXmlWriter& xmlWriter, AlbumRecord& rec)
 {
 	xmlWriter.WriteElementString(NULL, _T("albumname"), NULL, rec.name.c_str());
 	TCHAR bf[100];
-	_itot(rec.rating, bf, 10);
+	_itot_s(rec.rating, bf, 10);
 	xmlWriter.WriteElementString(NULL, _T("albumrating"), NULL, bf);
-	_itot(rec.year, bf, 10);
+	_itot_s(rec.year, bf, 10);
 	xmlWriter.WriteElementString(NULL, _T("albumyear"), NULL, bf);
 	if (rec.trackCount > 0)
 	{
-		_itot(rec.trackCount, bf, 10);
+		_itot_s(rec.trackCount, bf, 10);
 		xmlWriter.WriteElementString(NULL, _T("albumtrackcount"), NULL, bf);
 	}
 }
@@ -82,11 +82,11 @@ void DataRecordsXmlSerializer::AppendXMLElement(IXmlWriter& xmlWriter, ArtistRec
 {
 	xmlWriter.WriteElementString(NULL, _T("artistname"), NULL, rec.name.c_str());
 	TCHAR bf[100];
-	_itot(rec.rating, bf, 10);
+	_itot_s(rec.rating, bf, 10);
 	xmlWriter.WriteElementString(NULL, _T("artistrating"), NULL, bf);
 	if (rec.trackCount > 0)
 	{
-		_itot(rec.trackCount, bf, 10);
+		_itot_s(rec.trackCount, bf, 10);
 		xmlWriter.WriteElementString(NULL, _T("artisttrackcount"), NULL, bf);
 	}
 }
@@ -96,7 +96,7 @@ void DataRecordsXmlSerializer::AppendXMLElement(IXmlWriter& xmlWriter, GenreReco
 	if (rec.trackCount > 0)
 	{
 		TCHAR bf[100];
-		_itot(rec.trackCount, bf, 10);
+		_itot_s(rec.trackCount, bf, 10);
 		xmlWriter.WriteElementString(NULL, _T("genretrackcount"), NULL, bf);
 	}
 }
@@ -108,17 +108,17 @@ void DataRecordsXmlSerializer::AppendXMLElement(IXmlWriter& xmlWriter, Collectio
 	xmlWriter.WriteElementString(NULL, _T("collectiondateadded"), NULL, SystemTime2String(bf, rec.dateAdded));
 	xmlWriter.WriteElementString(NULL, _T("collectiondateupdated"), NULL, SystemTime2String(bf, rec.dateUpdated));
 
-	_itot(rec.serial, bf, 10);
+	_itot_s(rec.serial, bf, 10);
 	xmlWriter.WriteElementString(NULL, _T("collectionserial"), NULL, bf);
-	_itot(rec.type, bf, 10);
+	_itot_s(rec.type, bf, 10);
 	xmlWriter.WriteElementString(NULL, _T("collectiontype"), NULL, bf);
 	if (rec.trackCount > 0)
 	{
-		_itot(rec.trackCount, bf, 10);
+		_itot_s(rec.trackCount, bf, 10);
 		xmlWriter.WriteElementString(NULL, _T("collectiontrackcount"), NULL, bf);
-		_itot(rec.sumSize, bf, 10);
+		_itot_s(rec.sumSize, bf, 10);
 		xmlWriter.WriteElementString(NULL, _T("collectionsumsize"), NULL, bf);
-		_itot(rec.sumDuration, bf, 10);
+		_itot_s(rec.sumDuration, bf, 10);
 		xmlWriter.WriteElementString(NULL, _T("collectionsumduration"), NULL, bf);
 	}
 }
@@ -127,7 +127,7 @@ void DataRecordsXmlSerializer::AppendXMLElement(IXmlWriter& xmlWriter, HistLogRe
 {
 	TCHAR bf[100];
 	xmlWriter.WriteElementString(NULL, _T("dateadded"), NULL, SystemTime2String(bf, rec.dateAdded));
-	_itot(rec.actID, bf, 10);
+	_itot_s(rec.actID, bf, 10);
 	xmlWriter.WriteElementString(NULL, _T("actiontype"), NULL, bf);
 }
 void DataRecordsXmlSerializer::AppendXMLElement(IXmlWriter& xmlWriter, HistArtistRecord& rec)
@@ -256,7 +256,7 @@ BOOL DataRecordsXmlSerializer::Export(LPCTSTR fileName, FullHistTrackRecordColle
 		if ((*it)->hits > 0)
 		{
 			TCHAR bf[100];
-			_itot((*it)->hits, bf, 10);
+			_itot_s((*it)->hits, bf, 10);
 			pWriter->WriteElementString(NULL, _T("hits"), NULL, bf);
 			pWriter->WriteElementString(NULL, _T("firsttime"), NULL, 
 				SystemTime2String(bf, (*it)->firstTime));
@@ -304,7 +304,7 @@ BOOL DataRecordsXmlSerializer::Export(LPCTSTR fileName, FullHistArtistRecordColl
 		if ((*it)->hits > 0)
 		{
 			TCHAR bf[100];
-			_itot((*it)->hits, bf, 10);
+			_itot_s((*it)->hits, bf, 10);
 			pWriter->WriteElementString(NULL, _T("hits"), NULL, bf);
 			pWriter->WriteElementString(NULL, _T("firsttime"), NULL, 
 				SystemTime2String(bf, (*it)->firstTime));

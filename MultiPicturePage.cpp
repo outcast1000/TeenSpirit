@@ -65,7 +65,7 @@ void CMultiPicturePage::Refresh()
 		{
 			if (m_pics[m_curPic].status == PS_Removed)
 			{
-				_sntprintf(msg, 1000, _T("%s"), 
+				_sntprintf_s(msg, _TRUNCATE, _T("%s"), 
 					pLang->GetString(IDS_REMOVE));
 			}
 			else
@@ -73,14 +73,14 @@ void CMultiPicturePage::Refresh()
 				CSize picSize = m_Pic.GetPictureSize();
 				if (picSize.cx > 0)
 				{
-					_sntprintf(msg, 1000, _T("%s: %d x %d\r\n%s: %s"),
+					_sntprintf_s(msg, _TRUNCATE, _T("%s: %d x %d\r\n%s: %s"),
 						pLang->GetString(IDS_SIZE),
 						picSize.cx, picSize.cy,
 						pLang->GetString(IDS_LOCATION),
 						m_pics[m_curPic].path.c_str());
 				}
 				else
-					_sntprintf(msg, 1000, _T("Invalid File\r\n%s: %s"), 
+					_sntprintf_s(msg, _TRUNCATE, _T("Invalid File\r\n%s: %s"), 
 					pLang->GetString(IDS_LOCATION),
 					m_pics[m_curPic].path.c_str());
 			}

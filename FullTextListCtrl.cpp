@@ -37,7 +37,7 @@ m_hFont(NULL)
 	HDC hdc = ::GetDC(0);
 	//	::GetObject(::GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), &lf);
 	memset(&lf, 0, sizeof(LOGFONT));
-	_tcscpy(lf.lfFaceName, _T("Tahoma"));
+	_tcsncpy_s(lf.lfFaceName, _T("Tahoma"), _TRUNCATE);
 	lf.lfWeight = 400;
 	lf.lfHeight = 13;
 	m_pMainTextFont = new Gdiplus::Font(hdc, &lf);
@@ -107,7 +107,7 @@ void CFullTextListCtrl::DrawItem(Gdiplus::Graphics& g, INT nItem, Gdiplus::Rect&
 	g.FillRectangle(pBkBrush, itemRC);
 
 	TCHAR bf[1000];
-	_sntprintf(bf, 1000, _T("%s | %s"), 
+	_sntprintf_s(bf, _TRUNCATE, _T("%s | %s"), 
 		m_tracks[nItem]->track.name.c_str(),
 		m_tracks[nItem]->artist.name.c_str());
 	g.DrawString(bf, 

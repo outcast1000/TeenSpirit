@@ -198,7 +198,7 @@ void CXColorStatic::SetFont(LPCTSTR lpszFaceName,
 	}
 	else
 	{
-		_tcsncpy(lf.lfFaceName, lpszFaceName, sizeof(lf.lfFaceName)/sizeof(TCHAR)-1);
+		_tcsncpy_s(lf.lfFaceName, lpszFaceName, _TRUNCATE);
 	}
 
 	lf.lfHeight = GetFontHeight(nPointSize);

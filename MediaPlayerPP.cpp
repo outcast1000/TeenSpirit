@@ -56,7 +56,7 @@ void CMediaPlayerPP::ApplyTranslation(ITranslation& translation)
 		SetDlgItemText(IDC_ST_DEFAULTPLAYERACTION, pLang->GetString(IDS_DEFAULTPLAYERACTION));
 
 		TCHAR bf[300];
-		_sntprintf(bf, 300, _T("%s (%s)"), pLang->GetString(IDS_SAFEMODE), pLang->GetString(IDS_NEEDSPROGRAMRESATART));
+		_sntprintf_s(bf, _TRUNCATE, _T("%s (%s)"), pLang->GetString(IDS_SAFEMODE), pLang->GetString(IDS_NEEDSPROGRAMRESATART));
 		SetDlgItemText(IDC_CHK_SAFEMODE, bf);
 		SetDlgItemText(IDC_GR_CROSSFADE, pLang->GetString(IDS_CROSSFADE));
 		SetDlgItemText(IDC_CHK_CFENABLED, pLang->GetString(IDS_ENABLED));

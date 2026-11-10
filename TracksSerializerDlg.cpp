@@ -123,7 +123,7 @@ void CTracksSerializerDlg::OnLvnGetdispinfoTracklist(NMHDR *pNMHDR, LRESULT *pRe
 
 		//Copy the text to the LV_ITEM structure
 		//Maximum number of characters is in pItem->cchTextMax
-		lstrcpyn(pItem->pszText, str, pItem->cchTextMax);
+		_tcsncpy_s(pItem->pszText, pItem->cchTextMax, str, _TRUNCATE);
 	}
 
 	//Do the list need image information?

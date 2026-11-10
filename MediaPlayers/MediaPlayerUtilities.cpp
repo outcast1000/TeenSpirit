@@ -45,8 +45,7 @@ INT MediaPlayerUtilities::InsertM3U(MediaPlayer& player, LPCTSTR filename, INT A
 	LPCTSTR pos = _tcsrchr(filename, '\\');
 	if (pos != NULL)
 	{
-		_tcsncpy(m3uPath, filename, pos - filename + 1);
-		m3uPath[pos - filename + 1] = 0;
+		StrCopyN(m3uPath, filename, pos - filename + 1);
 	}
 	//=== Get relative m3u Drive / Net Share
 	TCHAR m3uDrive[MAX_PATH];
@@ -62,8 +61,7 @@ INT MediaPlayerUtilities::InsertM3U(MediaPlayer& player, LPCTSTR filename, INT A
 		LPCTSTR firstSlash = _tcsrchr(&filename[2], '\\');
 		if (firstSlash != NULL)
 		{
-			_tcsncpy(m3uDrive, filename, firstSlash - filename);
-			m3uDrive[firstSlash - filename] = 0;
+			StrCopyN(m3uDrive, filename, firstSlash - filename);
 		}
 	}
 
@@ -79,26 +77,27 @@ INT MediaPlayerUtilities::InsertM3U(MediaPlayer& player, LPCTSTR filename, INT A
 		if (line[0] == '#')
 		{
 			TCHAR* ln = (TCHAR*)line.c_str();
-			TCHAR* tok = _tcstok(ln, _T(":"));
+			TCHAR* tokContext = NULL;
+			TCHAR* tok = _tcstok_s(ln, _T(":"), &tokContext);
 			if ((tok != NULL) && (_tcscmp(tok, M3U_EXTINF) == 0))
 			{
 				//Duration
-				tok = _tcstok(NULL, _T(","));
+				tok = _tcstok_s(NULL, _T(","), &tokContext);
 				if (tok == NULL)
 					continue;
 				mpli.length = _ttoi(tok);
 				//Artist
-				tok = _tcstok(NULL, _T("-"));
+				tok = _tcstok_s(NULL, _T("-"), &tokContext);
 				if (tok == NULL)
 					continue;
-				_tcsncpy(bf, _tcsrtrim(_tcsltrim(tok)), MAX_PATH);
+				_tcsncpy_s(bf, _tcsrtrim(_tcsltrim(tok)), _TRUNCATE);
 				bf[MAX_PATH - 1] = 0;
 				artist = bf;
 				//Track
-				tok = _tcstok(NULL, _T("\0"));
+				tok = _tcstok_s(NULL, _T("\0"), &tokContext);
 				if (tok == NULL)
 					continue;
-				_tcsncpy(bf, _tcsrtrim(_tcsltrim(tok)), MAX_PATH);
+				_tcsncpy_s(bf, _tcsrtrim(_tcsltrim(tok)), _TRUNCATE);
 				bf[MAX_PATH - 1] = 0;
 				title = bf;
 			}
@@ -155,7 +154,7 @@ BOOL MediaPlayerUtilities::SaveM3U(MediaPlayer& player, LPCTSTR filename)
 		{
 			CHAR lineBf[2000];
 			TCHAR lineBfU[2000];
-			sprintf(lineBf, "%S\n", M3U_HEADER);
+			_snprintf_s(lineBf, _TRUNCATE, "%S\n", M3U_HEADER);
 			f.Write(lineBf, strlen(lineBf));
 			for (int i = 0; i < count ; i++)
 			{
@@ -164,7 +163,7 @@ BOOL MediaPlayerUtilities::SaveM3U(MediaPlayer& player, LPCTSTR filename)
 				{
 					if (PathFileExists(mpli.url))
 					{
-						_sntprintf(lineBfU, 2000, 
+						_sntprintf_s(lineBfU, _TRUNCATE, 
 							_T("%s:%d,%s - %s\n%s\n"),
 							M3U_EXTINF,
 							mpli.length, 

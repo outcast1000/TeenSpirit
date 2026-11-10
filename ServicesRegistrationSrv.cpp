@@ -215,12 +215,12 @@ BOOL ServicesRegistrationSrv::ImportXMLFile(LPCTSTR wsxmlPath)
 			if (si.hIcon == NULL)
 			{
 				TCHAR bf[MAX_PATH];
-				_tcsncpy(bf, wsxmlPath, MAX_PATH);
+				_tcsncpy_s(bf, wsxmlPath, _TRUNCATE);
 				LPTSTR pos = _tcsrchr(bf, _T('.'));
 				if (pos != NULL)
 				{
 					pos[1] = 0;
-					_tcscat(bf, _T("ico"));
+					_tcsncat_s(bf, _T("ico"), _TRUNCATE);
 					si.hIcon = (HICON) LoadImage(NULL, bf, IMAGE_ICON, 16, 16, LR_LOADFROMFILE | LR_DEFAULTCOLOR);
 				}
 			}
@@ -237,7 +237,7 @@ INT ServicesRegistrationSrv::LoadServices(LPCTSTR webServicesRoot)
 	ASSERT(webServicesRoot != NULL);
 	ASSERT(webServicesRoot[_tcslen(webServicesRoot) - 1] == '\\');
 	TCHAR spec[_MAX_PATH];
-	_sntprintf(spec, _MAX_PATH, _T("%s*.wsxml"), webServicesRoot);
+	_sntprintf_s(spec, _TRUNCATE, _T("%s*.wsxml"), webServicesRoot);
 	WIN32_FIND_DATA data;
 	HANDLE h=FindFirstFile(spec,&data);
 	INT nImportedFiles = 0;
@@ -246,7 +246,7 @@ INT ServicesRegistrationSrv::LoadServices(LPCTSTR webServicesRoot)
 		do 
 		{
 			TCHAR fname[_MAX_PATH];
-			_sntprintf(fname, _MAX_PATH, _T("%s%s"), webServicesRoot, data.cFileName);
+			_sntprintf_s(fname, _TRUNCATE, _T("%s%s"), webServicesRoot, data.cFileName);
 			if (ImportXMLFile(fname))
 				nImportedFiles++;
 		} 

@@ -74,39 +74,9 @@ enum Win32Type{
 
 Win32Type IsShellType()
 {
-	Win32Type  ShellType;
-	DWORD winVer;
-	OSVERSIONINFO *osvi;
-	
-	winVer=GetVersion();
-	if(winVer<0x80000000){/*NT */
-		ShellType=WinNT3;
-		osvi= (OSVERSIONINFO *)malloc(sizeof(OSVERSIONINFO));
-		if (osvi!=NULL){
-			memset(osvi,0,sizeof(OSVERSIONINFO));
-			osvi->dwOSVersionInfoSize=sizeof(OSVERSIONINFO);
-			GetVersionEx(osvi);
-			if(osvi->dwMajorVersion==4L)ShellType=WinNT4;
-			else if(osvi->dwMajorVersion==5L&&osvi->dwMinorVersion==0L)ShellType=Win2000;
-			else if(osvi->dwMajorVersion==5L&&osvi->dwMinorVersion==1L)ShellType=WinXP;
-			free(osvi);
-		}
-	}
-	else if  (LOBYTE(LOWORD(winVer))<4)
-		ShellType=Win32s;
-	else{
-		ShellType=Win95;
-		osvi= (OSVERSIONINFO *)malloc(sizeof(OSVERSIONINFO));
-		if (osvi!=NULL){
-			memset(osvi,0,sizeof(OSVERSIONINFO));
-			osvi->dwOSVersionInfoSize=sizeof(OSVERSIONINFO);
-			GetVersionEx(osvi);
-			if(osvi->dwMajorVersion==4L&&osvi->dwMinorVersion==10L)ShellType=Win98;
-			else if(osvi->dwMajorVersion==4L&&osvi->dwMinorVersion==90L)ShellType=WinME;
-			free(osvi);
-		}
-	}
-	return ShellType;
+	//The app needs Windows 7 or later (NT 6.1+): the original detection, which only knew
+	//Windows 95 to XP, returned WinNT3 for every NT version from 6 on.
+	return WinNT3;
 }
 
 static Win32Type g_Shell=IsShellType();
@@ -235,7 +205,7 @@ void BCMenuData::SetWideString(const wchar_t *szWideString)
     {
 		m_szMenuText = new wchar_t[sizeof(wchar_t)*(wcslen(szWideString)+1)];
 		if (m_szMenuText)
-			wcscpy(m_szMenuText,szWideString);
+			wcsncpy_s(m_szMenuText, wcslen(szWideString) + 1, szWideString, _TRUNCATE);
     }
 	else
 		m_szMenuText=NULL;//set to NULL so we need not bother about dangling non-NULL Ptrs
@@ -1694,7 +1664,7 @@ BOOL BCMenu::LoadMenu(LPCTSTR lpszResourceName)
 		
 		nLen = 0;
 		szCaption=new wchar_t[wcslen((wchar_t *)pTp)+1];
-		wcscpy(szCaption,(wchar_t *)pTp);
+		wcsncpy_s(szCaption, wcslen((wchar_t *)pTp) + 1, (wchar_t *)pTp, _TRUNCATE);
 		pTp=&pTp[(wcslen((wchar_t *)pTp)+1)*sizeof(wchar_t)];//modified SK
 		
 		// Handle popup menus first....

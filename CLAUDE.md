@@ -85,8 +85,12 @@ test needs the 32-bit Jet 4.0 OLE DB provider.
 ## Conventions and gotchas
 
 - C++17 with `/permissive-` (ConformanceMode on) in all three projects; the build is warning-free,
-  keep it that way. Still deliberate for the legacy code: C4996 disabled (unsafe CRT string calls),
-  Unicode, static MFC, `WINVER` = Windows 7.
+  keep it that way. Unicode, static MFC, `WINVER` = Windows 7. Deprecated CRT calls are not
+  suppressed (C4996 on): use the secure template overloads with `_TRUNCATE`
+  (`_sntprintf_s(arr, _TRUNCATE, ...)`, `_tcsncpy_s(arr, src, _TRUNCATE)`, size taken from the
+  array), explicit sizes for pointers, `StrCopyN` (`cStringUtils.h`) for substrings. The `_s`
+  functions return `errno_t`: never use their result as a string (`AppSettings::Write` has an
+  `INT` overload that silently accepted it).
 - `.gitattributes` sets `* -text` (no line-ending conversion — preserve each file's existing
   endings). Some files are **UTF-16LE with BOM** in the working tree (all `*.lng`, `changelog.txt`,
   and a few `.cpp` files listed in `.gitattributes`); edit them in a way that keeps that encoding.

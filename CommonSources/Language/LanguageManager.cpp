@@ -76,7 +76,7 @@ void LanguageManager::RefreshLanguageFolder()
 {
 	ClearLanguages();
 	TCHAR searchPath[MAX_PATH];
-	_sntprintf(searchPath, MAX_PATH, _T("%s*.lng"), GetLanguageFolder());
+	_sntprintf_s(searchPath, _TRUNCATE, _T("%s*.lng"), GetLanguageFolder());
 	CFileFind ff;
 	BOOL bCont = ff.FindFile(searchPath);
 	while (bCont)
@@ -225,7 +225,7 @@ BOOL LanguageManager::LoadLanguageByLANGID(LANGID lID)
 	if (langName != NULL)
 	{
 		TCHAR path[MAX_PATH];
-		_sntprintf(path, MAX_PATH, _T("%s%s.lng"), GetLanguageFolder(), langName);
+		_sntprintf_s(path, _TRUNCATE, _T("%s%s.lng"), GetLanguageFolder(), langName);
 		return LoadLanguage(path);
 	}
 	return FALSE;

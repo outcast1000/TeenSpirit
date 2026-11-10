@@ -138,8 +138,7 @@ void CGenericInfoProviderPP::LoadOptions()
 						m_hWnd,
 						(HMENU) (cControlIDOffset + idx),
 						0,0);
-					TCHAR bf[20];
-					::SetWindowText(hwnd, _itot(m_IP.GetIntSetting(idx), bf, 10));
+					::SetWindowText(hwnd, std::to_wstring(m_IP.GetIntSetting(idx)).c_str());
 				}
 			}
 			break;

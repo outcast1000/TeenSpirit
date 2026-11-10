@@ -120,7 +120,7 @@ typedef	std::string tstring;
 	operator type(){ REGENTRY_BINARYTOSTRING return (REGENTRY_SZ_SAFE ? from_sz :(iType == REG_DWORD ? from_dw : no_result)); }
 
 #define REGENTRY_CONV_NUMERIC_STORAGETYPE(type, maxlen, form, from_sz, from_dw) \
-	REGENTRY_CONV_STORAGETYPE(type, _R_BUF(maxlen); _stprintf(buffer, _T(#form), Value);, from_sz, from_dw, 0)
+	REGENTRY_CONV_STORAGETYPE(type, _R_BUF(maxlen); _sntprintf_s(buffer, _TRUNCATE, _T(#form), Value);, from_sz, from_dw, 0)
 
 
 /* ====================================

@@ -192,7 +192,7 @@ BOOL TrayToolTipDlg::Create(CWnd* pParent)
 		lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
 		lf.lfQuality = CLEARTYPE_QUALITY;//ANTIALIASED_QUALITY;// 
 		lf.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
-		_tcscpy(lf.lfFaceName, _T("Tahoma"));
+		_tcsncpy_s(lf.lfFaceName, _T("Tahoma"), _TRUNCATE);
 
 
 		lf.lfHeight = m_fontHeight[FNT_AppTitle];

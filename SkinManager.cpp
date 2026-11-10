@@ -94,7 +94,7 @@ void SkinManager::RefreshSkinsFolder()
 {
 	m_skinsInfo.clear();
 	TCHAR searchPath[MAX_PATH];
-	_sntprintf(searchPath, MAX_PATH, _T("%s*.*"), m_skinFolder.c_str());
+	_sntprintf_s(searchPath, _TRUNCATE, _T("%s*.*"), m_skinFolder.c_str());
 	CFileFind ff;
 	BOOL bCont = ff.FindFile(searchPath);
 	while (bCont)
@@ -103,7 +103,7 @@ void SkinManager::RefreshSkinsFolder()
 		if (ff.IsDirectory() && !ff.IsDots())
 		{
 			TCHAR colorsPath[MAX_PATH];
-			_sntprintf(colorsPath, MAX_PATH, _T("%s\\%s"), (LPCTSTR)ff.GetFilePath(), sColorsIni);
+			_sntprintf_s(colorsPath, _TRUNCATE, _T("%s\\%s"), (LPCTSTR)ff.GetFilePath(), sColorsIni);
 			if (PathFileExists(colorsPath))
 			{
 				FullSkinInfo item;

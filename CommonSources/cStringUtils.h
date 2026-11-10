@@ -179,6 +179,27 @@ const T* genstrrchrex(const T* searchableString, const T* startPos, T charToSear
 
 
 
+//Copies at most count characters of src (fewer if src is shorter), never more than fits in dst
+//(dstSize characters, including the terminator), and always terminates dst.
+//Replaces the "_tcsncpy(dst, src, n); dst[n] = 0;" pattern. Returns the number of characters copied.
+template <class T>
+inline size_t StrCopyN(T* dst, size_t dstSize, const T* src, size_t count)
+{
+	if (dst == NULL || dstSize == 0)
+		return 0;
+	size_t i = 0;
+	if (src != NULL)
+		for (; i < count && i + 1 < dstSize && src[i] != 0; i++)
+			dst[i] = src[i];
+	dst[i] = 0;
+	return i;
+}
+template <class T, size_t N>
+inline size_t StrCopyN(T (&dst)[N], const T* src, size_t count)
+{
+	return StrCopyN(dst, N, src, count);
+}
+
 //Templated implementation of genstrReplaceInl
 //This function tries to replace every instance of fndStr with repStr
 //searching in a srcStr. If the repStr is larger than fndStr then the
@@ -291,20 +312,20 @@ private:
 			m_heapBuffer = new TCHAR[nLength];
 			m_psz = m_heapBuffer;
 		}
-		_tcscpy(m_psz, psz);
+		_tcsncpy_s(m_psz, nLength, psz, _TRUNCATE);
 		switch (type)
 		{
 		case CCT_Proper:
 			_tcsproper(m_psz);
 			break;
 		case CCT_Lower:
-			_tcslwr(m_psz);
+			_tcslwr_s(m_psz, nLength);
 			break;
 		case CCT_Upper:
-			_tcsupr(m_psz);
+			_tcsupr_s(m_psz, nLength);
 			break;
 		case CCT_FirstCapital:
-			_tcslwr(m_psz);
+			_tcslwr_s(m_psz, nLength);
 			m_psz[0] = _totupper(m_psz[0]);
 			break;
 		}

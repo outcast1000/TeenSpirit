@@ -203,8 +203,8 @@ char* cMD5::MD5FinalToString()
 	char s8_Temp[5];
 	for (int i=0; i<16; i++) 
 	{
-		sprintf(s8_Temp, "%02X", signature[i]);
-		strcat(ms8_MD5, s8_Temp);
+		_snprintf_s(s8_Temp, _TRUNCATE, "%02X", signature[i]);
+		strncat_s(ms8_MD5, s8_Temp, _TRUNCATE);
 	}
 
 	return ms8_MD5;

@@ -108,11 +108,11 @@ BOOL CHistoryDlg::OnInitDialog()
 	m_cmbDate.AddString(pAPI->GetString(IDS_MONTHS));
 	m_cmbDate.AddString(pAPI->GetString(IDS_DAYS));
 	TCHAR bf[100];
-	_sntprintf(bf, 100, _T("%s: 365"), pAPI->GetString(IDS_DAYS));
+	_sntprintf_s(bf, _TRUNCATE, _T("%s: 365"), pAPI->GetString(IDS_DAYS));
 	m_cmbDate.AddString(bf);
-	_sntprintf(bf, 100, _T("%s: 30"), pAPI->GetString(IDS_DAYS));
+	_sntprintf_s(bf, _TRUNCATE, _T("%s: 30"), pAPI->GetString(IDS_DAYS));
 	m_cmbDate.AddString(bf);
-	_sntprintf(bf, 100, _T("%s: 10"), pAPI->GetString(IDS_DAYS));
+	_sntprintf_s(bf, _TRUNCATE, _T("%s: 10"), pAPI->GetString(IDS_DAYS));
 	m_cmbDate.AddString(bf);
 	m_cmbDate.AddString(pAPI->GetString(IDS_24HOURS));
 	m_cmbDate.SetCurSel(0);
@@ -269,11 +269,11 @@ void CHistoryDlg::UpdateStatusBar(DWORD LastTickCount, UINT RecordCount)
 
 	//::LoadString(AfxGetResourceHandle(), m_StatusBar.GetItemID(1), bf, 2000);
 	PrgAPI* pLang = PRGAPI();
-	_sntprintf(bf, 2000, _T("%s: %d"), pLang->GetString(IDS_RECORDS), RecordCount);
+	_sntprintf_s(bf, _TRUNCATE, _T("%s: %d"), pLang->GetString(IDS_RECORDS), RecordCount);
 	m_StatusBar.SetPaneText(1, bf);
 
 	//::LoadString(AfxGetResourceHandle(), m_StatusBar.GetItemID(2), bf, 2000);
-	_sntprintf(bf, 2000, _T("%s: %d ms"), pLang->GetString(IDS_PROCESSTIME), GetTickCount() - LastTickCount);
+	_sntprintf_s(bf, _TRUNCATE, _T("%s: %d ms"), pLang->GetString(IDS_PROCESSTIME), GetTickCount() - LastTickCount);
 	m_StatusBar.SetPaneText(2, bf);
 }
 
@@ -308,17 +308,17 @@ void CHistoryDlg::RefreshView()
 			switch (curSel)
 			{
 			case TI_Year:
-				_sntprintf(DateDesc, 100, _T("%s: %d"), pLang->GetString(IDS_YEAR), curTime.wYear + m_CurrentDatePos);
+				_sntprintf_s(DateDesc, _TRUNCATE, _T("%s: %d"), pLang->GetString(IDS_YEAR), curTime.wYear + m_CurrentDatePos);
 				break;
 			case TI_Month:
 				{
-					int curLen = _sntprintf(DateDesc, 100, _T("%s: "), pLang->GetString(IDS_MONTH));
+					int curLen = _sntprintf_s(DateDesc, _TRUNCATE, _T("%s: "), pLang->GetString(IDS_MONTH));
 					GetDateFormat(LOCALE_SYSTEM_DEFAULT, 0, &m_dlgFilter.MinTime, _T("MMM, yy"), DateDesc, 100 - curLen);
 				}
 				break;
 			case TI_Day:
 				{
-					int curLen = _sntprintf(DateDesc, 100, _T("%s: "), pLang->GetString(IDS_DAY));
+					int curLen = _sntprintf_s(DateDesc, _TRUNCATE, _T("%s: "), pLang->GetString(IDS_DAY));
 					GetDateFormat(LOCALE_SYSTEM_DEFAULT, 0, &m_dlgFilter.MinTime, _T("d MMM, yy"), DateDesc, 100 - curLen);
 				}
 				break;
@@ -329,7 +329,7 @@ void CHistoryDlg::RefreshView()
 				{
 					GetDateFormat(LOCALE_SYSTEM_DEFAULT, 0, &m_dlgFilter.MinTime, _T("d MMM, yy "), DateDesc, 100);
 					//_tcsncat(DateDesc, _T(" until "), 100);
-					_tcscat(DateDesc, pLang->GetString(IDS_UNTILL));
+					_tcsncat_s(DateDesc, pLang->GetString(IDS_UNTILL), _TRUNCATE);
 					int curLen = _tcslen(DateDesc);
 					GetDateFormat(LOCALE_SYSTEM_DEFAULT, 0, &m_dlgFilter.MaxTime, _T(" d MMM, yy"), &DateDesc[curLen], 100 - curLen);
 				}
@@ -346,7 +346,7 @@ void CHistoryDlg::RefreshView()
 		else
 		{
 			m_sldDate.EnableWindow(FALSE);
-			_tcsncpy(DateDesc, PRGAPI()->GetString(IDS_NOTENOUGHDATA), 100);
+			_tcsncpy_s(DateDesc, PRGAPI()->GetString(IDS_NOTENOUGHDATA), _TRUNCATE);
 		}
 		
 	}
@@ -354,7 +354,7 @@ void CHistoryDlg::RefreshView()
 	{
 		m_sldDate.EnableWindow(FALSE);
 		m_CurrentDatePos = 0;
-		_tcsncpy(DateDesc, PRGAPI()->GetString(IDS_ALLTIME), 100);
+		_tcsncpy_s(DateDesc, PRGAPI()->GetString(IDS_ALLTIME), _TRUNCATE);
 		m_dlgFilter.MaxTimeStatus = HistoryDlgFilter::FS_Disabled;
 		m_dlgFilter.MinTimeStatus = HistoryDlgFilter::FS_Disabled;
 	}

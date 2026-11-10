@@ -373,7 +373,7 @@ void CCPUTicker::Dump(CDumpContext& dc) const
 	dc<<_T("\nCurrent value of counter is:");
 
   TCHAR sNum[20];
-  _stprintf(sNum, _T("%I64d"), m_TickCount);
+  _sntprintf_s(sNum, _TRUNCATE, _T("%I64d"), m_TickCount);
   dc << sNum <<_T('\n');
 }
 #endif //_DEBUG

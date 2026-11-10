@@ -146,7 +146,7 @@ BOOL CQuizRunningDlg::OnInitDialog()
 	m_pButtons[BT_SelectPrev]->SetWindowText(pAPI->GetString(IDS_PREVIOUS));
 	m_pButtons[BT_SelectNext]->SetWindowText(pAPI->GetString(IDS_NEXT));
 	TCHAR bf[100];
-	_sntprintf(bf, 100, _T("5. %s"), pAPI->GetString(IDS_IDONTKNOW));
+	_sntprintf_s(bf, _TRUNCATE, _T("5. %s"), pAPI->GetString(IDS_IDONTKNOW));
 	m_pButtons[BT_AnswerNo]->SetWindowText(bf);
 	m_pButtons[BT_EndGame]->SetWindowText(pAPI->GetString(IDS_END));
 	m_pButtons[BT_NewGame]->SetWindowText(pAPI->GetString(IDS_NEW));
@@ -198,23 +198,23 @@ void CQuizRunningDlg::SetCurrentGame(INT gameIdx)
 	m_curGame = games[gameIdx];
 	TCHAR bf[1000];
 	//=== Read registry values
-	_sntprintf(bf, 500, _T("%s.best"), m_curGame.gameName);
+	_sntprintf_s(bf, _TRUNCATE, _T("%s.best"), m_curGame.gameName);
 	PrgAPI* pAPI = PRGAPI();
 	pAPI->GetAppSettings()->Read(SettingsCategory, bf, m_curGameBestScore, 0);
-	_sntprintf(bf, 500, _T("%s.bestdate"), m_curGame.gameName);
+	_sntprintf_s(bf, _TRUNCATE, _T("%s.bestdate"), m_curGame.gameName);
 	pAPI->GetAppSettings()->Read(SettingsCategory, bf, m_curGameBestScoreDate, _T(""));
 	m_progress.SetRange32(0, m_curGame.totalTime);
 	m_progress.SetPos(0);
 
 	//=== Title
-	_sntprintf(bf, 500, _T("%s - '%s'"), pAPI->GetString(IDS_MUSICQUIZ), m_curGame.gameName);
+	_sntprintf_s(bf, _TRUNCATE, _T("%s - '%s'"), pAPI->GetString(IDS_MUSICQUIZ), m_curGame.gameName);
 	m_title.SetWindowText(bf);
 
 	//=== SubTitle
 	//===		Always the same
 
 	//=== Info
-	_sntprintf(bf, 1000, 
+	_sntprintf_s(bf, _TRUNCATE, 
 		_T("<b>%s</b><br>")
 		_T("<b>%s:</b> '%s'<br>")
 		_T("<b>%s:</b> %0.1fs<br>")
@@ -331,7 +331,7 @@ void CQuizRunningDlg::EvaluateAnswer(INT qa)
 		m_curTime -= m_curGame.bonusTime;
 		m_correctAnswers++;
 		TCHAR bf[500];
-		_sntprintf(bf, 500, _T("%s [%d ms]"), PRGAPI()->GetString(IDS_CORRECT), m_lastResponseTime);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s [%d ms]"), PRGAPI()->GetString(IDS_CORRECT), m_lastResponseTime);
 		m_subTitle.SetWindowText(bf);
 		m_subTitle.SetColor(CLabelEx::COL_Text, RGB(50,250,50));
 	}
@@ -381,11 +381,11 @@ BOOL CQuizRunningDlg::DisplayNextQuestion()
 	for (int i = 0; i < 4; i++)
 	{
 		TCHAR txt[1000];
-		_sntprintf(txt, 1000, _T("%d. %s - %s"), i + 1, col[i]->artist.name.c_str(),col[i]->track.name.c_str());
+		_sntprintf_s(txt, _TRUNCATE, _T("%d. %s - %s"), i + 1, col[i]->artist.name.c_str(),col[i]->track.name.c_str());
 		m_pButtons[i + BT_Answer1]->SetWindowText(txt);
 		if (m_correctAnswer == i)
 		{
-			_tcsncpy(trackPath, col[i]->track.location.c_str(), MAX_PATH);
+			_tcsncpy_s(trackPath, col[i]->track.location.c_str(), _TRUNCATE);
 			trackLength = col[i]->track.duration;
 		}
 		m_pButtons[i + BT_Answer1]->ShowWindow(TRUE);
@@ -427,7 +427,7 @@ void CQuizRunningDlg::DisplayRunningResult()
 			m_result.ShowWindow(SW_SHOW);
 			m_result.SetTextColor(RGB(100,255,100));
 			TCHAR bf[1000];
-			_sntprintf(bf, 1000,
+			_sntprintf_s(bf, _TRUNCATE,
 				_T("<b>%s</b><br>")
 				_T("<b>%s:</b> %d<br>")
 				_T("<b>%s:</b> %d<br>"),
@@ -443,12 +443,12 @@ void CQuizRunningDlg::DisplayRunningResult()
 			m_result.SetTextColor(RGB(255,100,100));
 			TCHAR projection[20];
 			if (m_curTime > 0)
-				_sntprintf(projection, 20, _T(" [%0.1f]"), 
+				_sntprintf_s(projection, _TRUNCATE, _T(" [%0.1f]"), 
 				(m_correctAnswers * m_curGame.totalTime) / double(m_curTime));
 			else
 				projection[0] = 0;
 			TCHAR bf[1000];
-			_sntprintf(bf, 1000,
+			_sntprintf_s(bf, _TRUNCATE,
 				_T("<b>%s</b><br>")
 				_T("<b>%s:</b> %d%s<br>")
 				_T("<b>%s:</b> %d<br>"),
@@ -572,9 +572,9 @@ void CQuizRunningDlg::SetState(FormStates st)
 			m_curGameBestScore = m_correctAnswers;
 			AppSettings* pSettings = pAPI->GetAppSettings();
 			TCHAR bf[500];
-			_sntprintf(bf, 500, _T("%s.best"), m_curGame.gameName);
+			_sntprintf_s(bf, _TRUNCATE, _T("%s.best"), m_curGame.gameName);
 			pSettings->Write(SettingsCategory, bf, m_curGameBestScore);
-			_sntprintf(bf, 500, _T("%s.bestdate"), m_curGame.gameName);
+			_sntprintf_s(bf, _TRUNCATE, _T("%s.bestdate"), m_curGame.gameName);
 			TCHAR dateBuffer[200];
 			::GetDateFormat(LOCALE_USER_DEFAULT, DATE_LONGDATE, 0, 0, dateBuffer, 200);
 			pSettings->Write(SettingsCategory, bf, dateBuffer);
@@ -646,7 +646,7 @@ void CQuizRunningDlg::OnSize(UINT nType, int cx, int cy)
 	lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
 	lf.lfQuality = CLEARTYPE_QUALITY;//ANTIALIASED_QUALITY;
 	lf.lfPitchAndFamily = VARIABLE_PITCH | FF_DONTCARE;
-	_tcscpy(lf.lfFaceName, _T("Trebuchet MS"));
+	_tcsncpy_s(lf.lfFaceName, _T("Trebuchet MS"), _TRUNCATE);
 	m_largeFont.CreateFontIndirect(&lf);
 
 	lf.lfHeight = cMainHeight * 1 / 3;

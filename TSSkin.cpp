@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "cStringUtils.h"
 #include "TSSkin.h"
 #include "AppSettings/IniAppSettings.h"
 #include "hdcUtils.h"
@@ -150,7 +151,7 @@ LPTSTR COLORREF2String(COLORREF col, LPTSTR str, UINT strLen)
 	//---Version 1
 	//_ultot(col, str, 16);
 	//---Version 2
-	_sntprintf(str, strLen, _T("#%0.2X%0.2X%0.2X"), GetRValue(col), GetGValue(col), GetBValue(col));
+	_sntprintf_s(str, strLen, _TRUNCATE, _T("#%0.2X%0.2X%0.2X"), GetRValue(col), GetGValue(col), GetBValue(col));
 	return str;
 }
 
@@ -383,7 +384,7 @@ void TSSkin::SetLogFont(LOGFONT& lf,
 	lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
 	lf.lfQuality = m_fontQuality;//ANTIALIASED_QUALITY;
 	lf.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
-	_tcscpy(lf.lfFaceName, faceName);
+	_tcsncpy_s(lf.lfFaceName, faceName, _TRUNCATE);
 
 }
 
@@ -496,7 +497,7 @@ void TSSkin::GetSkinInfoPath(LPCTSTR skinPath, LPTSTR bf, UINT bfLen)
 	ASSERT(skinPath != NULL);
 	ASSERT(bf != NULL);
 	BOOL bAddSlash = skinPath[_tcslen(skinPath) - 1] != '\\';
-	_sntprintf(bf, bfLen, _T("%s%s%s"), 
+	_sntprintf_s(bf, bfLen, _TRUNCATE, _T("%s%s%s"), 
 		skinPath, 
 		bAddSlash ? _T("\\") : _T(""),
 		cColorsIni);
@@ -508,7 +509,7 @@ void TSSkin::GetSkinPreviewPath(LPCTSTR skinPath, LPTSTR bf, UINT bfLen)
 	ASSERT(skinPath != NULL);
 	ASSERT(bf != NULL);
 	BOOL bAddSlash = skinPath[_tcslen(skinPath) - 1] != '\\';
-	_sntprintf(bf, bfLen, _T("%s%s%s"), 
+	_sntprintf_s(bf, bfLen, _TRUNCATE, _T("%s%s%s"), 
 		skinPath, 
 		bAddSlash ? _T("\\") : _T(""),
 		cPreviewImage);
@@ -535,8 +536,7 @@ void TSSkin::GetSkinFolderName(LPCTSTR skinPath, LPTSTR bf, UINT bfLen)
 	size_t len = end - start;
 	if (len >= bfLen)
 		len = bfLen - 1;
-	_tcsncpy(bf, &skinPath[start], len);
-	bf[len] = 0;
+	StrCopyN(bf, bfLen, &skinPath[start], len);
 }
 
 BOOL TSSkin::LoadSkin(LPCTSTR skinDir)
@@ -873,7 +873,7 @@ BOOL TSSkin::LoadSkin(TSSkin& skin, LPCTSTR skinDir, BOOL& bIsPartial)
 BOOL TSSkin::SaveSkin(LPCTSTR skinFolderName)
 {
 	TCHAR colorsIniPath[MAX_PATH];
-	_sntprintf(colorsIniPath, MAX_PATH, _T("%s%s%s"),
+	_sntprintf_s(colorsIniPath, _TRUNCATE, _T("%s%s%s"),
 		skinFolderName,
 		skinFolderName[_tcslen(skinFolderName) - 1] == '\\' ? _T("") : _T("\\"),
 		cColorsIni
@@ -926,7 +926,7 @@ BOOL TSSkin::SaveSkin(LPCTSTR skinFolderName)
 					appSettings.Write(
 						cSectionNames[sec], 
 						cIntNames[intit->first], 
-						_ltot(GetIntParameter((SectionsEnum) sec, intit->first), bf, 10)
+						GetIntParameter((SectionsEnum) sec, intit->first)
 						);
 				}
 				//=== Write Fonts
@@ -967,8 +967,7 @@ BOOL TSSkin::String2LogFont(LOGFONT& lf, LPCTSTR str)
 				size_t len = endPos - startPos;
 				if (len >= LF_FACESIZE)
 					len = LF_FACESIZE - 1;
-				_tcsncpy(lf.lfFaceName, startPos, len);
-				lf.lfFaceName[len] = 0;
+				StrCopyN(lf.lfFaceName, startPos, len);
 			}
 			break;
 		case 1://=== lfHeight
@@ -1002,7 +1001,7 @@ BOOL TSSkin::String2LogFont(LOGFONT& lf, LPCTSTR str)
 LPTSTR TSSkin::LogFont2String(LOGFONT& lf, LPTSTR bf, UINT bfLen)
 {
 	//=== Font format: lfFaceName;lfHeight;lfWidth;lfWeight;lfItalic
-	_sntprintf(bf, bfLen, 
+	_sntprintf_s(bf, bfLen, _TRUNCATE, 
 		_T("%s;%d;%d;%d;%d;%d"), 
 		lf.lfFaceName, 
 		lf.lfHeight,

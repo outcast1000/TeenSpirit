@@ -68,7 +68,7 @@ void CSimpleSearchCHdlg::GetSimpleSearchText(LPTSTR bf, UINT len)
 	if (m_hWnd)
 	{
 		if (IsDlgButtonChecked(IDC_SHOWALLTRACKS))
-			_tcsncpy(bf, sShowAllTracksCode, len);
+			_tcsncpy_s(bf, len, sShowAllTracksCode, _TRUNCATE);
 		else
 			GetDlgItemText(IDC_EDT_SIMPLE, bf, len);
 	}

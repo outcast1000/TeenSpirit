@@ -34,7 +34,7 @@ AppSettings* ObjFactory::CreateAppSettings(LPCTSTR conString)
 	if (conString != NULL && !PathFileExists(conString))
 	{
 		TCHAR bf[MAX_PATH];
-		_tcsncpy(bf, conString, MAX_PATH);
+		_tcsncpy_s(bf, conString, _TRUNCATE);
 		TCHAR* ch = _tcsrchr(bf, '\\');
 		if (ch != NULL)
 			*ch = 0;

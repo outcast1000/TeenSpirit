@@ -166,9 +166,12 @@ BOOL CTeenSpiritDlg::OnInitDialog()
 	TCHAR title[100];
 	FileVersion fv;
 	GetFileVersion(fv);
-	_sntprintf(title, 100, _T("%s %d.%df"), CTeenSpiritApp::sAppTitle, fv.Major, fv.Minor);
+	_sntprintf_s(title, _TRUNCATE, _T("%s %d.%df"), CTeenSpiritApp::sAppTitle, fv.Major, fv.Minor);
 #ifdef _DEBUG
-	_sntprintf(&title[_tcslen(title)], 100, _T(" [DEBUG: %d]"), fv.Build);
+	{
+		size_t titleLen = _tcslen(title);
+		_sntprintf_s(&title[titleLen], _countof(title) - titleLen, _TRUNCATE, _T(" [DEBUG: %d]"), fv.Build);
+	}
 #endif
 	SetWindowText(title);
 
@@ -770,7 +773,8 @@ LRESULT CTeenSpiritDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		if (str == NULL)
 			return 0;
-		_tcsncpy(externalBuffer, str, wParam);
+		if (wParam > 0)
+			_tcsncpy_s(externalBuffer, wParam, str, _TRUNCATE);
 		return _tcslen(str);
 	}
 	else if (message == WM_COMMAND)//External commands interface

@@ -55,7 +55,7 @@ BOOL CMainAlbumsPage::OnInitDialog()
 	if (Year > 0)
 	{
 		TCHAR bf[100];
-		_itot(Year, bf, 10);
+		_itot_s(Year, bf, 10);
 		SetDlgItemText(IDC_YEAR, bf);
 	}
 	m_SomethingChanged = FALSE;

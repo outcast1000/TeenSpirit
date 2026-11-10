@@ -732,7 +732,7 @@ void CMiniPlayerDlg::UpdateInfo(BOOL bForce)
 				if (stats.rank > 0)
 				{
 					TCHAR bf[20];
-					_sntprintf(bf, 20, _T(" (#%d)"), stats.rank);
+					_sntprintf_s(bf, _TRUNCATE, _T(" (#%d)"), stats.rank);
 					m_TrackInfo += bf;
 				}
 				FullTrackRecordSP rec;
@@ -797,7 +797,7 @@ void CMiniPlayerDlg::UpdateInfo(BOOL bForce)
 		INT secsToFinish = INT(pPlayer->GetMediaLength() - pPlayer->GetMediaPos());
 		if (secsToFinish > 0)
 		{
-			_sntprintf(newText, 300, _T("%0.2d:%0.2d"), INT(secsToFinish / 60), secsToFinish % 60);
+			_sntprintf_s(newText, _TRUNCATE, _T("%0.2d:%0.2d"), INT(secsToFinish / 60), secsToFinish % 60);
 			m_Time.SetWindowText(newText);
 			if (m_positionSlider.GetMaxPos() != (INT)(pPlayer->GetMediaLength() * 1000))
 				m_positionSlider.SetMaxPos((INT)(pPlayer->GetMediaLength() * 1000));
@@ -956,7 +956,7 @@ BOOL CMiniPlayerDlg::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 	PRGAPI()->SendMessage(SM_PlayerVolumeChanged);
 	m_bSpecialMessage = TRUE;
 	TCHAR bf[200];
-	_sntprintf(bf, 200, _T("%s: %d%%"), PRGAPI()->GetString(IDS_VOLUME), newVol);
+	_sntprintf_s(bf, _TRUNCATE, _T("%s: %d%%"), PRGAPI()->GetString(IDS_VOLUME), newVol);
 	m_Info.SetWindowText(bf);
 	KillTimer(TMR_SpecialMessage);
 	SetTimer(TMR_SpecialMessage, ID_SPECIALMSG_TIMER_DELAY, NULL);
@@ -979,7 +979,7 @@ BOOL CMiniPlayerDlg::OnStateChanged(UINT stateMessages)
 			bHandled = TRUE;
 			m_bSpecialMessage = TRUE;
 			TCHAR bf[200];
-			_sntprintf(bf, 200, _T("%s: %d%%"), pAPI->GetString(IDS_VOLUME), volume);
+			_sntprintf_s(bf, _TRUNCATE, _T("%s: %d%%"), pAPI->GetString(IDS_VOLUME), volume);
 			m_Info.SetWindowText(bf);
 			KillTimer(TMR_SpecialMessage);
 			SetTimer(TMR_SpecialMessage, ID_SPECIALMSG_TIMER_DELAY, NULL);
@@ -1130,7 +1130,7 @@ ITSMenu& CMiniPlayerDlg::GetInternalMenu(MenusEnum mnu)
 		{
 			TCHAR bf[500];
 			curMenu.AppendMenu(ITSMenu::MIT_String, MI_LocateAlbum, (LPTSTR)pAPI->GetString(IDS_LOCATEALBUM), pAPI->GetIcon(ICO_Find16));
-			_sntprintf(bf, 500, _T("%s: %s"), pAPI->GetString(IDS_PLAY), pAPI->GetString(IDS_ALBUM));
+			_sntprintf_s(bf, _TRUNCATE, _T("%s: %s"), pAPI->GetString(IDS_PLAY), pAPI->GetString(IDS_ALBUM));
 			curMenu.AppendMenu(ITSMenu::MIT_String, MI_PlayAlbum, bf);
 			curMenu.AppendMenu(ITSMenu::MIT_String, MI_OpenContainingFolder, (LPTSTR)pAPI->GetString(IDS_OPENCONTAININGFOLDER));
 			curMenu.AppendMenu(ITSMenu::MIT_Separator, 0, NULL);

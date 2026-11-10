@@ -102,7 +102,7 @@ BOOL ActionManager::OpenFolderToItem(LPCTSTR fileName, CollectionTypesEnum type)
 BOOL ActionManager::OpenFolderToItem(LPCTSTR fileName)
 {		
 	TCHAR bf[MAX_PATH + 12];
-	_sntprintf(bf, MAX_PATH + 12, _T("/select,\"%s\""), fileName);
+	_sntprintf_s(bf, _TRUNCATE, _T("/select,\"%s\""), fileName);
 	ShellExecute(NULL, NULL, _T("explorer.exe"), bf, NULL, SW_SHOWNORMAL);
 	return TRUE;
 }
@@ -173,13 +173,13 @@ BOOL ActionManager::TagTrack(LPCTSTR path, TagInfo& ti)
 		SEVERITY sev = SEV_InfoL1;
 		if (pAPI->GetFileTagger()->Write(path, ti))
 		{
-			_sntprintf(msg, 400, _T("%s '%s'."), 
+			_sntprintf_s(msg, _TRUNCATE, _T("%s '%s'."), 
 				pAPI->GetString(IDS_TAGGING), 
 				path);
 		}
 		else
 		{
-			_sntprintf(msg, 400, _T("%s '%s'. %s."), 
+			_sntprintf_s(msg, _TRUNCATE, _T("%s '%s'. %s."), 
 				pAPI->GetString(IDS_TAGGING), 
 				path, 
 				pAPI->GetString(IDS_OPERATIONFAILED));
@@ -897,8 +897,8 @@ CString ActionManager::GetHTMLStyle(LPCTSTR title)
 	TCHAR *ch = _tcsrchr(fn,'\\');
 	ch++;
 	*ch = 0;
-	_tcscat(fn, title);
-	_tcscat(fn, _T(".css"));
+	_tcsncat_s(fn, title, _TRUNCATE);
+	_tcsncat_s(fn, _T(".css"), _TRUNCATE);
 	char* str = NULL;
 	if (css.Open(fn, CFile::modeRead))
 	{
@@ -948,7 +948,7 @@ BOOL ActionManager::FindAndFixMountedPath(LPCTSTR originalFileName, LPTSTR realF
 		TRACE(_T("@1 ActionManager::FindAndFixMountedPath. Illegal FileName: '%s'\r\n"), originalFileName);
 		return FALSE;
 	}
-	_tcsncpy(realFileName, originalFileName, bfLen);
+	_tcsncpy_s(realFileName, bfLen, originalFileName, _TRUNCATE);
 	if (PathFileExists(realFileName))
 		return TRUE;
 	realFileName[bfLen - 1] = 0;
@@ -974,7 +974,7 @@ BOOL ActionManager::FindAndFixMountedPath(LPCTSTR originalFileName, LPTSTR realF
 	if (TRUE)//bNotifyUser)
 	{
 		TCHAR msg[1000];
-		_sntprintf(msg, 1000, _T("%s ('%s')"), 
+		_sntprintf_s(msg, _TRUNCATE, _T("%s ('%s')"), 
 			PRGAPI()->GetString(IDS_CANTLOCATEFILE),
 			originalFileName);
 		PRGAPI()->NotifyUser(msg, NULL, SEV_Warning);
@@ -1239,7 +1239,7 @@ BOOL ActionManager::CopyStringToClipboard(LPCTSTR str)
 		EmptyClipboard();
 		HGLOBAL hClipboardData = GlobalAlloc(GMEM_DDESHARE, (len+1) * sizeof(TCHAR));
 		TCHAR* pchData = (TCHAR*)GlobalLock(hClipboardData);
-		_tcscpy(pchData, str);
+		_tcsncpy_s(pchData, len + 1, str, _TRUNCATE);
 		GlobalUnlock(hClipboardData);
 #ifdef _UNICODE
 		SetClipboardData(CF_UNICODETEXT, hClipboardData);
@@ -1414,7 +1414,7 @@ BOOL ActionManager::DeleteFiles(FullTrackRecordCollection& col)
 		if (!bDeleteOK)
 		{
 			TCHAR msg[2000];
-			_sntprintf(msg, 2000, _T("\"%s\".\r\n%s. %s"), sFile, pAPI->GetString(IDS_FILECOULDNOTBEDELETED), pAPI->GetString(IDS_REMOVEITFROMDATABASE));
+			_sntprintf_s(msg, _TRUNCATE, _T("\"%s\".\r\n%s. %s"), sFile, pAPI->GetString(IDS_FILECOULDNOTBEDELETED), pAPI->GetString(IDS_REMOVEITFROMDATABASE));
 			if (PRGAPI()->MessageBox(NULL, msg, NULL, MB_YESNO) == IDNO)
 				bRemoveFromDatabase = FALSE;
 		}
@@ -1540,20 +1540,20 @@ BOOL ActionManager::ChangeCaseFiles(FullTrackRecordCollection& col, CaseStyleEnu
 	TCHAR title[MAX_PATH];
 	for (; it != col.end(); it++)
 	{
-		_tcsncpy(title, (*it)->track.name.c_str(), MAX_PATH);
+		_tcsncpy_s(title, (*it)->track.name.c_str(), _TRUNCATE);
 		switch (cstyle)
 		{
 		case CASE_AllCaps:
-			_tcsupr(title);
+			_tcsupr_s(title);
 			break;
 		case CASE_NoCaps:
-			_tcslwr(title);
+			_tcslwr_s(title);
 			break;
 		case CASE_Proper:
 			_tcsproper(title);
 			break;
 		case CASE_FirstCap:
-			_tcslwr(title);
+			_tcslwr_s(title);
 			title[0] = _totupper(title[0]);
 			break;
 		}
@@ -1696,7 +1696,7 @@ BOOL ActionManager::GetTempFile(LPTSTR pathName, UINT len /* = MAX_PATH */, LPCT
 		ASSERT(dwRetVal > 0);
 	}
 	else
-		_tcsncat(pathName, fileName, len - _tcslen(pathName));
+		_tcsncat_s(pathName, len, fileName, _TRUNCATE);
 	return dwRetVal > 0;
 }
 
@@ -2064,45 +2064,45 @@ BOOL ActionManager::GetToolTipText(LPCTSTR path, CString& tt)
 
 	TCHAR line[400];
 	//Track
-	_sntprintf(line, 400, _T("<b>%s</b>: %s"), pAPI->GetString(IDS_TITLE), rec->track.name.c_str());
+	_sntprintf_s(line, _TRUNCATE, _T("<b>%s</b>: %s"), pAPI->GetString(IDS_TITLE), rec->track.name.c_str());
 	tt += line;
 	if (rec->track.rating > 0)
 	{
 		INT stars = (INT)(Rating2Stars(rec->track.rating));
-		_sntprintf(line, 400, _T(" (%s)"), pAPI->GetStringForStars(stars));
+		_sntprintf_s(line, _TRUNCATE, _T(" (%s)"), pAPI->GetStringForStars(stars));
 		tt += line;	
 	}
 	tt += newLine;
 
 	tt += horLine;
 	//Album
-	_sntprintf(line, 400, _T("<b>%s</b>: %s"), pAPI->GetString(IDS_ALBUM), rec->album.name.c_str());
+	_sntprintf_s(line, _TRUNCATE, _T("<b>%s</b>: %s"), pAPI->GetString(IDS_ALBUM), rec->album.name.c_str());
 	tt += line;	
 	if (rec->album.rating > 0)
 	{
 		INT stars = (INT)Rating2Stars(rec->album.rating);
-		_sntprintf(line, 400, _T(" (%s)"), pAPI->GetStringForStars(stars));
+		_sntprintf_s(line, _TRUNCATE, _T(" (%s)"), pAPI->GetStringForStars(stars));
 		tt += line;	
 	}
 	tt += newLine;
 	//Artist
-	_sntprintf(line, 400, _T("<b>%s</b>: %s"), pAPI->GetString(IDS_ARTIST), rec->artist.name.c_str());
+	_sntprintf_s(line, _TRUNCATE, _T("<b>%s</b>: %s"), pAPI->GetString(IDS_ARTIST), rec->artist.name.c_str());
 	tt += line;	
 	if (rec->artist.rating > 0)
 	{
 		INT stars = (INT)Rating2Stars(rec->artist.rating);
-		_sntprintf(line, 400, _T(" (%s)"), pAPI->GetStringForStars(stars));
+		_sntprintf_s(line, _TRUNCATE, _T(" (%s)"), pAPI->GetStringForStars(stars));
 		tt += line;	
 	}
 	tt += newLine;
 	//Track Info
-	_sntprintf(line, 400, _T("<b>%s</b>: %s"), pAPI->GetString(IDS_GENRE), rec->genre.name.c_str());
+	_sntprintf_s(line, _TRUNCATE, _T("<b>%s</b>: %s"), pAPI->GetString(IDS_GENRE), rec->genre.name.c_str());
 	tt += line;	tt += newLine;
 
-	_sntprintf(line, 400, _T("<b>%s</b>: %s"), pAPI->GetString(IDS_LOCATION), rec->track.location.c_str());
+	_sntprintf_s(line, _TRUNCATE, _T("<b>%s</b>: %s"), pAPI->GetString(IDS_LOCATION), rec->track.location.c_str());
 	tt += line;	tt += newLine;
 
-	_sntprintf(line, 400, _T("<b>%s</b>: %s"), pAPI->GetString(IDS_COLLECTION), rec->collection.name.c_str());
+	_sntprintf_s(line, _TRUNCATE, _T("<b>%s</b>: %s"), pAPI->GetString(IDS_COLLECTION), rec->collection.name.c_str());
 	tt += line;	tt += newLine;
 
 
@@ -2118,7 +2118,7 @@ BOOL ActionManager::GetToolTipText(LPCTSTR path, CString& tt)
 	pSM->GetHistoryTrackStats(rec->artist.name.c_str(), rec->track.name.c_str(), NULL, NULL, totalStats);
 	if (totalStats.hits > 0)
 	{
-		_itot(totalStats.rank, sTotalRank, 10);
+		_itot_s(totalStats.rank, sTotalRank, 10);
 		PrgAPI::FormatDate(sFTDate, 100, totalStats.firstTime);
 		PrgAPI::FormatDate(sLDate, 100, totalStats.lastTime);
 		SYSTEMTIME curTime;
@@ -2130,19 +2130,19 @@ BOOL ActionManager::GetToolTipText(LPCTSTR path, CString& tt)
 		pSM->GetHistoryTrackStats(rec->artist.name.c_str(), rec->track.name.c_str(), 
 			&curTime, NULL, monthStats);
 		if (monthStats.hits > 0)
-			_itot(monthStats.rank, sMonthRank, 10);
+			_itot_s(monthStats.rank, sMonthRank, 10);
 		else
-			_tcsncpy(sMonthRank, _T("-"), 20);
+			_tcsncpy_s(sMonthRank, _T("-"), _TRUNCATE);
 	}
 	else
 	{
-		_tcscpy(sTotalRank, _T("-"));
-		_tcscpy(sFTDate, _T("-"));
-		_tcscpy(sLDate, _T("-"));
-		_tcscpy(sMonthRank, _T("-"));
+		_tcsncpy_s(sTotalRank, _T("-"), _TRUNCATE);
+		_tcsncpy_s(sFTDate, _T("-"), _TRUNCATE);
+		_tcsncpy_s(sLDate, _T("-"), _TRUNCATE);
+		_tcsncpy_s(sMonthRank, _T("-"), _TRUNCATE);
 	}
 
-	_sntprintf(line, 400, _T("<b>%s (%s)</b>: %s (%s: %d)"), 
+	_sntprintf_s(line, _TRUNCATE, _T("<b>%s (%s)</b>: %s (%s: %d)"), 
 		pAPI->GetString(IDS_RANK), 
 		pAPI->GetString(IDS_TOTAL),
 		sTotalRank,
@@ -2153,7 +2153,7 @@ BOOL ActionManager::GetToolTipText(LPCTSTR path, CString& tt)
 
 	//CChangeCase p(pAPI->GetString(IDS_MONTH), CCT_Lower);
 
-	_sntprintf(line, 400, _T("<b>%s (%s)</b>: %s (%s: %d)"), 
+	_sntprintf_s(line, _TRUNCATE, _T("<b>%s (%s)</b>: %s (%s: %d)"), 
 		pAPI->GetString(IDS_RANK), 
 		(LPCTSTR)CChangeCase(pAPI->GetString(IDS_MONTH), CCT_Lower),
 		sMonthRank,
@@ -2164,17 +2164,17 @@ BOOL ActionManager::GetToolTipText(LPCTSTR path, CString& tt)
 
 	tt += horLine;
 
-	_sntprintf(line, 400, _T("<b>%s</b>: %s"), 
+	_sntprintf_s(line, _TRUNCATE, _T("<b>%s</b>: %s"), 
 		pAPI->GetString(IDS_DATEADDED), 
 		sAddedDate);
 	tt += line;	tt += newLine;
 
-	_sntprintf(line, 400, _T("<b>%s</b>: %s"), 
+	_sntprintf_s(line, _TRUNCATE, _T("<b>%s</b>: %s"), 
 		pAPI->GetString(IDS_FIRSTAPPEARANCE), 
 		sFTDate);
 	tt += line;	tt += newLine;
 
-	_sntprintf(line, 400, _T("<b>%s</b>: %s"), 
+	_sntprintf_s(line, _TRUNCATE, _T("<b>%s</b>: %s"), 
 		pAPI->GetString(IDS_LASTAPPEARANCE), 
 		sLDate);
 	tt += line;	tt += newLine;

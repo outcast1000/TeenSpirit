@@ -343,7 +343,7 @@ void CPlayerBarWnd::ApplyTranslation(ITranslation& translation)
 			m_tooltip.AddTool(&m_crossfade, _T(""));
 			m_tooltip.AddTool(&m_equalizer, _T(""));
 			TCHAR bf[1000];
-			_sntprintf(bf, 1000, _T("%s (+:[%s+] / -:[%s-])"),
+			_sntprintf_s(bf, _TRUNCATE, _T("%s (+:[%s+] / -:[%s-])"),
 				pAPI->GetString(IDS_VOLUME), szKeyNumPad, szKeyNumPad);
 			m_tooltip.AddTool(&m_volumeSlider, _T(""));
 			m_tooltip.AddTool(&m_previous, _T(""));
@@ -359,20 +359,20 @@ void CPlayerBarWnd::ApplyTranslation(ITranslation& translation)
 		m_tooltip.UpdateTipText(pAPI->GetString(IDS_EQUALIZER), &m_equalizer);
 		m_tooltip.UpdateTipText(pAPI->GetString(IDS_MUTE), &m_mute);
 		TCHAR bf[1000];
-		_sntprintf(bf, 1000, _T("%s\r\n+ : [%s+]\r\n- : [%s-]"),
+		_sntprintf_s(bf, _TRUNCATE, _T("%s\r\n+ : [%s+]\r\n- : [%s-]"),
 			pAPI->GetString(IDS_VOLUME), szKeyNumPad, szKeyNumPad);
 		m_tooltip.UpdateTipText(bf, &m_volumeSlider);
-		_sntprintf(bf, 1000, _T("%s [%s8]"), pAPI->GetString(IDS_PREVIOUS),	szKeyNumPad);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s [%s8]"), pAPI->GetString(IDS_PREVIOUS),	szKeyNumPad);
 		m_tooltip.UpdateTipText(bf, &m_previous);
-		_sntprintf(bf, 1000, _T("%s [%s5]"), pAPI->GetString(IDS_PLAY),	szKeyNumPad);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s [%s5]"), pAPI->GetString(IDS_PLAY),	szKeyNumPad);
 		m_tooltip.UpdateTipText(bf, &m_play);
-		_sntprintf(bf, 1000, _T("%s [%s5]"), pAPI->GetString(IDS_PAUSE),	szKeyNumPad);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s [%s5]"), pAPI->GetString(IDS_PAUSE),	szKeyNumPad);
 		m_tooltip.UpdateTipText(bf, &m_pause);
-		_sntprintf(bf, 1000, _T("%s [%s0]"), pAPI->GetString(IDS_STOP),	szKeyNumPad);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s [%s0]"), pAPI->GetString(IDS_STOP),	szKeyNumPad);
 		m_tooltip.UpdateTipText(bf, &m_stop);
-		_sntprintf(bf, 1000, _T("%s [%s2]"), pAPI->GetString(IDS_NEXT),	szKeyNumPad);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s [%s2]"), pAPI->GetString(IDS_NEXT),	szKeyNumPad);
 		m_tooltip.UpdateTipText(bf, &m_next);
-		_sntprintf(bf, 1000, _T("%s\r\n5s << : [%s4]\r\n5s >> : [%s6])"), 
+		_sntprintf_s(bf, _TRUNCATE, _T("%s\r\n5s << : [%s4]\r\n5s >> : [%s6])"), 
 			pAPI->GetString(IDS_TIMESLIDER), szKeyNumPad, szKeyNumPad);
 		m_tooltip.UpdateTipText(bf, &m_positionSlider);
 
@@ -397,9 +397,9 @@ void CPlayerBarWnd::SetTimeInfo(DOUBLE pos, DOUBLE total)
 		INT m2 = INT(total / 60);
 		INT s2 = INT(total - m2 * 60);
 		TCHAR bf[100];
-		_sntprintf(bf, 100, _T("%0.2d:%0.2d"), m1, s1);
+		_sntprintf_s(bf, _TRUNCATE, _T("%0.2d:%0.2d"), m1, s1);
 		UpdateWindowText(m_timeInfo, bf);
-		_sntprintf(bf, 100, _T("%0.2d:%0.2d"), m2, s2);
+		_sntprintf_s(bf, _TRUNCATE, _T("%0.2d:%0.2d"), m2, s2);
 		UpdateWindowText(m_fullTimeInfo, bf);
 	}
 	else
@@ -482,12 +482,12 @@ void CPlayerBarWnd::Update()
 			TCHAR bf[100];
 			INT m1 = INT(mediaPos / 60);
 			INT s1 = INT(mediaPos - m1 * 60);
-			_sntprintf(bf, 100, _T("%0.2d:%0.2d"), m1, s1);
+			_sntprintf_s(bf, _TRUNCATE, _T("%0.2d:%0.2d"), m1, s1);
 			UpdateWindowText(m_timeInfo, bf);
 
 			m1 = INT(mediaLen / 60);
 			s1 = INT(mediaLen - m1 * 60);
-			_sntprintf(bf, 100, _T("%0.2d:%0.2d"), m1, s1);
+			_sntprintf_s(bf, _TRUNCATE, _T("%0.2d:%0.2d"), m1, s1);
 			//_sntprintf(bf, 100, _T("%0.2d:%0.2d [%d / %d]"), m1, s1, m_pPlayer->GetPlayListPos() + 1, m_pPlayer->GetPlayListCount());
 			UpdateWindowText(m_fullTimeInfo, bf);
 		}
@@ -524,7 +524,7 @@ void CPlayerBarWnd::Update()
 				if (mpli.artist == NULL) mpli.artist = pAPI->GetString(IDS_UNKNOWN);
 				if (mpli.title == NULL) mpli.title = mpli.url;
 				TCHAR bf[1000];
-				_sntprintf(bf, 1000, _T("<s>%s</s> - %s"), mpli.title, mpli.artist);
+				_sntprintf_s(bf, _TRUNCATE, _T("<s>%s</s> - %s"), mpli.title, mpli.artist);
 				UpdateWindowText(m_playerInfo, bf);
 				//PlayState ps = m_pPlayer->GetPlayState();
 				//APP_ICONS icoResource = ICO_Stop24;

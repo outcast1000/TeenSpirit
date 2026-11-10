@@ -73,11 +73,11 @@ BOOL CTeenSpiritApp::InitInstance()
 	*pos = 0;
 #ifndef _DEBUG
 #ifdef ALOG_ACTIVE
-	_tcscat(path, _T("log.me"));
+	_tcsncat_s(path, _T("log.me"), _TRUNCATE);
 	ALog::Inst()->LoadConfiguration(path);
 #endif
 #else
-	_tcscat(path, _T("debug.me"));
+	_tcsncat_s(path, _T("debug.me"), _TRUNCATE);
 	if (!ALog::Inst()->LoadConfiguration(path))//!ALog::Inst()->LoadConfiguration(path))
 	{
 #ifdef USE_DEBUGGER_EITHER_WAY
@@ -137,14 +137,15 @@ BOOL CTeenSpiritApp::InitInstance()
 		LPTSTR dotPos = _tcsrchr(jaanglePath, '.');
 		if (dotPos != NULL)
 		{
-			_tcscpy(++dotPos, _T("ini"));
+			dotPos++;
+			_tcsncpy_s(dotPos, _countof(jaanglePath) - (dotPos - jaanglePath), _T("ini"), _TRUNCATE);
 			if (PathFileExists(jaanglePath) == FALSE)
 			{
 				//=== ini file not found. Check if there is a TS Version Installed
 				TCHAR tsPath[MAX_PATH];
 				if (SHGetSpecialFolderPath(NULL, tsPath, CSIDL_PROGRAM_FILES, FALSE))
 				{
-					_tcscat(tsPath, _T("\\Teen Spirit\\TeenSpirit.ini"));
+					_tcsncat_s(tsPath, _T("\\Teen Spirit\\TeenSpirit.ini"), _TRUNCATE);
 					if (PathFileExists(tsPath) == TRUE)
 					{
 						//=== TeenSpirit is installed.
@@ -155,9 +156,9 @@ BOOL CTeenSpiritApp::InitInstance()
 							slashPos = _tcsrchr(jaanglePath, '\\');
 							*slashPos = 0;
 							TCHAR fromPath[MAX_PATH], toPath[MAX_PATH];
-							UINT len = _sntprintf(fromPath, MAX_PATH, _T("%s\\Storage\\*.*"), tsPath);
+							UINT len = _sntprintf_s(fromPath, _TRUNCATE, _T("%s\\Storage\\*.*"), tsPath);
 							fromPath[len + 1] = 0;
-							len = _sntprintf(toPath, MAX_PATH, _T("%s\\Storage\\"), jaanglePath);
+							len = _sntprintf_s(toPath, _TRUNCATE, _T("%s\\Storage\\"), jaanglePath);
 							if (!PathFileExists(toPath))
 								CreateDirectory(toPath, NULL);
 							toPath[len + 1] = 0;
@@ -177,9 +178,9 @@ BOOL CTeenSpiritApp::InitInstance()
 								MessageBox(0, _T("Storage Folder could not be copied."), _T("Failure"), MB_OK);
 								bFailure = TRUE;
 							}
-							len = _sntprintf(fromPath, MAX_PATH, _T("%s\\music.mdb"), tsPath);
+							len = _sntprintf_s(fromPath, _TRUNCATE, _T("%s\\music.mdb"), tsPath);
 							fromPath[len + 1] = 0;
-							len = _sntprintf(toPath, MAX_PATH, _T("%s\\music.mdb"), jaanglePath);
+							len = _sntprintf_s(toPath, _TRUNCATE, _T("%s\\music.mdb"), jaanglePath);
 							toPath[len + 1] = 0;
 							ret = SHFileOperation(&sfo);
 							if (ret != 0)
@@ -188,9 +189,9 @@ BOOL CTeenSpiritApp::InitInstance()
 								bFailure = TRUE;
 							}
 
-							len = _sntprintf(fromPath, MAX_PATH, _T("%s\\TeenSpirit.ini"), tsPath);
+							len = _sntprintf_s(fromPath, _TRUNCATE, _T("%s\\TeenSpirit.ini"), tsPath);
 							fromPath[len + 1] = 0;
-							len = _sntprintf(toPath, MAX_PATH, _T("%s\\Jaangle.ini"), jaanglePath);
+							len = _sntprintf_s(toPath, _TRUNCATE, _T("%s\\Jaangle.ini"), jaanglePath);
 							toPath[len + 1] = 0;
 							ret = SHFileOperation(&sfo);
 							if (ret != 0)

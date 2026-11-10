@@ -983,7 +983,7 @@ bool CTextFileRead::Read(string& all, const string newline)
 			//Add to buffer if possible
 			if(buffpos + (int) temp.size() < buffsize)
 			{
-				strcpy(buffer+buffpos, temp.c_str());
+				strcpy_s(buffer+buffpos, buffsize - buffpos, temp.c_str());
 				buffpos += (int) temp.size();
 			}
 			else
@@ -1045,7 +1045,7 @@ bool CTextFileRead::Read(wstring& all, const wstring newline)
 			//Add to buffer if possible
 			if(buffpos + (int) temp.size() < buffsize)
 			{
-				wcscpy(buffer+buffpos, temp.c_str());
+				wcscpy_s(buffer+buffpos, buffsize - buffpos, temp.c_str());
 				buffpos += (int) temp.size();
 			}
 			else

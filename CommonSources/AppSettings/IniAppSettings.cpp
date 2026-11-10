@@ -42,7 +42,7 @@ IniAppSettings::~IniAppSettings()
 BOOL IniAppSettings::Load(LPCTSTR connectionString)
 {
 	if (connectionString != NULL)
-		_tcsncpy(m_Path, connectionString, MAX_PATH);
+		_tcsncpy_s(m_Path, connectionString, _TRUNCATE);
 	if (m_Path[0] == 0)
 		GetDefaultFileName(m_Path, MAX_PATH);
 	return _taccess(m_Path, 6) == 0;
@@ -102,7 +102,7 @@ BOOL IniAppSettings::Write(LPCTSTR category, LPCTSTR setting, INT value)
 		return FALSE;
 	}
 	TCHAR bf[30];
-	_itot(value, bf, 10);
+	_itot_s(value, bf, 10);
 	return Write(category, setting, bf);
 }
 
@@ -125,7 +125,7 @@ void IniAppSettings::GetDefaultFileName(LPTSTR DefaultFileName, UINT BufferLen)
 	TCHAR *ch = _tcsrchr(DefaultFileName,'.');
 	ch++;
 	*ch = 0;
-	_tcscat(DefaultFileName, _T("ini"));
+	_tcsncat_s(DefaultFileName, BufferLen, _T("ini"), _TRUNCATE);
 }
 
 

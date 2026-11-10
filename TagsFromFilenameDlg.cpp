@@ -198,7 +198,7 @@ BOOL CTagsFromFilenameDlg::PrepareNextTrack()
 	GetDlgItem(IDC_SKIP)->EnableWindow(m_col.size() > 1);
 	GetDlgItem(IDC_ALL)->EnableWindow(m_col.size() > 1);
 	TCHAR bf[100];
-	_sntprintf(bf, 100, _T("%d (%s)"), m_col.size(), PRGAPI()->GetString(IDS_TRACKS));
+	_sntprintf_s(bf, _TRUNCATE, _T("%d (%s)"), m_col.size(), PRGAPI()->GetString(IDS_TRACKS));
 	SetDlgItemText(IDC_ST_TRACKS, bf);
 	GetDlgItem(IDC_BTN_AUTO)->EnableWindow(TRUE);
 
@@ -221,11 +221,11 @@ BOOL CTagsFromFilenameDlg::GetTagInfo(TagInfo& ti, LPCTSTR location, LPCTSTR pat
 		TCHAR artist[cMaxLen];
 		TCHAR album[cMaxLen];
 		TCHAR title[cMaxLen];
-		_tcsncpy(artist, ti.Artist.c_str(), cMaxLen);
+		_tcsncpy_s(artist, ti.Artist.c_str(), _TRUNCATE);
 		artist[cMaxLen - 1] = 0;
-		_tcsncpy(album, ti.Album.c_str(), cMaxLen);
+		_tcsncpy_s(album, ti.Album.c_str(), _TRUNCATE);
 		album[cMaxLen - 1] = 0;
-		_tcsncpy(title, ti.Title.c_str(), cMaxLen);
+		_tcsncpy_s(title, ti.Title.c_str(), _TRUNCATE);
 		title[cMaxLen - 1] = 0;
 
 		if (IsDlgButtonChecked(IDC_CHK_REMOVEUNDERSCORES))
@@ -248,14 +248,14 @@ BOOL CTagsFromFilenameDlg::GetTagInfo(TagInfo& ti, LPCTSTR location, LPCTSTR pat
 			_tcsproper(title);
 			break;
 		case 2:
-			_tcsupr(artist);
-			_tcsupr(album);
-			_tcsupr(title);
+			_tcsupr_s(artist);
+			_tcsupr_s(album);
+			_tcsupr_s(title);
 			break;
 		case 3:
-			_tcslwr(artist);
-			_tcslwr(album);
-			_tcslwr(title);
+			_tcslwr_s(artist);
+			_tcslwr_s(album);
+			_tcslwr_s(title);
 			break;
 		}
 		ti.Artist = artist;
@@ -286,12 +286,12 @@ void CTagsFromFilenameDlg::UpdatePreview()
 			(ti.validFields & TagInfo_Artist) ? ti.Artist.c_str() : _T(""), 0,0,0,0);
 		m_lstPreview.SetItem(1, 2, LVIF_TEXT, 
 			(ti.validFields & TagInfo_Album) ? ti.Album.c_str() : _T(""), 0,0,0,0);
-		_sntprintf(bf, 300, _T("%02d"), ti.TrackNo);
+		_sntprintf_s(bf, _TRUNCATE, _T("%02d"), ti.TrackNo);
 		m_lstPreview.SetItem(2, 2, LVIF_TEXT, 
 			(ti.validFields & TagInfo_TrackNo) ? bf : _T(""), 0,0,0,0);
 		m_lstPreview.SetItem(3, 2, LVIF_TEXT, 
 			(ti.validFields & TagInfo_Title) ? ti.Title.c_str() : _T(""), 0,0,0,0);
-		_sntprintf(bf, 300, _T("%d"), ti.Year);
+		_sntprintf_s(bf, _TRUNCATE, _T("%d"), ti.Year);
 		m_lstPreview.SetItem(4, 2, LVIF_TEXT, 
 			(ti.validFields & TagInfo_Year) ? bf : _T(""), 0,0,0,0);
 	}

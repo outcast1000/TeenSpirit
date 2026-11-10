@@ -843,7 +843,7 @@ HINSTANCE CPPHtmlDrawer::GotoURL(LPCTSTR url, int showcmd /* = SW_SHOW */)
 
         if (GetRegKey(HKEY_CLASSES_ROOT, _T(".htm"), key) == ERROR_SUCCESS) 
 		{
-            lstrcat(key, _T("\\shell\\open\\command"));
+            _tcsncat_s(key, _T("\\shell\\open\\command"), _TRUNCATE);
 
             if (GetRegKey(HKEY_CLASSES_ROOT,key,key) == ERROR_SUCCESS) 
 			{
@@ -860,8 +860,8 @@ HINSTANCE CPPHtmlDrawer::GotoURL(LPCTSTR url, int showcmd /* = SW_SHOW */)
                 else
                     *pos = '\0';                       // Remove the parameter
 
-                lstrcat(pos, _T(" "));
-                lstrcat(pos, url);
+                _tcsncat_s(pos, _countof(key) - (pos - key), _T(" "), _TRUNCATE);
+                _tcsncat_s(pos, _countof(key) - (pos - key), url, _TRUNCATE);
 
                 USES_CONVERSION;
                 result = (HINSTANCE) WinExec(T2A(key),showcmd);
@@ -880,7 +880,7 @@ LONG CPPHtmlDrawer::GetRegKey(HKEY key, LPCTSTR subkey, LPTSTR retdata)
         long datasize = MAX_PATH;
         TCHAR data[MAX_PATH];
         RegQueryValue(hkey, NULL, data, &datasize);
-        lstrcpy(retdata,data);
+        _tcsncpy_s(retdata, MAX_PATH * 2, data, _TRUNCATE);	//callers pass key[MAX_PATH * 2]
         RegCloseKey(hkey);
     } //if
 
@@ -941,7 +941,7 @@ void CPPHtmlDrawer::DrawHtml (LPSIZE lpSize, LPCRECT lpRect)
 	m_lfDefault.lfClipPrecision = CLIP_DEFAULT_PRECIS;
 	m_lfDefault.lfQuality = DEFAULT_QUALITY;
 	m_lfDefault.lfPitchAndFamily = FF_DONTCARE;
-	_tcscpy (m_lfDefault.lfFaceName, m_defStyle.sFaceFont);
+	_tcsncpy_s(m_lfDefault.lfFaceName, m_defStyle.sFaceFont, _TRUNCATE);
 	m_hFont = ::CreateFontIndirect(&m_lfDefault);
 	
 	//ENG: Remember a current context setting
@@ -2703,7 +2703,7 @@ void CPPHtmlDrawer::UpdateContext()
 	m_lfDefault.lfItalic = m_defStyle.bItalicFont;
 	m_lfDefault.lfStrikeOut = m_defStyle.bStrikeOutFont;
 	m_lfDefault.lfUnderline = m_defStyle.bUnderlineFont;
-	_tcscpy (m_lfDefault.lfFaceName, m_defStyle.sFaceFont);
+	_tcsncpy_s(m_lfDefault.lfFaceName, m_defStyle.sFaceFont, _TRUNCATE);
 	m_hFont = ::CreateFontIndirect(&m_lfDefault);
 	m_hOldFont = (HFONT)::SelectObject(m_hDC, m_hFont);
 	::GetTextMetrics(m_hDC, &m_tm);

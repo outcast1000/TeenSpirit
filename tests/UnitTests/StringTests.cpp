@@ -38,6 +38,22 @@ namespace
 		CHECK(_tcsReplaceInl(none, 0, L"x", L"yy") == 0);
 	}
 
+	void TestStrCopyN()
+	{
+		WCHAR bf[5];
+		CHECK(StrCopyN(bf, L"abcdef", 3) == 3 && wcscmp(bf, L"abc") == 0);		//substring
+		CHECK(StrCopyN(bf, L"ab", 4) == 2 && wcscmp(bf, L"ab") == 0);			//source shorter than count
+		CHECK(StrCopyN(bf, L"abcdef", 100) == 4 && wcscmp(bf, L"abcd") == 0);	//cut to the buffer
+		CHECK(StrCopyN(bf, L"abcdef", 0) == 0 && bf[0] == 0);
+		CHECK(StrCopyN(bf, (LPCWSTR)NULL, 3) == 0 && bf[0] == 0);
+		WCHAR* p = bf;
+		CHECK(StrCopyN(p, 3, L"abcdef", 5) == 2 && wcscmp(bf, L"ab") == 0);		//pointer + size
+		bf[0] = L'x';
+		CHECK(StrCopyN(p, 0, L"abc", 3) == 0 && bf[0] == L'x');					//no room: untouched
+		char a[4];
+		CHECK(StrCopyN(a, "c:\\music", 3) == 3 && strcmp(a, "c:\\") == 0);
+	}
+
 	void TestTranslatePattern()
 	{
 		WCHAR bf[MAX_PATH];
@@ -141,6 +157,7 @@ void RunStringTests()
 {
 	wprintf(L"String tests\n");
 	TestReplaceInl();
+	TestStrCopyN();
 	TestTranslatePattern();
 	TestCustomWrite();
 	TestEncodeHex();

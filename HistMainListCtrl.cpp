@@ -87,10 +87,10 @@ void CHistMainListCtrl::GetDispInfo(LV_ITEM* pItem)
 			PrgAPI::FormatDate(pItem->pszText, pItem->cchTextMax, rec.log.dateAdded);
 			break;
 		case COL_TrackName:
-			_tcsncpy(pItem->pszText, rec.track.name.c_str(), pItem->cchTextMax);
+			_tcsncpy_s(pItem->pszText, pItem->cchTextMax, rec.track.name.c_str(), _TRUNCATE);
 			break;
 		case COL_ArtistName:
-			_tcsncpy(pItem->pszText, rec.artist.name.c_str(), pItem->cchTextMax);
+			_tcsncpy_s(pItem->pszText, pItem->cchTextMax, rec.artist.name.c_str(), _TRUNCATE);
 			break;
 		default:
 			ASSERT(FALSE);

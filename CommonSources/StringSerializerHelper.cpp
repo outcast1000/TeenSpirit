@@ -21,6 +21,7 @@
 // 	*
 //	*/ 
 #include "stdafx.h"
+#include "cStringUtils.h"
 #include "StringSerializerHelper.h"
 
 
@@ -44,8 +45,7 @@ BOOL StringReaderHelper::GetNextInteger(INT& value)
 	if (len > 0 && len < 20)
 	{
 		TCHAR bf[20];
-		_tcsncpy(bf, m_pos, len);
-		bf[len] = 0;
+		StrCopyN(bf, m_pos, len);
 		m_pos = nextStart;
 		value = _ttoi(bf);
 		return TRUE;
@@ -83,10 +83,8 @@ BOOL StringWriterHelper::AppendInteger(INT value)
 {
 	INT curLen = _tcslen(m_writeString);
 	INT remainBuffer = m_bfLen - curLen;
-	INT len = 0;
-	if (curLen > 0)
- 		len = _sntprintf(&m_writeString[curLen], remainBuffer, _T(",%d"), value);
-	else
-		len = _sntprintf(&m_writeString[curLen], remainBuffer, _T("%d"), value);
-	return len < remainBuffer;
+	if (remainBuffer <= 1)
+		return FALSE;
+	INT len = _sntprintf_s(&m_writeString[curLen], remainBuffer, _TRUNCATE, curLen > 0 ? _T(",%d") : _T("%d"), value);
+	return len >= 0;
 }

@@ -14,6 +14,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "OSVersion.h"
 #include "CrashReport.h"
 #include "CrashReportDlg.h"
 #include "MiniVersion.h"
@@ -147,7 +148,7 @@ BOOL CCrashReportDlg::OnInitDialog()
 		*cp = 0;
 	}
 	TCHAR crashedAppicationPath[MAX_PATH];
-	_sntprintf(crashedAppicationPath, MAX_PATH, _T("%s%s"), appPath, CRASHREPORT_APPEXENAME);
+	_sntprintf_s(crashedAppicationPath, _TRUNCATE, _T("%s%s"), appPath, CRASHREPORT_APPEXENAME);
 	//=== Initialize the gui with the Crashed Title / icon
 	InitializeDisplay(CRASHREPORT_APPTITLE, crashedAppicationPath);
 	//=== Create the native report
@@ -160,10 +161,10 @@ BOOL CCrashReportDlg::OnInitDialog()
 	GetModuleFileName(NULL, bf, MAX_PATH);
 	LPTSTR pos = _tcsrchr(bf, '\\');
 	pos[1] = 0;
-	_tcscat(bf, CRASHREPORT_APPEXENAME);
+	_tcsncat_s(bf, CRASHREPORT_APPEXENAME, _TRUNCATE);
 	pos = _tcsrchr(bf, '.');
 	pos[1] = 0;
-	_tcscat(bf, _T("ini"));
+	_tcsncat_s(bf, _T("ini"), _TRUNCATE);
 
 	IniAppSettings settings;
 	settings.Load(bf);
@@ -200,7 +201,7 @@ BOOL CCrashReportDlg::OnInitDialog()
 	while (files[fileNum] != 0)
 	{
 		TCHAR bf[MAX_PATH];
-		_sntprintf(bf, MAX_PATH, _T("%s%s"), appPath, files[fileNum]);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s%s"), appPath, files[fileNum]);
 		CStringA fileContents;
 		if (ReadFileContents(bf, fileContents))
 		{
@@ -384,7 +385,11 @@ void CCrashReportDlg::OnSend()
 	std::string request = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 	request += "<request>";
 	request += "<info uid=\"";
-	_snprintf_s(bf, 500, "CR1:%u:%u:%u", m_appID, GetVersion(), CRASHREPORT_BUILDVERSION);
+	OSVERSIONINFOEXW osVer;
+	GetOSVersion(osVer);
+	//packed like the old GetVersion(): major, minor, build
+	DWORD winVer = (osVer.dwMajorVersion & 0xFF) | ((osVer.dwMinorVersion & 0xFF) << 8) | ((osVer.dwBuildNumber & 0x7FFF) << 16);
+	_snprintf_s(bf, 500, _TRUNCATE, "CR1:%u:%u:%u", m_appID, winVer, CRASHREPORT_BUILDVERSION);
 	request += bf;
 	request += "\" />";
 
@@ -442,7 +447,7 @@ void CCrashReportDlg::RestartIfNeeded()
 			*cp = 0;
 		}
 		TCHAR crashedAppicationPath[MAX_PATH];
-		_sntprintf(crashedAppicationPath, MAX_PATH, _T("%s%s"), appPath, CRASHREPORT_APPEXENAME);
+		_sntprintf_s(crashedAppicationPath, _TRUNCATE, _T("%s%s"), appPath, CRASHREPORT_APPEXENAME);
 		STARTUPINFO si;
 		ZeroMemory(&si, sizeof(si));
 		si.cb = sizeof(si);

@@ -507,7 +507,7 @@ BOOL CInfoCtrl::MakeYearPage()
 	TCHAR bf[bfLen];
 	m_ExtraTextStyle = 0;
 	//Title ---------------------------------------
-	_sntprintf(bf, bfLen, _T("%d"), m_curFTRecord->track.year);
+	_sntprintf_s(bf, _TRUNCATE, _T("%d"), m_curFTRecord->track.year);
 	SetTextInfo(TI_TextTitle, bf);
 	//SubTitle ------------------------------------
 	SetTextInfo(TI_MainText, _T(""));
@@ -606,7 +606,7 @@ UINT CInfoCtrl::AssignAlbumImages()
 		m_showingItems.push_back(IIT_AlbumPicture);
 		const INT bfLen = 500;
 		TCHAR bf[bfLen];
-		_sntprintf(bf, bfLen, _T("%s - %s"), 
+		_sntprintf_s(bf, _TRUNCATE, _T("%s - %s"), 
 			m_curFTRecord->artist.name.c_str(), 
 			m_curFTRecord->album.name.c_str());
 		for (size_t i=0; i < col.size(); i++)
@@ -639,7 +639,7 @@ BOOL CInfoCtrl::AssignInfo(InfoItemTypeEnum iit)
 		if (pSM->GetArtistInfoRecord(m_curFTRecord->artist.ID, iit, ir))
 		{
 			m_showingItems.push_back(iit);
-			_sntprintf(bf, bfLen, _T("%s (%s)"), 
+			_sntprintf_s(bf, _TRUNCATE, _T("%s (%s)"), 
 				m_curFTRecord->artist.name.c_str(),
 				pAPI->GetStringForInfoItemType(iit)
 				);
@@ -651,7 +651,7 @@ BOOL CInfoCtrl::AssignInfo(InfoItemTypeEnum iit)
 		if (pSM->GetAlbumInfoRecord(m_curFTRecord->album.ID, iit, ir))
 		{
 			m_showingItems.push_back(iit);
-			_sntprintf(bf, bfLen, _T("%s - %s (%s)"), 
+			_sntprintf_s(bf, _TRUNCATE, _T("%s - %s (%s)"), 
 				m_curFTRecord->artist.name.c_str(),
 				m_curFTRecord->album.name.c_str(),
 				pAPI->GetStringForInfoItemType(iit)
@@ -666,7 +666,7 @@ BOOL CInfoCtrl::AssignInfo(InfoItemTypeEnum iit)
 		if (pSM->GetTrackInfoRecord(m_curFTRecord->track.ID, iit, ir))
 		{
 			m_showingItems.push_back(iit);
-			_sntprintf(bf, bfLen, _T("%s - %s (%s)"), 
+			_sntprintf_s(bf, _TRUNCATE, _T("%s - %s (%s)"), 
 				m_curFTRecord->artist.name.c_str(),
 				m_curFTRecord->track.name.c_str(),
 				pAPI->GetStringForInfoItemType(iit)
@@ -832,7 +832,7 @@ BOOL CInfoCtrl::OnCommand(WPARAM wParam, LPARAM lParam)
 					EmptyClipboard();
 					HGLOBAL hClipboardData = GlobalAlloc(GMEM_DDESHARE, (len+1) * sizeof(TCHAR));
 					TCHAR* pchData = (TCHAR*)GlobalLock(hClipboardData);
-					_tcscpy(pchData, m_Text[TI_MainText].c_str());
+					_tcsncpy_s(pchData, len + 1, m_Text[TI_MainText].c_str(), _TRUNCATE);
 					GlobalUnlock(hClipboardData);
 #ifdef _UNICODE
 					SetClipboardData(CF_UNICODETEXT, hClipboardData);

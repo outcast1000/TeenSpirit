@@ -1,5 +1,6 @@
 
 #include "stdafx.h"
+#include "cStringUtils.h"
 #include "PaneController.h"
 #include "PrgAPI.h"
 #include "AppSettings/AppSettings.h"
@@ -137,7 +138,7 @@ void PaneController::Init(CWnd* pParent)
 			if (pPane != NULL)
 			{
 				TCHAR bf[100];
-				_sntprintf(bf, 100, _T("%s#%d"), cPaneState, i);
+				_sntprintf_s(bf, _TRUNCATE, _T("%s#%d"), cPaneState, i);
 				TSPaneState paneState(pAppSettings, bf);
 				if (pPane->LoadState(paneState) == FALSE)
 					TRACE(_T("PaneController::Init Load Pane (%d.%s) State failed\r\n"), i, pPane->GetTitle(0));
@@ -409,8 +410,7 @@ BOOL PaneController::GetToken(LPCTSTR& posStart, TCHAR* bf, UINT bfLen, WCHAR di
 	}
 	if (len < bfLen)
 	{
-		_tcsncpy(bf, posStart, len);
-		bf[len] = 0;
+		StrCopyN(bf, bfLen, posStart, len);
 		posStart = nextStart;
 		return TRUE;
 	}
@@ -604,7 +604,7 @@ BOOL PaneController::AppendPaneState(std::tstring& state, HWND hwndPane)
 	INT idx = GetContainerIndexByHWND(hwndPane);
 	if (idx != -1)
 	{
-		_sntprintf(bf, 50, _T("p%d"), idx);
+		_sntprintf_s(bf, _TRUNCATE, _T("p%d"), idx);
 		state += bf;
 	}
 	else
@@ -612,7 +612,7 @@ BOOL PaneController::AppendPaneState(std::tstring& state, HWND hwndPane)
 		idx = GetSplitterIndexByHWND(hwndPane);
 		if (idx == -1)
 			return FALSE;
-		_sntprintf(bf, 50, _T("s%d"), idx);
+		_sntprintf_s(bf, _TRUNCATE, _T("s%d"), idx);
 		state += bf;
 	}
 	return TRUE;
@@ -622,7 +622,7 @@ BOOL PaneController::SaveState(LPTSTR state, UINT stateLen)
 {
 	//=== Save the number of visible panes
 	TCHAR bf[200];
-	_sntprintf(bf, 200, _T("%d"), m_paneContainers.size());
+	_sntprintf_s(bf, _TRUNCATE, _T("%d"), m_paneContainers.size());
 	std::tstring s(bf);
 
 
@@ -644,7 +644,7 @@ BOOL PaneController::SaveState(LPTSTR state, UINT stateLen)
 		s += _T(",");
 		//=== Every Splitter will have textual representations like "v120,s1,p2"
 		CFastSplitter* pSp = *sit;
-		_sntprintf(bf, 200, _T("%s%d,"), 
+		_sntprintf_s(bf, _TRUNCATE, _T("%s%d,"), 
 			pSp->IsVerticalSplitter() ? _T("v") : _T("h"), 
 			pSp->GetSplitterPos());
 		s += bf;
@@ -656,7 +656,7 @@ BOOL PaneController::SaveState(LPTSTR state, UINT stateLen)
 	}
 	if (stateLen <= s.size())
 		return FALSE;
-	_tcscpy(state, s.c_str());
+	_tcsncpy_s(state, stateLen, s.c_str(), _TRUNCATE);
 	return TRUE;
 }
 
@@ -1006,7 +1006,7 @@ BOOL PaneController::SaveSettings()
 		if (pPane != NULL)
 		{
 			TCHAR bf[100];
-			_sntprintf(bf, 100, _T("%s#%d"), cPaneState, i);
+			_sntprintf_s(bf, _TRUNCATE, _T("%s#%d"), cPaneState, i);
 			TSPaneState paneState(pAppSettings, bf);
 			if (pPane->SaveState(paneState) == FALSE)
 				TRACE(_T("PaneController::Init Save Pane State (%d.%s) State failed\r\n"), i, pPane->GetPaneInfo().friendlyName);

@@ -23,7 +23,27 @@
 #include "stdafx.h"
 #include "ALog.h"
 #include <psapi.h>
+#include "OSVersion.h"
 #pragma comment(lib, "Psapi.lib")
+
+namespace
+{
+	//Appends to bf[bfLen] at curLen, truncating when full; curLen is the new length.
+	void AppendFormatV(LPTSTR bf, INT bfLen, INT& curLen, LPCTSTR format, va_list args)
+	{
+		if (curLen < 0 || curLen + 1 >= bfLen)
+			return;
+		INT len = _vsntprintf_s(&bf[curLen], bfLen - curLen, _TRUNCATE, format, args);
+		curLen = (len < 0) ? (INT)_tcslen(bf) : curLen + len;
+	}
+	void AppendFormat(LPTSTR bf, INT bfLen, INT& curLen, LPCTSTR format, ...)
+	{
+		va_list args;
+		va_start(args, format);
+		AppendFormatV(bf, bfLen, curLen, format, args);
+		va_end(args);
+	}
+}
 
 
 #ifdef ALOG_ACTIVE
@@ -121,7 +141,7 @@ ALog::~ALog()
 		SYSTEMTIME t;
 		::GetLocalTime(&t);
 		TCHAR bf[200];
-		_sntprintf(bf, 200, _T("@@ ------End Logging: %d-%d-%d %0.2d:%0.2d:%0.2d .%0.3dms\r\n"),
+		_sntprintf_s(bf, _TRUNCATE, _T("@@ ------End Logging: %d-%d-%d %0.2d:%0.2d:%0.2d .%0.3dms\r\n"),
 			t.wDay, t.wMonth, t.wYear,   t.wHour, t.wMinute, t.wSecond,  t.wMilliseconds);
 		Log(bf);
 		delete m_pViewer;
@@ -164,13 +184,12 @@ void ALog::AddViewer(AViewer* viewer)
 		SYSTEMTIME t;
 		::GetLocalTime(&t);
 		TCHAR bf[300];
-		_sntprintf(bf, 200, _T("@@ ------Start Logging: %d-%d-%d %0.2d:%0.2d:%0.2d .%0.3dms\r\n"),
+		_sntprintf_s(bf, _TRUNCATE, _T("@@ ------Start Logging: %d-%d-%d %0.2d:%0.2d:%0.2d .%0.3dms\r\n"),
 			t.wDay, t.wMonth, t.wYear, t.wHour, t.wMinute, t.wSecond,  t.wMilliseconds);
 		Log(bf);
-		OSVERSIONINFO osVer;
-		osVer.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-		GetVersionEx(&osVer);
-		_sntprintf(bf, 200, _T("@@ VersionInfo: %d.%d.%d\r\n"), osVer.dwMajorVersion, osVer.dwMinorVersion, osVer.dwBuildNumber);
+		OSVERSIONINFOEXW osVer;
+		GetOSVersion(osVer);
+		_sntprintf_s(bf, _TRUNCATE, _T("@@ VersionInfo: %d.%d.%d\r\n"), osVer.dwMajorVersion, osVer.dwMinorVersion, osVer.dwBuildNumber);
 		Log(bf);
 		MEMORYSTATUS memStat;
 		GlobalMemoryStatus (&memStat);
@@ -273,7 +292,7 @@ AViewer* ALog::GetViewerByID(INT viewerID, LPCTSTR iniFilePath)
 			{
 				viewers++;
 				TCHAR bf[50];
-				_sntprintf(bf, 50, _T("Viewer_%d"), viewers);
+				_sntprintf_s(bf, _TRUNCATE, _T("Viewer_%d"), viewers);
 				INT vID = GetPrivateProfileInt(section, bf, -1, iniFilePath);
 				if (vID == -1 || vID == 5)
 					break;
@@ -314,19 +333,18 @@ BOOL ALog::LoadConfiguration(LPCTSTR path)
 		_T("ShowTimeDate"), GetOption(LO_ShowTimeDate), path));
 
 	//Write values to the file (if does not already) exist
-	TCHAR bf[30];
 	WritePrivateProfileString(section, 
-		_T("Viewer"), _itot(viewerID, bf, 10), path);
+		_T("Viewer"), std::to_wstring(viewerID).c_str(), path);
 	WritePrivateProfileString(section, 
-		_T("Depth"), _itot(GetOption(LO_MaxAllowedDepth), bf, 10), path);
+		_T("Depth"), std::to_wstring(GetOption(LO_MaxAllowedDepth)).c_str(), path);
 	WritePrivateProfileString(section, 
-		_T("ShowDepth"), _itot(GetOption(LO_ShowDepth), bf, 10), path);
+		_T("ShowDepth"), std::to_wstring(GetOption(LO_ShowDepth)).c_str(), path);
 	WritePrivateProfileString(section, 
-		_T("ShowTimeFromStartup"), _itot(GetOption(LO_ShowTimeFromStartup), bf, 10), path);
+		_T("ShowTimeFromStartup"), std::to_wstring(GetOption(LO_ShowTimeFromStartup)).c_str(), path);
 	WritePrivateProfileString(section, 
-		_T("ShowThreadID"), _itot(GetOption(LO_ShowThreadID), bf, 10), path);
+		_T("ShowThreadID"), std::to_wstring(GetOption(LO_ShowThreadID)).c_str(), path);
 	WritePrivateProfileString(section, 
-		_T("ShowTimeDate"), _itot(GetOption(LO_ShowTimeDate), bf, 10), path);
+		_T("ShowTimeDate"), std::to_wstring(GetOption(LO_ShowTimeDate)).c_str(), path);
 	return TRUE;
 }
 
@@ -460,7 +478,7 @@ void ALog::LogHWND(LPCTSTR description, HWND hwnd)
 		ttlName[0] = 0;
 	}
 	bf[0] = 0;
-	_sntprintf(bf, 1000, _T("%s\r\n\tCLS:'%s'\r\n\tTXT:'%s'\r\n\thwnd:%p\r\n"),
+	_sntprintf_s(bf, _TRUNCATE, _T("%s\r\n\tCLS:'%s'\r\n\tTXT:'%s'\r\n\thwnd:%p\r\n"),
 		description, clsName, ttlName, hwnd);
 	bf[999] = 0;
 	LogUnsafe(bf);
@@ -538,11 +556,11 @@ void ALog::LogUnsafe(LPCTSTR description, ...)
 			{
 				if (len>2)
 					lpMsgBuf[len - 3] = 0;
-				_sntprintf(message, 1500, _T("@@ GetLastError [AUTO]: [%d] '%s'\r\n"), dwLastError, lpMsgBuf);
+				_sntprintf_s(message, _TRUNCATE, _T("@@ GetLastError [AUTO]: [%d] '%s'\r\n"), dwLastError, lpMsgBuf);
 				LocalFree((HLOCAL)lpMsgBuf);
 			}
 			else
-				_sntprintf(message, 1500, _T("@@ GetLastError [AUTO]: [%d] '?'\r\n"), dwLastError);
+				_sntprintf_s(message, _TRUNCATE, _T("@@ GetLastError [AUTO]: [%d] '?'\r\n"), dwLastError);
 			SetLastError(0);
 			Log(message);
 		}
@@ -555,7 +573,7 @@ void ALog::LogUnsafe(LPCTSTR description, ...)
 	message[0] = 0;
 	INT curLen = 0;
 	if (GetOption(LO_ShowDepth))
-		curLen += _sntprintf(&message[curLen], mLen - curLen, _T("[%s] "), Depth[messageDepth + 2]);
+		AppendFormat(message, mLen, curLen, _T("[%s] "), Depth[messageDepth + 2]);
 	DWORD dwLastError = GetLastError();
 	if (dwLastError && GetOption(LO_AlwaysCheckForLastError))
 	{
@@ -567,11 +585,11 @@ void ALog::LogUnsafe(LPCTSTR description, ...)
 		{
 			if (len>2)
 				lpMsgBuf[len - 3] = 0;
-			curLen += _sntprintf(&message[curLen], mLen - curLen, _T("LastError: [%d] '%s'\r\n\t"), dwLastError, lpMsgBuf);
+			AppendFormat(message, mLen, curLen, _T("LastError: [%d] '%s'\r\n\t"), dwLastError, lpMsgBuf);
 			LocalFree((HLOCAL)lpMsgBuf);
 		}
 		else
-			curLen += _sntprintf(&message[curLen], mLen - curLen, _T("LastError: [%d] - No Description available\r\n\t"), dwLastError);
+			AppendFormat(message, mLen, curLen, _T("LastError: [%d] - No Description available\r\n\t"), dwLastError);
 		SetLastError(0);
 	}
 
@@ -600,11 +618,11 @@ void ALog::LogUnsafe(LPCTSTR description, ...)
 				{
 					if (len>2)
 						lpMsgBuf[len - 3] = 0;
-					curLen += _sntprintf(&message[curLen], mLen - curLen, _T("LastError: '%s'\r\n\t"), lpMsgBuf);
+					AppendFormat(message, mLen, curLen, _T("LastError: '%s'\r\n\t"), lpMsgBuf);
 					LocalFree((HLOCAL)lpMsgBuf);
 				}
 				else
-					curLen += _sntprintf(&message[curLen], mLen - curLen, _T("LastError: 'Unknown' : %d\r\n\t"), dwLastError);
+					AppendFormat(message, mLen, curLen, _T("LastError: 'Unknown' : %d\r\n\t"), dwLastError);
 			}
 			break;
 		case 'I':
@@ -618,8 +636,8 @@ void ALog::LogUnsafe(LPCTSTR description, ...)
 					ProcessMemoryCounters.cb = sizeof(ProcessMemoryCounters);
 					if(::GetProcessMemoryInfo(hProcess,	&ProcessMemoryCounters,	sizeof(ProcessMemoryCounters)) == TRUE)
 					{
-						curLen += _sntprintf(&message[curLen], 
-							mLen - curLen, _T("[I:Memory: %d (%d) / %d (kb)] "), 
+						AppendFormat(message, mLen, curLen,
+							_T("[I:Memory: %d (%d) / %d (kb)] "),
 							ProcessMemoryCounters.WorkingSetSize/1024, 
 							ProcessMemoryCounters.WorkingSetSize/1024 - m_markedMemSize,
 							ProcessMemoryCounters.PeakWorkingSetSize/1024);
@@ -642,16 +660,16 @@ void ALog::LogUnsafe(LPCTSTR description, ...)
 		curLen--;
 	}
 	if (GetOption(LO_ShowTimeFromStartup))
-		curLen += _sntprintf(&message[curLen], mLen - curLen, _T("%08.3fms "), m_timer.Elapsed());
+		AppendFormat(message, mLen, curLen, _T("%08.3fms "), m_timer.Elapsed());
 	if (GetOption(LO_ShowThreadID))
 	{
 		DWORD threadID = ::GetCurrentThreadId();
 		if (m_MainThreadID != threadID)
-			curLen += _sntprintf(&message[curLen], mLen - curLen, _T("[THR: %4X] "), threadID);
+			AppendFormat(message, mLen, curLen, _T("[THR: %4X] "), threadID);
 	}
 	va_list list;
 	va_start(list, description);
-	curLen += _vsntprintf(&message[curLen], mLen - curLen, pos, list);
+	AppendFormatV(message, mLen, curLen, pos, list);
 	va_end(list);
 	//Adding CRLF at the end if needed
 	if (mLen - curLen > 3)
@@ -692,7 +710,7 @@ AViewer* ALog::GetAutoViewer()
 		GetModuleFileName(NULL, path, MAX_PATH);
 		LPTSTR pos = _tcsrchr(path, _T('\\'));
 		pos[1] = 0;
-		_tcscat(path, _T("ALogDebugger.exe"));
+		_tcsncat_s(path, _T("ALogDebugger.exe"), _TRUNCATE);
 		STARTUPINFO sI;
 		memset(&sI, 0, sizeof(STARTUPINFO));
 		sI.cb = sizeof(STARTUPINFO);

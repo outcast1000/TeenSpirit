@@ -86,7 +86,8 @@ afx_msg LRESULT CLabel::OnSetText(WPARAM wParam, LPARAM lParam)
 
 afx_msg LRESULT CLabel::OnGetText(WPARAM wParam, LPARAM lParam)
 {
-	_tcsncpy((LPTSTR)lParam, m_text.c_str(), wParam);
+	if (wParam > 0)
+		_tcsncpy_s((LPTSTR)lParam, wParam, m_text.c_str(), _TRUNCATE);
 	return 1;
 }
 

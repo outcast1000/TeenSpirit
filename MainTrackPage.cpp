@@ -64,13 +64,13 @@ BOOL CMainTrackPage::OnInitDialog()
 	if (TrackNo > 0)
 	{
 		TCHAR bf[100];
-		_itot(TrackNo, bf, 10);
+		_itot_s(TrackNo, bf, 10);
 		SetDlgItemText(IDC_TRACKNO, bf);
 	}
 	if (Year > 0)
 	{
 		TCHAR bf[100];
-		_itot(Year, bf, 10);
+		_itot_s(Year, bf, 10);
 		SetDlgItemText(IDC_YEARNAME, bf);
 	}
 	SetDlgItemText(IDC_LOCATION, Location);

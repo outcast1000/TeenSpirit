@@ -517,7 +517,7 @@ LONG CXHyperLink::GetRegKey(HKEY key, LPCTSTR subkey, LPTSTR retdata)
 		long datasize = MAX_PATH;
 		TCHAR data[MAX_PATH];
 		RegQueryValue(hkey, NULL, data, &datasize);
-		_tcscpy(retdata, data);
+		_tcsncpy_s(retdata, MAX_PATH * 2, data, _TRUNCATE);	//callers pass key[MAX_PATH * 2]
 		RegCloseKey(hkey);
 	}
 
@@ -594,7 +594,7 @@ HINSTANCE CXHyperLink::GotoURL(LPCTSTR url, int showcmd, BOOL bAlwaysOpenNew /*=
 	{
 		if (GetRegKey(HKEY_CLASSES_ROOT, _T(".htm"), key) == ERROR_SUCCESS) 
 		{
-			_tcscat(key, _T("\\shell\\open\\command"));
+			_tcsncat_s(key, _T("\\shell\\open\\command"), _TRUNCATE);
 
 			if (GetRegKey(HKEY_CLASSES_ROOT,key,key) == ERROR_SUCCESS) 
 			{
@@ -613,8 +613,8 @@ HINSTANCE CXHyperLink::GotoURL(LPCTSTR url, int showcmd, BOOL bAlwaysOpenNew /*=
 					*pos = _T('\0');					// Remove the parameter
 				}
 
-				_tcscat(pos, _T(" "));
-				_tcscat(pos, url);
+				_tcsncat_s(pos, _countof(key) - (pos - key), _T(" "), _TRUNCATE);
+				_tcsncat_s(pos, _countof(key) - (pos - key), url, _TRUNCATE);
 
 				USES_CONVERSION;
 				result = (HINSTANCE) WinExec(T2A(key),showcmd);

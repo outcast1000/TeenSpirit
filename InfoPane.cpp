@@ -115,15 +115,15 @@ LPCTSTR InfoPane::GetTitle(UINT captionNum)
 		{
 			const std::vector<InfoItemTypeEnum>& items = m_infoCtrl.GetShowingItems();
 			if (items.size() == 0)
-				_sntprintf(m_stringBuffer, 500, _T("%s: -"), pAPI->GetString(IDS_SHOW));
+				_sntprintf_s(m_stringBuffer, _TRUNCATE, _T("%s: -"), pAPI->GetString(IDS_SHOW));
 			else
 			{
-				_sntprintf(m_stringBuffer, 500, _T("%s: "), pAPI->GetString(IDS_SHOW));
+				_sntprintf_s(m_stringBuffer, _TRUNCATE, _T("%s: "), pAPI->GetString(IDS_SHOW));
 				for (UINT i = 0; i < items.size(); i++)
 				{
 					if (i > 0)
-						_tcscat(m_stringBuffer, _T(", "));
-					_tcscat(m_stringBuffer, pAPI->GetStringForInfoItemType(items[i]));
+						_tcsncat_s(m_stringBuffer, _T(", "), _TRUNCATE);
+					_tcsncat_s(m_stringBuffer, pAPI->GetStringForInfoItemType(items[i]), _TRUNCATE);
 				}
 
 			}
@@ -131,7 +131,7 @@ LPCTSTR InfoPane::GetTitle(UINT captionNum)
 		}
 		break;
 	case 2:
-		_sntprintf(m_stringBuffer, 500, _T("%s: [F5]"), pAPI->GetString(IDS_FOCUS));
+		_sntprintf_s(m_stringBuffer, _TRUNCATE, _T("%s: [F5]"), pAPI->GetString(IDS_FOCUS));
 		return m_stringBuffer;
 	}
 	return NULL;
@@ -209,7 +209,7 @@ BOOL InfoPane::LoadState(IPaneState& paneState)
 	TCHAR bf[500];
 	for (INT i = IIT_Unknown + 1; i < IIT_Last; i++)
 	{
-		_sntprintf(bf, 500, _T("%s_%d"), cInfoPane_EnableInfoItem, i);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s_%d"), cInfoPane_EnableInfoItem, i);
 		INT value = paneState.GetIntSetting(bf);
 		if (value != -1)
 			m_infoCtrl.EnableInfoType((InfoItemTypeEnum)i, value > 0);
@@ -228,7 +228,7 @@ BOOL InfoPane::SaveState(IPaneState& paneState)
 	for (INT i = IIT_Unknown + 1; i < IIT_Last; i++)
 	{
 		BOOL bEnable = FALSE;
-		_sntprintf(bf, 500, _T("%s_%d"), cInfoPane_EnableInfoItem, i);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s_%d"), cInfoPane_EnableInfoItem, i);
 		paneState.SetIntSetting(bf, m_infoCtrl.IsInfoTypeEnabled((InfoItemTypeEnum)i));
 	}
 	return TRUE;

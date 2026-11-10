@@ -148,9 +148,7 @@ void CSystemTray::Initialise()
 	m_uCreationFlags = 0;
 
 #ifdef SYSTEMTRAY_USEW2K
-    OSVERSIONINFO os = { sizeof(os) };
-    GetVersionEx(&os);
-    m_bWin2K = ( VER_PLATFORM_WIN32_NT == os.dwPlatformId && os.dwMajorVersion >= 5 );
+    m_bWin2K = TRUE;	//Windows 7 or later
 #else
     m_bWin2K = FALSE;
 #endif
@@ -188,8 +186,7 @@ BOOL CSystemTray::Create(CWnd* pParent, UINT uCallbackMessage, LPCTSTR szToolTip
 #ifdef _WIN32_WCE
     m_bEnabled = TRUE;
 #else
-    // this is only for Windows 95 (or higher)
-    m_bEnabled = (GetVersion() & 0xff) >= 4;
+    m_bEnabled = TRUE;	//Windows 7 or later
     if (!m_bEnabled) 
     {
         ASSERT(FALSE);
@@ -215,16 +212,10 @@ BOOL CSystemTray::Create(CWnd* pParent, UINT uCallbackMessage, LPCTSTR szToolTip
     m_tnd.uID    = uID;
     m_tnd.hIcon  = icon;
 
-	OSVERSIONINFO versionInfo;
-	versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	GetVersionEx(&versionInfo);
-	if (versionInfo.dwMajorVersion >= 6)
-		m_tnd.uFlags = NIF_MESSAGE | NIF_ICON | (bShowToolTip ?  NIF_TIP : 0);
-	else
-		m_tnd.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP;
+	m_tnd.uFlags = NIF_MESSAGE | NIF_ICON | (bShowToolTip ?  NIF_TIP : 0);	//Vista and later
 
 	m_tnd.uCallbackMessage = uCallbackMessage;
-    _tcsncpy(m_tnd.szTip, szToolTip, m_nMaxTooltipLength-1);
+    _tcsncpy_s(m_tnd.szTip, szToolTip, _TRUNCATE);
 
 #ifdef SYSTEMTRAY_USEW2K
     if (m_bWin2K && szBalloonTip)
@@ -249,9 +240,9 @@ BOOL CSystemTray::Create(CWnd* pParent, UINT uCallbackMessage, LPCTSTR szToolTip
 
         m_tnd.uFlags |= NIF_INFO;
 
-        _tcsncpy(m_tnd.szInfo, szBalloonTip, 255);
+        _tcsncpy_s(m_tnd.szInfo, szBalloonTip, _TRUNCATE);
         if (szBalloonTitle)
-            _tcsncpy(m_tnd.szInfoTitle, szBalloonTitle, 63);
+            _tcsncpy_s(m_tnd.szInfoTitle, szBalloonTitle, _TRUNCATE);
         else
             m_tnd.szInfoTitle[0] = _T('\0');
         m_tnd.uTimeout    = uBalloonTimeout * 1000; // convert time to ms
@@ -566,8 +557,7 @@ BOOL CSystemTray::SetTooltipText(LPCTSTR pszTip)
         return FALSE;
 
     m_tnd.uFlags = NIF_TIP;
-    _tcsncpy(m_tnd.szTip, pszTip, m_nMaxTooltipLength);
-	m_tnd.szTip[m_nMaxTooltipLength - 1] = 0;
+    _tcsncpy_s(m_tnd.szTip, pszTip, _TRUNCATE);
 
     if (m_bHidden)
         return TRUE;
@@ -655,9 +645,9 @@ BOOL CSystemTray::ShowBalloon(LPCTSTR szText,
 
 
     m_tnd.uFlags = NIF_INFO;
-    _tcsncpy(m_tnd.szInfo, szText, 256);
+    _tcsncpy_s(m_tnd.szInfo, szText, _TRUNCATE);
     if (szTitle)
-        _tcsncpy(m_tnd.szInfoTitle, szTitle, 64);
+        _tcsncpy_s(m_tnd.szInfoTitle, szTitle, _TRUNCATE);
     else
         m_tnd.szInfoTitle[0] = _T('\0');
     m_tnd.dwInfoFlags = dwIcon;

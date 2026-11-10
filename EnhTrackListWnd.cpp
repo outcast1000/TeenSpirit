@@ -76,7 +76,7 @@ void CEnhTrackListWnd::ApplyTranslation(ITranslation& translation)
 	Resize(rc.Width(), rc.Height());
 	PrgAPI* pAPI = PRGAPI();
 	TCHAR txt[300];
-	_sntprintf(txt, 300, _T("%s"), pAPI->GetString(IDS_SEARCH));
+	_sntprintf_s(txt, _TRUNCATE, _T("%s"), pAPI->GetString(IDS_SEARCH));
 	m_searchEdit.SetEmptyMessage(txt);
 	m_caption.Invalidate();
 }
@@ -225,7 +225,7 @@ void CEnhTrackListWnd::OnTimer(UINT nIDEvent)
 
 				TCHAR txt[500];
 				UINT c = col.size();
-				_sntprintf(txt, 500, _T("%s: <s>'%s'</s> | %s: <s>%d</s>"),
+				_sntprintf_s(txt, _TRUNCATE, _T("%s: <s>'%s'</s> | %s: <s>%d</s>"),
 					pAPI->GetString(IDS_SEARCH),
 					searchString,
 					pAPI->GetString(IDS_TRACKS),
@@ -372,7 +372,7 @@ BOOL CEnhTrackListWnd::OnStateChanged(UINT stateMessage)
 						sp->artist.name = pAPI->GetString(IDS_UNKNOWN);
 					if (sp->album.name == TS_UnknownString)
 						sp->album.name = pAPI->GetString(IDS_UNKNOWN);
-					_sntprintf(bf, 500, _T("%s: <s>%s</s> | %s: <s>%s</s> | %s: <s>%d</s>"),
+					_sntprintf_s(bf, _TRUNCATE, _T("%s: <s>%s</s> | %s: <s>%s</s> | %s: <s>%d</s>"),
 						pAPI->GetStringForItemType(IT_Album),
 						sp->album.name.c_str(),
 						pAPI->GetStringForItemType(IT_Artist),
@@ -420,7 +420,7 @@ BOOL CEnhTrackListWnd::OnStateChanged(UINT stateMessage)
 							if (sp->genre.name == TS_UnknownString)
 								sp->genre.name = pAPI->GetString(IDS_UNKNOWN);
 
-							_sntprintf(bf, 500, _T("%s: <s>%s</s> | %s: <s>%s</s> | %s: <s>%d</s>"),
+							_sntprintf_s(bf, _TRUNCATE, _T("%s: <s>%s</s> | %s: <s>%s</s> | %s: <s>%d</s>"),
 								pAPI->GetStringForItemType(IT_Artist),
 								sp->artist.name.c_str(),
 								pAPI->GetStringForItemType(IT_Genre),
@@ -444,7 +444,7 @@ BOOL CEnhTrackListWnd::OnStateChanged(UINT stateMessage)
 									sp->album.name = pAPI->GetString(IDS_UNKNOWN);
 
 								bIsVarious = FALSE;
-								_sntprintf(bf, 500, _T("%s: <s>%s</s> | %s: <s>%s</s> | %s: <s>%d</s>"),
+								_sntprintf_s(bf, _TRUNCATE, _T("%s: <s>%s</s> | %s: <s>%s</s> | %s: <s>%d</s>"),
 									pAPI->GetStringForItemType(IT_Album),
 									sp->album.name.c_str(),
 									pAPI->GetStringForItemType(IT_Artist),
@@ -456,7 +456,7 @@ BOOL CEnhTrackListWnd::OnStateChanged(UINT stateMessage)
 						else if (state.activeTracksFilter.Album.match != TXTM_Disabled)
 						{
 							bIsVarious = FALSE;
-							_sntprintf(bf, 500, _T("%s: <s>%s</s> | %s: <s>%s</s>"),
+							_sntprintf_s(bf, _TRUNCATE, _T("%s: <s>%s</s> | %s: <s>%s</s>"),
 								pAPI->GetStringForItemType(IT_Album),
 								state.activeTracksFilter.Album.val.c_str(),
 								pAPI->GetString(IDS_ARTIST),
@@ -474,7 +474,7 @@ BOOL CEnhTrackListWnd::OnStateChanged(UINT stateMessage)
 							//===Translate [Unknown]
 							if (sp.name == TS_UnknownString)
 								sp.name = pAPI->GetString(IDS_UNKNOWN);
-							_sntprintf(bf, 500, _T("%s: <s>%s</s> | %s: <s>%d</s>"),
+							_sntprintf_s(bf, _TRUNCATE, _T("%s: <s>%s</s> | %s: <s>%d</s>"),
 								pAPI->GetStringForItemType(IT_Genre),
 								sp.name.c_str(),
 								pAPI->GetString(IDS_TRACKS),
@@ -487,7 +487,7 @@ BOOL CEnhTrackListWnd::OnStateChanged(UINT stateMessage)
 						CollectionRecord sp;
 						if (pSM->GetCollectionRecord(state.activeTracksFilter.CollectionID.val, sp))
 						{
-							_sntprintf(bf, 500, _T("%s: <s>%s</s> | %s: <s>%d</s>"),
+							_sntprintf_s(bf, _TRUNCATE, _T("%s: <s>%s</s> | %s: <s>%d</s>"),
 								pAPI->GetStringForItemType(IT_Genre),
 								sp.name.c_str(),
 								pAPI->GetString(IDS_TRACKS),
@@ -497,7 +497,7 @@ BOOL CEnhTrackListWnd::OnStateChanged(UINT stateMessage)
 					break;
 				case IT_Year:
 					{
-						_sntprintf(bf, 500, _T("%s: <s>%d</s> | %s: <s>%d</s>"),
+						_sntprintf_s(bf, _TRUNCATE, _T("%s: <s>%d</s> | %s: <s>%d</s>"),
 							pAPI->GetStringForItemType(IT_Year),
 							state.activeTracksFilter.Year.val,
 							pAPI->GetString(IDS_TRACKS),
@@ -508,7 +508,7 @@ BOOL CEnhTrackListWnd::OnStateChanged(UINT stateMessage)
 			}
 			else
 			{
-				_sntprintf(bf, 500, _T("%s | %s: <s>%d</s>"),
+				_sntprintf_s(bf, _TRUNCATE, _T("%s | %s: <s>%d</s>"),
 					pAPI->GetStringForItemType(IT_Various),
 					pAPI->GetString(IDS_TRACKS),
 					tracks);

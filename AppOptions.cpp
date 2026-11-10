@@ -167,7 +167,7 @@ BOOL AppOptions::GetString(AppStringOptionsEnum opt, LPTSTR bf, UINT bfLen)
 		return FALSE;
 	if (tmp.size() >= bfLen)
 		return FALSE;
-	_tcsncpy(bf, tmp.c_str(), bfLen);
+	_tcsncpy_s(bf, bfLen, tmp.c_str(), _TRUNCATE);
 	return TRUE;
 }
 

@@ -41,6 +41,7 @@
 *///----------------------------------------------------
 
 #include "Registry.h"
+#include "cStringUtils.h"
 
 #pragma warning (disable : 4706)
 
@@ -102,7 +103,7 @@ CRegEntry& CRegEntry::operator=(LPCTSTR lpszValue) {
 	assert(nValueLen <= _MAX_REG_VALUE);
 
 	ForceStr();	iType = REG_SZ;	
-	_tcsncpy(lpszStr, lpszValue, nValueLen > _MAX_REG_VALUE ? _MAX_REG_VALUE : nValueLen);
+	StrCopyN(lpszStr, _MAX_REG_VALUE, lpszValue, nValueLen);
 
 	REGENTRY_ALLOWCONV(true)
 	if (REGENTRY_NOTLOADING && REGENTRY_KEYVALID( KEY_SET_VALUE ))
@@ -154,7 +155,7 @@ CRegEntry& CRegEntry::operator=(CRegEntry& cregValue) {
 	
 	if (lpszName == NULL) {
 		size_t nNameLen = _tcslen(cregValue.lpszName) + 1;
-		lpszName = new _TCHAR[nNameLen]; _tcsncpy(lpszName, cregValue.lpszName, nNameLen);
+		lpszName = new _TCHAR[nNameLen]; _tcsncpy_s(lpszName, nNameLen, cregValue.lpszName, _TRUNCATE);
 	}
 	
 	switch ((iType = cregValue.iType)) {
@@ -200,14 +201,17 @@ CRegEntry::operator LPTSTR() {
 	switch (iType) {
 
 		case REG_DWORD:
-			_stprintf(lpszStr, _T("%lu"), dwDWORD);
+			_sntprintf_s(lpszStr, _MAX_REG_VALUE, _TRUNCATE, _T("%lu"), dwDWORD);
 			break;
 		case REG_MULTI_SZ:
 			GetMulti(lpszStr);
 			break;
 		case REG_BINARY: {
-			_tcsncpy(lpszStr, (const _TCHAR*)&vBytes[0], vBytes.size());
-			lpszStr[vBytes.size()] = 0;
+			//vBytes holds bytes: copy whole characters, as many as fit
+			size_t chars = min(vBytes.size() / sizeof(_TCHAR), (size_t)_MAX_REG_VALUE - 1);
+			if (chars > 0)
+				memcpy(lpszStr, &vBytes[0], chars * sizeof(_TCHAR));
+			lpszStr[chars] = 0;
 			}
 			break;
 
@@ -493,11 +497,15 @@ LPTSTR CRegEntry::GetMulti(LPTSTR lpszDest, size_t nMax) {
 	/* If caching is disabled, refresh the entries */
 	REGENTRY_REFRESH_IF_NOCACHE	
 	
-	for (size_t n=0; n < vMultiString.size() && nCur < nMax; n++) {
+	//Each string with its terminator, then the final terminator: stop at the first string that does not fit
+	if (nMax == 0) return lpszDest;
+	for (size_t n=0; n < vMultiString.size(); n++) {
 		
-		strBuf = vMultiString[n].c_str(); 
+		strBuf = vMultiString[n].c_str();
 		nLen = vMultiString[n].length()+1;
-		_tcsncpy(lpszDest + nCur, strBuf, (nLen >= nMax ? (nMax-nCur) : nLen) * sizeof(_TCHAR));
+		if (nCur + nLen + 1 > nMax)
+			break;
+		memcpy(lpszDest + nCur, strBuf, nLen * sizeof(_TCHAR));
 		nCur += nLen;
 	}
 
@@ -587,7 +595,7 @@ CRegEntry& CRegistry::operator []( LPCTSTR lpszVName) {
 	/* Entry not found */	
 	_reEntries.push_back(new CRegEntry(this));		
 	_reEntries.back()->lpszName = new _TCHAR[nValueNameLen];	
-	_tcsncpy(_reEntries.back()->lpszName, lpszVName, (nValueNameLen > _MAX_REG_VALUE ? _MAX_REG_VALUE : nValueNameLen));	
+	_tcsncpy_s(_reEntries.back()->lpszName, nValueNameLen, lpszVName, _TRUNCATE);	
 
 	return *_reEntries.back();
 }
@@ -695,7 +703,7 @@ bool CRegistry::Open(LPCTSTR lpszRegPath, HKEY hRootKey, DWORD dwAccess, bool bA
 	
 		/* Store path information for auto opening */
 		_lpszSubKey = new _TCHAR[_tcslen(lpszRegPath)+1];
-		_tcscpy(_lpszSubKey, lpszRegPath);
+		_tcsncpy_s(_lpszSubKey, _tcslen(lpszRegPath) + 1, lpszRegPath, _TRUNCATE);
 	}
 	
 	_hRootKey = hRootKey;
@@ -853,13 +861,7 @@ bool CRegistry::Refresh() {
 
 void CRegistry::DeleteKey() {
 
-	OSVERSIONINFO osvi;
-	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	
-	if (GetVersionEx(&osvi) && osvi.dwPlatformId == VER_PLATFORM_WIN32_NT)
-		DeleteKey(_hRootKey, _lpszSubKey);
-	else 
-		RegDeleteKey(_hRootKey, _lpszSubKey);
+	DeleteKey(_hRootKey, _lpszSubKey);	//Windows NT: subkeys must be deleted first
 
 	Close();
 }

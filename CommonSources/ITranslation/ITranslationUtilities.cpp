@@ -21,6 +21,7 @@
 // 	*
 //	*/ 
 #include "stdafx.h"
+#include "cStringUtils.h"
 #include "ITranslationUtilities.h"
 #include <memory>
 #include <shlwapi.h>
@@ -29,7 +30,6 @@ BOOL ITranslationUtilities::CompareTranslations(ITranslation& first, ITranslatio
 {
 	BOOL bTranslated = FALSE;
 	stats = TranslationComparison();
-	TCHAR bf[100];
 	for (int i = 0; i < 1000; i++)
 	{
 		LPCTSTR firstRet = first.GetString(i);
@@ -43,7 +43,7 @@ BOOL ITranslationUtilities::CompareTranslations(ITranslation& first, ITranslatio
 				if (_tcscmp(firstRet, secRet) == 0)
 				{
 					log += _T("Same string found: ");
-					log += _itot(i, bf, 10);
+					log += std::to_wstring(i);
 					log += _T(" = ");
 					log += firstRet;
 					log += _T("\r\n");
@@ -54,7 +54,7 @@ BOOL ITranslationUtilities::CompareTranslations(ITranslation& first, ITranslatio
 			{
 				stats.notInSecond++;
 				log += _T("Untranslated string found: ");
-				log += _itot(i, bf, 10);
+				log += std::to_wstring(i);
 				log += _T(" = ");
 				log += firstRet;
 				log += _T("\r\n");
@@ -67,7 +67,7 @@ BOOL ITranslationUtilities::CompareTranslations(ITranslation& first, ITranslatio
 				stats.secondCount++;
 				stats.notInFirst++;
 				log += _T("Unused string found: ");
-				log += _itot(i, bf, 10);
+				log += std::to_wstring(i);
 				log += _T(" = ");
 				log += secRet;
 				log += _T("\r\n");
@@ -105,8 +105,7 @@ BOOL ITranslationUtilities::ImportTranslationFile(LPCTSTR pathName, EditableTran
 			}
 			//=== The default name is the file name without its extension
 			TCHAR fileTitle[MAX_PATH];
-			_tcsncpy(fileTitle, PathFindFileName(pathName), MAX_PATH - 1);
-			fileTitle[MAX_PATH - 1] = 0;
+			_tcsncpy_s(fileTitle, PathFindFileName(pathName), _TRUNCATE);
 			PathRemoveExtension(fileTitle);
 			destTranslation.SetTranslationInfo(ITranslation::TI_Name, fileTitle);
 			//li.Path = pathName;
@@ -176,7 +175,7 @@ BOOL ITranslationUtilities::ExportTranslationFile(LPCTSTR pathName, ITranslation
 		if (refStr == NULL)
 			continue;
 		TCHAR header[10];
-		_sntprintf(header, 10, _T("%d="), i);
+		_sntprintf_s(header, _TRUNCATE, _T("%d="), i);
 		header[9] = 0;
 		strLoader = refStr;
 		Replace(strLoader, _T("\r"), _T("\\r"));
@@ -289,8 +288,7 @@ BOOL ITranslationUtilities::GetTranslationStrings(LPCTSTR translationFileData, E
 			return;
 		}
 		TCHAR num[6];
-		_tcsncpy(num, line, eqPos - line);
-		num[eqPos - line] = 0;
+		StrCopyN(num, line, eqPos - line);
 		INT resNum = _ttoi(num);
 		if (resNum <= 0)
 		{
@@ -336,8 +334,7 @@ BOOL ITranslationUtilities::GetTranslationInfo(LPCTSTR translationFileData, Edit
 			return;
 		}
 		TCHAR key[20];
-		_tcsncpy(key, &line[1], eqPos - line - 1);
-		key[eqPos - line - 1] = 0;
+		StrCopyN(key, &line[1], eqPos - line - 1);
 		ITranslation::TranslationInfoEnum ti = ITranslation::TI_Last;
 		if (_tcscmp(key, LNG_Name) == 0)
 			ti = ITranslation::TI_Name;

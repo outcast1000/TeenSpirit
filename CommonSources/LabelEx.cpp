@@ -311,7 +311,8 @@ afx_msg LRESULT CLabelEx::OnSetText(WPARAM wParam, LPARAM lParam)
 
 afx_msg LRESULT CLabelEx::OnGetText(WPARAM wParam, LPARAM lParam)
 {
-	_tcsncpy((LPTSTR)lParam, m_text.c_str(), wParam);
+	if (wParam > 0)
+		_tcsncpy_s((LPTSTR)lParam, wParam, m_text.c_str(), _TRUNCATE);
 	return 1;
 	//return (LRESULT)(LPCTSTR)m_sText;
 } //End of OnSetFont

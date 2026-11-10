@@ -22,6 +22,7 @@
 //	*/ 
 
 #include "stdafx.h"
+#include "cStringUtils.h"
 #include <afxpriv.h>
 #include "XFolderDialog.h"
 #include "XFolderDialogRes.h"
@@ -189,11 +190,11 @@ int CXFolderDialog::DoModal()
 	if (m_ofn.lpstrFile)
 	{
 		// copy file buffer
-		_tcsncpy(pBuf, m_ofn.lpstrFile, m_ofn.nMaxFile);
+		StrCopyN(pBuf, m_ofn.nMaxFile, m_ofn.lpstrFile, m_ofn.nMaxFile);
 		// zero out file buffer in OPENFILENAME struct
 		memset(m_ofn.lpstrFile, 0, m_ofn.nMaxFile*sizeof(TCHAR));
 		// restore copied file buffer
-		_tcsncpy(m_ofn.lpstrFile, pBuf, m_ofn.nMaxFile);
+		StrCopyN(m_ofn.lpstrFile, m_ofn.nMaxFile, pBuf, m_ofn.nMaxFile);
 	}
 	if (pBuf)
 		delete [] pBuf;

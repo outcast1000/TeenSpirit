@@ -120,7 +120,7 @@ void CMainOptionsPage::LoadMainDlgOptions()
 	CheckDlgButton(IDC_CHK_AUTOUPDDB, bEnabled ? BST_CHECKED : BST_UNCHECKED);
 	GetDlgItem(IDC_EDT_AUTOUPDDB)->EnableWindow(bEnabled);
 	TCHAR bf[50];
-	_itot(iDelay, bf, 10);
+	_itot_s(iDelay, bf, 10);
 	GetDlgItem(IDC_EDT_AUTOUPDDB)->SetWindowText(bf);
 
 	CheckDlgButton(IDC_CHK_LASTFMSCROBBLING, pAPI->GetOption(OPT_GEN_LastFMScrobbler) ? BST_CHECKED : BST_UNCHECKED);
@@ -128,7 +128,7 @@ void CMainOptionsPage::LoadMainDlgOptions()
 	CheckDlgButton(IDC_CHK_FORCECLEARTYPEFONTS, pAPI->GetOption(OPT_GEN_ForceClearTypeFonts) ? BST_CHECKED : BST_UNCHECKED);
 
 	INT val = pAPI->GetOption(OPT_GEN_DaysMeansNew);
-	_itot(val, bf, 10);
+	_itot_s(val, bf, 10);
 	if (val<0) val = 0;
 	if (val>500) val = 500;
 	SetDlgItemText(IDC_EDTNUMDAYS, bf);

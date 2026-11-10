@@ -165,8 +165,7 @@ void WinampVisualization::SetPosition(int x, int y, int cx, int cy)
 BOOL WinampVisualization::LoadPlugin(LPCTSTR plugInPath)
 {	
 	//ReleasePlugin();
-	_tcsncpy(m_PluginPath, plugInPath, MAX_PATH);
-	m_PluginPath[MAX_PATH - 1] = 0;
+	_tcsncpy_s(m_PluginPath, plugInPath, _TRUNCATE);
 	return TRUE;
 }
 
@@ -575,7 +574,9 @@ LRESULT CALLBACK WinampVisualization::WinampWndProcST(HWND hwnd, UINT msg, WPARA
 	{
 	case WM_GETTEXT:
 		{
-			_tcsncpy((TCHAR*)lParam, _T("TS:getText"), wParam);
+			if (wParam == 0)
+				return 0;
+			_tcsncpy_s((TCHAR*)lParam, wParam, _T("TS:getText"), _TRUNCATE);
 			return _tcslen((const TCHAR*)lParam);
 		}
 		break;

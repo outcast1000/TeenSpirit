@@ -232,7 +232,7 @@ void CLanguagesPP::LoadOptions()
 		LPCTSTR ret = pLM->GetTranslationInfo(i, ITranslation::TI_LocalizedName);
 		if (ret != NULL && ret[0] != 0)
 		{
-			_sntprintf(bf, 500, _T("%s / %s"), 
+			_sntprintf_s(bf, _TRUNCATE, _T("%s / %s"), 
 				pLM->GetTranslationInfo(i, ITranslation::TI_Name), 
 				pLM->GetTranslationInfo(i, ITranslation::TI_LocalizedName));
 			ret = bf;
@@ -358,7 +358,7 @@ void CLanguagesPP::OnBnClickedDebug()
 	{
 		TCHAR bf[MAX_PATH];
 		GetTempPath(MAX_PATH, bf);
-		_tcscat(bf, _T("tmp~lngdbg.txt"));
+		_tcsncat_s(bf, _T("tmp~lngdbg.txt"), _TRUNCATE);
 		CTextFileWrite fw(bf);
 		fw.Write(log);
 		fw.Close();

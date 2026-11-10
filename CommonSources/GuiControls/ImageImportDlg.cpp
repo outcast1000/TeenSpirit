@@ -64,7 +64,7 @@ BOOL CImageImportDlg::CHookShellWnd::OnNotify(WPARAM, LPARAM lParam, LRESULT *pR
 			ctl.Attach(pLVHdr->hdr.hwndFrom);
 			pidl = (LPCITEMIDLIST) ctl.GetItemData(pLVHdr->iItem);
 			SHGetPathFromIDList(pidl, tszBuffer);
-			_tsplitpath(tszBuffer, NULL, NULL, tszFileName, tszExtension);
+			_tsplitpath_s(tszBuffer, NULL, 0, NULL, 0, tszFileName, _countof(tszFileName), tszExtension, _countof(tszExtension));
 			csTemp.Format(_T("%s%s"), tszFileName, tszExtension);
 
 			//	Update our parent window
@@ -172,7 +172,7 @@ void CImageImportDlg::UpdatePreview(LPCTSTR szFilename)
 		{
 			CSize sz = m_preview.GetPictureSize();
 			TCHAR bf[200];
-			_sntprintf(bf, 200, _T("\r\n[%d x %d] pixels"), sz.cx, sz.cy);
+			_sntprintf_s(bf, _TRUNCATE, _T("\r\n[%d x %d] pixels"), sz.cx, sz.cy);
 			m_csPreviewName += bf;
 		}
 		

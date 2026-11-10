@@ -443,9 +443,8 @@ LPWSTR HTMLText2Unicode(LPCSTR html, UINT size/* = -1*/)
 		if (endPos != NULL && endPos - startPos < 30)
 		{
 			CHAR bf[30];
-			strncpy(bf, startPos, endPos - startPos);
-			bf[endPos - startPos] = 0;
-			_strlwr(bf);
+			strncpy_s(bf, startPos, endPos - startPos);
+			_strlwr_s(bf);
 			if (strncmp(bf, "windows-", 8) == 0 && endPos - startPos > 8)
 			{
 				codePage = atol(&bf[8]);

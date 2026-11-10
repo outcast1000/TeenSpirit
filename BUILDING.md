@@ -125,7 +125,11 @@ The Last.fm key can be entered in the program (Options, information providers,
 Last.fm), or compiled in: see `ApiKeys.h` (real keys go in the gitignored
 `ApiKeys.local.h`, enabled by defining `JAANGLE_LOCAL_KEYS`).
 
-## Known build compromises (to be removed)
+## Compiler settings
 
-- Warning C4996 disabled, so the legacy unsafe CRT string calls (`_tcscpy`, `sprintf`, ...)
-  compile unchanged. (The code is C++17 with `/permissive-`.)
+C++17 with `/permissive-`, Unicode, static MFC, `WINVER` = Windows 7. The build is
+warning-free, and deprecated CRT calls are not suppressed (no `_CRT_SECURE_NO_WARNINGS`,
+C4996 on), so an unsafe string call (`_tcscpy`, `sprintf`, ...) shows up as a warning.
+Use the secure overloads, e.g. `_sntprintf_s(buffer, _TRUNCATE, ...)` and
+`_tcsncpy_s(buffer, src, _TRUNCATE)` (they take the size from an array), or
+`StrCopyN` (`CommonSources\cStringUtils.h`) for substrings.

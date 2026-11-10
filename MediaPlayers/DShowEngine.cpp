@@ -623,11 +623,13 @@ void DShowEngine::OnDisplayModeChanged()
 
 BOOL DShowEngine::CanPlay(LPCTSTR str)
 {
-	LPCTSTR filePath = &str[_tcslen(str) - 4];
+	size_t len = _tcslen(str);
+	if (len < 4)
+		return FALSE;
+	LPCTSTR filePath = &str[len - 4];
 	TCHAR ext[5];
-	_tcsncpy(ext, filePath, 4);
-	ext[4] = 0;
-	_tcslwr(ext);
+	_tcsncpy_s(ext, filePath, _TRUNCATE);
+	_tcslwr_s(ext);
 	return _tcsistr(_T(".mp3.mp2.mpgmpeg.avi.asf.wma.wmv"), ext) != NULL;
 }
 MediaEngineState DShowEngine::GetEngineState()

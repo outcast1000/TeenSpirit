@@ -21,6 +21,7 @@
 // 	*
 //	*/ 
 #include "stdafx.h"
+#include "cStringUtils.h"
 #include "ILanguageUtilities.h"
 #include <memory>
 
@@ -28,7 +29,6 @@ BOOL ILanguageUtilities::CompareLanguages(ILanguage& first, ILanguage& second, L
 {
 	BOOL bTranslated = FALSE;
 	stats = LanguageComparison();
-	TCHAR bf[100];
 	for (int i = 0; i < 1000; i++)
 	{
 		LPCTSTR firstRet = first.GetString(i);
@@ -42,7 +42,7 @@ BOOL ILanguageUtilities::CompareLanguages(ILanguage& first, ILanguage& second, L
 				if (_tcscmp(firstRet, secRet) == 0)
 				{
 					log += _T("Same string found: ");
-					log += _itot(i, bf, 10);
+					log += std::to_wstring(i);
 					log += _T(" = ");
 					log += firstRet;
 					log += _T("\r\n");
@@ -53,7 +53,7 @@ BOOL ILanguageUtilities::CompareLanguages(ILanguage& first, ILanguage& second, L
 			{
 				stats.notInSecond++;
 				log += _T("Untranslated string found: ");
-				log += _itot(i, bf, 10);
+				log += std::to_wstring(i);
 				log += _T(" = ");
 				log += firstRet;
 				log += _T("\r\n");
@@ -66,7 +66,7 @@ BOOL ILanguageUtilities::CompareLanguages(ILanguage& first, ILanguage& second, L
 				stats.secondCount++;
 				stats.notInFirst++;
 				log += _T("Unused string found: ");
-				log += _itot(i, bf, 10);
+				log += std::to_wstring(i);
 				log += _T(" = ");
 				log += secRet;
 				log += _T("\r\n");
@@ -164,7 +164,7 @@ BOOL ILanguageUtilities::ExportLanguageFile(LPCTSTR pathName, ILanguage* pSrcLan
 	SaveHeader(f, LNG_WebSite, li.WebSite.c_str());
 	SaveHeader(f, LNG_Version, li.Version.c_str());
 	TCHAR bf[30];
-	_itot(li.BuildNum, bf, 10);
+	_itot_s(li.BuildNum, bf, 10);
 	SaveHeader(f, LNG_Build, bf);
 	SaveHeader(f, LNG_AutoUpdateURL, li.AutoUpdateURL.c_str());
 	f.Write(_T("\r\n"), 2 * sizeof(TCHAR));
@@ -179,7 +179,7 @@ BOOL ILanguageUtilities::ExportLanguageFile(LPCTSTR pathName, ILanguage* pSrcLan
 		if (refStr == NULL)
 			continue;
 		TCHAR header[10];
-		_sntprintf(header, 10, _T("%d="), i);
+		_sntprintf_s(header, _TRUNCATE, _T("%d="), i);
 		header[9] = 0;
 		strLoader = refStr;
 		Replace(strLoader, _T("\r"), _T("\\r"));
@@ -224,9 +224,9 @@ LPTSTR ILanguageUtilities::GetLanguageFile(LPCTSTR pathName)
 	LPTSTR ret = new TCHAR[fLen - 2];
 #ifdef _UNICODE
 	if (fileData[0] == 0xff && fileData[1] == 0xfe)//The file is in UNICODE
-		_tcsncpy(ret, (LPCTSTR)CW2CT((LPCTSTR)&fileData[2]), fLen - 2);
+		StrCopyN(ret, fLen - 2, (LPCTSTR)CW2CT((LPCTSTR)&fileData[2]), fLen - 2);
 	else//The file is in ANSI
-		_tcsncpy(ret, (LPCTSTR)CA2CT((LPCSTR)fileData), fLen - 2);
+		StrCopyN(ret, fLen - 2, (LPCTSTR)CA2CT((LPCSTR)fileData), fLen - 2);
 #else
 	//if (fileData[0] == 0xff && fileData[1] == 0xfe)//The file is in UNICODE
 	//	stringData = CT2A(&fileData[2]);
@@ -263,8 +263,7 @@ BOOL ILanguageUtilities::GetLanguageStrings(LPCTSTR langFileData, ILanguage& des
 			if (eqPos - startPos <= 5)					//Starting number cant'be larger than this. Usually '234='
 			{
 				TCHAR bf[20];
-				_tcsncpy(bf, startPos, eqPos - startPos);
-				bf[eqPos - startPos] = 0;
+				StrCopyN(bf, startPos, eqPos - startPos);
 				int resNum = _ttoi(startPos);
 				if (resNum > 0)							//Invalid ID before equality
 				{
@@ -338,8 +337,7 @@ BOOL ILanguageUtilities::GetLanguageInfo(LPCTSTR langFileData, LanguageInfo& lan
 					TCHAR key[20];
 					if (eqPos - startPos - 1 < 20)
 					{
-						_tcsncpy(key, &startPos[1],eqPos - startPos - 1);
-						key[eqPos - startPos - 1] = 0;
+						StrCopyN(key, &startPos[1], eqPos - startPos - 1);
 						std::tstring* refString = 0;
 						if (_tcscmp(key, LNG_Name) == 0)
 							refString = &languageInfo.Name;
@@ -363,8 +361,7 @@ BOOL ILanguageUtilities::GetLanguageInfo(LPCTSTR langFileData, LanguageInfo& lan
 							if (lineEndPos - eqPos - 1 < 10)
 							{
 								TCHAR build[20];
-								_tcsncpy(build, &eqPos[1], lineEndPos - eqPos - 1);
-								build[lineEndPos - eqPos - 1] = 0;
+								StrCopyN(build, &eqPos[1], lineEndPos - eqPos - 1);
 							}
 						}
 						else if (refString != NULL)

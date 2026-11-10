@@ -47,7 +47,7 @@ BOOL GdiPlusBitmapCache::LoadState(LPCTSTR stateFile)
 		{
 			//=== Image dimensions are correct. Lets load the info now
 			TCHAR bf[MAX_PATH];
-			_sntprintf(bf, MAX_PATH, _T("%s.id"), stateFile);
+			_sntprintf_s(bf, _TRUNCATE, _T("%s.id"), stateFile);
 			HANDLE h = CreateFile(bf, GENERIC_READ, 0, 0, OPEN_EXISTING, 0, 0);
 			if (h != INVALID_HANDLE_VALUE)
 			{
@@ -74,7 +74,7 @@ BOOL GdiPlusBitmapCache::SaveState(LPCTSTR stateFile)
 	if (m_picDrawer.SaveFile(stateFile, GdiPlusPicDrawer::IF_png))
 	{
 		TCHAR bf[MAX_PATH];
-		_sntprintf(bf, MAX_PATH, _T("%s.id"), stateFile);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s.id"), stateFile);
 		HANDLE h = CreateFile(bf, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0);
 		if (h != INVALID_HANDLE_VALUE)
 		{

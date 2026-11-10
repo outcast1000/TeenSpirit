@@ -71,8 +71,8 @@ public:
 
 	// Types with conversions: type to/from string, type from unsigned long
 
-	REGENTRY_CONV_STORAGETYPE(tstring, _R_BUF(_MAX_REG_VALUE); _tcscpy(buffer, Value.c_str());,
-	lpszStr, _ultot(dwDWORD, lpszStr, NULL), _T(""))
+	REGENTRY_CONV_STORAGETYPE(tstring, _R_BUF(_MAX_REG_VALUE); _tcsncpy_s(buffer, Value.c_str(), _TRUNCATE);,
+	lpszStr, (_ultot_s(dwDWORD, lpszStr, _MAX_REG_VALUE, 10), lpszStr), _T(""))
 		
 
 	/* -----------------------------------------*

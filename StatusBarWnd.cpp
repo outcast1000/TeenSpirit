@@ -238,7 +238,7 @@ void CStatusBarWnd::Update()
 			{
 				//===It was visible. Now we must update it
 				TCHAR bf[500];
-				_sntprintf(bf, 500, _T("%s [%d]"), pAPI->GetString(IDS_DOWNLOADING), netPendingJobs);
+				_sntprintf_s(bf, _TRUNCATE, _T("%s [%d]"), pAPI->GetString(IDS_DOWNLOADING), netPendingJobs);
 				m_NetText.SetWindowText(bf);
 				ResizeInfoControls();
 			}
@@ -280,24 +280,24 @@ void CStatusBarWnd::Update()
 				switch (progress.curAction)
 				{
 				case CollectionUpdateJob::AC_RemovingInexistentFiles:
-					_sntprintf(bf, 200, _T("%s [%d]"), 
+					_sntprintf_s(bf, _TRUNCATE, _T("%s [%d]"), 
 						pAPI->GetString(IDS_REMOVINGFILES), 
 						pCM->GetPendingJobs());
 					break;
 				case CollectionUpdateJob::AC_CountingDirectoryFiles:
-					_sntprintf(bf, 200, _T("%s [%d]"), 
+					_sntprintf_s(bf, _TRUNCATE, _T("%s [%d]"), 
 						pAPI->GetString(IDS_COUNTINGFILES), 
 						pCM->GetPendingJobs());
 					break;
 				case CollectionUpdateJob::AC_AddingUpdatingFiles:
 					if (progress.maxPos > 0)
-						_sntprintf(bf, 200, _T("%s %d/%d [%d]"), 
+						_sntprintf_s(bf, _TRUNCATE, _T("%s %d/%d [%d]"), 
 							pAPI->GetString(IDS_SCANNINGFILES), 
 							progress.curPos, 
 							progress.maxPos,
 							pCM->GetPendingJobs());
 					else
-						_sntprintf(bf, 200, _T("%s %d [%d]"), 
+						_sntprintf_s(bf, _TRUNCATE, _T("%s %d [%d]"), 
 							pAPI->GetString(IDS_SCANNINGFILES), 
 							progress.curPos, 
 							pCM->GetPendingJobs());

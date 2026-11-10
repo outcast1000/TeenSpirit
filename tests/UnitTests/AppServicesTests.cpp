@@ -281,9 +281,9 @@ namespace
 		GetModuleFileNameW(NULL, path, MAX_PATH);
 		*(wcsrchr(path, L'\\') + 1) = 0;
 #ifdef _DEBUG
-		wcscat(path, L"jaangledbg.exe");
+		wcsncat_s(path, L"jaangledbg.exe", _TRUNCATE);
 #else
-		wcscat(path, L"jaangle.exe");
+		wcsncat_s(path, L"jaangle.exe", _TRUNCATE);
 #endif
 		HMODULE hApp = LoadLibraryExW(path, NULL, LOAD_LIBRARY_AS_IMAGE_RESOURCE | LOAD_LIBRARY_AS_DATAFILE);
 		CHECK(hApp != NULL);

@@ -143,7 +143,7 @@ BOOL AppResources::GetFontSpec(APP_FONTS font, LOGFONT& lf)
 	lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
 	lf.lfQuality = DEFAULT_QUALITY;
 	lf.lfPitchAndFamily = VARIABLE_PITCH | FF_DONTCARE;
-	_tcsncpy(lf.lfFaceName, _T("Tahoma"), LF_FACESIZE - 1);
+	_tcsncpy_s(lf.lfFaceName, _T("Tahoma"), _TRUNCATE);
 
 	switch (font)
 	{
@@ -168,7 +168,7 @@ BOOL AppResources::GetFontSpec(APP_FONTS font, LOGFONT& lf)
 	case FONT_Fixed:
 		lf.lfHeight = 15;
 		lf.lfPitchAndFamily = FIXED_PITCH | FF_DONTCARE;
-		_tcsncpy(lf.lfFaceName, _T("Courier New"), LF_FACESIZE - 1);
+		_tcsncpy_s(lf.lfFaceName, _T("Courier New"), _TRUNCATE);
 		break;
 	}
 	return TRUE;

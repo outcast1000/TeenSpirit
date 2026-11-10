@@ -7,7 +7,8 @@
     <VcpkgRoot Condition="'$(VcpkgRoot)' == ''">$(VsInstallRoot)\VC\vcpkg</VcpkgRoot>
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
     <VcpkgManifestRoot>$(MSBuildThisFileDirectory)..\</VcpkgManifestRoot>
-    <VcpkgInstalledDir>$(MSBuildThisFileDirectory)..\vcpkg_installed\</VcpkgInstalledDir>
+    <!-- One install tree per platform: manifest mode removes the packages of other triplets. -->
+    <VcpkgInstalledDir>$(MSBuildThisFileDirectory)..\vcpkg_installed\$(Platform)\</VcpkgInstalledDir>
     <!-- Static CRT, matching the project's /MT and /MTd runtime. -->
     <VcpkgUseStatic>true</VcpkgUseStatic>
     <VcpkgTriplet Condition="'$(Platform)' == 'Win32'">x86-windows-static</VcpkgTriplet>

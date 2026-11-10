@@ -198,7 +198,7 @@ BOOL CTagsFromFilenameDlg::PrepareNextTrack()
 	GetDlgItem(IDC_SKIP)->EnableWindow(m_col.size() > 1);
 	GetDlgItem(IDC_ALL)->EnableWindow(m_col.size() > 1);
 	TCHAR bf[100];
-	_sntprintf_s(bf, _TRUNCATE, _T("%d (%s)"), m_col.size(), PRGAPI()->GetString(IDS_TRACKS));
+	_sntprintf_s(bf, _TRUNCATE, _T("%d (%s)"), (INT)m_col.size(), PRGAPI()->GetString(IDS_TRACKS));
 	SetDlgItemText(IDC_ST_TRACKS, bf);
 	GetDlgItem(IDC_BTN_AUTO)->EnableWindow(TRUE);
 

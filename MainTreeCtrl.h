@@ -189,7 +189,7 @@ protected:
 protected:
 	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	afx_msg void OnTimer(UINT nIDEvent);	
+	afx_msg void OnTimer(UINT_PTR nIDEvent);	
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	DECLARE_MESSAGE_MAP()
 

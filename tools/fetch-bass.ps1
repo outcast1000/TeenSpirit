@@ -6,7 +6,7 @@
 # Its DLLs are therefore not stored in the repository.
 #
 # Usage:  powershell -ExecutionPolicy Bypass -File tools\fetch-bass.ps1 [-UpdateSdk]
-#   -UpdateSdk  also copies the x86 headers and import libraries into Bass\ (tracked).
+#   -UpdateSdk  also copies the headers and import libraries into Bass\ (x86) and Bass\x64\ (tracked).
 param([switch]$UpdateSdk)
 
 $ErrorActionPreference = 'Stop'
@@ -53,6 +53,9 @@ foreach ($p in $packages) {
         $safeseh = Join-Path $c.FullName 'safeseh'
         $libDir = if (Test-Path $safeseh) { $safeseh } else { $c.FullName }
         Get-ChildItem $libDir -Filter *.lib | Copy-Item -Destination (Join-Path $root 'Bass') -Force
+        $c64 = Join-Path $c.FullName 'x64'
+        New-Item -ItemType Directory -Force (Join-Path $root 'Bass\x64') | Out-Null
+        Get-ChildItem $c64 -Filter *.lib | Copy-Item -Destination (Join-Path $root 'Bass\x64') -Force
     }
 }
 Get-ChildItem $x86 -Filter *.dll | ForEach-Object { '{0,-14} {1}' -f $_.Name, $_.VersionInfo.FileVersion }

@@ -247,7 +247,7 @@ void CToolbarWnd::OnSize(UINT nType, int cx, int cy)
 
 BOOL CToolbarWnd::OnCommand(WPARAM wParam, LPARAM lParam)
 {
-	TRACE(_T("CMainToolbarDlg::OnCommand wParam: %d\r\n"), wParam);
+	TRACE(_T("CMainToolbarDlg::OnCommand wParam: %d\r\n"), (INT)wParam);
 	PrgAPI* pAPI = PRGAPI();
 	switch (wParam)
 	{
@@ -343,7 +343,7 @@ BOOL CToolbarWnd::OnCommand(WPARAM wParam, LPARAM lParam)
 			SkinManager* pSM = pAPI->GetSkinManager();
 			TSSkin& skin = pSM->GetSkin();
 			INT minRelative = skin.GetIntParameter(CSEC_Global, IPARAM_MinRelativeFont);
-			INT newRelativeSkinSize = wParam - ID_RELATIVE - minRelative;
+			INT newRelativeSkinSize = (INT)wParam - ID_RELATIVE - minRelative;
 			if (newRelativeSkinSize != skin.GetRelativeFontSize())
 			{
 				skin.SetRelativeFontSize(newRelativeSkinSize);

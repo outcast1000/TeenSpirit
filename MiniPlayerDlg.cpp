@@ -347,7 +347,7 @@ BOOL CMiniPlayerDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		case ID_SYSTEMBUTTONSID + SBTN_Menu:
 			{
 				CRect rc;
-				GetDlgItem(wParam)->GetWindowRect(&rc);
+				GetDlgItem((int)wParam)->GetWindowRect(&rc);
 				rc.left += rc.Width() / 2;
 				rc.top += rc.Height() / 2;
 				OnContextMenu(this, rc.TopLeft());
@@ -1059,7 +1059,7 @@ BOOL CMiniPlayerDlg::PreTranslateMessage(MSG* pMsg)
 	case WM_CHAR:
 		{
 			TCHAR bf[2];
-			bf[0] = pMsg->wParam;
+			bf[0] = (TCHAR)pMsg->wParam;
 			switch (bf[0])
 			{
 			case 8:
@@ -1134,10 +1134,10 @@ ITSMenu& CMiniPlayerDlg::GetInternalMenu(MenusEnum mnu)
 			curMenu.AppendMenu(ITSMenu::MIT_String, MI_PlayAlbum, bf);
 			curMenu.AppendMenu(ITSMenu::MIT_String, MI_OpenContainingFolder, (LPTSTR)pAPI->GetString(IDS_OPENCONTAININGFOLDER));
 			curMenu.AppendMenu(ITSMenu::MIT_Separator, 0, NULL);
-			curMenu.AppendMenu(ITSMenu::MIT_Menu, (INT)pMM->GetMenu(MenuManager::MNU_PlayListModes).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_MODE));
-			curMenu.AppendMenu(ITSMenu::MIT_Menu, (INT)pMM->GetMenu(MenuManager::MNU_Rating).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_RATING), pAPI->GetIcon(ICO_StarGold16));
+			curMenu.AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)pMM->GetMenu(MenuManager::MNU_PlayListModes).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_MODE));
+			curMenu.AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)pMM->GetMenu(MenuManager::MNU_Rating).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_RATING), pAPI->GetIcon(ICO_StarGold16));
 			curMenu.AppendMenu(ITSMenu::MIT_Separator, 0, NULL);
-			curMenu.AppendMenu(ITSMenu::MIT_Menu, (INT)GetInternalMenu(M_Settings).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_OPTIONS));
+			curMenu.AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)GetInternalMenu(M_Settings).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_OPTIONS));
 			curMenu.AppendMenu(ITSMenu::MIT_Separator, 0, NULL);
 			curMenu.AppendMenu(ITSMenu::MIT_String, MI_ShowMainWindow, (LPTSTR)pAPI->GetString(IDS_SHOWMAINWINDOW));
 			curMenu.AppendMenu(ITSMenu::MIT_String, MI_Hide, (LPTSTR)pAPI->GetString(IDS_HIDE));

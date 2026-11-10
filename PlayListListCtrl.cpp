@@ -419,9 +419,9 @@ void CPlayListListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 	INT nSelCount = GetSelectedItemCount();
 	playListMenu.EnableMenuItem(MI_RemoveSelected, nSelCount > 0);
 	playListMenu.EnableMenuItem(MI_RemoveOthers, nSelCount > 0);
-	playListMenu.EnableMenuItem((INT)pMM->GetMenu(MenuManager::MNU_Rating).GetInternalHandler(), nSelCount > 0);
+	playListMenu.EnableMenuItem((UINT_PTR)pMM->GetMenu(MenuManager::MNU_Rating).GetInternalHandler(), nSelCount > 0);
 	playListMenu.EnableMenuItem(MI_LocateAlbum, nSelCount == 1);
-	playListMenu.EnableMenuItem((INT)GetInternalMenu(M_SearchItem).GetInternalHandler(), nSelCount == 1);
+	playListMenu.EnableMenuItem((UINT_PTR)GetInternalMenu(M_SearchItem).GetInternalHandler(), nSelCount == 1);
 
 	playListMenu.TrackPopupMenu(point.x, point.y, pWnd->GetSafeHwnd());
 
@@ -943,16 +943,16 @@ ITSMenu& CPlayListListCtrl::GetInternalMenu(MenusEnum mnu)
 		curMenu.AppendMenu(ITSMenu::MIT_String, MI_RandomizeList,(LPTSTR) pAPI->GetString(IDS_RANDOMIZELIST));
 		curMenu.AppendMenu(ITSMenu::MIT_String, MI_RandomizeNext,(LPTSTR) pAPI->GetString(IDS_RANDOMIZENEXT));
 		curMenu.AppendMenu(ITSMenu::MIT_Separator, 0, NULL);
-		curMenu.AppendMenu(ITSMenu::MIT_Menu, (INT)pMM->GetMenu(MenuManager::MNU_PlayListModes).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_MODE));
+		curMenu.AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)pMM->GetMenu(MenuManager::MNU_PlayListModes).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_MODE));
 		curMenu.AppendMenu(ITSMenu::MIT_Separator, 0, NULL);
-		curMenu.AppendMenu(ITSMenu::MIT_Menu, (INT)pMM->GetMenu(MenuManager::MNU_PlayListSerialization).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_PLAYLIST));
+		curMenu.AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)pMM->GetMenu(MenuManager::MNU_PlayListSerialization).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_PLAYLIST));
 		curMenu.AppendMenu(ITSMenu::MIT_Separator, 0, NULL);
-		curMenu.AppendMenu(ITSMenu::MIT_Menu, (INT)pMM->GetMenu(MenuManager::MNU_Rating).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_RATING), pAPI->GetIcon(ICO_StarGold16));
+		curMenu.AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)pMM->GetMenu(MenuManager::MNU_Rating).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_RATING), pAPI->GetIcon(ICO_StarGold16));
 		curMenu.AppendMenu(ITSMenu::MIT_Separator, 0, NULL);
-		curMenu.AppendMenu(ITSMenu::MIT_Menu, (INT)GetInternalMenu(M_InsertRandomTracks).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_INSERTRANDOMTRACKS), pAPI->GetIcon(ICO_Insert16));
+		curMenu.AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)GetInternalMenu(M_InsertRandomTracks).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_INSERTRANDOMTRACKS), pAPI->GetIcon(ICO_Insert16));
 		curMenu.AppendMenu(ITSMenu::MIT_Separator, 0, NULL);
 		curMenu.AppendMenu(ITSMenu::MIT_String, MI_LocateAlbum, (LPTSTR)pAPI->GetString(IDS_LOCATEALBUM), pAPI->GetIcon(ICO_Album16));
-		curMenu.AppendMenu(ITSMenu::MIT_Menu, (INT)GetInternalMenu(M_SearchItem).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_SEARCH), pAPI->GetIcon(ICO_Find16));
+		curMenu.AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)GetInternalMenu(M_SearchItem).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_SEARCH), pAPI->GetIcon(ICO_Find16));
 		break;
 	case M_InsertRandomTracks:
 		for (int i = RTM_All; i < RTM_Last; i++)

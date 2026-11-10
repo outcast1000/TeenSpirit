@@ -290,7 +290,7 @@ PBITMAPINFO BitmapSaver::CreateBitmapInfoStruct(HBITMAP handle)
 	if (cClrBits != 24) 
 		pbmi = (PBITMAPINFO) LocalAlloc(LPTR, 
 		sizeof(BITMAPINFOHEADER) + 
-		sizeof(RGBQUAD) * (1<< cClrBits)); 
+		sizeof(RGBQUAD) * ((size_t)1 << cClrBits)); 
 
 	// There is no RGBQUAD array for the 24-bit-per-pixel format. 
 

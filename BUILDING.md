@@ -10,29 +10,37 @@
 - Git (vcpkg uses it to fetch the registry baseline)
 
 Third-party C++ dependencies (SQLite, TagLib 2, zlib, nlohmann-json) are declared in `vcpkg.json` and
-are restored automatically on the first build into `vcpkg_installed\`.
+are restored automatically on the first build into `vcpkg_installed\<Platform>\` (one tree per
+platform, since vcpkg's manifest mode removes the packages of other triplets).
 
 ## Build
 
 Open `Jaangle.sln` in Visual Studio, or from a Developer Command Prompt:
 
 ```
-msbuild Jaangle.sln -p:Configuration=Release -p:Platform=Win32 -m
+msbuild Jaangle.sln -p:Configuration=Release -p:Platform=x64 -m
 ```
 
-Output goes to `build\out\Win32\<Configuration>\` (`jaangle.exe` / `jaangledbg.exe`,
+Platforms are **Win32** and **x64** (Debug and Release each). Output goes to
+`build\out\<Platform>\<Configuration>\` (`jaangle.exe` / `jaangledbg.exe`,
 `XCrashReport.exe`, `UnitTests.exe`). Intermediate files go to `build\obj\`.
 
-Only **Win32** is configured for now. The database no longer needs 32-bit components;
-the remaining x64 blockers are the x86-only BASS import libraries and the code itself
-(never built for 64-bit).
+What only the 32-bit build can do:
+
+- **Import a legacy `music.mdb`**: the Jet 4.0 provider is 32-bit only. The 64-bit build
+  says so and asks to run the 32-bit build once to convert it.
+- **Winamp visualization plugins** (`vis_*.dll`) are 32-bit DLLs; the 64-bit build can't
+  load them (the visualization stays empty).
+
+In x64 builds warning C4267 (`size_t` to `int`) is disabled (see `Directory.Build.targets`);
+the pointer-truncation warnings are on in both.
 
 ## Tests
 
 `UnitTests.exe` (project `tests\UnitTests`) prints the failures and returns their count:
 
 - **Database**: records, every query, case-insensitive matching, two connections in
-  parallel, and importing a real Jet `music.mdb`.
+  parallel, and importing a real Jet `music.mdb` (x64: that the import refuses).
 - **Job queue**: concurrency limit, COM on workers, pause/resume, abort, start delay,
   no CPU use while idle, and shutdown never terminating threads.
 - **Last.fm worker**: started on demand and joined on destruction.
@@ -43,18 +51,19 @@ the remaining x64 blockers are the x86-only BASS import libraries and the code i
   to also query the real services (and `JAANGLE_LASTFM_API_KEY` for Last.fm).
 
 ```
-build\out\Win32\Release\UnitTests.exe
+build\out\x64\Release\UnitTests.exe
 ```
 
-The import test creates a Jet database, so it needs the Jet 4.0 OLE DB provider
+The 32-bit import test creates a Jet database, so it needs the Jet 4.0 OLE DB provider
 (it ships with Windows, as a 32-bit component only).
 
 ## Continuous integration
 
-`.github/workflows/ci.yml` builds Debug and Release (Win32) on the `windows-2025-vs2026`
-GitHub runner (the only image with the v145 toolset) and runs `UnitTests.exe` on every
-push to `main` and on pull requests. vcpkg binaries are cached between runs. The Release
-executables and PDBs are uploaded as a build artifact (without the BASS DLLs).
+`.github/workflows/ci.yml` builds Debug and Release for Win32 and x64 on the
+`windows-2025-vs2026` GitHub runner (the only image with the v145 toolset) and runs
+`UnitTests.exe` on every push to `main` and on pull requests. vcpkg binaries are cached
+between runs (per triplet). The Release executables and PDBs of both platforms are
+uploaded as build artifacts (without the BASS DLLs).
 
 The live online-API tests run weekly (Monday 06:00 UTC) and on a manual run with the
 **live** option ("Run workflow" in the Actions tab). The Last.fm part uses the
@@ -83,10 +92,11 @@ powershell -ExecutionPolicy Bypass -File tools\fetch-bass.ps1
 ```
 
 This downloads BASS 2.4, BASS_FX and the format add-ons (WMA, CD, FLAC, MIDI, APE,
-WavPack, MPC, AC3, AAC) into `build\deps\bass\`. The build then copies them, together
-with `Skins\`, `Langs\` and `WebServices\`, next to the executable, so `build\out\Win32\<Configuration>\jaangle.exe`
-can be started directly. `-UpdateSdk` also refreshes the tracked headers and import
-libraries in `Bass\`.
+WavPack, MPC, AC3, AAC), x86 and x64, into `build\deps\bass\`. The build then copies the
+ones for its platform, together with `Skins\`, `Langs\` and `WebServices\`, next to the
+executable, so `build\out\<Platform>\<Configuration>\jaangle.exe` can be started directly.
+`-UpdateSdk` also refreshes the tracked headers and import libraries in `Bass\` (x86) and
+`Bass\x64\`.
 
 The program keeps its settings (`jaangle.ini`) and database (`music.db`) next to the
 executable.

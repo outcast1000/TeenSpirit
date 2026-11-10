@@ -42,7 +42,7 @@ public:
 protected:
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
-	afx_msg void OnTimer(UINT nIDEvent);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
 
 private:

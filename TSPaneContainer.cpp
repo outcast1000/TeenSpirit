@@ -458,18 +458,18 @@ void TSPaneContainer::ShowMenu(ITSMenu* pMenu, INT nButtonID)
 
 BOOL TSPaneContainer::OnCommand(WPARAM wParam, LPARAM lParam)
 {
-	TRACE(_T("TSPaneContainer::OnCommand wParam: %d\r\n"), wParam);
+	TRACE(_T("TSPaneContainer::OnCommand wParam: %d\r\n"), (INT)wParam);
 	if (wParam >= LEFT_BUTTONS_STARTID && wParam < m_userButtons.size() + LEFT_BUTTONS_STARTID)
 	{
-		//HMENU hMenu = m_pContainedPane->GetMenu(wParam - LEFT_BUTTONS_STARTID);
-		ITSMenu* pMenu = m_pContainedPane->GetMenu(wParam - LEFT_BUTTONS_STARTID);
+		//HMENU hMenu = m_pContainedPane->GetMenu((UINT)wParam - LEFT_BUTTONS_STARTID);
+		ITSMenu* pMenu = m_pContainedPane->GetMenu((UINT)wParam - LEFT_BUTTONS_STARTID);
 		if (pMenu != NULL)
 		{
-			ShowMenu(pMenu, wParam);
+			ShowMenu(pMenu, (INT)wParam);
 		}
 		else
 		{
-			return m_pContainedPane->OnButton(wParam - LEFT_BUTTONS_STARTID);
+			return m_pContainedPane->OnButton((UINT)wParam - LEFT_BUTTONS_STARTID);
 		}
 		return FALSE;
 	}
@@ -492,7 +492,7 @@ BOOL TSPaneContainer::OnCommand(WPARAM wParam, LPARAM lParam)
 		if (m_pContainedPane != NULL)
 		{
 			//=== Probably it is a menu item
-			return m_pContainedPane->OnButton(wParam);
+			return m_pContainedPane->OnButton((UINT)wParam);
 		}
 	}
 	return TRUE;

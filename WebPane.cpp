@@ -293,13 +293,13 @@ ITSMenu& WebPane::GetInternalMenu(MenusEnum mnu)
 		{
 			MenuManager* pMM = pAPI->GetMenuManager();
 			curMenu.AppendMenu(ITSMenu::MIT_Menu, 
-				(INT)pMM->GetMenu(MenuManager::MNU_ArtistServices).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_ARTIST));
+				(UINT_PTR)pMM->GetMenu(MenuManager::MNU_ArtistServices).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_ARTIST));
 
 			curMenu.AppendMenu(ITSMenu::MIT_Menu, 
-				(INT)pMM->GetMenu(MenuManager::MNU_AlbumServices).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_ALBUM));
+				(UINT_PTR)pMM->GetMenu(MenuManager::MNU_AlbumServices).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_ALBUM));
 
 			curMenu.AppendMenu(ITSMenu::MIT_Menu, 
-				(INT)pMM->GetMenu(MenuManager::MNU_TrackServices).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_TITLE));
+				(UINT_PTR)pMM->GetMenu(MenuManager::MNU_TrackServices).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_TITLE));
 			
 			curMenu.AppendMenu(ITSMenu::MIT_Separator, NULL, NULL);
 			

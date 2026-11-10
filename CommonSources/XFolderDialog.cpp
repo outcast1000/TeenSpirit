@@ -169,7 +169,7 @@ void CXFolderDialog::DoDataExchange(CDataExchange* pDX)
 //=============================================================================
 // DoModal override copied mostly from MFC, with modification to use
 // m_ofnEx instead of m_ofn.
-int CXFolderDialog::DoModal()
+INT_PTR CXFolderDialog::DoModal()
 //=============================================================================
 {
 	TRACE(_T("in CXFolderDialog::DoModal\n"));
@@ -735,7 +735,7 @@ BOOL CXFolderDialog::IsWin2000()
 
 //=============================================================================
 // OnTimer - adjust dialog size so placebar fits
-void CXFolderDialog::OnTimer(UINT nIDEvent)
+void CXFolderDialog::OnTimer(UINT_PTR nIDEvent)
 //=============================================================================
 {
 	KillTimer(nIDEvent);

@@ -1733,7 +1733,7 @@ void CMainTreeCtrl::OnSelectionChanged()
 	m_lastNotification = curTick;
 }
 
-void CMainTreeCtrl::OnTimer(UINT nIDEvent)
+void CMainTreeCtrl::OnTimer(UINT_PTR nIDEvent)
 {
 	switch (nIDEvent)
 	{
@@ -2310,7 +2310,7 @@ void CMainTreeCtrl::OnRButtonUp(UINT nFlags, CPoint point)
 			_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s"), pAPI->GetString(IDS_INSERTRANDOMTRACKS), pAPI->GetString(IDS_KEYINSERT));
 			m_ArtistMenu.AppendMenu(MF_POPUP, ACMD_InsertRandomTracks, bf);
 			m_ArtistMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
-			m_ArtistMenu.AppendMenu(MF_POPUP, (UINT) mnuArtistServicesMenu.GetInternalHandler(), 
+			m_ArtistMenu.AppendMenu(MF_POPUP, (UINT_PTR)mnuArtistServicesMenu.GetInternalHandler(), 
 				(LPTSTR)pAPI->GetString(IDS_SERVICES), pAPI->GetIcon(ICO_Providers16));
 			m_ArtistMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
 			InfoProviderFactory* pIPF = pAPI->GetInfoProviderFactory();
@@ -2333,7 +2333,7 @@ void CMainTreeCtrl::OnRButtonUp(UINT nFlags, CPoint point)
 			{
 				m_ArtistMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
 			}
-			m_ArtistMenu.AppendMenu(MF_POPUP, (UINT) mnuRatings.GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_RATING), pAPI->GetIcon(ICO_StarGold16));
+			m_ArtistMenu.AppendMenu(MF_POPUP, (UINT_PTR)mnuRatings.GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_RATING), pAPI->GetIcon(ICO_StarGold16));
 			_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s"), pAPI->GetString(IDS_PROPERTIES), pAPI->GetString(IDS_KEYHOME));
 			m_ArtistMenu.AppendMenu(MF_STRING, ACMD_Properties, bf, pAPI->GetIcon(ICO_Properties16));
 		}
@@ -2356,7 +2356,7 @@ void CMainTreeCtrl::OnRButtonUp(UINT nFlags, CPoint point)
 			_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s"), pAPI->GetString(IDS_INSERTRANDOMTRACKS), pAPI->GetString(IDS_KEYINSERT));
 			m_AlbumMenu.AppendMenu(MF_POPUP, ACMD_InsertRandomTracks, bf);
 			m_AlbumMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
-			m_AlbumMenu.AppendMenu(MF_POPUP, (UINT) mnuAlbumServicesMenu.GetInternalHandler(), 
+			m_AlbumMenu.AppendMenu(MF_POPUP, (UINT_PTR)mnuAlbumServicesMenu.GetInternalHandler(), 
 				(LPTSTR)pAPI->GetString(IDS_SERVICES), pAPI->GetIcon(ICO_Providers16));
 			m_AlbumMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
 			InfoProviderFactory* pIPF = pAPI->GetInfoProviderFactory();
@@ -2378,7 +2378,7 @@ void CMainTreeCtrl::OnRButtonUp(UINT nFlags, CPoint point)
 			{
 				m_AlbumMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
 			}
-			m_AlbumMenu.AppendMenu(MF_POPUP, (UINT) mnuRatings.GetInternalHandler(), 
+			m_AlbumMenu.AppendMenu(MF_POPUP, (UINT_PTR)mnuRatings.GetInternalHandler(), 
 				(LPTSTR)pAPI->GetString(IDS_RATING), pAPI->GetIcon(ICO_StarGold16));
 			_sntprintf_s(bf, _TRUNCATE, _T("%s\t%s"), pAPI->GetString(IDS_PROPERTIES), pAPI->GetString(IDS_KEYHOME));
 			m_AlbumMenu.AppendMenu(MF_STRING, ACMD_Properties, bf, pAPI->GetIcon(ICO_Properties16));

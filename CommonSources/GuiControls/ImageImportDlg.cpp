@@ -80,7 +80,7 @@ BOOL CImageImportDlg::CHookShellWnd::OnNotify(WPARAM, LPARAM lParam, LRESULT *pR
 			m_pOwner->UpdatePreview(_T(""));
 	}
 
-	return *pResult	= 0;
+	return (BOOL)(*pResult	= 0);
 }
 
 CImageImportDlg::CImageImportDlg(LPCTSTR lpszDefExt, LPCTSTR lpszFileName, DWORD dwFlags, LPCTSTR szFilter, CWnd* pParentWnd) : 

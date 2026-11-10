@@ -51,7 +51,7 @@ ShortcutManager::ActionRequiredEnum ShortcutManager::HandleKeyMessage(HWND hwnd,
 	ASSERT(m_mainWindow != NULL);
 	if (message == WM_KEYUP)
 	{
-		std::map<INT, HWND>::const_iterator it = m_focusMap.find(wParam);
+		std::map<INT, HWND>::const_iterator it = m_focusMap.find((INT)wParam);
 		if (it != m_focusMap.end())
 		{
 			HWND focusHwnd = ::GetFocus();

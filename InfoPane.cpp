@@ -418,7 +418,7 @@ ITSMenu* InfoPane::GetMenu(UINT idx)
 			}
 
 			m_pOptionsMenu->Create();
-			m_pOptionsMenu->AppendMenu(ITSMenu::MIT_Menu, (UINT) m_pShowItemsMenu->GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_SHOW));	
+			m_pOptionsMenu->AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)m_pShowItemsMenu->GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_SHOW));	
 			m_pOptionsMenu->AppendMenu(ITSMenu::MIT_Separator, NULL, NULL);
 			m_pOptionsMenu->AppendMenu(ITSMenu::MIT_String, MI_SyncWithPlayer, (LPTSTR)pAPI->GetString(IDS_SYNCWITHPLAYER));
 			m_pOptionsMenu->AppendMenu(ITSMenu::MIT_String, MI_SyncWithSectionChanger, (LPTSTR)pAPI->GetString(IDS_SYNCWITHSECTIONS));

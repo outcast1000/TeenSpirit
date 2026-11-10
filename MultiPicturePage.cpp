@@ -293,14 +293,14 @@ BOOL CMultiPicturePage::OnCommand(WPARAM wParam, LPARAM lParam)
 	case IDC_ADD:
 		{
 			RECT rc;
-			GetDlgItem(wParam)->GetWindowRect(&rc);
+			GetDlgItem((int)wParam)->GetWindowRect(&rc);
 			m_addMenu.TrackPopupMenu(TPM_LEFTALIGN, rc.left, rc.bottom, this);
 		}
 		break;
 	case IDC_ACTIONS:
 		{
 			RECT rc;
-			GetDlgItem(wParam)->GetWindowRect(&rc);
+			GetDlgItem((int)wParam)->GetWindowRect(&rc);
 			m_actionMenu.TrackPopupMenu(TPM_LEFTALIGN, rc.left, rc.bottom, this);
 		}
 		break;

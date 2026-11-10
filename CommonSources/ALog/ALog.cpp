@@ -193,7 +193,7 @@ void ALog::AddViewer(AViewer* viewer)
 		Log(bf);
 		MEMORYSTATUS memStat;
 		GlobalMemoryStatus (&memStat);
-		Log(_T("@@ MemInfo: %d / %d (MB)\r\n"), memStat.dwAvailPhys/1024/1024, memStat.dwTotalPhys/1024/1024);
+		Log(_T("@@ MemInfo: %d / %d (MB)\r\n"), (INT)(memStat.dwAvailPhys/1024/1024), (INT)(memStat.dwTotalPhys/1024/1024));
 		GetWindowsDirectory(bf, MAX_PATH);
 		Log(_T("@@ <WINDIR>: %s\r\n"), bf);
 		Log(_T("@@ SysDefLangID: %d\r\n"), GetSystemDefaultLangID());
@@ -638,9 +638,9 @@ void ALog::LogUnsafe(LPCTSTR description, ...)
 					{
 						AppendFormat(message, mLen, curLen,
 							_T("[I:Memory: %d (%d) / %d (kb)] "),
-							ProcessMemoryCounters.WorkingSetSize/1024, 
-							ProcessMemoryCounters.WorkingSetSize/1024 - m_markedMemSize,
-							ProcessMemoryCounters.PeakWorkingSetSize/1024);
+							(INT)(ProcessMemoryCounters.WorkingSetSize/1024), 
+							(INT)(ProcessMemoryCounters.WorkingSetSize/1024 - m_markedMemSize),
+							(INT)(ProcessMemoryCounters.PeakWorkingSetSize/1024));
 						m_markedMemSize = ProcessMemoryCounters.WorkingSetSize/1024;
 					}
 					::CloseHandle(hProcess);

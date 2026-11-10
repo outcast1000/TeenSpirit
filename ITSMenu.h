@@ -40,8 +40,8 @@ public:
 		MIT_Separator,
 		MIT_Last
 	};
-	virtual BOOL AppendMenu(MenuItemType mit, UINT cmdID, LPCTSTR text)					= 0;
-	virtual BOOL AppendMenu(MenuItemType mit, UINT cmdID, LPCTSTR text, HICON hIcon)	= 0;
+	virtual BOOL AppendMenu(MenuItemType mit, UINT_PTR cmdID, LPCTSTR text)					= 0;
+	virtual BOOL AppendMenu(MenuItemType mit, UINT_PTR cmdID, LPCTSTR text, HICON hIcon)	= 0;
 	virtual void CheckMenuItem(UINT cmdID, BOOL bChecked)								= 0;
 	virtual void EnableMenuItem(UINT cmdID, BOOL bEnable)								= 0;
 	virtual BOOL CheckMenuRadioItem(UINT idFirst, UINT idLast, UINT idCheck)			= 0;

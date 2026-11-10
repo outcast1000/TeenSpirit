@@ -552,7 +552,7 @@ LRESULT WinampVisualization::HandleWAIPC(WPARAM wParam, LPARAM lParam)
 		return 1;
 	case IPC_STARTPLAY:							//TODO
 	default:
-		TRACE(_T("Unhandled Plugin IPC: %d\n"), lParam);
+		TRACE(_T("Unhandled Plugin IPC: %d\n"), (INT)lParam);
 		return 0;
 		break;
 	}

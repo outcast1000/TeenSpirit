@@ -20,7 +20,7 @@ source so it builds and runs on current Windows with current tools.
 
 Modernized so far:
 
-- Builds with Visual Studio 2026 and vcpkg (Win32).
+- Builds with Visual Studio 2026 and vcpkg (32-bit and 64-bit).
 - Library database moved from Microsoft Jet (`music.mdb`) to SQLite (`music.db`);
   an existing `music.mdb` is imported automatically on the first start.
 - Background threads reworked (no forced thread termination, no polling).
@@ -30,7 +30,7 @@ Modernized so far:
 
 See [BUILDING.md](BUILDING.md). In short: install Visual Studio 2026 (C++, ATL/MFC,
 Windows SDK, vcpkg), run `tools\fetch-bass.ps1` once, then build `Jaangle.sln`.
-The program runs from `build\out\Win32\<Configuration>\` and keeps its settings and
+The program runs from `build\out\<Platform>\<Configuration>\` and keeps its settings and
 database next to the executable.
 
 ## Reporting problems

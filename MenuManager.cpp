@@ -91,8 +91,8 @@ ITSMenu& MenuManager::GetMenu(MENUS mnu)
 		curMenu.AppendMenu(ITSMenu::MIT_String, MENU_ShowMainWindow, (LPTSTR)pAPI->GetString(IDS_SHOWMAINWINDOW));
 		curMenu.AppendMenu(ITSMenu::MIT_String, MENU_ShowMiniPlayer, pAPI->GetString(IDS_SHOWMINIPLAYER));
 		curMenu.AppendMenu(ITSMenu::MIT_Separator, 0, NULL);
-		curMenu.AppendMenu(ITSMenu::MIT_Menu, (INT)GetMenu(MenuManager::MNU_PlayerControl).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_MEDIAPLAYER));
-		curMenu.AppendMenu(ITSMenu::MIT_Menu, (INT)GetMenu(MenuManager::MNU_PlayListModes).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_AUTOCONTINUEMODE));
+		curMenu.AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)GetMenu(MenuManager::MNU_PlayerControl).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_MEDIAPLAYER));
+		curMenu.AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)GetMenu(MenuManager::MNU_PlayListModes).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_AUTOCONTINUEMODE));
 		curMenu.AppendMenu(ITSMenu::MIT_Separator, 0, NULL);
 		curMenu.AppendMenu(ITSMenu::MIT_String, MENU_Exit, (LPTSTR)pAPI->GetString(IDS_EXIT), pAPI->GetIcon(ICO_Close16));
 		curMenu.SetDefaultItem(MENU_ShowMainWindow);
@@ -106,8 +106,8 @@ ITSMenu& MenuManager::GetMenu(MENUS mnu)
 		curMenu.SetDefaultItem(MENU_PlayControl);
 		break;
 	//case MNU_MiniPlayer:
-	//	curMenu.AppendMenu(ITSMenu::MIT_Menu, (INT)GetMenu(MenuManager::MNU_PlayListModes).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_PLAYLIST));
-	//	curMenu.AppendMenu(ITSMenu::MIT_Menu, (INT)GetMenu(MenuManager::MNU_Rating).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_RATING), pAPI->GetIcon(ICO_StarGold16));
+	//	curMenu.AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)GetMenu(MenuManager::MNU_PlayListModes).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_PLAYLIST));
+	//	curMenu.AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)GetMenu(MenuManager::MNU_Rating).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_RATING), pAPI->GetIcon(ICO_StarGold16));
 	//	curMenu.AppendMenu(ITSMenu::MIT_Separator, 0, NULL);
 	//	curMenu.AppendMenu(ITSMenu::MIT_String, MENU_ShowMainWindow, (LPTSTR)pAPI->GetString(IDS_SHOWMAINWINDOW));
 	//	curMenu.AppendMenu(ITSMenu::MIT_String, MENU_HideMiniPlayer, (LPTSTR)pAPI->GetString(IDS_HIDE));
@@ -136,7 +136,7 @@ ITSMenu& MenuManager::GetMenu(MENUS mnu)
 		for (int i = 0; i < MPNM_Last; i++)
 			curMenu.AppendMenu(ITSMenu::MIT_String, MENU_PlayModesHolder + i, (LPTSTR)pAPI->GetStringForPlayListMode(MediaPlayerNextMode(i)));
 		curMenu.AppendMenu(ITSMenu::MIT_Separator, 0, NULL);
-		curMenu.AppendMenu(ITSMenu::MIT_Menu, (INT)GetMenu(MenuManager::MNU_AutoContinueMode).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_AUTOCONTINUEMODE));
+		curMenu.AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)GetMenu(MenuManager::MNU_AutoContinueMode).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_AUTOCONTINUEMODE));
 		break;
 	//case MNU_StartMenu:
 	//	curMenu.SetIconSize(32,32);
@@ -164,13 +164,13 @@ ITSMenu& MenuManager::GetMenu(MENUS mnu)
 //void MenuManager::AppendPlayerMenu(ITSMenu& mnu)
 //{
 //	PrgAPI* pAPI = PRGAPI();
-//	mnu.AppendMenu(ITSMenu::MIT_Menu, (INT)GetMenu(MenuManager::MNU_AutoContinueMode).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_AUTOCONTINUEMODE));
+//	mnu.AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)GetMenu(MenuManager::MNU_AutoContinueMode).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_AUTOCONTINUEMODE));
 //	mnu.AppendMenu(ITSMenu::MIT_Separator, 0, NULL);
-//	mnu.AppendMenu(ITSMenu::MIT_Menu, (INT)GetMenu(MenuManager::MNU_PlayListSerialization).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_PLAYLIST));
+//	mnu.AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)GetMenu(MenuManager::MNU_PlayListSerialization).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_PLAYLIST));
 //	mnu.AppendMenu(ITSMenu::MIT_Separator, 0, NULL);
-//	mnu.AppendMenu(ITSMenu::MIT_Menu, (INT)GetMenu(MenuManager::MNU_Rating).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_RATING));
+//	mnu.AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)GetMenu(MenuManager::MNU_Rating).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_RATING));
 //	mnu.AppendMenu(ITSMenu::MIT_Separator, 0, NULL);
-//	mnu.AppendMenu(ITSMenu::MIT_Menu, (INT)GetMenu(MenuManager::MNU_PlayListOptions).GetInternalHandler(), (LPTSTR)PRGAPI()->GetString(IDS_OPTIONS));
+//	mnu.AppendMenu(ITSMenu::MIT_Menu, (UINT_PTR)GetMenu(MenuManager::MNU_PlayListOptions).GetInternalHandler(), (LPTSTR)PRGAPI()->GetString(IDS_OPTIONS));
 //}
 
 

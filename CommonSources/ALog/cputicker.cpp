@@ -62,6 +62,7 @@
 #include <math.h>
 #endif
 #include "cputicker.h"
+#include <intrin.h>
 
 
 
@@ -91,65 +92,19 @@ IMPLEMENT_DYNAMIC(CCPUTicker, CObject)
 #pragma optimize("", off)
 BOOL CCPUTicker::CheckHasRDTSC()
 {
-	SYSTEM_INFO sys_info;
-	GetSystemInfo(&sys_info);
-	if (sys_info.dwProcessorType == PROCESSOR_INTEL_PENTIUM)
+	//Every x86/x64 CPU Windows 7 runs on has RDTSC; check that the counter moves.
+	int regs[4];
+	__cpuid(regs, 0);
+	unsigned __int64 ts1 = __rdtsc();
+	__cpuid(regs, 0);
+	unsigned __int64 ts2 = __rdtsc();
+	if (ts2 > ts1)
 	{
-		try
-		{
-			_asm
-			{
-        rdtsc
-			}
-		}
-		catch (...)	// Check to see if the opcode is defined.
-		{
-			TRACE0("RDTSC instruction NOT present.\n");
-			return FALSE;
-		}
-		// Check to see if the instruction ticks accesses something that changes.
-		volatile ULARGE_INTEGER ts1,ts2;
-		_asm
-		{
-      cpuid
-      rdtsc
-			mov ts1.HighPart,edx
-			mov ts1.LowPart,eax
-      cpuid
-      rdtsc
-			mov ts2.HighPart,edx
-			mov ts2.LowPart,eax
-		}
-		// If we return true then there's a very good chance it's a real RDTSC instruction!
-		if (ts2.HighPart == ts1.HighPart)
-		{
-			if (ts2.LowPart > ts1.LowPart)
-			{
-				TRACE0("RDTSC instruction probably present.\n");
-				return TRUE;
-			}
-			else
-			{
-				TRACE0("RDTSC instruction NOT present.\n");
-				return FALSE;
-			}
-		}
-		else if (ts2.HighPart > ts1.HighPart)
-		{
-			TRACE0("RDTSC instruction probably present.\n");
-			return TRUE;
-		}
-		else
-		{
-			TRACE0("RDTSC instruction NOT present.\n");
-			return FALSE;
-		}
+		TRACE0("RDTSC instruction present.\n");
+		return TRUE;
 	}
-	else
-	{
-		TRACE0("RDTSC instruction NOT present.\n");
-		return FALSE;
-	}
+	TRACE0("RDTSC instruction NOT present.\n");
+	return FALSE;
 }
 #pragma optimize("", on)
 
@@ -223,35 +178,10 @@ __int64 CCPUTicker::Measure()
 {
 	if (m_bHasRDTSC)
 	{
-		volatile ULARGE_INTEGER ts;
-
-    //on NT don't bother disabling interrupts as doing
-    //so will generate a priviledge instruction exception
-		if (!m_bRunningOnNT)
-		{
-			_asm
-			{
-				cli
-			}
-		}
-
-		_asm
-		{
-      cpuid
-      rdtsc
-			mov ts.HighPart,edx
-			mov ts.LowPart,eax
-		}
-
-		if (!m_bRunningOnNT)
-		{
-			_asm
-			{
-				sti
-			}
-		}
-
-    m_TickCount = ts.QuadPart;
+		//cpuid serializes, so the counter is read after the preceding instructions
+		int regs[4];
+		__cpuid(regs, 0);
+		m_TickCount = (__int64)__rdtsc();
 	}
 	else
 	{

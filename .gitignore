@@ -40,6 +40,7 @@ BuildLog.htm
 # Vendored import libraries ARE tracked (Bass/, vld/, zlib/); anything else isn't.
 *.lib
 !Bass/*.lib
+!Bass/x64/*.lib
 !vld/*.lib
 !zlib/*.lib
 

@@ -99,7 +99,7 @@ BOOL SliderDlg::Create(LPCTSTR title, INT minPos, INT maxPos, INT initialValue, 
 }
 
 
-void SliderDlg::OnTimer(UINT nIDEvent)
+void SliderDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	switch (nIDEvent)
 	{

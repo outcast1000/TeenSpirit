@@ -437,7 +437,7 @@ protected:
 
 	//{{AFX_MSG(CPPToolTip)
 	afx_msg void OnPaint();
-	afx_msg void OnTimer(UINT nIDEvent);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 	//}}AFX_MSG
 #if _MSC_VER < 1300

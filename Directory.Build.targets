@@ -2,6 +2,14 @@
 <!-- Copies the BASS runtime DLLs (fetched by tools\fetch-bass.ps1) next to the
      player executable so it can be run from build\out. -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- x64: C4267 (size_t to int/UINT) fires on every container size and string length held in an
+       int (~130 places, none near 2^31; size_t is 32-bit in the Win32 build). Pointer truncation
+       stays a warning: C4311/C4302/C4312, and C4244 for INT_PTR/LPARAM/WPARAM to int. -->
+  <ItemDefinitionGroup Condition="'$(Platform)' == 'x64'">
+    <ClCompile>
+      <DisableSpecificWarnings>4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <PropertyGroup>
     <JaangleBassPlatform Condition="'$(Platform)' == 'Win32'">x86</JaangleBassPlatform>
     <JaangleBassPlatform Condition="'$(Platform)' == 'x64'">x64</JaangleBassPlatform>

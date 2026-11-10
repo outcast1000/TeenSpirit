@@ -13,12 +13,15 @@ full build/run/database/threading details — keep `BUILDING.md` updated when th
 MSBuild lives in the VS 2026 Build Tools on F: (not on PATH by default):
 
 ```
-"F:\Microsoft Visual Studio\18\BuildTools\MSBuild\Current\Bin\MSBuild.exe" Jaangle.sln -p:Configuration=Release -p:Platform=Win32 -m
+"F:\Microsoft Visual Studio\18\BuildTools\MSBuild\Current\Bin\MSBuild.exe" Jaangle.sln -p:Configuration=Release -p:Platform=x64 -m
 ```
 
-- Only **Win32** is configured (Debug and Release). Projects: `TeenSpirit.vcxproj` (the app),
-  `CrashReport\XCrashReport.vcxproj`, `tests\UnitTests\UnitTests.vcxproj`.
-- Output: `build\out\Win32\<Config>\` (`jaangle.exe` / `jaangledbg.exe`, `UnitTests.exe`);
+- Platforms **Win32** and **x64** (Debug and Release); keep both building warning-free. Projects:
+  `TeenSpirit.vcxproj` (the app), `CrashReport\XCrashReport.vcxproj`, `tests\UnitTests\UnitTests.vcxproj`.
+  32-bit only: the Jet `music.mdb` import and Winamp visualization plugins. Item data, menu IDs
+  and message parameters that can hold pointers or handles are `UINT_PTR`/`INT_PTR` (BCMenu,
+  `ITSMenu::AppendMenu`); C4267 is off for x64 only (`Directory.Build.targets`).
+- Output: `build\out\<Platform>\<Config>\` (`jaangle.exe` / `jaangledbg.exe`, `UnitTests.exe`);
   intermediates in `build\obj\` (set by `Directory.Build.props`).
 - vcpkg dependencies (sqlite3, taglib, zlib, nlohmann-json) in `vcpkg.json` restore on first build.
 - One-time: `powershell -ExecutionPolicy Bypass -File tools\fetch-bass.ps1` downloads BASS DLLs to
@@ -29,13 +32,13 @@ MSBuild lives in the VS 2026 Build Tools on F: (not on PATH by default):
 
 ### Tests
 
-`build\out\Win32\<Config>\UnitTests.exe` — custom framework (`tests\UnitTests\TestFramework.h`),
+`build\out\<Platform>\<Config>\UnitTests.exe` — custom framework (`tests\UnitTests\TestFramework.h`),
 prints failures, exit code = failure count. No per-test filter: suites are called from
 `tests\UnitTests\main.cpp` (`RunDatabaseTests`, `RunJobQueueTests`, ...); comment out calls there to
 run a subset. The test project compiles selected app sources directly (listed in
 `UnitTests.vcxproj`) — add a source file there when testing new code. `JAANGLE_LIVE_TESTS=1` also
 queries the real online APIs (`JAANGLE_LASTFM_API_KEY` for Last.fm); all must pass. The Jet import
-test needs the 32-bit Jet 4.0 OLE DB provider.
+test needs the 32-bit Jet 4.0 OLE DB provider (x64 checks that the import refuses).
 
 ## Architecture
 

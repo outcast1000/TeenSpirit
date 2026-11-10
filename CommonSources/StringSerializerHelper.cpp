@@ -34,7 +34,7 @@ BOOL StringReaderHelper::GetNextInteger(INT& value)
 	LPCTSTR nextStart = NULL;
 	if (posEnd != NULL)
 	{
-		len = posEnd - m_pos;
+		len = (UINT)(posEnd - m_pos);
 		nextStart = posEnd + 1;
 	}
 	else

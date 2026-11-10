@@ -94,7 +94,7 @@ void CGenericInfoProviderPP::LoadOptions()
 					lineWidth,
 					cLineHeight,
 					m_hWnd,
-					(HMENU) (cControlIDOffset + idx),
+					(HMENU)(INT_PTR) (cControlIDOffset + idx),
 					0,0);
 				::SendMessage(hwnd, BM_SETCHECK, m_IP.GetIntSetting(idx) ? BST_CHECKED : BST_UNCHECKED, 0);
 			}
@@ -114,7 +114,7 @@ void CGenericInfoProviderPP::LoadOptions()
 						lineWidth,
 						cLineHeight,
 						m_hWnd,
-						(HMENU) (cControlIDOffset + idx),
+						(HMENU)(INT_PTR) (cControlIDOffset + idx),
 						0,0);
 					INT cmbIdx = 0;
 
@@ -136,7 +136,7 @@ void CGenericInfoProviderPP::LoadOptions()
 						lineWidth,
 						cLineHeight,
 						m_hWnd,
-						(HMENU) (cControlIDOffset + idx),
+						(HMENU)(INT_PTR) (cControlIDOffset + idx),
 						0,0);
 					::SetWindowText(hwnd, std::to_wstring(m_IP.GetIntSetting(idx)).c_str());
 				}
@@ -155,7 +155,7 @@ void CGenericInfoProviderPP::LoadOptions()
 					lineWidth,
 					cLineHeight,
 					m_hWnd,
-					(HMENU) (cControlIDOffset + idx),
+					(HMENU)(INT_PTR) (cControlIDOffset + idx),
 					0,0);
 				::SetWindowText(hwnd, m_IP.GetLPCTSTRSetting(idx));
 			}
@@ -186,7 +186,7 @@ void CGenericInfoProviderPP::SaveOptions()
 		case IConfigurable::COVT_Int:
 			if (setting.availableValues != NULL)
 				//m_IP.SetIntSetting(idx, ((CComboBox*)GetDlgItem(cControlIDOffset + idx))->GetCurSel());
-				m_IP.SetIntSetting(idx, GetDlgItem(cControlIDOffset + idx)->SendMessage(CB_GETCURSEL));
+				m_IP.SetIntSetting(idx, (INT)GetDlgItem(cControlIDOffset + idx)->SendMessage(CB_GETCURSEL));
 			else
 			{
 				TCHAR bf[20];

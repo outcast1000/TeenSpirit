@@ -783,5 +783,19 @@ void RunDatabaseTests()
 	TestHistory();
 	TestConcurrentConnections();
 	TestReopen();
+#ifdef _WIN64
+	//No 64-bit Jet provider: the import refuses with a message pointing to the 32-bit build.
+	{
+		wprintf(L"TestLegacyImport (x64)\n");
+		std::wstring db = TempPath(L"music.db");
+		RemoveDb(db);
+		SQLiteDB raw;
+		CHECK(raw.Open(db.c_str()));
+		std::wstring error;
+		CHECK(!JetImporter::Import(TempPath(L"music.mdb").c_str(), raw, error));
+		CHECK(error.find(L"32-bit") != std::wstring::npos);
+	}
+#else
 	TestLegacyImport();
+#endif
 }

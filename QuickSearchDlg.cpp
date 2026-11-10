@@ -190,7 +190,7 @@ void QuickSearchDlg::SetTitleHeight(INT height)
 }
 
 
-void QuickSearchDlg::OnTimer(UINT nIDEvent)
+void QuickSearchDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	switch (nIDEvent)
 	{

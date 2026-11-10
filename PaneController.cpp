@@ -400,7 +400,7 @@ BOOL PaneController::GetToken(LPCTSTR& posStart, TCHAR* bf, UINT bfLen, WCHAR di
 	LPCTSTR nextStart = NULL;
 	if (posEnd != NULL)
 	{
-		len = posEnd - posStart;
+		len = (UINT)(posEnd - posStart);
 		nextStart = posEnd + 1;
 	}
 	else
@@ -622,7 +622,7 @@ BOOL PaneController::SaveState(LPTSTR state, UINT stateLen)
 {
 	//=== Save the number of visible panes
 	TCHAR bf[200];
-	_sntprintf_s(bf, _TRUNCATE, _T("%d"), m_paneContainers.size());
+	_sntprintf_s(bf, _TRUNCATE, _T("%d"), (INT)m_paneContainers.size());
 	std::tstring s(bf);
 
 

@@ -151,6 +151,23 @@ namespace
 		DeleteFileW(albumFile.c_str());
 		DeleteFileW(src.c_str());
 	}
+
+	//Case-insensitive search (was x86 assembly): format detection relies on it
+	void TestStrIStr()
+	{
+		const WCHAR* fmts = L".mp3.mp2.mpgmpeg.avi";
+		CHECK(wcsistr(fmts, L".MP2") == fmts + 4);
+		CHECK(wcsistr(fmts, L".avi") == fmts + 16);
+		CHECK(wcsistr(fmts, L".ogg") == NULL);
+		CHECK(wcsistr(L"aab", L"ab") != NULL);			//restart after a partial match
+		CHECK(wcsistr(L"ab", L"abc") == NULL);			//sub longer than the rest
+		CHECK(wcsistr(L"x\x00C9y", L"\x00E9") != NULL);	//non-ASCII folding (CharLower)
+		CHECK(wcsistr(L"abc", L"") == NULL);
+		CHECK(wcsistr(NULL, L"a") == NULL);
+		const char* s = "HTTP://host";
+		CHECK(stristr(s, "http://") == s);
+		CHECK(stristr(s, "ftp") == NULL);
+	}
 }
 
 void RunStringTests()
@@ -162,4 +179,5 @@ void RunStringTests()
 	TestCustomWrite();
 	TestEncodeHex();
 	TestPictureCacheNames();
+	TestStrIStr();
 }

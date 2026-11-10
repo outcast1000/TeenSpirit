@@ -192,7 +192,7 @@ void CEnhTrackListWnd::OnPaint()
 	//}
 }
 
-void CEnhTrackListWnd::OnTimer(UINT nIDEvent)
+void CEnhTrackListWnd::OnTimer(UINT_PTR nIDEvent)
 {
 	switch (nIDEvent)
 	{
@@ -378,7 +378,7 @@ BOOL CEnhTrackListWnd::OnStateChanged(UINT stateMessage)
 						pAPI->GetStringForItemType(IT_Artist),
 						sp->artist.name.c_str(),
 						pAPI->GetString(IDS_TRACKS),
-						col.size());
+						(INT)col.size());
 
 					SetText(bf);
 					m_trackList.SetFullTrackRecordCollection(col);

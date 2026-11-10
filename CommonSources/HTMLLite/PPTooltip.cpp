@@ -678,7 +678,7 @@ void CPPToolTip::SetNewTooltip(HWND hWnd, const PPTOOLTIP_INFO & ti, BOOL bDispl
 		OnTimer(TIMER_SHOW);
 } //End of SetNewTooltip
 
-void CPPToolTip::OnTimer(UINT nIDEvent) 
+void CPPToolTip::OnTimer(UINT_PTR nIDEvent) 
 {
 	POINT pt;
 	switch (nIDEvent)

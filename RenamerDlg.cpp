@@ -229,7 +229,7 @@ BOOL CRenamerDlg::PrepareNextTrack()
 
 	UpdatePreview();
 	if (m_col.size() > 1)
-		_sntprintf_s(bf, _TRUNCATE, _T("%d %s"), m_col.size(), PRGAPI()->GetString(IDS_TRACKS));
+		_sntprintf_s(bf, _TRUNCATE, _T("%d %s"), (INT)m_col.size(), PRGAPI()->GetString(IDS_TRACKS));
 	else
 		bf[0] = 0;
 	SetDlgItemText(IDC_ST_TRACKS, bf);

@@ -5,6 +5,9 @@
     <JaangleRoot>$(MSBuildThisFileDirectory)</JaangleRoot>
     <OutDir>$(JaangleRoot)build\out\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(JaangleRoot)build\obj\$(MSBuildProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <!-- BASS import libraries (tracked; x86 in Bass\, x64 in Bass\x64\). -->
+    <JaangleBassLibDir Condition="'$(Platform)' == 'Win32'">$(JaangleRoot)Bass\</JaangleBassLibDir>
+    <JaangleBassLibDir Condition="'$(Platform)' == 'x64'">$(JaangleRoot)Bass\x64\</JaangleBassLibDir>
     <!-- 32-bit ADO type library, #imported by Database\JetImporter.cpp (legacy .mdb import). -->
     <JaangleAdoDir>$([System.Environment]::GetFolderPath(SpecialFolder.CommonProgramFilesX86))\System\ado</JaangleAdoDir>
   </PropertyGroup>

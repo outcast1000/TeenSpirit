@@ -77,7 +77,7 @@ void CSkinsPP::GetNameFromComboSelection(LPTSTR lngName, UINT bfLen)
 	lngName[0] = 0;
 	if (fnd != NULL)
 	{
-		int copyChars = (fnd - lngCode) - 1;
+		int copyChars = (int)(fnd - lngCode) - 1;
 		if (copyChars > 0 && copyChars < (int)bfLen)
 		{
 			StrCopyN(lngName, bfLen, (LPCTSTR)lngCode, copyChars);

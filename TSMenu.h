@@ -35,8 +35,8 @@ public:
 	virtual BOOL Create();
 	virtual void Destroy();
 
-	virtual BOOL AppendMenu(MenuItemType mit, UINT cmdID, LPCTSTR text);
-	virtual BOOL AppendMenu(MenuItemType mit, UINT cmdID, LPCTSTR text, HICON hIcon);
+	virtual BOOL AppendMenu(MenuItemType mit, UINT_PTR cmdID, LPCTSTR text);
+	virtual BOOL AppendMenu(MenuItemType mit, UINT_PTR cmdID, LPCTSTR text, HICON hIcon);
 	virtual void CheckMenuItem(UINT cmdID, BOOL bChecked);
 	virtual void EnableMenuItem(UINT cmdID, BOOL bEnable);
 	virtual BOOL CheckMenuRadioItem(UINT idFirst, UINT idLast, UINT idCheck);

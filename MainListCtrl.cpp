@@ -973,7 +973,7 @@ void CMainListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 				m_AdvancedMenu.AppendMenu(MF_STRING, ACMD_EnqueueExternal, 
 					bf, pAPI->GetIcon(ICO_Add16));
 				m_AdvancedMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
-				m_AdvancedMenu.AppendMenu(MF_STRING | MF_POPUP, (UINT) m_CopyMenu.m_hMenu, 
+				m_AdvancedMenu.AppendMenu(MF_STRING | MF_POPUP, (UINT_PTR)m_CopyMenu.m_hMenu, 
 					(LPTSTR)pAPI->GetString(IDS_COPYTO), pAPI->GetIcon(ICO_Copy16));
 				m_AdvancedMenu.AppendMenu(MF_STRING, ACMD_CopyPath, (LPTSTR)pAPI->GetString(IDS_COPYPATH));
 				m_AdvancedMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
@@ -981,10 +981,10 @@ void CMainListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 				m_AdvancedMenu.AppendMenu(MF_STRING, ACMD_WriteTags, (LPTSTR)pAPI->GetString(IDS_WRITETAGS));
 				m_AdvancedMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
 
-				m_AdvancedMenu.AppendMenu(MF_STRING | MF_POPUP, (UINT) m_FileNameTaggerMenu.m_hMenu, (LPTSTR)pAPI->GetString(IDS_GETTAGSFROMFILENAME));
-				m_AdvancedMenu.AppendMenu(MF_STRING | MF_POPUP, (UINT) m_RenamerMenu.m_hMenu, (LPTSTR)pAPI->GetString(IDS_RENAME));
+				m_AdvancedMenu.AppendMenu(MF_STRING | MF_POPUP, (UINT_PTR)m_FileNameTaggerMenu.m_hMenu, (LPTSTR)pAPI->GetString(IDS_GETTAGSFROMFILENAME));
+				m_AdvancedMenu.AppendMenu(MF_STRING | MF_POPUP, (UINT_PTR)m_RenamerMenu.m_hMenu, (LPTSTR)pAPI->GetString(IDS_RENAME));
 				
-				m_AdvancedMenu.AppendMenu(MF_STRING | MF_POPUP, (UINT) m_ChangeCaseMenu.m_hMenu, (LPTSTR)pAPI->GetString(IDS_CHANGECASE));
+				m_AdvancedMenu.AppendMenu(MF_STRING | MF_POPUP, (UINT_PTR)m_ChangeCaseMenu.m_hMenu, (LPTSTR)pAPI->GetString(IDS_CHANGECASE));
 				m_AdvancedMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
 				m_AdvancedMenu.AppendMenu(MF_STRING, ACMD_Delete, 
 					(LPTSTR)pAPI->GetString(IDS_DELETE), pAPI->GetIcon(ICO_Delete16));
@@ -1005,10 +1005,10 @@ void CMainListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 					(LPTSTR)pAPI->GetString(IDS_LOCATEALBUM));
 				m_MainMenu.AppendMenu(MF_STRING, ACMD_OpenFolder, 
 					(LPTSTR)pAPI->GetString(IDS_OPENCONTAININGFOLDER), pAPI->GetIcon(ICO_Find16));
-				m_MainMenu.AppendMenu(MF_STRING | MF_POPUP, (UINT) m_AdvancedMenu.m_hMenu, 
+				m_MainMenu.AppendMenu(MF_STRING | MF_POPUP, (UINT_PTR)m_AdvancedMenu.m_hMenu, 
 					(LPTSTR)pAPI->GetString(IDS_ADVANCED));	
 				m_MainMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
-				m_MainMenu.AppendMenu(MF_STRING | MF_POPUP, (UINT) mnuServices.GetInternalHandler(), 
+				m_MainMenu.AppendMenu(MF_STRING | MF_POPUP, (UINT_PTR)mnuServices.GetInternalHandler(), 
 					(LPTSTR)pAPI->GetString(IDS_SERVICES), pAPI->GetIcon(ICO_Providers16));	
 				
 				InfoProviderFactory* pIPF = pAPI->GetInfoProviderFactory();
@@ -1027,7 +1027,7 @@ void CMainListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 					ipIdx++;
 				}
 				m_MainMenu.AppendMenu(MF_SEPARATOR, NULL, NULL);
-				m_MainMenu.AppendMenu(MF_STRING | MF_POPUP, (UINT) mnuRatings.GetInternalHandler(), 
+				m_MainMenu.AppendMenu(MF_STRING | MF_POPUP, (UINT_PTR)mnuRatings.GetInternalHandler(), 
 					(LPTSTR)pAPI->GetString(IDS_RATING), pAPI->GetIcon(ICO_StarGold16));
 
 
@@ -1069,8 +1069,8 @@ void CMainListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 			
 			m_MainMenu.EnableMenuItem(ACMD_LocateAlbum, (itemCount==1) ? MF_ENABLED : MF_GRAYED);
 		
-			m_MainMenu.EnableMenuItem((UINT) m_RenamerMenu.m_hMenu, MF_ENABLED);
-			m_MainMenu.EnableMenuItem((UINT) m_CopyMenu.m_hMenu, MF_ENABLED);
+			m_MainMenu.EnableMenuItem((UINT_PTR)m_RenamerMenu.m_hMenu, MF_ENABLED);
+			m_MainMenu.EnableMenuItem((UINT_PTR)m_CopyMenu.m_hMenu, MF_ENABLED);
 
 			m_MainMenu.EnableMenuItem(ACMD_Delete, bDeleteAccess ? MF_ENABLED : MF_GRAYED);
 			pAPI->GetMenuManager()->PrepareMenu(MenuManager::MNU_TrackServices);
@@ -1268,7 +1268,7 @@ BOOL CMainListCtrl::OnCommand(WPARAM wParam, LPARAM lParam)
 			{
 				m_selectedTracks.clear();
 				GetSelectedTracks(m_selectedTracks);
-				LPCTSTR pat = FileNameTagger::GetWritePredifinedFormat(wParam - MENU_RenamerOptions);
+				LPCTSTR pat = FileNameTagger::GetWritePredifinedFormat((INT)wParam - MENU_RenamerOptions);
 				if (pat != NULL)
 				{
 					FileNameTagger fnTagger;
@@ -1299,7 +1299,7 @@ BOOL CMainListCtrl::OnCommand(WPARAM wParam, LPARAM lParam)
 			}
 			else if (wParam >= MENU_ReadTagsFromFilename && wParam < MENU_ReadTagsFromFilenameEnd)
 			{
-				LPCTSTR pat = FileNameTagger::GetReadPredifinedFormat(wParam - MENU_ReadTagsFromFilename);
+				LPCTSTR pat = FileNameTagger::GetReadPredifinedFormat((INT)wParam - MENU_ReadTagsFromFilename);
 				if (pat != NULL)
 				{
 					m_selectedTracks.clear();
@@ -1337,7 +1337,7 @@ BOOL CMainListCtrl::OnCommand(WPARAM wParam, LPARAM lParam)
 					sei.album = m_selectedTracks[0]->album.name.c_str();
 					sei.title = m_selectedTracks[0]->track.name.c_str();
 					ServiceInfo si;
-					if (srv->GetServiceInfo(wParam - MENU_WebServicesHolder, si))
+					if (srv->GetServiceInfo((UINT)wParam - MENU_WebServicesHolder, si))
 						srv->Execute(si, sei, srv->GetWebViewer());
 				}
 			}

@@ -499,7 +499,7 @@ void CCrashReportDlg::OnOK()
 
 ///////////////////////////////////////////////////////////////////////////////
 // OnTimer
-void CCrashReportDlg::OnTimer(UINT /*nIDEvent*/) 
+void CCrashReportDlg::OnTimer(UINT_PTR /*nIDEvent*/) 
 {
 	CPoint point(GetMessagePos());
 	ScreenToClient(&point);

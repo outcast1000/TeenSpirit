@@ -43,14 +43,14 @@ void TSMenu::Destroy()
 	m_menu.DestroyMenu();
 }
 
-BOOL TSMenu::AppendMenu(MenuItemType mit, UINT cmdID, LPCTSTR text)
+BOOL TSMenu::AppendMenu(MenuItemType mit, UINT_PTR cmdID, LPCTSTR text)
 {
 	ASSERT(m_menu.m_hMenu != NULL);
 	return AppendMenu(mit, cmdID, text, 0);
 }
 
 
-BOOL TSMenu::AppendMenu(MenuItemType mit, UINT cmdID, LPCTSTR text, HICON hIcon)
+BOOL TSMenu::AppendMenu(MenuItemType mit, UINT_PTR cmdID, LPCTSTR text, HICON hIcon)
 {
 	ASSERT(m_menu.m_hMenu != NULL);
 	static const UINT mit2flag[] ={0, MF_STRING, MF_STRING | MF_POPUP, MF_SEPARATOR, 0};

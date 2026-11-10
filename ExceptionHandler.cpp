@@ -42,8 +42,15 @@ LONG WINAPI DummyUnhandledExceptionFilter(_EXCEPTION_POINTERS* pExceptPtrs)
 }
 
 //=== http://blog.kalmbachnet.de/?postid=75
+//Patches kernel32!SetUnhandledExceptionFilter with a jump to a no-op, so nothing can replace
+//our filter later. 32-bit only: a 5-byte relative jump can't reach across the x64 address
+//space, and the x64 export is a short stub that a longer jump would overrun. (The current CRT
+//reports /GS and invalid-parameter failures with __fastfail, without calling the filter.)
 BOOL PreventSetUnhandledExceptionFilter()
 {
+#ifdef _WIN64
+	return FALSE;
+#else
 	HMODULE hKernel32 = LoadLibrary(_T("kernel32.dll"));
 	if (hKernel32 ==  NULL) return FALSE;
 	void *pOrgEntry = GetProcAddress(hKernel32, "SetUnhandledExceptionFilter");
@@ -61,6 +68,7 @@ BOOL PreventSetUnhandledExceptionFilter()
 	BOOL bRet = WriteProcessMemory(GetCurrentProcess(),
 		pOrgEntry, newJump, sizeof(pNewFunc) + 1, &bytesWritten);
 	return bRet;
+#endif
 }
 
 
@@ -222,17 +230,22 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS pExceptPtrs,
 		PEXCEPTION_RECORD Exception = pExceptPtrs->ExceptionRecord;
 		PCONTEXT          Context   = pExceptPtrs->ContextRecord;
 
+#ifdef _WIN64
+		const ULONG_PTR ip = (ULONG_PTR)Context->Rip;
+#else
+		const ULONG_PTR ip = (ULONG_PTR)Context->Eip;
+#endif
 		MEMORY_BASIC_INFORMATION MemInfo;
-		if (VirtualQuery((void*)Context->Eip, &MemInfo, sizeof(MemInfo)))
+		if (VirtualQuery((void*)ip, &MemInfo, sizeof(MemInfo)))
 		{
 			CHAR bf[1000];
 			if (GetModuleFileNameA((HINSTANCE)MemInfo.AllocationBase, bf, 1000) > 0)
-				LogWrite(hLogFile, "Crash Module: %s\r\n", bf);
+				LogWrite(hLogFile, "Crash Module: %s (offset 0x%Ix)\r\n", bf, ip - (ULONG_PTR)MemInfo.AllocationBase);
 		}
-		LogWrite(hLogFile, "Description: %s (0x%08x) at %04x:%08x.\r\n", 
-			GetExceptionDescription(Exception->ExceptionCode), 
+		LogWrite(hLogFile, "Description: %s (0x%08x) at %04x:%p.\r\n",
+			GetExceptionDescription(Exception->ExceptionCode),
 			Exception->ExceptionCode,
-			Context->SegCs, Context->Eip);
+			Context->SegCs, (void*)ip);
 		// If the exception was an access violation, print out some additional
 		// information, to the error log and the debugger.
 		if (Exception->ExceptionCode == STATUS_ACCESS_VIOLATION &&
@@ -241,12 +254,18 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS pExceptPtrs,
 			const CHAR* readwrite = "Read from";
 			if (Exception->ExceptionInformation[0])
 				readwrite = "Write to";
-			LogWrite(hLogFile, "More Details: Read From location %08x caused an access violation.\r\n",
-						Exception->ExceptionInformation[1]);
+			LogWrite(hLogFile, "More Details: %s location %p caused an access violation.\r\n",
+						readwrite, (void*)Exception->ExceptionInformation[1]);
 		}
 
 		LogWrite(hLogFile, "\r\n");
 		LogWrite(hLogFile, "Context:\r\n");
+#ifdef _WIN64
+		LogWrite(hLogFile, "RAX: 0x%016I64x  RBX: 0x%016I64x  RCX: 0x%016I64x\r\n", Context->Rax, Context->Rbx, Context->Rcx);
+		LogWrite(hLogFile, "RDX: 0x%016I64x  RSI: 0x%016I64x  RDI: 0x%016I64x\r\n", Context->Rdx, Context->Rsi, Context->Rdi);
+		LogWrite(hLogFile, "RIP: 0x%016I64x  RBP: 0x%016I64x  RSP: 0x%016I64x\r\n", Context->Rip, Context->Rbp, Context->Rsp);
+		LogWrite(hLogFile, "EFlags: 0x%08x  SegCs: 0x%04x  SegSs: 0x%04x\r\n", Context->EFlags, Context->SegCs, Context->SegSs);
+#else
 		LogWrite(hLogFile, "EDI:    0x%08x  ESI: 0x%08x  EAX:   0x%08x\r\n",
 			Context->Edi, Context->Esi, Context->Eax);
 		LogWrite(hLogFile, "EBX:    0x%08x  ECX: 0x%08x  EDX:   0x%08x\r\n",
@@ -255,6 +274,7 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS pExceptPtrs,
 			Context->Eip, Context->Ebp, Context->SegCs);
 		LogWrite(hLogFile, "EFlags: 0x%08x  ESP: 0x%08x  SegSs: 0x%08x\r\n",
 			Context->EFlags, Context->Esp, Context->SegSs);
+#endif
 		CloseHandle(hLogFile);
 	}
 

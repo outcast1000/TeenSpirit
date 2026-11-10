@@ -74,7 +74,7 @@ protected:
 // Operations
 public:
 	// override
-	virtual int DoModal();
+	virtual INT_PTR DoModal();
 
 // Attributes
 public:
@@ -135,7 +135,7 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnSelendokMruCombo();
 	afx_msg void OnCbnKillfocusMruCombo();
-	afx_msg void OnTimer(UINT nIDEvent);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnDestroy();
 	//}}AFX_MSG
 	//afx_msg LRESULT OnPostInit(WPARAM wp, LPARAM lp);

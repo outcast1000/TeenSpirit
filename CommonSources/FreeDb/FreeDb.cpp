@@ -319,7 +319,7 @@ FreeDB::QueryResult FreeDB::Query(std::vector<FreeDBResult>& results, AudioCDInf
 	_sntprintf_s(urlCmd, _TRUNCATE, _T("%s?cmd=cddb+query+%08x+%d+%s+%d&hello=%s"),
 		(freeDbServer == NULL) ? defFreeDBServer : freeDbServer,
 		CDInfo.discID,
-		CDInfo.tracks.size(),
+		(INT)CDInfo.tracks.size(),
 		sOffsets.c_str(),
 		CDInfo.totalLength,
 		m_ident
@@ -612,7 +612,7 @@ BOOL FreeDB::GetFirstPart(std::tstring& buffer, LPCTSTR title)
 	LPCTSTR divider = _tcschr(title, '/');
 	if (divider != NULL)
 	{
-		UINT cpyLen = divider - title;
+		UINT cpyLen = (UINT)(divider - title);
 		buffer.clear();
 		buffer.insert(0, title, cpyLen);
 		return TRUE;

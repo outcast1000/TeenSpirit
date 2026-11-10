@@ -284,7 +284,7 @@ BOOL CQuizRunningDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	TRACEST(_T("CQuizRunningDlg::OnCommand"), wParam);
 	if (wParam >= START_BUTTON_ID && wParam < START_BUTTON_ID + BT_Last)
 	{
-		INT btnIdx = wParam - START_BUTTON_ID;
+		INT btnIdx = (INT)wParam - START_BUTTON_ID;
 		switch (btnIdx)
 		{
 		case BT_Start:
@@ -597,7 +597,7 @@ BOOL CQuizRunningDlg::PreTranslateMessage(MSG* pMsg)
 {
 	if (m_curState == ST_RunningQuestions && pMsg->message == WM_KEYDOWN)
 	{
-		TRACE(_T("CQuizRunningDlg::PreTranslateMessage %d\r\n"), pMsg->wParam);
+		TRACE(_T("CQuizRunningDlg::PreTranslateMessage %d\r\n"), (INT)pMsg->wParam);
 		switch (pMsg->wParam)
 		{
 		case '1':
@@ -605,7 +605,7 @@ BOOL CQuizRunningDlg::PreTranslateMessage(MSG* pMsg)
 		case '3':
 		case '4':
 		case '5':
-			EvaluateAnswer(pMsg->wParam - '1');
+			EvaluateAnswer((INT)pMsg->wParam - '1');
 			SetFocus();
 			return TRUE;//TranslateMessage(pMsg);
 		break;

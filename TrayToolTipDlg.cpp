@@ -346,7 +346,7 @@ void TrayToolTipDlg::Hide()
 	}
 }
 
-void TrayToolTipDlg::OnTimer(UINT nIDEvent)
+void TrayToolTipDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	switch (nIDEvent)
 	{

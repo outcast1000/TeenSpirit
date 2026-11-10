@@ -543,8 +543,8 @@ void DShowEngine::OnGraphEvent()
 	if (m_pMediaEvent == NULL)//Can happen if we are closing it
 		return;
 	LONG EventCode;
-	LONG Param1;
-	LONG Param2;
+	LONG_PTR Param1;
+	LONG_PTR Param2;
 	if (m_pMediaEvent->GetEvent(&EventCode, &Param1, &Param2, 0) != E_ABORT)
 	{
 		TRACE(_T("@3 DShowEngine::OnGraphEvent EventCode %d\n"), EventCode);

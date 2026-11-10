@@ -123,6 +123,7 @@ private:
 #ifdef USE_PRUNNEDFILEVIEWER
 #include <list>
 #include <string>
+#include <type_traits>
 class PrunnedFileViewer: public AViewer
 {
 public:
@@ -348,9 +349,11 @@ public:
 		TRACE(_T("[IN] %s\r\n"), bf);
 		m_timer.Start(TRUE);
 	}
-	ALogStackTracer(LPCTSTR funcName, INT param)
+	//Any integer or enum (INT, UINT, WPARAM, ...): a template, so none of them is an ambiguous conversion
+	template <class T, typename std::enable_if<std::is_integral<T>::value || std::is_enum<T>::value, int>::type = 0>
+	ALogStackTracer(LPCTSTR funcName, T param)
 	{
-		_sntprintf_s(bf, _TRUNCATE, _T("%s p: %d"), funcName, param);
+		_sntprintf_s(bf, _TRUNCATE, _T("%s p: %I64d"), funcName, (__int64)param);
 		bf[maxLen - 1] = 0;
 		TRACE(_T("[IN] %s\r\n"), bf);
 		m_timer.Start(TRUE);

@@ -452,7 +452,7 @@ BOOL CCollectionsList::OnCommand(WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	default:
-		return GetParent()->SendMessage(WM_COMMAND, wParam, lParam);
+		return (BOOL)GetParent()->SendMessage(WM_COMMAND, wParam, lParam);
 	}
 	return TRUE;
 }

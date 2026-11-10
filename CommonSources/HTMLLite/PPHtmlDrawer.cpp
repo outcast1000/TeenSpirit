@@ -838,7 +838,7 @@ HINSTANCE CPPHtmlDrawer::GotoURL(LPCTSTR url, int showcmd /* = SW_SHOW */)
     HINSTANCE result = ShellExecute(NULL, _T("open"), url, NULL, NULL, showcmd);
 
     // If it failed, get the .htm regkey and lookup the program
-    if ((UINT)result <= HINSTANCE_ERROR) 
+    if ((INT_PTR)result <= HINSTANCE_ERROR) 
 	{
 
         if (GetRegKey(HKEY_CLASSES_ROOT, _T(".htm"), key) == ERROR_SUCCESS) 
@@ -864,7 +864,7 @@ HINSTANCE CPPHtmlDrawer::GotoURL(LPCTSTR url, int showcmd /* = SW_SHOW */)
                 _tcsncat_s(pos, _countof(key) - (pos - key), url, _TRUNCATE);
 
                 USES_CONVERSION;
-                result = (HINSTANCE) WinExec(T2A(key),showcmd);
+                result = (HINSTANCE)(INT_PTR) WinExec(T2A(key),showcmd);
             } //if
         } //if
     } //if
@@ -2122,7 +2122,7 @@ SIZE CPPHtmlDrawer::DrawHtmlString (CPPString & sHtml, LPCRECT lpRect)
 									hBitmap = GetBitmapFromDll(si.nIdDll, si.strPathDll);
 								else if (si.nHandle)
 								{
-									hBitmap = (HBITMAP)si.nHandle;
+									hBitmap = (HBITMAP)(INT_PTR)si.nHandle;
 									//ENG: If an image handle specified, disables autodelete
 									bAutoDelete = FALSE;
 								} //if
@@ -2240,7 +2240,7 @@ SIZE CPPHtmlDrawer::DrawHtmlString (CPPString & sHtml, LPCRECT lpRect)
 									hIcon = GetIconFromDll(si.nIdDll, sz.cx, sz.cy, si.strPathDll);
 								else if (si.nHandle)
 								{
-									hIcon = (HICON)si.nHandle;
+									hIcon = (HICON)(INT_PTR)si.nHandle;
 									
 									//ENG: If an image handle specified, disables autodelete
 									bAutoDelete = FALSE;
@@ -2371,7 +2371,7 @@ SIZE CPPHtmlDrawer::DrawHtmlString (CPPString & sHtml, LPCRECT lpRect)
 									hBitmap = GetBitmapFromDll(si.nIdDll, si.strPathDll);
 								else if (si.nHandle)
 								{
-									hBitmap = (HBITMAP)si.nHandle;
+									hBitmap = (HBITMAP)(INT_PTR)si.nHandle;
 									//ENG: If an image handle specified, disables autodelete
 									//RUS: Ερλθ σκΰηΰν δερκπθοςξπ θηξαπΰζενθ, ςξ ηΰοπεωΰεμ σδΰλενθε
 									bAutoDelete = FALSE;

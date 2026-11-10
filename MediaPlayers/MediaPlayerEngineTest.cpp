@@ -30,7 +30,7 @@ class EventTargetDeriv:public EventTarget
 	virtual INT OnEvent(INT ID, INT param /*= 0*/, void* sender /*= 0*/)
 	{
 		TRACE(_T("@D TestBassEngine. OnEvent: %d - %d\r\n"), ID, param);
-		TRACE(_T("@D TestBassEngine. OnEvent Sender: %d \r\n"), (INT) sender);
+		TRACE(_T("@D TestBassEngine. OnEvent Sender: %d \r\n"), (INT)(INT_PTR) sender);
 		return 0;
 	}
 

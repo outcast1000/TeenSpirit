@@ -61,7 +61,7 @@ protected:
 	afx_msg void OnDoNotSend();
 	virtual void OnCancel();
 	virtual void OnOK();
-	afx_msg void OnTimer(UINT nIDEvent);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 	afx_msg LRESULT OnClickHere(WPARAM, LPARAM);
 	DECLARE_MESSAGE_MAP()

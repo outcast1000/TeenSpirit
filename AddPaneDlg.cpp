@@ -87,7 +87,7 @@ BOOL CAddPaneDlg::OnInitDialog()
 
 void CAddPaneDlg::OnDestroy()
 {
-	m_paneIndex = m_lstPanes.GetItemData(m_lstPanes.GetCurSel());
+	m_paneIndex = (INT)m_lstPanes.GetItemData(m_lstPanes.GetCurSel());
 	m_position = PaneController::POS_Left;
 	if (IsDlgButtonChecked(IDC_RD_RIGHT))
 		m_position = PaneController::POS_Right;

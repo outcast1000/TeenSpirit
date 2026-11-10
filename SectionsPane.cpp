@@ -590,15 +590,15 @@ ITSMenu& SectionsPane::GetInternalMenu(MENUS mnu)
 	case MNU_SectionOptionsMenu:
 		{
 			curMenu.AppendMenu(ITSMenu::MIT_Menu, 
-				(INT)GetInternalMenu(MNU_SectionModesMenu).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_MODE));
+				(UINT_PTR)GetInternalMenu(MNU_SectionModesMenu).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_MODE));
 			curMenu.AppendMenu(ITSMenu::MIT_Menu, 
-				(INT)GetInternalMenu(MNU_SectionSortsMenu).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_SORT));
+				(UINT_PTR)GetInternalMenu(MNU_SectionSortsMenu).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_SORT));
 			curMenu.AppendMenu(ITSMenu::MIT_Menu, 
-				(INT)GetInternalMenu(MNU_SectionFilterMenu).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_FILTER));
+				(UINT_PTR)GetInternalMenu(MNU_SectionFilterMenu).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_FILTER));
 			curMenu.AppendMenu(ITSMenu::MIT_Menu, 
-				(INT)GetInternalMenu(MNU_SectionGroupingMenu).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_ITEMGROUPING));
+				(UINT_PTR)GetInternalMenu(MNU_SectionGroupingMenu).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_ITEMGROUPING));
 			curMenu.AppendMenu(ITSMenu::MIT_Menu, 
-				(INT)GetInternalMenu(MNU_SectionStylesMenu).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_STYLE));
+				(UINT_PTR)GetInternalMenu(MNU_SectionStylesMenu).GetInternalHandler(), (LPTSTR)pAPI->GetString(IDS_STYLE));
 		}
 		break;
 	case MNU_SectionModesMenu:
@@ -614,22 +614,22 @@ ITSMenu& SectionsPane::GetInternalMenu(MENUS mnu)
 	case MNU_SectionSortsMenu:
 		{
 			curMenu.AppendMenu(ITSMenu::MIT_Menu, 
-				(INT)GetInternalMenu(MNU_SectionSortArtistMenu).GetInternalHandler(), 
+				(UINT_PTR)GetInternalMenu(MNU_SectionSortArtistMenu).GetInternalHandler(), 
 				(LPTSTR)pAPI->GetString(IDS_ARTIST));
 			curMenu.AppendMenu(ITSMenu::MIT_Menu, 
-				(INT)GetInternalMenu(MNU_SectionSortAlbumMenu).GetInternalHandler(), 
+				(UINT_PTR)GetInternalMenu(MNU_SectionSortAlbumMenu).GetInternalHandler(), 
 				(LPTSTR)pAPI->GetString(IDS_ALBUM));
 			curMenu.AppendMenu(ITSMenu::MIT_Menu, 
-				(INT)GetInternalMenu(MNU_SectionSortGenreMenu).GetInternalHandler(), 
+				(UINT_PTR)GetInternalMenu(MNU_SectionSortGenreMenu).GetInternalHandler(), 
 				(LPTSTR)pAPI->GetString(IDS_GENRE));
 			curMenu.AppendMenu(ITSMenu::MIT_Menu, 
-				(INT)GetInternalMenu(MNU_SectionSortCollectionMenu).GetInternalHandler(), 
+				(UINT_PTR)GetInternalMenu(MNU_SectionSortCollectionMenu).GetInternalHandler(), 
 				(LPTSTR)pAPI->GetString(IDS_COLLECTION));
 			curMenu.AppendMenu(ITSMenu::MIT_Menu, 
-				(INT)GetInternalMenu(MNU_SectionSortYearMenu).GetInternalHandler(), 
+				(UINT_PTR)GetInternalMenu(MNU_SectionSortYearMenu).GetInternalHandler(), 
 				(LPTSTR)pAPI->GetString(IDS_YEAR));
 			curMenu.AppendMenu(ITSMenu::MIT_Menu, 
-				(INT)GetInternalMenu(MNU_SectionSortMonthAddedMenu).GetInternalHandler(), 
+				(UINT_PTR)GetInternalMenu(MNU_SectionSortMonthAddedMenu).GetInternalHandler(), 
 				(LPTSTR)pAPI->GetString(IDS_MONTH));
 		}
 		break;

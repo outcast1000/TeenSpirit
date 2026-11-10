@@ -435,11 +435,11 @@ BOOL CTeenSpiritDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		return pAPI->GetActionManager()->ShowGamesDlg(this);
 
 	case CToolbarWnd::CMD_Min:
-		return SendMessage(WM_SYSCOMMAND, SC_MINIMIZE, 0);
+		return (BOOL)SendMessage(WM_SYSCOMMAND, SC_MINIMIZE, 0);
 	case CToolbarWnd::CMD_Restore:
-		return SendMessage(WM_SYSCOMMAND, SC_RESTORE, 0);
+		return (BOOL)SendMessage(WM_SYSCOMMAND, SC_RESTORE, 0);
 	case CToolbarWnd::CMD_Close:
-		return SendMessage(WM_SYSCOMMAND, SC_CLOSE, 0);
+		return (BOOL)SendMessage(WM_SYSCOMMAND, SC_CLOSE, 0);
 		break;
 
 	default:
@@ -458,7 +458,7 @@ BOOL CTeenSpiritDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 }
 
 
-void CTeenSpiritDlg::OnTimer(UINT nIDEvent)
+void CTeenSpiritDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	PrgAPI* pAPI = PRGAPI();
 	SQLManager* pSM = pAPI->GetSQLManager();
@@ -810,7 +810,7 @@ LRESULT CTeenSpiritDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 			case EXTERNALCOMMAND_GetVolume:		//Return vol 0-100. Returns 0-100 on success
 				return pPlayer->GetVolume();
 			case EXTERNALCOMMAND_SetVolume:		//lParam is the new value(0-100) retunrns 0 on success
-				pPlayer->SetVolume(lParam);
+				pPlayer->SetVolume((INT)lParam);
 				PRGAPI()->GetStateManager()->SendMessage(SM_PlayerVolumeChanged);
 				break;
 			case EXTERNALCOMMAND_GetMute:		//Returns 1 on mute ON. 0 on Mute off
@@ -824,7 +824,7 @@ LRESULT CTeenSpiritDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 			case EXTERNALCOMMAND_GetMediaPos:	//returns the number of seconds
 				return INT(pPlayer->GetMediaPos());
 			case EXTERNALCOMMAND_SetMediaPos:		//lparam=1 for mute ON. 0  Returns 0 on success
-				pPlayer->SetMediaPos(lParam);
+				pPlayer->SetMediaPos((DOUBLE)lParam);
 				break;
 			default:
 				bHandled = FALSE;
@@ -835,7 +835,7 @@ LRESULT CTeenSpiritDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	else if (message == WM_KEYDOWN || message == WM_SYSKEYDOWN)
 	{
-		TRACE(_T("CTeenSpiritDlg::WindowProc. KeyDown: %d-%d\r\n"), wParam, lParam);
+		TRACE(_T("CTeenSpiritDlg::WindowProc. KeyDown: %d-%d\r\n"), (INT)wParam, (INT)lParam);
 	}
 
 	return CDialog::WindowProc(message, wParam, lParam);

@@ -33,9 +33,8 @@
       <!-- Skins, translations and web-search templates straight from the repository (the copies
            next to a built exe can be rewritten by test runs). -->
       <Files Directory="INSTALLFOLDER" Subdirectory="Skins" Include="$(RootDir)Skins\**" />
-      <Files Directory="INSTALLFOLDER" Subdirectory="Langs" Include="$(RootDir)Langs\**">
-        <Exclude Files="$(RootDir)Langs\.svn\**" />	<!-- leftover of the old Subversion checkout -->
-      </Files>
+      <!-- *.lng only: a local checkout may still have the old Subversion folder in Langs\ -->
+      <Files Directory="INSTALLFOLDER" Subdirectory="Langs" Include="$(RootDir)Langs\*.lng" />
       <Files Directory="INSTALLFOLDER" Subdirectory="WebServices" Include="$(RootDir)WebServices\**" />
     </Feature>
 

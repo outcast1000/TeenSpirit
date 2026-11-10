@@ -150,9 +150,7 @@ BOOL CachedImageInfoProvider::GetFiles(LPCTSTR path, std::vector<std::basic_stri
 		do 
 		{
 			TCHAR bf[MAX_PATH];
-			bf[MAX_PATH - 1] = 0;
-			_sntprintf(bf, MAX_PATH, _T("%s%s"), m_storagePath.c_str(), dta.cFileName);
-			if (bf[MAX_PATH - 1] == 0)
+			if (_sntprintf_s(bf, _TRUNCATE, _T("%s%s"), m_storagePath.c_str(), dta.cFileName) >= 0)	//skip names that do not fit
 				files.push_back(bf);
 		} while(FindNextFile(hFileFinder, &dta));
 		FindClose(hFileFinder);
@@ -167,9 +165,9 @@ void CachedImageInfoProvider::GetArtistHash(LPTSTR hash, UINT hashLen)
 	INT posStart = 0;
 	if (_tcsnicmp(m_Artist.c_str(), _T("the "), 4) == 0)
 		posStart = 4;
-	_sntprintf(hashString, 500,_T("%s"), &m_Artist.c_str()[posStart]);
-	_tcslwr(hashString);
-	_tcsncpy(hash, CA2CT(md5.CalcMD5FromWString(hashString)), hashLen);
+	_sntprintf_s(hashString, _TRUNCATE,_T("%s"), &m_Artist.c_str()[posStart]);
+	_tcslwr_s(hashString);
+	_tcsncpy_s(hash, hashLen, CA2CT(md5.CalcMD5FromWString(hashString)), _TRUNCATE);
 }
 
 void CachedImageInfoProvider::GetAlbumHash(LPTSTR hash, UINT hashLen)
@@ -179,9 +177,9 @@ void CachedImageInfoProvider::GetAlbumHash(LPTSTR hash, UINT hashLen)
 	INT posStart = 0;
 	if (_tcsnicmp(m_Artist.c_str(), _T("the "), 4) == 0)
 		posStart = 4;
-	_sntprintf(hashString, 500,_T("%s-%s"), &m_Artist.c_str()[posStart], m_Album.c_str());
-	_tcslwr(hashString);
-	_tcsncpy(hash, CA2CT(md5.CalcMD5FromWString(hashString)), hashLen);
+	_sntprintf_s(hashString, _TRUNCATE,_T("%s-%s"), &m_Artist.c_str()[posStart], m_Album.c_str());
+	_tcslwr_s(hashString);
+	_tcsncpy_s(hash, hashLen, CA2CT(md5.CalcMD5FromWString(hashString)), _TRUNCATE);
 }
 
 
@@ -190,7 +188,7 @@ void CachedImageInfoProvider::ConvertV2ArtistPictures()
 	cMD5 md5;
 	TCHAR path[MAX_PATH];
 	//--- Format v2
-	_sntprintf(path, MAX_PATH,_T("%s%s??.???"), m_storagePath.c_str(), (LPCTSTR)CA2CT(md5.CalcMD5FromString((LPCSTR)CT2CA(m_Artist.c_str()))));
+	_sntprintf_s(path, _TRUNCATE,_T("%s%s??.???"), m_storagePath.c_str(), (LPCTSTR)CA2CT(md5.CalcMD5FromString((LPCSTR)CT2CA(m_Artist.c_str()))));
 	WIN32_FIND_DATA dta;
 	HANDLE hFileFinder = FindFirstFile(path, &dta);
 	if (hFileFinder != INVALID_HANDLE_VALUE)
@@ -198,9 +196,7 @@ void CachedImageInfoProvider::ConvertV2ArtistPictures()
 		do 
 		{
 			TCHAR bf[MAX_PATH];
-			bf[MAX_PATH - 1] = 0;
-			_sntprintf(bf, MAX_PATH, _T("%s%s"), m_storagePath.c_str(), dta.cFileName);
-			if (bf[MAX_PATH - 1] == 0)
+			if (_sntprintf_s(bf, _TRUNCATE, _T("%s%s"), m_storagePath.c_str(), dta.cFileName) >= 0)	//skip names that do not fit
 			{
 				Result res;
 				res.service = SRV_ArtistImage;
@@ -227,8 +223,8 @@ void CachedImageInfoProvider::ConvertV2AlbumPictures()
 	cMD5 md5;
 	TCHAR path[MAX_PATH];
 	//--- Format v2
-	_sntprintf(path, MAX_PATH,_T("%s-%s"), m_Artist.c_str(), m_Album.c_str());
-	_sntprintf(path, MAX_PATH,_T("%s%s??.???"), m_storagePath.c_str(), (LPCTSTR)CA2CT(md5.CalcMD5FromString((LPCSTR)CT2CA(path))));
+	_sntprintf_s(path, _TRUNCATE,_T("%s-%s"), m_Artist.c_str(), m_Album.c_str());
+	_sntprintf_s(path, _TRUNCATE,_T("%s%s??.???"), m_storagePath.c_str(), (LPCTSTR)CA2CT(md5.CalcMD5FromString((LPCSTR)CT2CA(path))));
 	WIN32_FIND_DATA dta;
 	HANDLE hFileFinder = FindFirstFile(path, &dta);
 	if (hFileFinder != INVALID_HANDLE_VALUE)
@@ -236,9 +232,7 @@ void CachedImageInfoProvider::ConvertV2AlbumPictures()
 		do 
 		{
 			TCHAR bf[MAX_PATH];
-			bf[MAX_PATH - 1] = 0;
-			_sntprintf(bf, MAX_PATH, _T("%s%s"), m_storagePath.c_str(), dta.cFileName);
-			if (bf[MAX_PATH - 1] == 0)
+			if (_sntprintf_s(bf, _TRUNCATE, _T("%s%s"), m_storagePath.c_str(), dta.cFileName) >= 0)	//skip names that do not fit
 			{
 				Result res;
 				res.service = SRV_AlbumImage;
@@ -274,13 +268,13 @@ BOOL CachedImageInfoProvider::GetNextResult(Result& result)
 		case SRV_ArtistImage:
 			ConvertV2ArtistPictures();
 			GetArtistHash(hash, 500);
-			_sntprintf(path, MAX_PATH, _T("%sAR_%s??.*"), m_storagePath.c_str(), hash);
+			_sntprintf_s(path, _TRUNCATE, _T("%sAR_%s??.*"), m_storagePath.c_str(), hash);
 			GetFiles(path, m_results);
 			break;
 		case SRV_AlbumImage:
 			ConvertV2AlbumPictures();
 			GetAlbumHash(hash, 500);
-			_sntprintf(path, MAX_PATH,_T("%sAL_%s??.*"), m_storagePath.c_str(), hash);
+			_sntprintf_s(path, _TRUNCATE,_T("%sAL_%s??.*"), m_storagePath.c_str(), hash);
 			GetFiles(path, m_results);
 			break;
 		}
@@ -314,14 +308,14 @@ BOOL CachedImageInfoProvider::AddResult(const Result& result)
 	case SRV_ArtistImage:
 		{
 			GetArtistHash(hash, 500);
-			_sntprintf(path, MAX_PATH,_T("%sAR_%s"), m_storagePath.c_str(), hash);
+			_sntprintf_s(path, _TRUNCATE,_T("%sAR_%s"), m_storagePath.c_str(), hash);
 			return SaveFile(path, _T("jpg"), result.main);
 		}
 		break;
 	case SRV_AlbumImage:
 		{
 			GetAlbumHash(hash, 500);
-			_sntprintf(path, MAX_PATH,_T("%sAL_%s"), m_storagePath.c_str(), hash);
+			_sntprintf_s(path, _TRUNCATE,_T("%sAL_%s"), m_storagePath.c_str(), hash);
 			return SaveFile(path, _T("jpg"), result.main);
 		}
 		break;
@@ -346,7 +340,7 @@ INT CachedImageInfoProvider::GetFileSize(LPCTSTR fileName)
 BOOL CachedImageInfoProvider::SaveFile(LPCTSTR mainPath, LPCTSTR extension, LPCTSTR srcPath)
 {
 	TCHAR trgPathTemplate[MAX_PATH];
-	_sntprintf(trgPathTemplate, MAX_PATH, _T("%s??.%s"), mainPath, extension);
+	_sntprintf_s(trgPathTemplate, _TRUNCATE, _T("%s??.%s"), mainPath, extension);
 	INT srcFileSize = GetFileSize(srcPath);
 	WIN32_FIND_DATA dta;
 	HANDLE hFileFinder = FindFirstFile(trgPathTemplate, &dta);
@@ -369,7 +363,7 @@ BOOL CachedImageInfoProvider::SaveFile(LPCTSTR mainPath, LPCTSTR extension, LPCT
 	TCHAR newPath[MAX_PATH];
 	for (int i=0; i<0xff; i++)
 	{
-		_sntprintf(newPath, MAX_PATH, _T("%s%0.2X.%s"), mainPath, i, extension);
+		_sntprintf_s(newPath, _TRUNCATE, _T("%s%0.2X.%s"), mainPath, i, extension);
 		if (!PathFileExists(newPath))//Does not exist
 			return CopyFile(srcPath, newPath, TRUE) != 0;
 	}

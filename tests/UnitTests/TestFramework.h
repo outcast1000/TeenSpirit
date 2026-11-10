@@ -28,5 +28,6 @@ void RunTrackerTests();
 void RunManagerTests();
 void RunDownloadTests();
 void RunStateTests();
+void RunStringTests();
 
 #endif

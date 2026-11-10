@@ -22,7 +22,7 @@ BOOL SQLManager::UnitTest()
 	TRACE(_T("@2 SQLManager:Unit-Testing\r\n"));
 	TCHAR dbPath[MAX_PATH];
 	GetTempPath(MAX_PATH, dbPath);
-	_tcscat(dbPath, _T("jaangle-unittest.db"));
+	_tcscat_s(dbPath, _T("jaangle-unittest.db"));
 	DeleteFile(dbPath);
 	{
 		SQLManager sm;

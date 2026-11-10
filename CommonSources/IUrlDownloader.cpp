@@ -34,7 +34,7 @@ LPSTR IUrlDownloader::CreateCharCopy() const
 		if (bfLen > 0)
 		{
 			ret = new CHAR[bfLen + 1];
-			strncpy(ret, (LPCSTR)GetBuffer(), bfLen);
+			memcpy(ret, GetBuffer(), bfLen);
 			ret[bfLen] = 0;
 		}
 	}

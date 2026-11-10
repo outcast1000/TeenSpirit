@@ -43,10 +43,12 @@ UINT DShowTagger::Read(LPCTSTR fileName, TagInfo& tagInfo)
 	//There seems to be a problem with m4a files
 	if (m_readDepth <= 50)//Try only these types. Otherwise try every type...
 	{
+		size_t len = _tcslen(fileName);
+		if (len < 4)
+			return NULL;
 		TCHAR ext[5];
-		_tcsncpy(ext, &fileName[_tcslen(fileName) - 4], 4);
-		ext[4] = 0;
-		_tcslwr(ext);
+		_tcsncpy_s(ext, &fileName[len - 4], _TRUNCATE);
+		_tcslwr_s(ext);
 		LPCTSTR f = _tcsstr(_T(".mpgmpeg.avi.wmv.ogm.mp3.mp2.wma.cda.ogg.ac3.ape"), ext);
 		if (f== NULL)	
 			return NULL;

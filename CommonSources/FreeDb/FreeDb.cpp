@@ -164,13 +164,13 @@ void FreeDB::Init(LPCTSTR clientname, LPCTSTR clientversion, HINTERNET hNet)
 	TCHAR sUser[MAX_PATH];
 	DWORD retLen = MAX_PATH;
 	if (!::GetUserName(sUser, &retLen))
-		_tcscpy(sUser, sUnknown);
+		_tcsncpy_s(sUser, sUnknown, _TRUNCATE);
 	else
 		NormalizeString(sUser);
 	//CHAR sTempHost[MAX_PATH];
 	TCHAR sHost[MAX_PATH];
 	//if (!::gethostname(sTempHost, MAX_PATH))
-		_tcscpy(sHost, sUnknown);
+		_tcsncpy_s(sHost, sUnknown, _TRUNCATE);
 	//else
 	//{
 	//	_tcscpy(sHost, CA2T(sTempHost));
@@ -178,26 +178,26 @@ void FreeDB::Init(LPCTSTR clientname, LPCTSTR clientversion, HINTERNET hNet)
 	//}
 	TCHAR sClientName[50];
 	if (clientname == NULL)
-		_tcscpy(sClientName, sUnknown);
+		_tcsncpy_s(sClientName, sUnknown, _TRUNCATE);
 	else
 	{
-		_tcscpy(sClientName, clientname);
+		_tcsncpy_s(sClientName, clientname, _TRUNCATE);
 		NormalizeString(sClientName);
 	}
 	TCHAR sClientVersion[50];
 	if (clientversion == NULL)
-		_tcscpy(sClientVersion, sUnknown);
+		_tcsncpy_s(sClientVersion, sUnknown, _TRUNCATE);
 	else
 	{
-		_tcscpy(sClientVersion, clientname);
+		_tcsncpy_s(sClientVersion, clientversion, _TRUNCATE);
 		NormalizeString(sClientVersion);
 	}
 
-	_sntprintf(m_ident, MAX_IDENT_LEN, _T("%s+%s+%s+%s&proto=5"), 
+	_sntprintf_s(m_ident, _TRUNCATE, _T("%s+%s+%s+%s&proto=5"), 
 		sUser, 
 		sHost, 
-		clientname, 
-		clientversion);
+		sClientName, 
+		sClientVersion);
 
 	m_ident[MAX_IDENT_LEN - 1] = 0;
 	m_hNet = hNet;
@@ -226,7 +226,7 @@ BOOL FreeDB::RetrieveFreeDbServers()
 	if (m_hNet == NULL)
 		return FALSE;
 	TCHAR urlCmd[500];
-	_sntprintf(urlCmd, 500, _T("%s?cmd=sites&hello=%s"), defFreeDBServer, m_ident);
+	_sntprintf_s(urlCmd, _TRUNCATE, _T("%s?cmd=sites&hello=%s"), defFreeDBServer, m_ident);
 	std::string page;
 	if (!DownloadWebPage(page, m_hNet, urlCmd))
 		return FALSE;
@@ -288,8 +288,7 @@ void FreeDB::NormalizeString(LPTSTR str)
 UINT FreeDB::GetPageErrorCode(LPCSTR page)
 {
 	CHAR errCodeStr[4];
-	strncpy(errCodeStr, page, 3);
-	errCodeStr[3] = 0;
+	strncpy_s(errCodeStr, page, _TRUNCATE);
 	return atoi(errCodeStr);
 }
 
@@ -308,7 +307,7 @@ FreeDB::QueryResult FreeDB::Query(std::vector<FreeDBResult>& results, AudioCDInf
 		//Form the frame number
 		//CString sFrame;
 		//sFrame.Format(_T("%d"), tracks[i].m_nMinute*60*75 + tracks[i].m_nSecond*75 + tracks[i].m_nFrame);
-		_sntprintf(offset, 100, _T("%d"), CDInfo.tracks[i].offset.toFrame());
+		_sntprintf_s(offset, _TRUNCATE, _T("%d"), CDInfo.tracks[i].offset.toFrame());
 		//Accumulate the frame number into the string
 		sOffsets += offset;
 		//Add a space between each offset
@@ -317,7 +316,7 @@ FreeDB::QueryResult FreeDB::Query(std::vector<FreeDBResult>& results, AudioCDInf
 	}
 
 	TCHAR urlCmd[2000];
-	_sntprintf(urlCmd, 2000, _T("%s?cmd=cddb+query+%08x+%d+%s+%d&hello=%s"),
+	_sntprintf_s(urlCmd, _TRUNCATE, _T("%s?cmd=cddb+query+%08x+%d+%s+%d&hello=%s"),
 		(freeDbServer == NULL) ? defFreeDBServer : freeDbServer,
 		CDInfo.discID,
 		CDInfo.tracks.size(),
@@ -409,7 +408,7 @@ FreeDB::QueryResult FreeDB::Query(std::vector<FreeDBResult>& results, AudioCDInf
 BOOL FreeDB::Read(FreeDBResult result, AudioCDInfo& CDInfo, LPCTSTR freeDbServer/* = NULL*/)
 {
 	TCHAR urlCmd[2000];
-	_sntprintf(urlCmd, 2000, _T("%s?cmd=cddb+read+%s+%s&hello=%s"),
+	_sntprintf_s(urlCmd, _TRUNCATE, _T("%s?cmd=cddb+read+%s+%s&hello=%s"),
 		(freeDbServer == NULL) ? defFreeDBServer : freeDbServer, 
 		result.genre.c_str(),
 		result.discID.c_str(),
@@ -456,9 +455,6 @@ BOOL FreeDB::Read(FreeDBResult result, AudioCDInfo& CDInfo, LPCTSTR freeDbServer
 						LPCSTR eq = strchr(token, '=');
 						if (eq)
 						{
-							CHAR num[10];
-							strncpy(num, &token[6], eq - &token[6]);
-							num[eq - &token[6]] = 0;
 							INT trackNo = atoi(&token[6]);
 							if (trackNo < (INT)CDInfo.tracks.size())
 								CDInfo.tracks[trackNo].title = CA2CT(eq + 1);

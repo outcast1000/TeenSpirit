@@ -83,7 +83,7 @@ INT InfoProviderFactory::LoadPlugins(LPCTSTR pluginsPath)
 	ASSERT(pluginsPath[_tcslen(pluginsPath) - 1] == '\\');
 	INT count = 0;
 	TCHAR spec[_MAX_PATH];
-	_sntprintf(spec, _MAX_PATH, _T("%s*.dll"), pluginsPath);
+	_sntprintf_s(spec, _TRUNCATE, _T("%s*.dll"), pluginsPath);
 	WIN32_FIND_DATA data;
 	HANDLE h=FindFirstFile(spec,&data);
 	if (h!=INVALID_HANDLE_VALUE) 
@@ -91,7 +91,7 @@ INT InfoProviderFactory::LoadPlugins(LPCTSTR pluginsPath)
 		do 
 		{
 			TCHAR fname[_MAX_PATH];
-			_sntprintf(fname, _MAX_PATH, _T("%s%s"), pluginsPath, data.cFileName);
+			_sntprintf_s(fname, _TRUNCATE, _T("%s%s"), pluginsPath, data.cFileName);
 			std::vector<ExternalInfoProvider*> ips = ExternalInfoProvider::Create(fname);
 			for (size_t i = 0; i < ips.size(); i++)
 			{

@@ -179,7 +179,7 @@ BOOL FileNameParser::DecodeAs(LPCTSTR fileName, LPCTSTR pattern)
 	}
 	fnPosC++;
 	TCHAR locFN[MAX_PATH];
-	_tcsncpy(locFN, fnPosC, MAX_PATH);
+	_tcsncpy_s(locFN, fnPosC, _TRUNCATE);
 	LPTSTR fnPos = (LPTSTR) _tcsrchr(locFN, '.');
 	if (fnPos == 0)	
 	{
@@ -223,7 +223,7 @@ BOOL FileNameParser::IsInteger(LPCTSTR str)
 	if (num > 0)
 	{
 		TCHAR strnum[20];
-		_sntprintf(strnum, 20, _T("%d"), num);
+		_sntprintf_s(strnum, _TRUNCATE, _T("%d"), num);
 		if (abs(int(_tcslen(strnum) - _tcslen(str))) <=1)
 			return TRUE;
 	}
@@ -244,13 +244,11 @@ INT FileNameParser::ExtractAttribute(TCHAR code, TCHAR divider, LPCTSTR str)
 			TRACE(_T("@3 FileNameParser::ExtractAttribute. Divider '%c' not found\r\n"), divider);
 			return 0;
 		}
-		_tcsncpy(attributeString, str, fndPos - str);
-		attributeString[fndPos - str] = 0; 
+		_tcsncpy_s(attributeString, str, fndPos - str);
 	}
 	else
 	{
-		_tcsncpy(attributeString, str, MAX_STRING);
-		attributeString[MAX_STRING - 1] = 0; 
+		_tcsncpy_s(attributeString, str, _TRUNCATE);
 	}
 	INT retval = _tcslen(attributeString) + 1;//plus the divider
 	_tcsrtrim(_tcsltrim(attributeString));
@@ -259,13 +257,13 @@ INT FileNameParser::ExtractAttribute(TCHAR code, TCHAR divider, LPCTSTR str)
 	switch (code)
 	{
 	case 'a'://Artist
-		_tcscpy(m_Artist, attributeString);
+		_tcscpy_s(m_Artist, attributeString);
 		break;
 	case 'l'://Album
-		_tcscpy(m_Album, attributeString);
+		_tcscpy_s(m_Album, attributeString);
 		break;
 	case 't'://Title
-		_tcscpy(m_Title, attributeString);
+		_tcscpy_s(m_Title, attributeString);
 		break;
 	case 'n'://TrackNo
 		m_TrackNo = _ttoi(attributeString);
@@ -307,14 +305,15 @@ BOOL FileNameParser::TranslatePattern(LPTSTR newName, UINT bfLen,
 	if (discard == NULL)	
 		discard = _T("<discard>");
 
-	_tcsncpy(newName, pattern, bfLen);
-	_tcsReplaceInl(newName, bfLen, PLACEHOLDER_ARTIST, artist);
-	_tcsReplaceInl(newName, bfLen, PLACEHOLDER_ALBUM, album);
-	_tcsReplaceInl(newName, bfLen, PLACEHOLDER_TRACKNO, trackNo);
-	_tcsReplaceInl(newName, bfLen, PLACEHOLDER_TITLE, title);
-	_tcsReplaceInl(newName, bfLen, PLACEHOLDER_YEAR, year);
-	_tcsReplaceInl(newName, bfLen, PLACEHOLDER_DISCARD, discard);
-	return TRUE;
+	//Fails if the pattern is empty or the result doesn't fit (it would keep unreplaced placeholders)
+	if (pattern[0] == 0 || _tcsncpy_s(newName, bfLen, pattern, _TRUNCATE) != 0)
+		return FALSE;
+	return _tcsReplaceInl(newName, bfLen, PLACEHOLDER_ARTIST, artist) >= 0
+		&& _tcsReplaceInl(newName, bfLen, PLACEHOLDER_ALBUM, album) >= 0
+		&& _tcsReplaceInl(newName, bfLen, PLACEHOLDER_TRACKNO, trackNo) >= 0
+		&& _tcsReplaceInl(newName, bfLen, PLACEHOLDER_TITLE, title) >= 0
+		&& _tcsReplaceInl(newName, bfLen, PLACEHOLDER_YEAR, year) >= 0
+		&& _tcsReplaceInl(newName, bfLen, PLACEHOLDER_DISCARD, discard) >= 0;
 }
 
 

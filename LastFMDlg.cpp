@@ -61,7 +61,7 @@ BOOL CLastFMDlg::OnInitDialog()
 	m_Header.SetIconHandle(pAPI->GetIcon(ICO_Main));
 	m_Header.SetTitleText(pAPI->GetString(IDS_LASTFMSCROBBLER));
 	TCHAR bf[500];
-	_sntprintf(bf, 500, _T("%s - %s"), pAPI->GetString(IDS_USERNAME), pAPI->GetString(IDS_PASSWORD));
+	_sntprintf_s(bf, _TRUNCATE, _T("%s - %s"), pAPI->GetString(IDS_USERNAME), pAPI->GetString(IDS_PASSWORD));
 	m_Header.SetDescText(bf);
 	m_Header.SetTitleFont(pAPI->GetFont(FONT_DialogsBigBold));
 	m_Header.SetDescFont(pAPI->GetFont(FONT_Dialogs));
@@ -119,7 +119,9 @@ void CLastFMDlg::UpdateUserPass()
 	else if (bf[0] != '*')
 	{
 		cMD5 md5;
-		m_pass = CA2CT(_strlwr(md5.CalcMD5FromString(CT2CA(bf))));
+		CStringA hash(md5.CalcMD5FromString(CT2CA(bf)));
+		hash.MakeLower();
+		m_pass = CA2CT(hash);
 	}
 
 }

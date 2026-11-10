@@ -548,9 +548,8 @@ UINT GetWindowsCodePageA(LPCSTR html)
 		if (endPos != NULL && endPos - startPos < 30)
 		{
 			CHAR bf[30];
-			strncpy(bf, startPos, endPos - startPos);
-			bf[endPos - startPos] = 0;
-			_strlwr(bf);
+			strncpy_s(bf, startPos, endPos - startPos);
+			_strlwr_s(bf);
 			if (_strnicmp(bf, "windows-", 8) == 0 && endPos - startPos > 8)
 			{
 				codePage = atol(&bf[8]);
@@ -601,9 +600,8 @@ UINT GetWindowsCodePageW(LPCWSTR html)
 		if (endPos != NULL && endPos - startPos < 30)
 		{
 			WCHAR bf[30];
-			wcsncpy(bf, startPos, endPos - startPos);
-			bf[endPos - startPos] = 0;
-			_wcslwr(bf);
+			wcsncpy_s(bf, startPos, endPos - startPos);
+			_wcslwr_s(bf);
 			if (_wcsnicmp(bf, _T("windows-"), 8) == 0 && endPos - startPos > 8)
 			{
 				codePage = _wtol(&bf[8]);
@@ -800,8 +798,7 @@ INT ReplaceHtmlEntities(std::basic_string<TCHAR>& htmlText)
 				//=== It is a int entity
 				TCHAR intbf[10];
 				INT copyChars = (INT) min(nextEndPos - startPos - 2, 9);
-				_tcsncpy(intbf, &htmlText[startPos+2], copyChars);
-				intbf[copyChars] = 0;
+				_tcsncpy_s(intbf, &htmlText[startPos+2], copyChars);
 				INT val = _wtoi(intbf);
 				if (val > 0 && val < 0xFFFE)
 					repVal = wchar_t(val);

@@ -121,11 +121,12 @@ UINT EnhTagLibTagger::Read(LPCTSTR fileName, TagInfo& tagInfo)
 	if (tagInfo.Title.size() == 0)
 	{
 		TCHAR bf[MAX_PATH];
-		_tcsncpy(bf, fileName, MAX_PATH);
+		_tcsncpy_s(bf, fileName, _TRUNCATE);
 		LPTSTR pos = _tcsrchr(bf, _T('.'));
-		pos[0] = 0;
+		if (pos != NULL)
+			pos[0] = 0;
 		pos = _tcsrchr(bf, _T('\\'));
-		pos++;
+		pos = (pos != NULL) ? pos + 1 : bf;
 		tagInfo.Title = pos;
 		aquiredTiFlags |= TagInfo_Title;
 	}

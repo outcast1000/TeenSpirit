@@ -98,9 +98,9 @@ BOOL FileNameTagger::TranslatePattern(LPTSTR newName, UINT bfLen,
 									  LPCTSTR artist, LPCTSTR album, INT trackNo, LPCTSTR title, INT year, LPCTSTR discard)
 {
 	TCHAR sTrackNo[20];
-	_sntprintf(sTrackNo, 20, _T("%02d"), trackNo);
+	_sntprintf_s(sTrackNo, _TRUNCATE, _T("%02d"), trackNo);
 	TCHAR sYear[20];
-	_itot(year, sYear, 10);
+	_itot_s(year, sYear, 10);
 	return FileNameParser::TranslatePattern(newName, bfLen, pattern, artist, album, title == NULL ? NULL : sTrackNo, title, title == NULL ? NULL : sYear, discard);
 
 }
@@ -121,22 +121,18 @@ BOOL FileNameTagger::MakeMewPath(LPTSTR outPath, LPCTSTR newName, LPCTSTR origin
 	ASSERT(outPath != NULL);
 	ASSERT(newName != NULL);
 	ASSERT(originalPath != NULL);
-	const TCHAR* pos = _tcsrchr(originalPath, '\\');
-	if (pos != NULL)
-	{
-		pos++;
-		_tcsncpy(outPath, originalPath, pos - originalPath);
-		outPath[pos - originalPath] = 0;
-
-		_tcsncat(outPath, newName, MAX_PATH - _tcslen(outPath));
-		pos = _tcsrchr(originalPath, '.');
-		if (pos != NULL)
-		{
-			_tcsncat(outPath, pos, MAX_PATH - _tcslen(outPath));
-			return TRUE;
-		}
-	}
-	return FALSE;
+	//outPath is MAX_PATH long. A truncated path would rename the file to the wrong name, so fail instead.
+	const TCHAR* dirEnd = _tcsrchr(originalPath, '\\');
+	const TCHAR* ext = _tcsrchr(originalPath, '.');
+	if (dirEnd == NULL || ext == NULL || ext < dirEnd)
+		return FALSE;
+	std::tstring path(originalPath, dirEnd + 1);
+	path += newName;
+	path += ext;
+	if (path.size() >= MAX_PATH)
+		return FALSE;
+	_tcscpy_s(outPath, MAX_PATH, path.c_str());
+	return TRUE;
 }
 
 

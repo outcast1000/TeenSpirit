@@ -119,6 +119,9 @@
     <ClCompile Include="..\..\CommonSources\hdcUtils.cpp" />
     <ClCompile Include="..\..\CommonSources\AppSettings\IniAppSettings.cpp" />
     <ClCompile Include="..\..\Taggers\TagLibTagger.cpp" />
+    <ClCompile Include="..\..\Taggers\FileNameTagger.cpp" />
+    <ClCompile Include="..\..\CommonSources\FileNameParser.cpp" />
+    <ClCompile Include="StringTests.cpp" />
     <ClInclude Include="TestFramework.h" />
   </ItemGroup>
   <ItemDefinitionGroup>

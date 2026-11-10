@@ -169,7 +169,7 @@ INT SQLiteDB::GetUserVersion()
 BOOL SQLiteDB::SetUserVersion(INT version)
 {
 	TCHAR sql[64];
-	_sntprintf(sql, 64, _T("PRAGMA user_version=%d"), version);
+	_sntprintf_s(sql, _TRUNCATE, _T("PRAGMA user_version=%d"), version);
 	sql[63] = 0;
 	return Execute(sql) != -1;
 }
@@ -177,7 +177,7 @@ BOOL SQLiteDB::SetUserVersion(INT version)
 std::wstring SQLiteDB::FormatDate(const SYSTEMTIME& st)
 {
 	WCHAR bf[32];
-	_snwprintf(bf, 32, L"%04u-%02u-%02u %02u:%02u:%02u",
+	_snwprintf_s(bf, _TRUNCATE, L"%04u-%02u-%02u %02u:%02u:%02u",
 		st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
 	bf[31] = 0;
 	return bf;
@@ -189,7 +189,7 @@ BOOL SQLiteDB::ParseDate(const unsigned char* text, SYSTEMTIME& st)
 	if (text == NULL)
 		return FALSE;
 	UINT y = 0, mo = 0, d = 0, h = 0, mi = 0, s = 0;
-	INT n = sscanf((const char*)text, "%u-%u-%u %u:%u:%u", &y, &mo, &d, &h, &mi, &s);
+	INT n = sscanf_s((const char*)text, "%u-%u-%u %u:%u:%u", &y, &mo, &d, &h, &mi, &s);
 	if (n < 3)
 		return FALSE;
 	st.wYear = (WORD)y;

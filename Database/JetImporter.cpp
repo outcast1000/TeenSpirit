@@ -61,7 +61,7 @@ namespace
 		else
 			s = e.ErrorMessage();
 		WCHAR code[32];
-		_snwprintf(code, 32, L" (0x%08lX)", (unsigned long)e.Error());
+		_snwprintf_s(code, _TRUNCATE, L" (0x%08lX)", (unsigned long)e.Error());
 		code[31] = 0;
 		return s + code;
 	}
@@ -182,7 +182,7 @@ namespace
 		if (destRows < 0 || destRows > sourceRows || (!spec.bIgnoreDuplicates && destRows != sourceRows))
 		{
 			WCHAR bf[200];
-			_snwprintf(bf, 200, L"Table %s: read %d rows but wrote %d", spec.table, sourceRows, destRows);
+			_snwprintf_s(bf, _TRUNCATE, L"Table %s: read %d rows but wrote %d", spec.table, sourceRows, destRows);
 			bf[199] = 0;
 			error = bf;
 			return FALSE;
@@ -220,7 +220,7 @@ namespace
 			if (version != cSupportedJetVersion)
 			{
 				WCHAR bf[200];
-				_snwprintf(bf, 200, L"Unsupported database version %d (expected %d). "
+				_snwprintf_s(bf, _TRUNCATE, L"Unsupported database version %d (expected %d). "
 					L"Open it once with version 0.98 of the program to upgrade it first.",
 					version, cSupportedJetVersion);
 				bf[199] = 0;

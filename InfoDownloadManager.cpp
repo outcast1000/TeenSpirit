@@ -446,7 +446,7 @@ void InfoDownloadManager::NotifyUserForSuccess(LPCTSTR infoType, LPCTSTR reqInfo
 	if (infoType != NULL && reqInfo != NULL && addInfo != NULL)
 	{
 		TCHAR msg[1000];
-		_sntprintf(msg, 1000,
+		_sntprintf_s(msg, _TRUNCATE,
 			_T("%s | %s: %s | %s | %s: %s"),
 			Str(IDS_SUCCESS),
 			Str(IDS_TYPE), infoType,
@@ -504,7 +504,7 @@ BOOL InfoDownloadManager::HandleAlbumInfo(UINT albID, const IInfoProvider::Resul
 		pSM->AdjustAlbumInfo(albID, IIT_AlbumReview, result.main);
 		m_host->SendStateMessage(SM_InfoChanged);
 		TCHAR msg[500];
-		_sntprintf(msg, 500, _T("%s: %s"), rec->artist.name.c_str(), rec->album.name.c_str());
+		_sntprintf_s(msg, _TRUNCATE, _T("%s: %s"), rec->artist.name.c_str(), rec->album.name.c_str());
 		NotifyUserForSuccess(Str(IDS_ALBUMREVIEW),  
 			msg, 
 			result.additionalInfo);
@@ -525,7 +525,7 @@ BOOL InfoDownloadManager::HandleAlbumPic(UINT albID, const IInfoProvider::Result
 		}
 		m_host->SendStateMessage(SM_PictureChanged);
 		TCHAR msg[500];
-		_sntprintf(msg, 500, _T("%s: %s"), rec->artist.name.c_str(), rec->album.name.c_str());
+		_sntprintf_s(msg, _TRUNCATE, _T("%s: %s"), rec->artist.name.c_str(), rec->album.name.c_str());
 		NotifyUserForSuccess(Str(IDS_ALBUMPICTURE),  
 			msg, 
 			result.additionalInfo);
@@ -552,7 +552,7 @@ BOOL InfoDownloadManager::HandleTrackInfo(UINT traID, const IInfoProvider::Resul
 		if (!m_bAcceptAll)
 		{
 			TCHAR msg[1000];
-			_sntprintf(msg, 1000,
+			_sntprintf_s(msg, _TRUNCATE,
 				_T("%s: %s - %s\r\n%s: %s"),
 				Str(IDS_TITLE), tr->track.name.c_str(), tr->artist.name.c_str(),
 				Str(IDS_PROVIDER), result.additionalInfo);
@@ -591,7 +591,7 @@ BOOL InfoDownloadManager::HandleTrackInfo(UINT traID, const IInfoProvider::Resul
 			}
 			m_host->SendStateMessage(SM_InfoChanged);
 			TCHAR msg[500];
-			_sntprintf(msg, 500, _T("%s: %s"), tr->artist.name.c_str(), tr->track.name.c_str());
+			_sntprintf_s(msg, _TRUNCATE, _T("%s: %s"), tr->artist.name.c_str(), tr->track.name.c_str());
 			msg[499] = 0;
 			NotifyUserForSuccess(AppStrings::ForInfoItemType(m_translation, iit),  
 				msg, 
@@ -684,25 +684,25 @@ void InfoDownloadManager::ConsumeResult()
 			{
 			case IInfoProvider::SRV_ArtistBio:
 				iit = IIT_ArtistBio;
-				_sntprintf(msg, 500, _T("%s"), request.artist);
+				_sntprintf_s(msg, _TRUNCATE, _T("%s"), request.artist);
 				break;
 			case IInfoProvider::SRV_ArtistImage:
 				{
 					iit = IIT_ArtistPicture;
-					_sntprintf(msg, 500, _T("%s"), request.artist);
+					_sntprintf_s(msg, _TRUNCATE, _T("%s"), request.artist);
 					//Add a Download "FAILURE" record in the database
 				}
 				break;
 			case IInfoProvider::SRV_AlbumReview:
 				iit = IIT_AlbumReview;
-				_sntprintf(msg, 500, _T("%s - %s"), 
+				_sntprintf_s(msg, _TRUNCATE, _T("%s - %s"), 
 					request.artist, 
 					request.album);
 				break;
 			case IInfoProvider::SRV_AlbumImage:
 				{
 					iit = IIT_AlbumPicture;
-					_sntprintf(msg, 500, _T("%s - %s"), 
+					_sntprintf_s(msg, _TRUNCATE, _T("%s - %s"), 
 						request.artist, 
 						request.album);
 
@@ -710,13 +710,13 @@ void InfoDownloadManager::ConsumeResult()
 				break;
 			case IInfoProvider::SRV_TrackLyrics:
 				iit = IIT_TrackLyrics;
-				_sntprintf(msg, 500, _T("%s - %s"), 
+				_sntprintf_s(msg, _TRUNCATE, _T("%s - %s"), 
 					request.artist, 
 					request.title);
 				break;
 			case IInfoProvider::SRV_TrackTablatures:
 				iit = IIT_TrackTablatures;
-				_sntprintf(msg, 500, _T("%s - %s"), 
+				_sntprintf_s(msg, _TRUNCATE, _T("%s - %s"), 
 					request.artist, 
 					request.title);
 				break;
@@ -732,7 +732,7 @@ void InfoDownloadManager::ConsumeResult()
 				//pSM->AddOrUpdateInfoRecordRequestRecord(irr);
 
 				TCHAR bf[1000];
-				_sntprintf(bf, 1000, _T("%s | %s: %s | %s"),
+				_sntprintf_s(bf, _TRUNCATE, _T("%s | %s: %s | %s"),
 					Str(IDS_FAILURE),
 					Str(IDS_TYPE), AppStrings::ForInfoItemType(m_translation, iit),
 					msg);

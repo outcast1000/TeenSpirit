@@ -260,19 +260,21 @@ BOOL LastFMServices::HandShake(std::basic_string<TCHAR>& sessionID,
 	LPCTSTR auth = _T("auth");
 	cMD5 md5;
 	CHAR authStr[100];
-	_snprintf(authStr, 100, "%s%u", (LPCSTR)CT2CA(MD5password.c_str()), ts);
+	_snprintf_s(authStr, _TRUNCATE, "%s%u", (LPCSTR)CT2CA(MD5password.c_str()), ts);
+	CStringA authToken(md5.CalcMD5FromString(authStr));
+	authToken.MakeLower();
 
 
 	//http://post.audioscrobbler.com/?hs=true&p=1.2.1&c=<client-id>&v=<client-ver>&u=<user>&t=<timestamp>&a=<auth>
 	TCHAR url[2000];
-	_sntprintf(url, 2000, 
+	_sntprintf_s(url, _TRUNCATE, 
 		_T("http://post.audioscrobbler.com/?hs=true&p=%s&c=%s&v=%s&u=%s&t=%u&a=%.32s"),
 		sProtocolVer,
 		sClientID,
 		sClientVer,
 		(LPCTSTR)CA2CT(FormEncode(username.c_str()).c_str()),
 		ts,
-		(LPCTSTR)CA2CT(_strlwr(md5.CalcMD5FromString(authStr))));
+		(LPCTSTR)CA2CT(authToken));
 
 	TRACE(_T("About to request: '%s'\r\n"), url);
 	m_state = ST_Connecting;
@@ -373,7 +375,7 @@ BOOL LastFMServices::SubmitTracks(LPCTSTR sessionID, LPCTSTR submissionURL, size
 	CHAR bf[bfSize];
 	//s=<sessionID>
 	//The Session ID string returned by the handshake request. Required
-	_snprintf(bf, bfSize, "s=%s&", (LPCSTR)CT2CA(sessionID));
+	_snprintf_s(bf, _TRUNCATE, "s=%s&", (LPCSTR)CT2CA(sessionID));
 	postData = bf;
 	{
 		CSingleLock lock(&m_cs, TRUE);
@@ -385,14 +387,14 @@ BOOL LastFMServices::SubmitTracks(LPCTSTR sessionID, LPCTSTR submissionURL, size
 			const LastFMSubmitTrack& track = *it;
 			//a[0]=<artist>
 			//The artist name. Required.
-			_snprintf(bf, bfSize, "a[%d]=", i);
+			_snprintf_s(bf, _TRUNCATE, "a[%d]=", i);
 			bf[bfSize - 1] = 0;
 			postData += bf;
 			postData += FormEncode(track.artist.c_str());
 			postData += '&';
 			//t[0]=<track>
 			//The track title. Required.
-			_snprintf(bf, bfSize, "t[%d]=", i);
+			_snprintf_s(bf, _TRUNCATE, "t[%d]=", i);
 			bf[bfSize - 1] = 0;
 			postData += bf;
 			postData += FormEncode(track.track.c_str());
@@ -400,28 +402,28 @@ BOOL LastFMServices::SubmitTracks(LPCTSTR sessionID, LPCTSTR submissionURL, size
 			//i[0]=<time>
 			//The time the track started playing, in UNIX timestamp format. 
 			//This must be in the UTC time zone, and is required.
-			_snprintf(bf, bfSize, "i[%d]=%u&", i, track.unixTimeStamp);
+			_snprintf_s(bf, _TRUNCATE, "i[%d]=%u&", i, track.unixTimeStamp);
 			bf[bfSize - 1] = 0;
 			postData += bf;
 			//o[0]=<source>
 			//The source of the track. Required
-			_snprintf(bf, bfSize, "o[%d]=P&", i);
+			_snprintf_s(bf, _TRUNCATE, "o[%d]=P&", i);
 			postData += bf;
 			//r[0]=<rating>
 			//A single character denoting the rating of the track
-			_snprintf(bf, bfSize, "r[%d]=&", i);
+			_snprintf_s(bf, _TRUNCATE, "r[%d]=&", i);
 			bf[bfSize - 1] = 0;
 			postData += bf;
 
 			//l[0]=<secs>
 			//The length of the track in seconds. Required when the source is P, optional otherwise.
-			_snprintf(bf, bfSize, "l[%d]=%d&", i, track.length);
+			_snprintf_s(bf, _TRUNCATE, "l[%d]=%d&", i, track.length);
 			bf[bfSize - 1] = 0;
 			postData += bf;
 
 			//b[0]=<album>
 			//The album title, or an empty string if not known.
-			_snprintf(bf, bfSize, "b[%d]=", i);
+			_snprintf_s(bf, _TRUNCATE, "b[%d]=", i);
 			bf[bfSize - 1] = 0;
 			postData += bf;
 			postData += FormEncode(track.album.c_str());
@@ -429,13 +431,13 @@ BOOL LastFMServices::SubmitTracks(LPCTSTR sessionID, LPCTSTR submissionURL, size
 
 			//n[0]=<tracknumber>
 			//The position of the track on the album, or an empty string if not known.
-			_snprintf(bf, bfSize, "n[%d]=%d&", i, track.trackNo);
+			_snprintf_s(bf, _TRUNCATE, "n[%d]=%d&", i, track.trackNo);
 			bf[bfSize - 1] = 0;
 			postData += bf;
 
 			//m[0]=<mb-trackid>
 			//The MusicBrainz Track ID, or an empty string if not known.
-			_snprintf(bf, bfSize, "m[%d]=&", i);
+			_snprintf_s(bf, _TRUNCATE, "m[%d]=&", i);
 			bf[bfSize - 1] = 0;
 			postData += bf;
 			i++;

@@ -144,8 +144,10 @@ namespace
 			idm.ConsumeResult();
 			if (idm.GetPendingJobs() == 0)
 			{
+				//Handling the last results can queue the job again (e.g. Retry): wait for that too
 				idm.ConsumeResult();
-				return TRUE;
+				if (idm.GetPendingJobs() == 0)
+					return TRUE;
 			}
 			Sleep(10);
 		}

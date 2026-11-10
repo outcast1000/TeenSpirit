@@ -130,7 +130,7 @@ BOOL DirImageInfoProvider::GetFirstFileByArtistAlbum(LPTSTR path, LPCTSTR artist
 	ASSERT(path != NULL && artist != NULL && album != NULL);
 #ifdef UNITTESTNOSQLMANAGER
 
-	_tcscpy(path, GetFirstFileByArtistAlbumResult);
+	_tcscpy_s(path, MAX_PATH, GetFirstFileByArtistAlbumResult);
 	return TRUE;
 #else
 	ASSERT(m_pSQLManager != NULL);
@@ -146,12 +146,12 @@ BOOL DirImageInfoProvider::GetFirstFileByArtistAlbum(LPTSTR path, LPCTSTR artist
 	{
 		if (col.size() > 0)
 		{
-			_tcsncpy(path, col[0]->track.location.c_str(), MAX_PATH);
-			TCHAR* pos = _tcsrchr(path, '\\');
-			if (pos != NULL)
+			//path is MAX_PATH long: return the folder (with the trailing backslash) only if it fits
+			const std::tstring& location = col[0]->track.location;
+			size_t pos = location.rfind(_T('\\'));
+			if (pos != std::tstring::npos && pos + 1 < MAX_PATH)
 			{
-				pos++;
-				*pos = 0;
+				_tcsncpy_s(path, MAX_PATH, location.c_str(), pos + 1);
 				return TRUE;
 			}
 		}
@@ -170,14 +170,15 @@ BOOL DirImageInfoProvider::GetNextResult(Result& result)
 			BOOL bStrictSearch = HasMoreThanXFilesWithMinSizeY(path, m_StrictCriteriaMaxFilesNum, m_StrictCriteriaMaxFilesSize);
 			WIN32_FIND_DATA dta;
 			TCHAR wildCard[MAX_PATH];
-			_sntprintf(wildCard, MAX_PATH, _T("%s*.jpg"), path);
+			_sntprintf_s(wildCard, _TRUNCATE, _T("%s*.jpg"), path);
 			HANDLE hFileFinder = FindFirstFile(wildCard, &dta);
 			if (hFileFinder != INVALID_HANDLE_VALUE)
 			{
 				do 
 				{
 					TCHAR bf[MAX_PATH];
-					_sntprintf(bf, MAX_PATH, _T("%s%s"), path, dta.cFileName);
+					if (_sntprintf_s(bf, _TRUNCATE, _T("%s%s"), path, dta.cFileName) < 0)
+						continue;	//name does not fit
 					if (IsLegalPicture(bf, m_Album.c_str(), bStrictSearch))
 					{
 						m_results.push_back(bf);
@@ -274,13 +275,13 @@ BOOL DirImageInfoProvider::IsIncluded(LPCTSTR strMain, LPCTSTR strFind, BOOL bIg
 BOOL DirImageInfoProvider::HasMoreThanXFilesWithMinSizeY(LPCTSTR path, UINT maxNumFiles, UINT minFileSize)
 {
 	TCHAR dir[MAX_PATH];
-	_tcsncpy(dir, path, MAX_PATH);
+	_tcsncpy_s(dir, path, _TRUNCATE);
 	TCHAR* pos = _tcsrchr(dir, '\\');
 	if (pos != NULL)
 	{
 		pos++;
 		*pos = 0;
-		_tcscat(dir, _T("*.*"));
+		_tcsncat_s(dir, _T("*.*"), _TRUNCATE);
 		WIN32_FIND_DATA fda;
 		HANDLE f = FindFirstFile(dir, &fda);
 		BOOL bRet = TRUE;

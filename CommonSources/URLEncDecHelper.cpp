@@ -141,8 +141,13 @@ LPSTR URLEncDecHelper::EncodeHex(const BYTE* byteBuffer, INT byteBufferLen)
 	ASSERT(byteBuffer != NULL);
 	INT hexLen = byteBufferLen * 2;
 	CHAR* ret = new CHAR[hexLen + 1];
+	static const CHAR digits[] = "0123456789ABCDEF";
 	for (INT i = 0; i < byteBufferLen; i++)
-		_snprintf(&ret[i * 2], 3, "%02X", byteBuffer[i]);
+	{
+		ret[i * 2] = digits[byteBuffer[i] >> 4];
+		ret[i * 2 + 1] = digits[byteBuffer[i] & 0x0F];
+	}
+	ret[hexLen] = 0;
 	return ret;
 }
 

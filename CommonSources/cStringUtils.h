@@ -185,33 +185,36 @@ const T* genstrrchrex(const T* searchableString, const T* startPos, T charToSear
 //srcStr will get larger until reaching the maxcapacity value
 //PARAMS:
 //	srcStr: The string that will be read/modified
-//	maxCapacity: The maximum size that srcStr can be resized to fit the result. If NULL it is the size of the input string
+//	maxCapacity: The size of the srcStr buffer in characters, including the terminator.
+//		0 (or less than the input) means it can only shrink: the size of the input string
 //	fndStr: The string that will be replaced
 //	repStr: The string that will replace fndStr (NOTE: can be "" in order to delete all instances of fndStr)
 //RETURNS:
-//	-1 on error. Onterwise the number of successful replaces
+//	-1 on error (also when the result doesn't fit: srcStr then has the replaces done so far).
+//	Otherwise the number of successful replaces
 template <class T>
 INT genstrReplaceInl(T* srcStr, size_t maxCapacity, const T* fndStr, const T* repStr)
 {
 	ASSERT(srcStr != NULL && fndStr != NULL && repStr != NULL);
-	UINT fndStrLen = (UINT)genstrlen(fndStr);
-	UINT repStrLen = (UINT)genstrlen(repStr);
-	UINT strLen = (UINT)genstrlen(srcStr);
+	size_t fndStrLen = genstrlen(fndStr);
+	size_t repStrLen = genstrlen(repStr);
+	size_t strLen = genstrlen(srcStr);
 	if (fndStrLen == 0)	return -1;
 	if (strLen == 0)	return -1;
-	if (maxCapacity < strLen)	maxCapacity = strLen;
+	if (maxCapacity < strLen + 1)	maxCapacity = strLen + 1;
 	T* pos;
 	pos = genstrstr(srcStr, fndStr);
 	INT repCount = 0;
 	while (pos != NULL)
 	{
-		if (maxCapacity < strLen +  (repCount + 1) * (repStrLen - fndStrLen))
+		size_t newLen = strLen - fndStrLen + repStrLen;
+		if (newLen + 1 > maxCapacity)
 			return -1;
 		if (repStrLen != fndStrLen)
 			memmove(&pos[repStrLen], &pos[fndStrLen], (strLen - (pos - srcStr) - fndStrLen + 1) * sizeof(T));
 		memcpy(pos, repStr, repStrLen * sizeof(T));
 		pos+=repStrLen;
-		strLen += (repStrLen - fndStrLen);
+		strLen = newLen;
 		pos = genstrstr(pos, fndStr);
 		repCount++;
 	}

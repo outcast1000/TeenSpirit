@@ -24,13 +24,15 @@ Modernized so far:
 - Library database moved from Microsoft Jet (`music.mdb`) to SQLite (`music.db`).
 - Background threads reworked (no forced thread termination, no polling).
 - Current BASS 2.4 runtime; long-dead online services removed.
+- x64 MSI installer; settings and library in `%APPDATA%\Jaangle` when installed.
 
 ## Building and running
 
 See [BUILDING.md](BUILDING.md). In short: install Visual Studio 2026 (C++, ATL/MFC,
 Windows SDK, vcpkg), run `tools\fetch-bass.ps1` once, then build `Jaangle.sln`.
 The program runs from `build\out\<Platform>\<Configuration>\` and keeps its settings and
-database next to the executable.
+database next to the executable there (portable). The x64 MSI (`installer\`, also built by
+CI) installs it into Program Files; installed, it keeps them in `%APPDATA%\Jaangle`.
 
 ## Reporting problems
 

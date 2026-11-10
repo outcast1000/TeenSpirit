@@ -26,6 +26,7 @@
 
 #include "stdafx.h"
 #include "ExceptionHandler.h"
+#include "AppDataPaths.h"
 
 static DWORD sMainThread = 0;
 LONG WINAPI AppUnhandledExceptionFilter(_EXCEPTION_POINTERS* pExceptPtrs)
@@ -210,8 +211,9 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS pExceptPtrs,
 	pszSlash++;
 	*pszSlash = 0;
 
+	//The crash log goes to the data folder (Program Files is not writable); PrgAPI::Init finds it there.
 	TCHAR logPath[_MAX_PATH];
-	_sntprintf_s(logPath, _TRUNCATE, _T("%s%s"), appPath, files[0]);
+	_sntprintf_s(logPath, _TRUNCATE, _T("%s%s"), AppDataPaths::Get().dataRoot.c_str(), files[0]);
 
 
 	HANDLE hLogFile = CreateFile(logPath, GENERIC_WRITE, 0, 0,

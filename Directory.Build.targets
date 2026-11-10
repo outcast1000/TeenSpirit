@@ -33,5 +33,8 @@
     <Copy SourceFiles="@(JaangleSkinFile)" DestinationFiles="@(JaangleSkinFile->'$(OutDir)Skins\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(JaangleLangFile)" DestinationFiles="@(JaangleLangFile->'$(OutDir)Langs\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(JaangleWebServiceFile)" DestinationFolder="$(OutDir)WebServices" SkipUnchangedFiles="true" />
+    <!-- Runs from build\out are portable: settings and data next to the exe, never in
+         %APPDATA%\Jaangle (where the installed program keeps them). See AppDataPaths.h. -->
+    <Copy SourceFiles="$(JaangleRoot)build\portable.txt" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
   </Target>
 </Project>

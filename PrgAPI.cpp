@@ -3,6 +3,7 @@
 
 #include "TeenSpirit.h"
 #include "ObjFactory.h"
+#include "AppDataPaths.h"
 #include "AppSettings/AppSettings.h"
 #include "LocalPictureManager.h"
 #include "InfoDownloadManager.h"
@@ -390,7 +391,7 @@ BOOL PrgAPI::Init()
 	//===Check for Crash
 	LPCTSTR files[] = CRASHREPORT_FILES;
 	TCHAR crashLogPath[MAX_PATH];
-	_sntprintf_s(crashLogPath, _TRUNCATE, _T("%s%s"), GetPath(PATH_AppRoot), files[0]);
+	_sntprintf_s(crashLogPath, _TRUNCATE, _T("%s%s"), AppDataPaths::Get().dataRoot.c_str(), files[0]);
 	BOOL bCrashLogExists = FALSE;
 	if (_taccess(crashLogPath, 0) == 0)
 	{
@@ -433,7 +434,7 @@ BOOL PrgAPI::Init()
 	if (GetOption(OPT_GEN_Debugging) == 1)
 	{
 		TCHAR debugLogPath[MAX_PATH];
-		_sntprintf_s(debugLogPath, _TRUNCATE, _T("%sdebug.log"), GetPath(PATH_AppRoot));
+		_sntprintf_s(debugLogPath, _TRUNCATE, _T("%sdebug.log"), AppDataPaths::Get().dataRoot.c_str());
 		ALog* pLog = ALog::Inst();
 		pLog->AddViewer(new PrunnedFileViewer(debugLogPath, 15));
 		pLog->SetOption(ALog::LO_MaxAllowedDepth, 5);
@@ -481,7 +482,7 @@ AppSettings* PrgAPI::GetAppSettings()
 	if (m_pAppSettings == NULL)
 	{
 		TRACEST(_T("PrgAPI::GetAppSettings [CREATE]"));
-		m_pAppSettings = ObjFactory::Instance()->CreateAppSettings();
+		m_pAppSettings = ObjFactory::Instance()->CreateAppSettings(AppDataPaths::Get().settingsFile.c_str());
 	}
 	return m_pAppSettings;
 }
@@ -1070,20 +1071,21 @@ LPCTSTR PrgAPI::GetPath(PathsEnum pathType, LPTSTR buffer/* = NULL*/)
 	case PATH_DatabaseRoot:
 		{
 			LPCTSTR iniEntry = NULL;
-			LPCTSTR defFolder = NULL;
+			LPCTSTR defFolder = NULL;	//Default: portable next to the exe, installed in %APPDATA%\Jaangle
+			const AppDataLayout& layout = AppDataPaths::Get();
 			switch (pathType)
 			{
 			case PATH_StorageRoot:
 				iniEntry = _T("StoragePath");
-				defFolder = _T("Storage\\");
+				defFolder = layout.storageRoot.c_str();
 				break;
 			case PATH_UserRoot:
 				iniEntry = _T("UserPath");
-				defFolder = _T("User\\");
+				defFolder = layout.userRoot.c_str();
 				break;
 			case PATH_DatabaseRoot:
 				iniEntry = _T("DatabasePath");
-				defFolder = _T("");
+				defFolder = layout.databaseRoot.c_str();
 				break;
 			default:
 				ASSERT(0);
@@ -1109,10 +1111,9 @@ LPCTSTR PrgAPI::GetPath(PathsEnum pathType, LPTSTR buffer/* = NULL*/)
 			if (bUseDefaultPath)
 			{
 				//=== Default Path
-				TCHAR appRoot[MAX_PATH];
-				_sntprintf_s(buffer, MAX_PATH, _TRUNCATE, _T("%s%s"), GetPath(PATH_AppRoot, appRoot), defFolder);
+				_tcsncpy_s(buffer, MAX_PATH, defFolder, _TRUNCATE);
 				if (!PathFileExists(buffer))
-					CreateDirectory(buffer, NULL);
+					SHCreateDirectoryEx(NULL, buffer, NULL);
 			}
 		}
 		break;

@@ -209,6 +209,13 @@ namespace
 		CHECK(sm.Init(root.c_str(), blue.c_str(), CLEARTYPE_QUALITY, 0));	//full path
 		CHECK(EndsWith(sm.GetSkin().GetSkinPath(), L"\\Blue"));
 		CHECK(sm.GetSkin().GetFontQuality() == CLEARTYPE_QUALITY);
+		//A stale full path (old install folder) is found again by its folder name
+		CHECK(sm.Init(root.c_str(), L"Z:\\Old install\\Jaangle\\Skins\\Blue", CLEARTYPE_QUALITY, 0));
+		CHECK(EndsWith(sm.GetSkin().GetSkinPath(), L"\\Blue"));
+		CHECK(sm.Init(root.c_str(), L"C:\\Gone\\Skins\\Blue\\", CLEARTYPE_QUALITY, 0));
+		CHECK(EndsWith(sm.GetSkin().GetSkinPath(), L"\\Blue"));
+		CHECK(sm.Init(root.c_str(), L"C:\\Gone\\Skins\\NoSuchSkin", CLEARTYPE_QUALITY, 0));
+		CHECK(EndsWith(sm.GetSkin().GetSkinPath(), L"\\Default"));
 		CHECK(sm.Init(root.c_str(), L"Missing", CLEARTYPE_QUALITY, 0));	//falls back
 		CHECK(EndsWith(sm.GetSkin().GetSkinPath(), L"\\Default"));
 		CHECK(sm.Init(root.c_str(), L"", CLEARTYPE_QUALITY, 0));

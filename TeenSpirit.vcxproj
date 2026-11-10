@@ -115,6 +115,7 @@
     <ClCompile Include="CommonSources\ALog\cputicker.cpp" />
     <ClCompile Include="CommonSources\ApplicationMonitor.cpp" />
     <ClCompile Include="CommonSources\AppMonitor.cpp" />
+    <ClCompile Include="CommonSources\AppDataPaths.cpp" />
     <ClCompile Include="CommonSources\AppSettings\IniAppSettings.cpp" />
     <ClCompile Include="CommonSources\BitmapSaver.cpp" />
     <ClCompile Include="CommonSources\cMD5.cpp" />
@@ -374,6 +375,7 @@
     <ClInclude Include="CommonSources\ALog\cputicker.h" />
     <ClInclude Include="CommonSources\ApplicationMonitor.h" />
     <ClInclude Include="CommonSources\AppMonitor.h" />
+    <ClInclude Include="CommonSources\AppDataPaths.h" />
     <ClInclude Include="CommonSources\AppSettings\AppSettings.h" />
     <ClInclude Include="CommonSources\AppSettings\IniAppSettings.h" />
     <ClInclude Include="CommonSources\BitmapSaver.h" />

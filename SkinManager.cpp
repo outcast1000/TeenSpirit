@@ -186,8 +186,18 @@ BOOL SkinManager::LoadSkin(LPCTSTR skinPath)
 	{
 		return GetSkin().LoadSkin(skinPath);
 	}
+	//A full path that no longer exists (program moved, e.g. the old install under
+	//Program Files (x86)): look for a skin with the same folder name in ours.
+	std::tstring name(skinPath);
+	while (!name.empty() && (name.back() == '\\' || name.back() == '/'))
+		name.pop_back();
+	std::tstring::size_type slash = name.find_last_of(_T("\\/"));
+	if (slash != std::tstring::npos)
+		name = name.substr(slash + 1);
+	if (name.empty())
+		return FALSE;
 	std::tstring path(m_skinFolder);
-	path += skinPath;
+	path += name;
 	return GetSkin().LoadSkin(path.c_str());
 }
 

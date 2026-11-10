@@ -6,6 +6,7 @@
 #include "AppOptions.h"
 #include "AppStrings.h"
 #include "AppResources.h"
+#include "AppDataPaths.h"
 #include "AppSettings/IniAppSettings.h"
 #include "ITranslation/ITranslation.h"
 #include "resource.h"
@@ -327,6 +328,39 @@ namespace
 		}
 		FreeLibrary(hApp);
 	}
+
+	//Portable (marker next to the exe) vs installed (%APPDATA%\Jaangle, old 0.98 layout)
+	void TestDataLayout()
+	{
+		wprintf(L"TestDataLayout\n");
+		AppDataLayout p = AppDataPaths::Resolve(L"D:\\Apps\\Jaangle\\jaangledbg.exe", L"C:\\Users\\u\\AppData\\Roaming", true);
+		CHECK(p.bPortable);
+		CHECK(p.dataRoot == L"D:\\Apps\\Jaangle\\");
+		CHECK(p.settingsFile == L"D:\\Apps\\Jaangle\\jaangledbg.ini");
+		CHECK(p.storageRoot == L"D:\\Apps\\Jaangle\\Storage\\");
+		CHECK(p.userRoot == L"D:\\Apps\\Jaangle\\User\\");
+		CHECK(p.databaseRoot == L"D:\\Apps\\Jaangle\\");
+
+		AppDataLayout i = AppDataPaths::Resolve(L"C:\\Program Files\\Jaangle\\jaangle.exe", L"C:\\Users\\u\\AppData\\Roaming", false);
+		CHECK(!i.bPortable);
+		CHECK(i.dataRoot == L"C:\\Users\\u\\AppData\\Roaming\\Jaangle\\");
+		CHECK(i.settingsFile == L"C:\\Users\\u\\AppData\\Roaming\\Jaangle\\Settings.ini");
+		CHECK(i.storageRoot == L"C:\\Users\\u\\AppData\\Roaming\\Jaangle\\Storage\\");
+		CHECK(i.userRoot == L"C:\\Users\\u\\AppData\\Roaming\\Jaangle\\");
+		CHECK(i.databaseRoot == L"C:\\Users\\u\\AppData\\Roaming\\Jaangle\\Storage\\Database\\");
+
+		//Trailing separator on the AppData folder; no AppData folder at all falls back to portable
+		CHECK(AppDataPaths::Resolve(L"C:\\J\\jaangle.exe", L"C:\\AD\\", false).dataRoot == L"C:\\AD\\Jaangle\\");
+		CHECK(AppDataPaths::Resolve(L"C:\\J\\jaangle.exe", L"", false).bPortable);
+
+		//Get() follows the marker on disk (build\out has one when the player was built)
+		wchar_t exe[MAX_PATH];
+		GetModuleFileNameW(NULL, exe, MAX_PATH);
+		std::wstring marker(exe);
+		marker.resize(marker.find_last_of(L'\\') + 1);
+		marker += AppDataPaths::cPortableMarker;
+		CHECK(AppDataPaths::Get().bPortable == (GetFileAttributesW(marker.c_str()) != INVALID_FILE_ATTRIBUTES));
+	}
 }
 
 void RunAppServicesTests()
@@ -338,4 +372,5 @@ void RunAppServicesTests()
 	TestStrings();
 	TestResourceMappings();
 	TestResourcesFromApp();
+	TestDataLayout();
 }

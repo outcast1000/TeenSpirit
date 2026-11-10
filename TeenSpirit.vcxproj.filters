@@ -70,6 +70,7 @@
     <ClCompile Include="CommonSources\ALog\cputicker.cpp"><Filter>Common\DebugOnly</Filter></ClCompile>
     <ClCompile Include="CommonSources\ApplicationMonitor.cpp"><Filter>Common</Filter></ClCompile>
     <ClCompile Include="CommonSources\AppMonitor.cpp"><Filter>Common</Filter></ClCompile>
+    <ClCompile Include="CommonSources\AppDataPaths.cpp"><Filter>Common\AppSettings</Filter></ClCompile>
     <ClCompile Include="CommonSources\AppSettings\IniAppSettings.cpp"><Filter>Common\AppSettings</Filter></ClCompile>
     <ClCompile Include="CommonSources\BitmapSaver.cpp"><Filter>Common</Filter></ClCompile>
     <ClCompile Include="CommonSources\cMD5.cpp"><Filter>Common</Filter></ClCompile>
@@ -304,6 +305,7 @@
     <ClInclude Include="CommonSources\ApplicationMonitor.h"><Filter>Common</Filter></ClInclude>
     <ClInclude Include="CommonSources\AppMonitor.h"><Filter>Common</Filter></ClInclude>
     <ClInclude Include="CommonSources\AppSettings\AppSettings.h"><Filter>Common\AppSettings</Filter></ClInclude>
+    <ClInclude Include="CommonSources\AppDataPaths.h"><Filter>Common\AppSettings</Filter></ClInclude>
     <ClInclude Include="CommonSources\AppSettings\IniAppSettings.h"><Filter>Common\AppSettings</Filter></ClInclude>
     <ClInclude Include="CommonSources\BitmapSaver.h"><Filter>Common</Filter></ClInclude>
     <ClInclude Include="CommonSources\cMD5.h"><Filter>Common</Filter></ClInclude>

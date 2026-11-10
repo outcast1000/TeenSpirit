@@ -26,8 +26,13 @@ MSBuild lives in the VS 2026 Build Tools on F: (not on PATH by default):
 - vcpkg dependencies (sqlite3, taglib, zlib, nlohmann-json) in `vcpkg.json` restore on first build.
 - One-time: `powershell -ExecutionPolicy Bypass -File tools\fetch-bass.ps1` downloads BASS DLLs to
   `build\deps\bass\` (not in repo — licensing). The build copies them plus `Skins\`, `Langs\`,
-  `WebServices\` next to the exe, so the exe runs from the output dir. Settings (`jaangle.ini`) and
-  `music.db` live next to the exe.
+  `WebServices\` next to the exe, so the exe runs from the output dir. It also copies
+  `build\portable.txt`, which makes runs from there portable: settings (`jaangle.ini`) and
+  `music.db` next to the exe. Without the marker (installed) they are in `%APPDATA%\Jaangle`
+  (`CommonSources\AppDataPaths.h`) — that is the user's real data, never test against it
+  without a backup.
+- Installer: `msbuild installer\Jaangle.wixproj -restore -p:Configuration=Release -p:Platform=x64`
+  (WiX 5, x64 MSI of the Release build → `build\out\installer\`).
 - The app's close button minimizes to tray; quit via tray Exit.
 
 ### Tests

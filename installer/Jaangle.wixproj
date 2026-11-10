@@ -1,0 +1,22 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+  <!-- x64 MSI of the Release build. Build the solution (Release|x64) and fetch the BASS DLLs
+       (tools\fetch-bass.ps1) first, then:
+         msbuild installer\Jaangle.wixproj -restore -p:Configuration=Release -p:Platform=x64
+       Output: build\out\installer\Jaangle-x64.msi -->
+  <PropertyGroup>
+    <Platform Condition="'$(Platform)' == ''">x64</Platform>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    <OutputName>Jaangle-x64</OutputName>
+    <OutDir>$(JaangleRoot)build\out\installer\</OutDir>
+    <JaangleAppDir>$(JaangleRoot)build\out\x64\Release\</JaangleAppDir>
+    <DefineConstants>AppDir=$(JaangleAppDir);RootDir=$(JaangleRoot)</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
+  </ItemGroup>
+  <Target Name="JaangleCheckInputs" BeforeTargets="Build">
+    <Error Condition="'$(Platform)' != 'x64'" Text="The installer is x64 only." />
+    <Error Condition="!Exists('$(JaangleAppDir)jaangle.exe')" Text="$(JaangleAppDir)jaangle.exe not found: build Jaangle.sln Release|x64 first." />
+    <Error Condition="!Exists('$(JaangleAppDir)bass.dll')" Text="BASS DLLs not found in $(JaangleAppDir): run tools\fetch-bass.ps1 and rebuild." />
+  </Target>
+</Project>

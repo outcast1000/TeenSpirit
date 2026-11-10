@@ -1,0 +1,45 @@
+<!-- Jaangle MSI (x64, per machine). Installs into Program Files\Jaangle; the program keeps
+     settings and data in %APPDATA%\Jaangle (no portable.txt is installed; see
+     CommonSources\AppDataPaths.h). Uninstalling leaves that data in place. -->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Package Name="Jaangle"
+           Manufacturer="Alex Economou"
+           Version="!(bind.FileVersion.JaangleExe)"
+           UpgradeCode="C14B2ACA-0CB7-4505-9A58-7DE68505544E"
+           Scope="perMachine"
+           Compressed="yes">
+    <SummaryInformation Description="Jaangle Music Player &amp; Organizer" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Jaangle is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="Jaangle.exe" SourceFile="$(AppDir)jaangle.exe" />
+    <Property Id="ARPPRODUCTICON" Value="Jaangle.exe" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/outcast1000/TeenSpirit" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="Jaangle" />
+    </StandardDirectory>
+
+    <Feature Id="Main" Title="Jaangle">
+      <Component Directory="INSTALLFOLDER">
+        <File Id="JaangleExe" Source="$(AppDir)jaangle.exe" KeyPath="yes">
+          <Shortcut Id="JaangleStartMenu" Name="Jaangle" Description="Music Player &amp; Organizer"
+                    Directory="ProgramMenuFolder" WorkingDirectory="INSTALLFOLDER"
+                    Icon="Jaangle.exe" Advertise="yes" />
+        </File>
+      </Component>
+      <Files Directory="INSTALLFOLDER" Include="$(AppDir)bass*.dll" />
+      <!-- Skins, translations and web-search templates straight from the repository (the copies
+           next to a built exe can be rewritten by test runs). -->
+      <Files Directory="INSTALLFOLDER" Subdirectory="Skins" Include="$(RootDir)Skins\**" />
+      <Files Directory="INSTALLFOLDER" Subdirectory="Langs" Include="$(RootDir)Langs\**">
+        <Exclude Files="$(RootDir)Langs\.svn\**" />	<!-- leftover of the old Subversion checkout -->
+      </Files>
+      <Files Directory="INSTALLFOLDER" Subdirectory="WebServices" Include="$(RootDir)WebServices\**" />
+    </Feature>
+
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+  </Package>
+</Wix>

@@ -57,7 +57,8 @@ build\out\x64\Release\UnitTests.exe
 `windows-2025-vs2026` GitHub runner (the only image with the v145 toolset) and runs
 `UnitTests.exe` on every push to `main` and on pull requests. vcpkg binaries are cached
 between runs (per triplet). The Release executables and PDBs of both platforms are
-uploaded as build artifacts (without the BASS DLLs).
+uploaded as build artifacts (without the BASS DLLs), and the Release x64 job also fetches
+BASS and builds the MSI.
 
 The live online-API tests run weekly (Monday 06:00 UTC) and on a manual run with the
 **live** option ("Run workflow" in the Actions tab). The Last.fm part uses the
@@ -65,7 +66,7 @@ The live online-API tests run weekly (Monday 06:00 UTC) and on a manual run with
 
 ## Database
 
-The library is stored in `music.db` (SQLite, WAL mode) next to the program data.
+The library is stored in `music.db` (SQLite, WAL mode); see below for where.
 The Jet database used up to 0.98f (`music.mdb`) is no longer read: the one-time import
 was removed after converting the existing library (it is in the git history, last in
 commit 1af84ba, should another `.mdb` ever need converting; it needs the 32-bit build).
@@ -92,8 +93,40 @@ executable, so `build\out\<Platform>\<Configuration>\jaangle.exe` can be started
 `-UpdateSdk` also refreshes the tracked headers and import libraries in `Bass\` (x86) and
 `Bass\x64\`.
 
-The program keeps its settings (`jaangle.ini`) and database (`music.db`) next to the
-executable.
+## Where settings and data live
+
+Decided at startup by `CommonSources\AppDataPaths.cpp`:
+
+- **Portable**: a `portable.txt` next to the executable. Settings (`jaangle.ini`, or
+  `jaangledbg.ini` for the Debug build), `music.db`, `Storage\` and `User\` are kept next to
+  it. The build copies `build\portable.txt` into `build\out\...`, so development runs
+  never touch the installed program's data.
+- **Installed** (no marker): `%APPDATA%\Jaangle\` with the layout of the old installed
+  Jaangle 0.98, whose data is picked up as it is: `Settings.ini`, `LastTracks.m3u`,
+  `Storage\` (pictures) and `Storage\Database\music.db`.
+
+The crash log (`crashlog.txt`) and `debug.log` go to the same folder. The ini keys
+`StoragePath`, `UserPath` and `DatabasePath` (`[General]`) still override the defaults.
+A saved skin path that no longer exists (e.g. the old install under Program Files (x86))
+is looked up again by its folder name in the program's `Skins\`.
+
+## Installer
+
+`installer\Jaangle.wixproj` (WiX 5, restored from NuGet) builds an x64 MSI of the
+Release build: per machine into `Program Files\Jaangle`, with a Start menu shortcut and
+major upgrades by version (the exe's file version). It contains `jaangle.exe`, the BASS
+DLLs and the repository's `Skins\`, `Langs\` and `WebServices\`. Uninstalling leaves
+`%APPDATA%\Jaangle` in place. The crash reporter (`XCrashReport.exe`) is not included:
+the program does not start it under that name and its upload service is gone.
+
+```
+msbuild Jaangle.sln -p:Configuration=Release -p:Platform=x64 -m
+msbuild installer\Jaangle.wixproj -restore -p:Configuration=Release -p:Platform=x64
+```
+
+Output: `build\out\installer\Jaangle-x64.msi` (unsigned, so SmartScreen warns on first
+run). CI builds it in the Release x64 job and uploads it as the `jaangle-x64-installer`
+artifact.
 
 ## Windows integration
 

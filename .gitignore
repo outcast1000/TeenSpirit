@@ -21,6 +21,7 @@ ipch/
 /build/obj/
 /vcpkg_installed/
 /build/deps/
+/installer/obj/
 [Dd]ebug/
 [Rr]elease/
 [Ff]inal [Rr]elease/

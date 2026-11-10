@@ -1,0 +1,3 @@
+This file makes Jaangle portable: with it next to jaangle.exe, the settings (jaangle.ini),
+the library (music.db) and the Storage and User folders are kept next to the program.
+Without it (as installed), they are kept in %APPDATA%\Jaangle.

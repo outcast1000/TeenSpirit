@@ -51,8 +51,14 @@ jobs:
           key: vcpkg-${{ env.TRIPLET }}-${{ hashFiles('vcpkg.json', 'build/vcpkg.props') }}
           restore-keys: vcpkg-${{ env.TRIPLET }}-
 
-      # The BASS DLLs are not needed: the import libraries are tracked in Bass\ (x86) and
-      # Bass\x64\, and the tests don't load the player engines. The build only warns.
+      # The BASS DLLs are only needed for the installer (Release x64): the import libraries are
+      # tracked in Bass\ (x86) and Bass\x64\, and the tests don't load the player engines.
+      # Elsewhere the build only warns that they are missing.
+      - name: Fetch BASS (for the installer)
+        if: matrix.configuration == 'Release' && matrix.platform == 'x64'
+        shell: pwsh
+        run: tools\fetch-bass.ps1
+
       - name: Build
         run: msbuild Jaangle.sln -p:Configuration=${{ matrix.configuration }} -p:Platform=${{ matrix.platform }} -m -nologo -v:minimal
 
@@ -74,4 +80,16 @@ jobs:
           path: |
             build\out\${{ matrix.platform }}\Release\*.exe
             build\out\${{ matrix.platform }}\Release\*.pdb
+          retention-days: 14
+
+      - name: Build installer
+        if: matrix.configuration == 'Release' && matrix.platform == 'x64'
+        run: msbuild installer\Jaangle.wixproj -restore -p:Configuration=Release -p:Platform=x64 -nologo -v:minimal
+
+      - name: Upload installer
+        if: matrix.configuration == 'Release' && matrix.platform == 'x64'
+        uses: actions/upload-artifact@v7
+        with:
+          name: jaangle-x64-installer
+          path: build\out\installer\*.msi
           retention-days: 14

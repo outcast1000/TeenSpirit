@@ -117,6 +117,7 @@
     <ClCompile Include="..\..\TSSkin.cpp" />
     <ClCompile Include="..\..\SkinManager.cpp" />
     <ClCompile Include="..\..\CommonSources\hdcUtils.cpp" />
+    <ClCompile Include="..\..\CommonSources\AppDataPaths.cpp" />
     <ClCompile Include="..\..\CommonSources\AppSettings\IniAppSettings.cpp" />
     <ClCompile Include="..\..\Taggers\TagLibTagger.cpp" />
     <ClCompile Include="..\..\Taggers\FileNameTagger.cpp" />

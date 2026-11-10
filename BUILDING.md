@@ -25,12 +25,9 @@ Platforms are **Win32** and **x64** (Debug and Release each). Output goes to
 `build\out\<Platform>\<Configuration>\` (`jaangle.exe` / `jaangledbg.exe`,
 `XCrashReport.exe`, `UnitTests.exe`). Intermediate files go to `build\obj\`.
 
-What only the 32-bit build can do:
-
-- **Import a legacy `music.mdb`**: the Jet 4.0 provider is 32-bit only. The 64-bit build
-  says so and asks to run the 32-bit build once to convert it.
-- **Winamp visualization plugins** (`vis_*.dll`) are 32-bit DLLs; the 64-bit build can't
-  load them (the visualization stays empty).
+Both builds have the same features. The visualization pane draws a built-in spectrum
+(`MediaPlayers\NativeVisualization.cpp`); Winamp visualization plugins are no longer
+supported.
 
 In x64 builds warning C4267 (`size_t` to `int`) is disabled (see `Directory.Build.targets`);
 the pointer-truncation warnings are on in both.
@@ -40,7 +37,7 @@ the pointer-truncation warnings are on in both.
 `UnitTests.exe` (project `tests\UnitTests`) prints the failures and returns their count:
 
 - **Database**: records, every query, case-insensitive matching, two connections in
-  parallel, and importing a real Jet `music.mdb` (x64: that the import refuses).
+  parallel, reopening, and that a leftover `music.mdb` is ignored.
 - **Job queue**: concurrency limit, COM on workers, pause/resume, abort, start delay,
   no CPU use while idle, and shutdown never terminating threads.
 - **Last.fm worker**: started on demand and joined on destruction.
@@ -53,9 +50,6 @@ the pointer-truncation warnings are on in both.
 ```
 build\out\x64\Release\UnitTests.exe
 ```
-
-The 32-bit import test creates a Jet database, so it needs the Jet 4.0 OLE DB provider
-(it ships with Windows, as a 32-bit component only).
 
 ## Continuous integration
 
@@ -72,9 +66,9 @@ The live online-API tests run weekly (Monday 06:00 UTC) and on a manual run with
 ## Database
 
 The library is stored in `music.db` (SQLite, WAL mode) next to the program data.
-On the first start without a `music.db`, an existing `music.mdb` (the Jet database
-used up to 0.98f) is imported automatically with all IDs preserved; the `.mdb` is
-left untouched. Importing needs the 32-bit build (the Jet provider is 32-bit only).
+The Jet database used up to 0.98f (`music.mdb`) is no longer read: the one-time import
+was removed after converting the existing library (it is in the git history, last in
+commit 1af84ba, should another `.mdb` ever need converting; it needs the 32-bit build).
 
 Text columns use the custom collation `NOCASE_U` (Unicode, case-insensitive) and
 `LIKE` is overridden to fold case for all scripts, matching Jet. Generic SQLite

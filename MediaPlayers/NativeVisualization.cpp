@@ -29,7 +29,6 @@
 
 #define TIMER_VIS_UPDATE 100
 
-std::map<HWND, NativeVisualization*> NativeVisualization::m_ObjectMapping;
 
 NativeVisualization::NativeVisualization():
 m_mpe(NULL),
@@ -55,18 +54,27 @@ NativeVisualization::~NativeVisualization()
 
 void NativeVisualization::SetMediaPlayerEngine(MediaPlayerEngine* mpe)
 {
-	if (m_specdc)	
+	if (m_specdc)
 		DeleteDC(m_specdc);
-	if (m_specbmp)	
+	if (m_specbmp)
 		DeleteObject(m_specbmp);
+	m_specdc = 0;
+	m_specbmp = 0;
+	m_specbuf = 0;
 	m_mpe = mpe;
 	if (mpe)
 		SetBitmap();
 }
 void NativeVisualization::SetContainerHWND(HWND hwnd)
 {
+	if (hwnd == m_viewer)
+		return;
+	//The drawing window is a child of the container: recreate it in the new one.
+	const BOOL bWasActive = IsActive();
+	Stop();
 	m_viewer = hwnd;
-	m_ObjectMapping[m_viewer] = this;
+	if (bWasActive && m_viewer != NULL)
+		Start();
 }
 HWND NativeVisualization::GetContainerHWND()
 {
@@ -75,8 +83,7 @@ HWND NativeVisualization::GetContainerHWND()
 
 void NativeVisualization::Start()
 {
-	if (m_hwndVis != NULL)	return;
-	ASSERT(m_viewer != NULL);
+	if (m_hwndVis != NULL || m_viewer == NULL)	return;
 	ASSERT(m_OldWindowProc == NULL);
 
 	CRect rc;
@@ -95,6 +102,9 @@ void NativeVisualization::Stop()
 	if (m_hwndVis == NULL)	return;
 	ASSERT(m_OldWindowProc != NULL);
 	KillTimer(m_hwndVis, TIMER_VIS_UPDATE);
+	//Unsubclass first: the destroy messages must still reach the original window procedure.
+	SetWindowLongPtr(m_hwndVis, GWLP_WNDPROC, (LONG_PTR) m_OldWindowProc);
+	SetWindowLongPtr(m_hwndVis, GWLP_USERDATA, 0);
 	m_OldWindowProc = NULL;
 	DestroyWindow(m_hwndVis);
 	m_hwndVis = NULL;
@@ -137,7 +147,7 @@ LRESULT CALLBACK NativeVisualization::WinProc(HWND hwnd, UINT uMsg, WPARAM wPara
 		return 0;
 
 	case WM_LBUTTONUP:
-		m_specmode=(m_specmode+1)%5; // swap spectrum mode
+		m_specmode=(m_specmode+1)%4; // swap spectrum mode (0-3)
 		memset(m_specbuf,0,m_width*m_height);	// clear display
 		return 0;
 	//case WM_LBUTTONDBLCLK:
@@ -239,6 +249,7 @@ BOOL NativeVisualization::SetBitmap()
 void NativeVisualization::UpdateSpectrum()
 {
 	int y,y1;
+	if (m_mpe == NULL || m_specbuf == NULL)	return;
 	UINT channels = m_mpe->GetMediaInfo(MEOII_Channels);
 	if (channels == 0)	return;//No Info Loaded
 
@@ -249,7 +260,8 @@ void NativeVisualization::UpdateSpectrum()
 		//BASS_ChannelGetInfo(chan,&ci); // get number of channels
 		UINT bufLen = channels * m_width * sizeof(float);
 		float *buf = (float*)alloca(bufLen); // allocate buffer for data
-		m_mpe->GetSoundData(MSD_Float, buf, bufLen);
+		if (!m_mpe->GetSoundData(MSD_Float, buf, bufLen))	//e.g. video (DirectShow)
+			memset(buf, 0, bufLen);
 		//BASS_ChannelGetData(chan,buf,(ci.chans*SPECWIDTH*sizeof(float))|BASS_DATA_FLOAT); // get the sample data (floating-point to avoid 8 & 16 bit processing)
 		for (UINT c=0; c < channels; c++) {
 			for (int x=0;x<m_width;x++) {
@@ -268,7 +280,8 @@ void NativeVisualization::UpdateSpectrum()
 	else 
 	{
 		float fft[1024];
-		m_mpe->GetSoundData(MSD_FFT, fft, 1024 * sizeof(float));
+		if (!m_mpe->GetSoundData(MSD_FFT, fft, 1024 * sizeof(float)))
+			memset(fft, 0, sizeof(fft));
 		//BASS_ChannelGetData(chan,fft,BASS_DATA_FFT2048); // get the FFT data
 		switch (m_specmode)
 		{
@@ -321,19 +334,6 @@ void NativeVisualization::UpdateSpectrum()
 			m_specpos=(m_specpos+1)%m_width;
 			for (int x=0;x<m_height;x++) 
 				m_specbuf[x*m_width+m_specpos]=255;
-			break;
-		case 5:// "Alex 1"
-			{
-
-				float sum=0;
-				for (int b0 = 0; b0 < 1023; b0++) 
-					sum+=fft[1+b0];
-				y=(int)((sqrt(sum/log10(1023.0))*1.7*m_height)-4); // scale it
-				if (y < 0)		y = 0;
-				if (y>m_height) y=m_height; // cap it
-				while (--y>=0)
-					memset(m_specbuf+y*m_width+m_width,y+1,-m_width); // draw bar
-			}
 			break;
 		}
 	}

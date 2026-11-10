@@ -734,7 +734,6 @@ void PrgAPI::Monitor()
 #include "HttpLinkEngine.h"
 //#include "FullTracksPlaylist.h"
 //#include "ImplPlaylist.h"
-#include "WinampVisualization.h"
 #include "NativeVisualization.h"
 #include "FadeBassEngine.h"
 #include "VectorPlaylist.h"
@@ -758,10 +757,7 @@ MediaPlayer* PrgAPI::GetMediaPlayer()
 		m_pMediaPlayer->SetMediaPlayerEngine(eng);
 		MediaPlayList* pList = new VectorPlayList;
 		m_pMediaPlayer->SetMediaPlayList(pList);
-		WinampVisualization* pVis = new WinampVisualization;
-		pVis->LoadPlugin(_T("vis_avs.dll"));
-		//MediaVisualization* pVis = new NativeVisualization;
-		m_pMediaPlayer->SetMediaVisualization(pVis);
+		m_pMediaPlayer->SetMediaVisualization(new NativeVisualization);
 		//m_pMediaPlayer->Init(eng, lst, pwVis, hwndPlayer);
 
 		m_pMediaPlayer->SetNextMode(MediaPlayerNextMode(GetOption(OPT_PL_PlayMode)), GetOption(OPT_PL_AutoContinueMode));
@@ -1401,7 +1397,7 @@ SQLManager* PrgAPI::GetSQLManager()
 		TRACEST(_T("PrgAPI::GetSQLManager [CREATION]"));
 		m_pSQLManager = new SQLManager;
 		std::tstring path(GetPath(PATH_DatabaseRoot));
-		path += _T("music.db");	//An existing music.mdb next to it is imported on first run
+		path += _T("music.db");
 		if (!m_pSQLManager->Init(path.c_str()))
 		{
 			delete m_pSQLManager;

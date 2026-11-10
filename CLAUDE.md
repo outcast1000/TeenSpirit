@@ -18,9 +18,9 @@ MSBuild lives in the VS 2026 Build Tools on F: (not on PATH by default):
 
 - Platforms **Win32** and **x64** (Debug and Release); keep both building warning-free. Projects:
   `TeenSpirit.vcxproj` (the app), `CrashReport\XCrashReport.vcxproj`, `tests\UnitTests\UnitTests.vcxproj`.
-  32-bit only: the Jet `music.mdb` import and Winamp visualization plugins. Item data, menu IDs
-  and message parameters that can hold pointers or handles are `UINT_PTR`/`INT_PTR` (BCMenu,
-  `ITSMenu::AppendMenu`); C4267 is off for x64 only (`Directory.Build.targets`).
+  Item data, menu IDs and message parameters that can hold pointers or handles are
+  `UINT_PTR`/`INT_PTR` (BCMenu, `ITSMenu::AppendMenu`); C4267 is off for x64 only
+  (`Directory.Build.targets`).
 - Output: `build\out\<Platform>\<Config>\` (`jaangle.exe` / `jaangledbg.exe`, `UnitTests.exe`);
   intermediates in `build\obj\` (set by `Directory.Build.props`).
 - vcpkg dependencies (sqlite3, taglib, zlib, nlohmann-json) in `vcpkg.json` restore on first build.
@@ -37,8 +37,7 @@ prints failures, exit code = failure count. No per-test filter: suites are calle
 `tests\UnitTests\main.cpp` (`RunDatabaseTests`, `RunJobQueueTests`, ...); comment out calls there to
 run a subset. The test project compiles selected app sources directly (listed in
 `UnitTests.vcxproj`) — add a source file there when testing new code. `JAANGLE_LIVE_TESTS=1` also
-queries the real online APIs (`JAANGLE_LASTFM_API_KEY` for Last.fm); all must pass. The Jet import
-test needs the 32-bit Jet 4.0 OLE DB provider (x64 checks that the import refuses).
+queries the real online APIs (`JAANGLE_LASTFM_API_KEY` for Last.fm); all must pass.
 
 ## Architecture
 
@@ -61,8 +60,8 @@ test needs the 32-bit Jet 4.0 OLE DB provider (x64 checks that the import refuse
   Skinning (`TSSkinnable`) and translation (`TSTranslatable`, `Langs\*.lng`) are mixins.
 - **Database** (`Database\`): `SQLManager` over SQLite (`CommonSources\SQLite\SQLiteDB.cpp`) with
   record types in `DataRecords.h`. Text columns use the custom `NOCASE_U` collation and an overridden
-  `LIKE` (Jet-compatible case folding). `JetImporter` imports a legacy `music.mdb` once (32-bit only,
-  uses ADO). Background jobs (e.g. `CollectionUpdateJob`) use their own `SQLManager` connection.
+  `LIKE` (Jet-compatible case folding). The legacy Jet `music.mdb` import was removed after the
+  one-time conversion (last in commit 1af84ba). Background jobs (e.g. `CollectionUpdateJob`) use their own `SQLManager` connection.
 - **Playback** (`MediaPlayers\`): `MediaPlayer` drives a `MediaPlayerEngine` — BASS engines
   (`BassEngine`, `FadeBassEngine` for crossfade), `DShowEngine` for video, `MultiEngine` choosing by
   file type. `MediaTransportControls` (owned by `TeenSpiritDlg`) mirrors the current track and

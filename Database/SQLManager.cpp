@@ -2,7 +2,6 @@
 #include "SQLManager.h"
 #include <algorithm>
 #include "SQLite/SQLiteDB.h"
-#include "JetImporter.h"
 #include "stlStringUtils.h"
 
 #ifdef _DEBUG
@@ -105,18 +104,9 @@ BOOL SQLManager::Init(LPCTSTR DatabasePath)
 	INT version = m_pDB->GetUserVersion();
 	if (version == 0)
 	{
-		//=== New database: create the schema, importing a legacy Jet database if present.
-		std::tstring mdbPath(DatabasePath);
-		std::tstring::size_type dot = mdbPath.find_last_of(_T('.'));
-		if (dot != std::tstring::npos && mdbPath.find_last_of(_T("\\/")) < dot)
-			mdbPath.resize(dot);
-		mdbPath += _T(".mdb");
-		const BOOL bImport = !bExisted && PathFileExists(mdbPath.c_str());
-
+		//=== New database: create the schema.
 		BOOL bOK = m_pDB->BeginTransaction();
-		bOK = bOK && CreateSchema(!bImport);
-		if (bOK && bImport)
-			bOK = ImportLegacyDatabase(mdbPath.c_str());
+		bOK = bOK && CreateSchema();
 		bOK = bOK && m_pDB->SetUserVersion(cLatestSchemaVersion);
 		if (bOK)
 			bOK = m_pDB->CommitTransaction();
@@ -124,7 +114,7 @@ BOOL SQLManager::Init(LPCTSTR DatabasePath)
 			m_pDB->RollbackTransaction();
 		if (!bOK)
 		{
-			TRACE(_T("@0 SQLManager::Init. Schema creation / import failed: %s\r\n"), m_pDB->GetLastError());
+			TRACE(_T("@0 SQLManager::Init. Schema creation failed: %s\r\n"), m_pDB->GetLastError());
 			delete m_pDB;
 			m_pDB = NULL;
 			if (!bExisted)
@@ -148,7 +138,7 @@ BOOL SQLManager::Init(LPCTSTR DatabasePath)
 	return TRUE;
 }
 
-BOOL SQLManager::CreateSchema(BOOL bWithDefaultRows)
+BOOL SQLManager::CreateSchema()
 {
 	//Text columns use NOCASE_U (Unicode, case-insensitive): Jet compared text
 	//case-insensitively and the lookups by name/path rely on it.
@@ -272,24 +262,9 @@ BOOL SQLManager::CreateSchema(BOOL bWithDefaultRows)
 	TRACE(_T("@2 SQLManager::CreateSchema\r\n"));
 	if (m_pDB->Execute(schema) == -1)
 		return FALSE;
-	if (bWithDefaultRows && m_pDB->Execute(defaultRows) == -1)
+	if (m_pDB->Execute(defaultRows) == -1)
 		return FALSE;
 	return TRUE;
-}
-
-BOOL SQLManager::ImportLegacyDatabase(LPCTSTR mdbPath)
-{
-	TRACE(_T("@2 SQLManager::ImportLegacyDatabase '%s'\r\n"), mdbPath);
-	std::tstring error;
-	if (JetImporter::Import(mdbPath, *m_pDB, error))
-		return TRUE;
-	std::tstring msg(_T("The existing music database could not be converted:\r\n"));
-	msg += mdbPath;
-	msg += _T("\r\n\r\n");
-	msg += error;
-	msg += _T("\r\n\r\nThe old database has not been modified.");
-	::MessageBox(0, msg.c_str(), _T("Database Error"), MB_OK | MB_ICONERROR);
-	return FALSE;
 }
 
 void SQLManager::InvalidateCaches()

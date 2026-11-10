@@ -43,7 +43,7 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>.;CommonSources;MediaPlayers;Taggers;Database;Winamp;Bass;$(VcpkgInstalledDir)$(VcpkgTriplet)\include\taglib;$(JaangleAdoDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;CommonSources;MediaPlayers;Taggers;Database;Bass;$(VcpkgInstalledDir)$(VcpkgTriplet)\include\taglib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;TAGLIB_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <ConformanceMode>true</ConformanceMode>
@@ -71,7 +71,7 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>.;CommonSources;MediaPlayers;Taggers;Database;Winamp;Bass;$(VcpkgInstalledDir)$(VcpkgTriplet)\include\taglib;$(JaangleAdoDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;CommonSources;MediaPlayers;Taggers;Database;Bass;$(VcpkgInstalledDir)$(VcpkgTriplet)\include\taglib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;TAGLIB_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <ConformanceMode>true</ConformanceMode>
@@ -211,9 +211,6 @@
     <ClCompile Include="Database\DataRecordsXmlSerializer.cpp" />
     <ClCompile Include="Database\RecordCollectionSorter.cpp" />
     <ClCompile Include="CommonSources\SQLite\SQLiteDB.cpp" />
-    <ClCompile Include="Database\JetImporter.cpp">
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
-    </ClCompile>
     <ClCompile Include="Database\SQLManager.cpp" />
     <ClCompile Include="DetailedSearchCHdlg.cpp" />
     <ClCompile Include="DriveDlg.cpp" />
@@ -273,7 +270,6 @@
     <ClCompile Include="MediaPlayers\NativeVisualization.cpp" />
     <ClCompile Include="MediaPlayers\ShufflePlaylistHelper.cpp" />
     <ClCompile Include="MediaPlayers\VectorPlayList.cpp" />
-    <ClCompile Include="MediaPlayers\WinampVisualization.cpp" />
     <ClCompile Include="MenuManager.cpp" />
     <ClCompile Include="MessageDlg.cpp" />
     <ClCompile Include="MillionaireButton.cpp" />
@@ -487,7 +483,6 @@
     <ClInclude Include="Database\DataRecordsXmlSerializer.h" />
     <ClInclude Include="Database\RecordCollectionSorter.h" />
     <ClInclude Include="CommonSources\SQLite\SQLiteDB.h" />
-    <ClInclude Include="Database\JetImporter.h" />
     <ClInclude Include="Database\SQLManager.h" />
     <ClInclude Include="DetailedSearchCHdlg.h" />
     <ClInclude Include="DockedWindow.h" />
@@ -558,7 +553,6 @@
     <ClInclude Include="MediaPlayers\RandomPlayerEngine.h" />
     <ClInclude Include="MediaPlayers\ShufflePlaylistHelper.h" />
     <ClInclude Include="MediaPlayers\VectorPlaylist.h" />
-    <ClInclude Include="MediaPlayers\WinampVisualization.h" />
     <ClInclude Include="MenuManager.h" />
     <ClInclude Include="MessageDlg.h" />
     <ClInclude Include="MessageViewer.h" />

@@ -31,7 +31,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <AdditionalIncludeDirectories>$(JaangleRoot);$(JaangleRoot)CommonSources;$(JaangleRoot)Database;$(JaangleRoot)Taggers;$(JaangleAdoDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(JaangleRoot);$(JaangleRoot)CommonSources;$(JaangleRoot)Database;$(JaangleRoot)Taggers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <ConformanceMode>true</ConformanceMode>
@@ -78,7 +78,6 @@
     <ClCompile Include="..\..\CommonSources\SystemTimeFunctions.cpp" />
     <ClCompile Include="..\..\CommonSources\WebPageUtilities.cpp" />
     <ClCompile Include="..\..\Database\SQLManager.cpp" />
-    <ClCompile Include="..\..\Database\JetImporter.cpp" />
     <ClCompile Include="..\..\Database\DataRecords.cpp" />
     <ClCompile Include="..\..\CommonSources\SQLite\SQLiteDB.cpp" />
     <ClCompile Include="..\..\CommonSources\stlStringUtils.cpp" />

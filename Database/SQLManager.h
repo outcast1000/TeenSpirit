@@ -25,8 +25,6 @@ public:
 	virtual ~SQLManager();
 
 	//Opens (creating if needed) the SQLite database at DatabasePath.
-	//When the database is created and a legacy Jet database with the same name
-	//and an .mdb extension exists next to it, its contents are imported.
 	BOOL Init(LPCTSTR DatabasePath);
 	LPCTSTR GetDatabasePath() const			{return m_dbPath.c_str();}
 
@@ -373,8 +371,7 @@ private:
 		//PRAGMA user_version of the SQLite schema this code creates and reads.
 		cLatestSchemaVersion = 1
 	};
-	BOOL CreateSchema(BOOL bWithDefaultRows);
-	BOOL ImportLegacyDatabase(LPCTSTR mdbPath);
+	BOOL CreateSchema();
 	void InvalidateCaches();
 
 	BOOL RecordExists(LPCTSTR sql, UINT ID);

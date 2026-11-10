@@ -1,15 +1,10 @@
-//	Database layer tests: exercises SQLManager (SQLite) end to end and the
-//	one-time import of a legacy Jet database (music.mdb).
+//	Database layer tests: exercises SQLManager (SQLite) end to end.
 #include "stdafx.h"
 #include "TestFramework.h"
 #include "SQLManager.h"
 #include "SQLite/SQLiteDB.h"
-#include "JetImporter.h"
 #include <process.h>
 #include <cstdio>
-
-#import <msadox.dll>
-#import <msado15.dll> rename("EOF", "adoEOF")
 
 static void RemoveDb(const std::wstring& path)
 {
@@ -576,197 +571,34 @@ static void TestReopen()
 	}
 }
 
-//------------------------------------------------------------------
-//Legacy Jet database (music.mdb, version 6) -> SQLite
-static LPCWSTR const cLegacyConnection =
-	L"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=%s;"
-	L"Jet OLEDB:Database Password=DontMessWithIt;Jet OLEDB:Encrypt Database=True;";
-
-static BOOL CreateLegacyDatabase(const std::wstring& mdb, INT dbVersion, std::wstring& memo)
+//A legacy music.mdb next to a new database is no longer imported (the Jet import was
+//removed after the one-time conversion): the new database starts empty, the .mdb is left alone.
+static void TestLegacyFileIgnored()
 {
-	DeleteFileW(mdb.c_str());
-	WCHAR cs[600];
-	_snwprintf_s(cs, _TRUNCATE, cLegacyConnection, mdb.c_str());
-	cs[599] = 0;
-	try
-	{
-		ADOX::_CatalogPtr cat;
-		cat.CreateInstance(__uuidof(ADOX::Catalog));
-		cat->Create(_bstr_t(cs));
-		cat = NULL;
-
-		ADODB::_ConnectionPtr con;
-		con.CreateInstance(__uuidof(ADODB::Connection));
-		con->Open(_bstr_t(cs), _bstr_t(L""), _bstr_t(L""), ADODB::adConnectUnspecified);
-		//The version 6 schema, as created by 0.98f (SQLManager::Init).
-		LPCWSTR ddl[] =
-		{
-			L"CREATE TABLE DBInfo (version int NOT NULL)",
-			L"CREATE TABLE Genres (ID COUNTER PRIMARY KEY, Name varchar(100) WITH COMP NOT NULL)",
-			L"CREATE TABLE Artists (ID COUNTER PRIMARY KEY, Name varchar(100) WITH COMP NOT NULL, GenreID int NOT NULL, Rating smallint NOT NULL)",
-			L"CREATE TABLE Albums (ID COUNTER PRIMARY KEY, Name varchar(100) WITH COMP NOT NULL, artID int NOT NULL, [Year] smallint NOT NULL, Rating smallint NOT NULL)",
-			L"CREATE TABLE Collections (ID COUNTER PRIMARY KEY, Name varchar(255) WITH COMP NOT NULL, PathName varchar(255) WITH COMP NOT NULL, Serial int NOT NULL, Type smallint NOT NULL, DateAdded date NOT NULL, DateUpdated date)",
-			L"CREATE TABLE Tracks (ID COUNTER PRIMARY KEY, Name varchar(100) WITH COMP NOT NULL, Type smallint NOT NULL, DateAdded date NOT NULL, albID int NOT NULL, artID int NOT NULL, CollectionID int NOT NULL, genreID int NOT NULL, Path varchar(255) WITH COMP NOT NULL, Bitrate smallint, Duration int, [Size] int, TrackNo smallint, [Year] smallint NOT NULL, Rating smallint NOT NULL)",
-			L"CREATE TABLE HistArtists (ID COUNTER PRIMARY KEY, Name varchar(100) WITH COMP NOT NULL)",
-			L"CREATE TABLE HistTracks (ID COUNTER PRIMARY KEY, Name varchar(100) WITH COMP NOT NULL, artID int NOT NULL)",
-			L"CREATE TABLE HistLog (ID COUNTER PRIMARY KEY, actID smallint NOT NULL, DateAdded date NOT NULL, trackID int NOT NULL)",
-			L"CREATE TABLE TracksInfo (ID COUNTER PRIMARY KEY, trackID int NOT NULL, Name LONGTEXT NOT NULL, DateAdded date NOT NULL, Type smallint NOT NULL)",
-			L"CREATE TABLE AlbumsInfo (ID COUNTER PRIMARY KEY, albID int NOT NULL, Name LONGTEXT NOT NULL, DateAdded date NOT NULL, Type smallint NOT NULL)",
-			L"CREATE TABLE ArtistsInfo (ID COUNTER PRIMARY KEY, artID int NOT NULL, Name LONGTEXT NOT NULL, DateAdded date NOT NULL, Type smallint NOT NULL)",
-			L"CREATE TABLE LocalPic (parID int NOT NULL, infoType smallint NOT NULL, Path varchar(255) NOT NULL, Type smallint NOT NULL)",
-			L"CREATE UNIQUE INDEX LocalPicID ON LocalPic (parID, infoType)",
-			L"CREATE TABLE InfoRequests (requestTimeStamp int NOT NULL, hash int NOT NULL)",
-		};
-		for (size_t i = 0; i < sizeof(ddl) / sizeof(ddl[0]); i++)
-			con->Execute(_bstr_t(ddl[i]), NULL, ADODB::adCmdText | ADODB::adExecuteNoRecords);
-
-		WCHAR bf[200];
-		_snwprintf_s(bf, _TRUNCATE, L"INSERT INTO DBInfo VALUES (%d)", dbVersion);
-		LPCWSTR rows[] =
-		{
-			bf,
-			L"INSERT INTO Genres (Name) VALUES ('[Unknown]')",
-			L"INSERT INTO Genres (Name) VALUES ('Rock')",
-			L"INSERT INTO Artists (Name, GenreID, Rating) VALUES ('[Unknown]', 1, 0)",
-			L"INSERT INTO Artists (Name, GenreID, Rating) VALUES ('[Various]', 1, 0)",
-			L"INSERT INTO Artists (Name, GenreID, Rating) VALUES ('\x0391\x03C1\x03B9\x03C3\x03C4\x03BF\x03C6\x03AC\x03BD\x03B7\x03C2', 2, 200)",	//Αριστοφάνης
-			L"INSERT INTO Artists (Name, GenreID, Rating) VALUES ('O''Brien', 2, 0)",
-			L"INSERT INTO Albums (Name, artID, [Year], Rating) VALUES ('Best of', 3, 1999, 150)",
-			L"INSERT INTO Collections (Name, PathName, Serial, Type, DateAdded, DateUpdated) VALUES ('Music', 'D:\\Music', -123456, 1, #2008-03-04 05:06:07#, NULL)",
-			L"INSERT INTO Tracks (Name, Type, DateAdded, albID, artID, CollectionID, genreID, Path, Bitrate, Duration, [Size], TrackNo, [Year], Rating) "
-				L"VALUES ('Song', 1, #2009-12-31 23:59:58#, 1, 3, 1, 2, 'D:\\Music\\Song.mp3', 320, 245, 9000, 7, 1999, 255)",
-			L"INSERT INTO Tracks (Name, Type, DateAdded, albID, artID, CollectionID, genreID, Path, Bitrate, Duration, [Size], TrackNo, [Year], Rating) "
-				L"VALUES ('Nulls', 1, #2010-01-01#, 1, 4, 1, 2, 'D:\\Music\\Nulls.mp3', NULL, NULL, NULL, NULL, 0, 0)",
-			L"INSERT INTO HistArtists (Name) VALUES ('[Unknown]')",
-			L"INSERT INTO HistArtists (Name) VALUES ('Hist Artist')",
-			L"INSERT INTO HistTracks (Name, artID) VALUES ('Hist Song', 2)",
-			L"INSERT INTO HistLog (actID, DateAdded, trackID) VALUES (1, #2010-02-03 04:05:06#, 1)",
-			L"INSERT INTO HistLog (actID, DateAdded, trackID) VALUES (1, #2010-02-04 04:05:06#, 1)",
-			L"INSERT INTO AlbumsInfo (albID, Name, DateAdded, Type) VALUES (1, 'A review', #2010-01-01#, 2)",
-			L"INSERT INTO LocalPic (parID, infoType, Path, Type) VALUES (3, 7, 'c:\\pic.jpg', 1)",
-			L"INSERT INTO InfoRequests (requestTimeStamp, hash) VALUES (1262304000, -2)",
-			L"INSERT INTO InfoRequests (requestTimeStamp, hash) VALUES (1262304000, 12345)",
-		};
-		for (size_t i = 0; i < sizeof(rows) / sizeof(rows[0]); i++)
-			con->Execute(_bstr_t(rows[i]), NULL, ADODB::adCmdText | ADODB::adExecuteNoRecords);
-		//A long memo field (lyrics), inserted with a parameter.
-		memo.clear();
-		for (INT i = 0; i < 2000; i++)
-			memo += L"La la \x03BB\x03B1 ";
-		ADODB::_CommandPtr cmd;
-		cmd.CreateInstance(__uuidof(ADODB::Command));
-		cmd->ActiveConnection = con;
-		cmd->CommandText = _bstr_t(L"INSERT INTO TracksInfo (trackID, Name, DateAdded, Type) VALUES (1, ?, #2010-01-01#, 4)");
-		cmd->Parameters->Append(cmd->CreateParameter(_bstr_t(L"p"), ADODB::adLongVarWChar, ADODB::adParamInput,
-			(long)memo.size(), _variant_t(memo.c_str())));
-		cmd->Execute(NULL, NULL, ADODB::adCmdText | ADODB::adExecuteNoRecords);
-		//Delete a row so the IDs have a gap (IDs must be preserved, not renumbered).
-		con->Execute(_bstr_t(L"INSERT INTO Genres (Name) VALUES ('Deleted')"), NULL, ADODB::adCmdText);
-		con->Execute(_bstr_t(L"INSERT INTO Genres (Name) VALUES ('Jazz')"), NULL, ADODB::adCmdText);
-		con->Execute(_bstr_t(L"DELETE FROM Genres WHERE Name='Deleted'"), NULL, ADODB::adCmdText);
-		con->Close();
-	}
-	catch (_com_error& e)
-	{
-		wprintf(L"  Jet setup failed: %s\n", (LPCWSTR)e.Description());
-		return FALSE;
-	}
-	return TRUE;
-}
-
-static std::string ReadFileBytes(const std::wstring& path)
-{
-	std::string data;
-	FILE* f = NULL;
-	if (_wfopen_s(&f, path.c_str(), L"rb") == 0 && f != NULL)
-	{
-		char bf[65536];
-		size_t n;
-		while ((n = fread(bf, 1, sizeof(bf), f)) > 0)
-			data.append(bf, n);
-		fclose(f);
-	}
-	return data;
-}
-
-static void TestLegacyImport()
-{
-	wprintf(L"TestLegacyImport\n");
-	std::wstring mdb = TempPath(L"music.mdb");
-	std::wstring db = TempPath(L"music.db");
+	wprintf(L"TestLegacyFileIgnored\n");
+	std::wstring mdb = TempPath(L"legacy.mdb");
+	std::wstring db = TempPath(L"legacy.db");
 	RemoveDb(db);
-	std::wstring memo;
-	if (!CreateLegacyDatabase(mdb, 6, memo))
 	{
-		CHECK(!"could not create the Jet test database (Jet 4.0 provider missing?)");
-		return;
+		FILE* f = NULL;
+		CHECK(_wfopen_s(&f, mdb.c_str(), L"wb") == 0 && f != NULL);
+		if (f != NULL)
+		{
+			fputs("not a Jet database", f);
+			fclose(f);
+		}
 	}
-	std::string before = ReadFileBytes(mdb);
-	{
-		SQLManager sm;
-		CHECK(sm.Init(db.c_str()));		//imports music.mdb found next to music.db
-
-		ArtistRecord a;
-		CHECK(sm.GetArtistRecord(3, a) && a.name == L"\x0391\x03C1\x03B9\x03C3\x03C4\x03BF\x03C6\x03AC\x03BD\x03B7\x03C2" && a.rating == 200);
-		CHECK(sm.GetArtistID(L"o'brien") == 4);
-		GenreRecord jazz;
-		CHECK(sm.GetGenreRecordUnique(L"Jazz", jazz) && jazz.ID == 4);		//gap preserved
-		GenreRecord newGenre;
-		newGenre.name = L"New";
-		CHECK(sm.AddNewGenreRecord(newGenre) && newGenre.ID == 5);		//continues after the imported IDs
-
-		CollectionRecord col;
-		CHECK(sm.GetCollectionRecord(1, col) && col.location == L"D:\\Music" && col.serial == (UINT)-123456);
-		CHECK(col.dateAdded.wYear == 2008 && col.dateAdded.wMonth == 3 && col.dateAdded.wDay == 4 &&
-			col.dateAdded.wHour == 5 && col.dateAdded.wMinute == 6 && col.dateAdded.wSecond == 7);
-		CHECK(col.dateUpdated.wYear == 0);	//NULL
-
-		FullTrackRecordSP t;
-		CHECK(sm.GetFullTrackRecordByLocation(t, L"d:\\music\\song.mp3"));
-		CHECK(t.get() != NULL && t->track.ID == 1 && t->track.bitrate == 320 && t->track.duration == 245 &&
-			t->track.size == 9000 && t->track.trackNo == 7 && t->track.year == 1999 && t->track.rating == 255);
-		CHECK(t.get() != NULL && t->track.dateAdded.wYear == 2009 && t->track.dateAdded.wSecond == 58);
-		CHECK(t.get() != NULL && t->album.name == L"Best of" && t->genre.name == L"Rock" && t->collection.name == L"Music");
-		TrackRecord nulls;
-		CHECK(sm.GetTrackRecord(2, nulls) && nulls.bitrate == 0 && nulls.duration == 0);
-
-		InfoRecord lyrics;
-		CHECK(sm.GetTrackInfoRecord(1, IIT_TrackLyrics, lyrics) && lyrics.name == memo);
-		InfoRecord review;
-		CHECK(sm.GetAlbumInfoRecord(1, IIT_AlbumReview, review) && review.name == L"A review");
-
-		PicRecord pic((InfoItemTypeEnum)7, 3);
-		CHECK(sm.GetPicRecord(pic) && pic.path == L"c:\\pic.jpg");
-
-		std::set<UINT> requests;
-		CHECK(sm.GetInfoRequests(requests) && requests.size() == 2 && requests.count(0xFFFFFFFEu) == 1);
-
-		SQLManager::HistoryTrackStats hs;
-		CHECK(sm.GetHistoryTrackStats(L"Hist Artist", L"Hist Song", NULL, NULL, hs) && hs.hits == 2);
-		CHECK(hs.firstTime.wDay == 3 && hs.lastTime.wDay == 4);
-	}
-	CHECK(ReadFileBytes(mdb) == before);	//the .mdb is not modified
-
-	//Opening again does not import again
 	{
 		SQLManager sm;
 		CHECK(sm.Init(db.c_str()));
 		GenreRecord g;
-		CHECK(sm.GetGenreRecord(5, g) && g.name == L"New");
+		CHECK(sm.GetGenreRecord(1, g) && g.name == L"[Unknown]");
+		TracksFilter tf;
+		FullTrackRecordCollection col;
+		CHECK(sm.GetFullTrackRecordCollectionByTracksFilter(col, tf) && col.empty());
 	}
-
-	//Unsupported version: the importer refuses (tested directly, SQLManager would show a message box)
-	std::wstring mdb5 = TempPath(L"v5.mdb");
-	if (CreateLegacyDatabase(mdb5, 5, memo))
-	{
-		std::wstring db5 = TempPath(L"v5.db");
-		RemoveDb(db5);
-		SQLiteDB raw;
-		CHECK(raw.Open(db5.c_str()));
-		std::wstring error;
-		CHECK(!JetImporter::Import(mdb5.c_str(), raw, error));
-		CHECK(error.find(L"version 5") != std::wstring::npos);
-	}
+	CHECK(GetFileAttributesW(mdb.c_str()) != INVALID_FILE_ATTRIBUTES);
+	DeleteFileW(mdb.c_str());
 }
 
 //------------------------------------------------------------------
@@ -783,19 +615,5 @@ void RunDatabaseTests()
 	TestHistory();
 	TestConcurrentConnections();
 	TestReopen();
-#ifdef _WIN64
-	//No 64-bit Jet provider: the import refuses with a message pointing to the 32-bit build.
-	{
-		wprintf(L"TestLegacyImport (x64)\n");
-		std::wstring db = TempPath(L"music.db");
-		RemoveDb(db);
-		SQLiteDB raw;
-		CHECK(raw.Open(db.c_str()));
-		std::wstring error;
-		CHECK(!JetImporter::Import(TempPath(L"music.mdb").c_str(), raw, error));
-		CHECK(error.find(L"32-bit") != std::wstring::npos);
-	}
-#else
-	TestLegacyImport();
-#endif
+	TestLegacyFileIgnored();
 }

@@ -24,7 +24,6 @@
 #define _NativeVisualization_h_
 
 #include "MediaVisualization.h"
-#include <map>
 
 #define SOUND_BUFFER_LENGTH 4 * 4096 / 2
 
@@ -61,7 +60,6 @@ private:
 	INT m_specpos;
 
 private:
-	static std::map<HWND, NativeVisualization*> m_ObjectMapping;
 	static LRESULT CALLBACK WinProcST(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK WinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void UpdateSpectrum();

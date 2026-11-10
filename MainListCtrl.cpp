@@ -1069,8 +1069,8 @@ void CMainListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 			
 			m_MainMenu.EnableMenuItem(ACMD_LocateAlbum, (itemCount==1) ? MF_ENABLED : MF_GRAYED);
 		
-			m_MainMenu.EnableMenuItem((UINT_PTR)m_RenamerMenu.m_hMenu, MF_ENABLED);
-			m_MainMenu.EnableMenuItem((UINT_PTR)m_CopyMenu.m_hMenu, MF_ENABLED);
+			m_MainMenu.EnableMenuItem((UINT)(UINT_PTR)m_RenamerMenu.m_hMenu, MF_ENABLED);	//submenu by handle (USER handles fit in 32 bits)
+			m_MainMenu.EnableMenuItem((UINT)(UINT_PTR)m_CopyMenu.m_hMenu, MF_ENABLED);
 
 			m_MainMenu.EnableMenuItem(ACMD_Delete, bDeleteAccess ? MF_ENABLED : MF_GRAYED);
 			pAPI->GetMenuManager()->PrepareMenu(MenuManager::MNU_TrackServices);

@@ -419,9 +419,9 @@ void CPlayListListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 	INT nSelCount = GetSelectedItemCount();
 	playListMenu.EnableMenuItem(MI_RemoveSelected, nSelCount > 0);
 	playListMenu.EnableMenuItem(MI_RemoveOthers, nSelCount > 0);
-	playListMenu.EnableMenuItem((UINT_PTR)pMM->GetMenu(MenuManager::MNU_Rating).GetInternalHandler(), nSelCount > 0);
+	playListMenu.EnableMenuItem((UINT)(UINT_PTR)pMM->GetMenu(MenuManager::MNU_Rating).GetInternalHandler(), nSelCount > 0);	//submenu by handle (USER handles fit in 32 bits)
 	playListMenu.EnableMenuItem(MI_LocateAlbum, nSelCount == 1);
-	playListMenu.EnableMenuItem((UINT_PTR)GetInternalMenu(M_SearchItem).GetInternalHandler(), nSelCount == 1);
+	playListMenu.EnableMenuItem((UINT)(UINT_PTR)GetInternalMenu(M_SearchItem).GetInternalHandler(), nSelCount == 1);
 
 	playListMenu.TrackPopupMenu(point.x, point.y, pWnd->GetSafeHwnd());
 

@@ -21,8 +21,7 @@ source so it builds and runs on current Windows with current tools.
 Modernized so far:
 
 - Builds with Visual Studio 2026 and vcpkg (32-bit and 64-bit).
-- Library database moved from Microsoft Jet (`music.mdb`) to SQLite (`music.db`);
-  an existing `music.mdb` is imported automatically on the first start.
+- Library database moved from Microsoft Jet (`music.mdb`) to SQLite (`music.db`).
 - Background threads reworked (no forced thread termination, no polling).
 - Current BASS 2.4 runtime; long-dead online services removed.
 

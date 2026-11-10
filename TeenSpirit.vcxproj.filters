@@ -154,7 +154,6 @@
     <ClCompile Include="Database\DataRecordsXmlSerializer.cpp"><Filter>DataBase</Filter></ClCompile>
     <ClCompile Include="Database\RecordCollectionSorter.cpp"><Filter>DataBase</Filter></ClCompile>
     <ClCompile Include="CommonSources\SQLite\SQLiteDB.cpp"><Filter>DataBase</Filter></ClCompile>
-    <ClCompile Include="Database\JetImporter.cpp"><Filter>DataBase</Filter></ClCompile>
     <ClCompile Include="Database\SQLManager.cpp"><Filter>DataBase</Filter></ClCompile>
     <ClCompile Include="DetailedSearchCHdlg.cpp"><Filter>GUIFiles\SearchDlg</Filter></ClCompile>
     <ClCompile Include="DriveDlg.cpp"><Filter>GUIFiles\Other Dialogs</Filter></ClCompile>
@@ -208,7 +207,6 @@
     <ClCompile Include="MediaPlayers\NativeVisualization.cpp"><Filter>MediaPlayers\Engines\Visualizations</Filter></ClCompile>
     <ClCompile Include="MediaPlayers\ShufflePlaylistHelper.cpp"><Filter>MediaPlayers\PlayLists</Filter></ClCompile>
     <ClCompile Include="MediaPlayers\VectorPlayList.cpp"><Filter>MediaPlayers\PlayLists</Filter></ClCompile>
-    <ClCompile Include="MediaPlayers\WinampVisualization.cpp"><Filter>MediaPlayers\Engines\Visualizations</Filter></ClCompile>
     <ClCompile Include="MenuManager.cpp"><Filter>Managers</Filter></ClCompile>
     <ClCompile Include="MessageDlg.cpp"><Filter>GUIFiles\Other Dialogs</Filter></ClCompile>
     <ClCompile Include="MillionaireButton.cpp"><Filter>Common</Filter></ClCompile>
@@ -408,7 +406,6 @@
     <ClInclude Include="Database\DataRecordsXmlSerializer.h"><Filter>DataBase</Filter></ClInclude>
     <ClInclude Include="Database\RecordCollectionSorter.h"><Filter>DataBase</Filter></ClInclude>
     <ClInclude Include="CommonSources\SQLite\SQLiteDB.h"><Filter>DataBase</Filter></ClInclude>
-    <ClInclude Include="Database\JetImporter.h"><Filter>DataBase</Filter></ClInclude>
     <ClInclude Include="Database\SQLManager.h"><Filter>DataBase</Filter></ClInclude>
     <ClInclude Include="DetailedSearchCHdlg.h"><Filter>GUIFiles\SearchDlg</Filter></ClInclude>
     <ClInclude Include="DockedWindow.h"><Filter>Common</Filter></ClInclude>
@@ -476,7 +473,6 @@
     <ClInclude Include="MediaPlayers\RandomPlayerEngine.h"><Filter>MediaPlayers\Engines</Filter></ClInclude>
     <ClInclude Include="MediaPlayers\ShufflePlaylistHelper.h"><Filter>MediaPlayers\PlayLists</Filter></ClInclude>
     <ClInclude Include="MediaPlayers\VectorPlaylist.h"><Filter>MediaPlayers\PlayLists</Filter></ClInclude>
-    <ClInclude Include="MediaPlayers\WinampVisualization.h"><Filter>MediaPlayers\Engines\Visualizations</Filter></ClInclude>
     <ClInclude Include="MenuManager.h"><Filter>Managers</Filter></ClInclude>
     <ClInclude Include="MessageDlg.h"><Filter>GUIFiles\Other Dialogs</Filter></ClInclude>
     <ClInclude Include="MessageViewer.h"><Filter>Common</Filter></ClInclude>

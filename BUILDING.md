@@ -64,6 +64,22 @@ The live online-API tests run weekly (Monday 06:00 UTC) and on a manual run with
 **live** option ("Run workflow" in the Actions tab). The Last.fm part uses the
 `JAANGLE_LASTFM_API_KEY` repository secret and is skipped when it isn't set.
 
+### Releases
+
+`.github/workflows/release.yml` publishes a GitHub release when a `v*` tag is pushed.
+The tag must match `VersionNo.h` (major.minor.build), since the MSI upgrades by the exe's
+file version. Bump `VersionNo.h`, commit, then:
+
+```
+git tag v0.98.973
+git push origin v0.98.973
+```
+
+It builds Release for Win32 and x64 with BASS, runs the unit tests and attaches to the
+release: `Jaangle-<version>-x64.msi`, a portable zip per platform (exe, BASS DLLs,
+`Skins\`, `Langs\`, `WebServices\` and `portable.txt`) and a zip with `jaangle.pdb` per
+platform. Release notes are generated from the commits since the previous tag.
+
 ## Database
 
 The library is stored in `music.db` (SQLite, WAL mode); see below for where.

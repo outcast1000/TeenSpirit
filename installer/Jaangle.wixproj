@@ -7,13 +7,14 @@
     <Platform Condition="'$(Platform)' == ''">x64</Platform>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
     <OutputName>Jaangle-x64</OutputName>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <OutDir>$(JaangleRoot)build\out\installer\</OutDir>
     <JaangleAppDir>$(JaangleRoot)build\out\x64\Release\</JaangleAppDir>
     <DefineConstants>AppDir=$(JaangleAppDir);RootDir=$(JaangleRoot)</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <!-- The setup bundle is its own project (Setup\JaangleSetup.wixproj). -->
-    <Compile Remove="Setup\**" />
+    <!-- Not the default **\*.wxs: Setup\ holds the bundle, a project of its own. -->
+    <Compile Include="Package.wxs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />

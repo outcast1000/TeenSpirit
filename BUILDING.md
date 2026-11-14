@@ -68,12 +68,18 @@ The live online-API tests run weekly (Monday 06:00 UTC) and on a manual run with
 
 `.github/workflows/release.yml` publishes a GitHub release when a `v*` tag is pushed.
 The tag must match `VersionNo.h` (major.minor.build), since the MSI upgrades by the exe's
-file version. Bump `VersionNo.h`, commit, then:
+file version. `tools/release.sh` does it all: bumps `VersionNo.h` (the defines and
+`STRFILEVER`), commits "Version X.Y.Z", tags `vX.Y.Z`, pushes main and the tag atomically
+and, if `gh` is installed, follows the workflow run:
 
 ```
-git tag v0.98.973
-git push origin v0.98.973
+tools/release.sh            # 0.98.973 -> 0.98.974
+tools/release.sh minor      # -> 0.99.0   (major -> 1.0.0, or an explicit X.Y.Z)
+tools/release.sh -n         # dry run; -y skips the confirmation
 ```
+
+It refuses unless you are on `main`, the tree is clean, and `main` matches `origin/main`.
+Runs on macOS/Linux and in Git Bash on Windows (needs git and perl).
 
 It builds Release for Win32 and x64 with BASS, runs the unit tests and attaches to the
 release: `Jaangle-<version>-x64.msi`, a portable zip per platform (exe, BASS DLLs,

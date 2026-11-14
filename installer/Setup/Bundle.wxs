@@ -1,0 +1,30 @@
+<!-- Jaangle setup program: a Burn bundle that installs the x64 MSI with the WiX standard
+     bootstrapper UI (license, install folder under Options, Launch at the end). The MSI is
+     hidden from Programs and Features; the bundle appears there instead and uninstalls it.
+     Upgrades: the bundle replaces older bundles (UpgradeCode below), the MSI's MajorUpgrade
+     replaces older MSIs, including ones installed directly. -->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal">
+  <Bundle Name="Jaangle"
+          Manufacturer="Alex Economou"
+          Version="!(bind.packageVersion.JaangleMsi)"
+          UpgradeCode="A2FDB216-C9B8-4D46-A3F4-D1318E23B0F5"
+          IconSourceFile="$(RootDir)res\AppIcon.ico"
+          AboutUrl="https://github.com/outcast1000/TeenSpirit">
+    <BootstrapperApplication>
+      <bal:WixStandardBootstrapperApplication Theme="rtfLicense"
+                                              LicenseFile="$(RootDir)installer\License.rtf"
+                                              ShowVersion="yes"
+                                              LaunchTarget="[InstallFolder]jaangle.exe" />
+    </BootstrapperApplication>
+
+    <!-- Shown and edited on the Options page of the standard UI. -->
+    <Variable Name="InstallFolder" Type="formatted" Value="[ProgramFiles64Folder]Jaangle\" />
+
+    <Chain>
+      <MsiPackage Id="JaangleMsi" SourceFile="$(MsiPath)">
+        <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
+      </MsiPackage>
+    </Chain>
+  </Bundle>
+</Wix>

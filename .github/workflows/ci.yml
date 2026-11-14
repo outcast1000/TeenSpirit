@@ -82,14 +82,17 @@ jobs:
             build\out\${{ matrix.platform }}\Release\*.pdb
           retention-days: 14
 
+      # The setup bundle builds the MSI first (project reference).
       - name: Build installer
         if: matrix.configuration == 'Release' && matrix.platform == 'x64'
-        run: msbuild installer\Jaangle.wixproj -restore -p:Configuration=Release -p:Platform=x64 -nologo -v:minimal
+        run: msbuild installer\Setup\JaangleSetup.wixproj -restore -p:Configuration=Release -p:Platform=x64 -nologo -v:minimal
 
       - name: Upload installer
         if: matrix.configuration == 'Release' && matrix.platform == 'x64'
         uses: actions/upload-artifact@v7
         with:
           name: jaangle-x64-installer
-          path: build\out\installer\*.msi
+          path: |
+            build\out\installer\*.msi
+            build\out\installer\*.exe
           retention-days: 14

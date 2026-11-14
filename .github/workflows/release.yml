@@ -1,10 +1,13 @@
 name: Release
 
-# Push a tag matching VersionNo.h to publish a release, e.g. for 0.98.973:
-#   git tag v0.98.973 && git push origin v0.98.973
+# tools/release.sh bumps VersionNo.h and pushes the matching tag (v<major>.<minor>.<build>),
+# which builds and publishes the release: the setup program (x64) and portable zips (x64, Win32).
+# "Run workflow" in the Actions tab builds the same files as workflow artifacts without
+# publishing anything (a test of the packaging).
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -30,7 +33,7 @@ jobs:
       - uses: actions/checkout@v7
 
       # The MSI upgrades by the exe's file version, so the tag must name the version being built.
-      - name: Check the tag against VersionNo.h
+      - name: Read the version (and check the tag)
         id: version
         shell: pwsh
         run: |
@@ -41,7 +44,9 @@ jobs:
           }
           $version = $v -join '.'
           $tag = '${{ github.ref_name }}'
-          if ($tag -ne "v$version") { throw "Tag $tag does not match VersionNo.h (v$version)" }
+          if ('${{ github.ref_type }}' -eq 'tag' -and $tag -ne "v$version") {
+            throw "Tag $tag does not match VersionNo.h (v$version)"
+          }
           "version=$version" >> $env:GITHUB_OUTPUT
 
       - uses: microsoft/setup-msbuild@v3
@@ -77,30 +82,38 @@ jobs:
           $name = "Jaangle-${{ steps.version.outputs.version }}-$env:ARCH"
           $stage = "build\release\$name"
           New-Item -ItemType Directory -Force $stage | Out-Null
-          Copy-Item "$env:OUT\jaangle.exe", "$env:OUT\*.dll", "$env:OUT\portable.txt" $stage
+          Copy-Item "$env:OUT\jaangle.exe", "$env:OUT\bass*.dll", "$env:OUT\portable.txt" $stage
           Copy-Item "$env:OUT\Skins", "$env:OUT\Langs", "$env:OUT\WebServices" $stage -Recurse
           Compress-Archive "$stage\*" "build\release\$name-portable.zip"
-          Compress-Archive "$env:OUT\jaangle.pdb" "build\release\$name-pdb.zip"
 
-      - name: Build installer
+      # Burn bundle around the MSI (installer\Setup\JaangleSetup.wixproj builds both).
+      - name: Build the setup program
         if: matrix.platform == 'x64'
         shell: pwsh
         run: |
-          msbuild installer\Jaangle.wixproj -restore -p:Configuration=Release -p:Platform=x64 -nologo -v:minimal
+          msbuild installer\Setup\JaangleSetup.wixproj -restore -p:Configuration=Release -p:Platform=x64 -nologo -v:minimal
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          Copy-Item build\out\installer\Jaangle-x64.msi "build\release\Jaangle-${{ steps.version.outputs.version }}-x64.msi"
+          Copy-Item build\out\installer\JaangleSetup.exe "build\release\Jaangle-${{ steps.version.outputs.version }}-setup.exe"
 
       - uses: actions/upload-artifact@v7
         with:
           name: release-${{ env.ARCH }}
           path: |
             build\release\*.zip
-            build\release\*.msi
+            build\release\*.exe
           retention-days: 7
+
+      # Symbols for crash dumps of this build; kept with the workflow run, not on the release.
+      - uses: actions/upload-artifact@v7
+        with:
+          name: symbols-${{ env.ARCH }}
+          path: ${{ env.OUT }}\jaangle.pdb
+          retention-days: 90
 
   release:
     name: Publish the release
     needs: build
+    if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
     permissions:
       contents: write

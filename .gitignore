@@ -22,6 +22,7 @@ ipch/
 /vcpkg_installed/
 /build/deps/
 /installer/obj/
+/installer/Setup/obj/
 [Dd]ebug/
 [Rr]elease/
 [Ff]inal [Rr]elease/

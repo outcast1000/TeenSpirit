@@ -1,0 +1,20 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+  <!-- Setup program (Burn bundle) wrapping the x64 MSI (..\Jaangle.wixproj, built first through
+       the project reference). Build the solution (Release|x64) and fetch the BASS DLLs first, then:
+         msbuild installer\Setup\JaangleSetup.wixproj -restore -p:Configuration=Release -p:Platform=x64
+       Output: build\out\installer\JaangleSetup.exe (and Jaangle-x64.msi) -->
+  <PropertyGroup>
+    <OutputType>Bundle</OutputType>
+    <Platform Condition="'$(Platform)' == ''">x64</Platform>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    <OutputName>JaangleSetup</OutputName>
+    <OutDir>$(JaangleRoot)build\out\installer\</OutDir>
+    <DefineConstants>MsiPath=$(OutDir)Jaangle-x64.msi;RootDir=$(JaangleRoot)</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Bal.wixext" Version="5.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Jaangle.wixproj" />
+  </ItemGroup>
+</Project>

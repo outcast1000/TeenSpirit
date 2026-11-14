@@ -31,8 +31,10 @@ MSBuild lives in the VS 2026 Build Tools on F: (not on PATH by default):
   `music.db` next to the exe. Without the marker (installed) they are in `%APPDATA%\Jaangle`
   (`CommonSources\AppDataPaths.h`) — that is the user's real data, never test against it
   without a backup.
-- Installer: `msbuild installer\Jaangle.wixproj -restore -p:Configuration=Release -p:Platform=x64`
-  (WiX 5, x64 MSI of the Release build → `build\out\installer\`).
+- Installer: `msbuild installer\Setup\JaangleSetup.wixproj -restore -p:Configuration=Release -p:Platform=x64`
+  (WiX 5: x64 MSI of the Release build plus the `JaangleSetup.exe` bundle around it →
+  `build\out\installer\`). Releases: `tools/release.sh` bumps `VersionNo.h`, tags and pushes;
+  `.github/workflows/release.yml` publishes the setup exe and portable zips.
 - The app's close button minimizes to tray; quit via tray Exit.
 
 ### Tests

@@ -58,7 +58,7 @@ build\out\x64\Release\UnitTests.exe
 `UnitTests.exe` on every push to `main` and on pull requests. vcpkg binaries are cached
 between runs (per triplet). The Release executables and PDBs of both platforms are
 uploaded as build artifacts (without the BASS DLLs), and the Release x64 job also fetches
-BASS and builds the MSI.
+BASS and builds the installer (the MSI and the setup program).
 
 The live online-API tests run weekly (Monday 06:00 UTC) and on a manual run with the
 **live** option ("Run workflow" in the Actions tab). The Last.fm part uses the
@@ -82,9 +82,16 @@ It refuses unless you are on `main`, the tree is clean, and `main` matches `orig
 Runs on macOS/Linux and in Git Bash on Windows (needs git and perl).
 
 It builds Release for Win32 and x64 with BASS, runs the unit tests and attaches to the
-release: `Jaangle-<version>-x64.msi`, a portable zip per platform (exe, BASS DLLs,
-`Skins\`, `Langs\`, `WebServices\` and `portable.txt`) and a zip with `jaangle.pdb` per
-platform. Release notes are generated from the commits since the previous tag.
+release:
+
+- `Jaangle-<version>-setup.exe`: the setup program (x64, see [Installer](#installer));
+- `Jaangle-<version>-x64-portable.zip` and `-win32-portable.zip`: exe, BASS DLLs, `Skins\`,
+  `Langs\`, `WebServices\` and `portable.txt` (settings and library next to the exe).
+
+Release notes are generated from the commits since the previous tag. The `jaangle.pdb` of
+each platform stays with the workflow run (`symbols-*` artifacts, 90 days). **Run workflow**
+on the Release workflow (Actions tab) builds the same files as artifacts without publishing,
+to try the packaging.
 
 ## Database
 
@@ -141,14 +148,20 @@ DLLs and the repository's `Skins\`, `Langs\` and `WebServices\`. Uninstalling le
 `%APPDATA%\Jaangle` in place. The crash reporter (`XCrashReport.exe`) is not included:
 the program does not start it under that name and its upload service is gone.
 
+`installer\Setup\JaangleSetup.wixproj` builds the setup program that releases ship,
+`JaangleSetup.exe`: a Burn bundle containing the MSI, with the WiX standard UI (license,
+install folder under **Options**, **Launch** at the end). Programs and Features lists the
+bundle, not the MSI; a newer setup replaces an older one, and the MSI's major upgrade also
+replaces a directly installed MSI. Building it builds the MSI first:
+
 ```
 msbuild Jaangle.sln -p:Configuration=Release -p:Platform=x64 -m
-msbuild installer\Jaangle.wixproj -restore -p:Configuration=Release -p:Platform=x64
+msbuild installer\Setup\JaangleSetup.wixproj -restore -p:Configuration=Release -p:Platform=x64
 ```
 
-Output: `build\out\installer\Jaangle-x64.msi` (unsigned, so SmartScreen warns on first
-run). CI builds it in the Release x64 job and uploads it as the `jaangle-x64-installer`
-artifact.
+Output: `build\out\installer\JaangleSetup.exe` and `Jaangle-x64.msi` (unsigned, so
+SmartScreen warns on first run). CI builds both in the Release x64 job and uploads them as
+the `jaangle-x64-installer` artifact.
 
 ## Windows integration
 

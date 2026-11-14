@@ -12,6 +12,10 @@
     <DefineConstants>AppDir=$(JaangleAppDir);RootDir=$(JaangleRoot)</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <!-- The setup bundle is its own project (Setup\JaangleSetup.wixproj). -->
+    <Compile Remove="Setup\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
   </ItemGroup>
   <Target Name="JaangleCheckInputs" BeforeTargets="Build">

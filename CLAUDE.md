@@ -34,7 +34,8 @@ MSBuild lives in the VS 2026 Build Tools on F: (not on PATH by default):
 - Installer: `msbuild installer\Setup\JaangleSetup.wixproj -restore -p:Configuration=Release -p:Platform=x64`
   (WiX 5: x64 MSI of the Release build plus the `JaangleSetup.exe` bundle around it →
   `build\out\installer\`). Releases: `tools/release.sh` bumps `VersionNo.h`, tags and pushes;
-  `.github/workflows/release.yml` publishes the setup exe and portable zips.
+  `.github/workflows/release.yml` (the only workflow: all four builds + tests, then publishes
+  the setup exe and portable zips; also manual and weekly, but pushes to `main` are not built).
 - The app's close button minimizes to tray; quit via tray Exit.
 
 ### Tests

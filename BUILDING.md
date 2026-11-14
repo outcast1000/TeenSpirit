@@ -53,20 +53,24 @@ build\out\x64\Release\UnitTests.exe
 
 ## Continuous integration
 
-`.github/workflows/ci.yml` builds Debug and Release for Win32 and x64 on the
-`windows-2025-vs2026` GitHub runner (the only image with the v145 toolset) and runs
-`UnitTests.exe` on every push to `main` and on pull requests. vcpkg binaries are cached
-between runs (per triplet). The Release executables and PDBs of both platforms are
-uploaded as build artifacts (without the BASS DLLs), and the Release x64 job also fetches
-BASS and builds the installer (the MSI and the setup program).
+There is one workflow, `.github/workflows/release.yml`. It builds Debug and Release for
+Win32 and x64 on the `windows-2025-vs2026` GitHub runner (the only image with the v145
+toolset), runs `UnitTests.exe`, and packages the Release builds (BASS fetched for those):
+the setup program (x64) and a portable zip per platform. vcpkg binaries are cached between
+runs (per triplet). It runs:
 
-The live online-API tests run weekly (Monday 06:00 UTC) and on a manual run with the
-**live** option ("Run workflow" in the Actions tab). The Last.fm part uses the
-`JAANGLE_LASTFM_API_KEY` repository secret and is skipped when it isn't set.
+- on a release tag (see below), which also publishes the GitHub release;
+- on **Run workflow** (Actions tab): the packages become workflow artifacts, nothing is
+  published; the **live** option adds the online-API tests;
+- weekly (Monday 06:00 UTC) with the live online-API tests, so API breakage shows up.
+
+Ordinary pushes to `main` are not built: build and run `UnitTests.exe` locally before
+pushing. The Last.fm part of the live tests uses the `JAANGLE_LASTFM_API_KEY` repository
+secret and is skipped when it isn't set.
 
 ### Releases
 
-`.github/workflows/release.yml` publishes a GitHub release when a `v*` tag is pushed.
+A pushed `v*` tag publishes a GitHub release.
 The tag must match `VersionNo.h` (major.minor.build), since the MSI upgrades by the exe's
 file version. `tools/release.sh` does it all: bumps `VersionNo.h` (the defines and
 `STRFILEVER`), commits "Version X.Y.Z", tags `vX.Y.Z`, pushes main and the tag atomically
@@ -160,8 +164,7 @@ msbuild installer\Setup\JaangleSetup.wixproj -restore -p:Configuration=Release -
 ```
 
 Output: `build\out\installer\JaangleSetup.exe` and `Jaangle-x64.msi` (unsigned, so
-SmartScreen warns on first run). CI builds both in the Release x64 job and uploads them as
-the `jaangle-x64-installer` artifact.
+SmartScreen warns on first run). The workflow builds both in its Release x64 job.
 
 ## Windows integration
 

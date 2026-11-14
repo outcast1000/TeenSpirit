@@ -1,13 +1,25 @@
-name: Release
+name: Build and release
 
-# tools/release.sh bumps VersionNo.h and pushes the matching tag (v<major>.<minor>.<build>),
-# which builds and publishes the release: the setup program (x64) and portable zips (x64, Win32).
-# "Run workflow" in the Actions tab builds the same files as workflow artifacts without
-# publishing anything (a test of the packaging).
+# The only workflow: builds Debug and Release for Win32 and x64, runs the unit tests and
+# packages the setup program (x64) and portable zips (x64, Win32).
+# - Release tag (v<major>.<minor>.<build>, pushed by tools/release.sh): also publishes the
+#   GitHub release with those files.
+# - "Run workflow" in the Actions tab: the same build as workflow artifacts, nothing published;
+#   the "live" option also runs the online-API tests.
+# - Weekly: with the live online-API tests, so breakage in the APIs (Cover Art Archive,
+#   LRCLIB, Deezer, Last.fm) shows up.
+# Ordinary pushes to main don't build.
 on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      live:
+        description: Also run the live online-API tests
+        type: boolean
+        default: false
+  schedule:
+    - cron: '0 6 * * 1'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -18,17 +30,20 @@ permissions:
 
 jobs:
   build:
-    name: Build (${{ matrix.platform }})
+    name: Build and test (${{ matrix.configuration }}, ${{ matrix.platform }})
     # The projects use the VS 2026 toolset (v145), which only this image has.
     runs-on: windows-2025-vs2026
     strategy:
+      fail-fast: false
       matrix:
+        configuration: [Debug, Release]
         platform: [Win32, x64]
     env:
       VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\build\vcpkg-cache
       TRIPLET: ${{ matrix.platform == 'x64' && 'x64-windows-static' || 'x86-windows-static' }}
       ARCH: ${{ matrix.platform == 'x64' && 'x64' || 'win32' }}
-      OUT: build\out\${{ matrix.platform }}\Release
+      OUT: build\out\${{ matrix.platform }}\${{ matrix.configuration }}
+      PACKAGE: ${{ matrix.configuration == 'Release' }}
     steps:
       - uses: actions/checkout@v7
 
@@ -61,22 +76,30 @@ jobs:
           key: vcpkg-${{ env.TRIPLET }}-${{ hashFiles('vcpkg.json', 'build/vcpkg.props') }}
           restore-keys: vcpkg-${{ env.TRIPLET }}-
 
+      # The BASS DLLs only go into the packages: the import libraries are tracked in Bass\ (x86)
+      # and Bass\x64\, and the tests don't load the player engines. Elsewhere the build only
+      # warns that they are missing.
       - name: Fetch BASS
+        if: env.PACKAGE == 'true'
         shell: pwsh
         run: tools\fetch-bass.ps1
 
       - name: Build
-        run: msbuild Jaangle.sln -p:Configuration=Release -p:Platform=${{ matrix.platform }} -m -nologo -v:minimal
+        run: msbuild Jaangle.sln -p:Configuration=${{ matrix.configuration }} -p:Platform=${{ matrix.platform }} -m -nologo -v:minimal
 
       - name: Unit tests
         shell: pwsh
         working-directory: ${{ env.OUT }}
+        env:
+          JAANGLE_LIVE_TESTS: ${{ (github.event_name == 'schedule' || inputs.live) && '1' || '' }}
+          JAANGLE_LASTFM_API_KEY: ${{ secrets.JAANGLE_LASTFM_API_KEY }}
         run: |
           .\UnitTests.exe
           if ($LASTEXITCODE -ne 0) { Write-Error "$LASTEXITCODE test check(s) failed"; exit 1 }
 
       # Portable: settings and music.db next to the exe (portable.txt marker).
       - name: Package
+        if: env.PACKAGE == 'true'
         shell: pwsh
         run: |
           $name = "Jaangle-${{ steps.version.outputs.version }}-$env:ARCH"
@@ -88,7 +111,7 @@ jobs:
 
       # Burn bundle around the MSI (installer\Setup\JaangleSetup.wixproj builds both).
       - name: Build the setup program
-        if: matrix.platform == 'x64'
+        if: env.PACKAGE == 'true' && matrix.platform == 'x64'
         shell: pwsh
         run: |
           msbuild installer\Setup\JaangleSetup.wixproj -restore -p:Configuration=Release -p:Platform=x64 -nologo -v:minimal
@@ -96,6 +119,7 @@ jobs:
           Copy-Item build\out\installer\JaangleSetup.exe "build\release\Jaangle-${{ steps.version.outputs.version }}-setup.exe"
 
       - uses: actions/upload-artifact@v7
+        if: env.PACKAGE == 'true'
         with:
           name: release-${{ env.ARCH }}
           path: |
@@ -105,6 +129,7 @@ jobs:
 
       # Symbols for crash dumps of this build; kept with the workflow run, not on the release.
       - uses: actions/upload-artifact@v7
+        if: env.PACKAGE == 'true'
         with:
           name: symbols-${{ env.ARCH }}
           path: ${{ env.OUT }}\jaangle.pdb
